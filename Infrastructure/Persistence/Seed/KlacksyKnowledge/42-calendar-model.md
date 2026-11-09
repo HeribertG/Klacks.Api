@@ -88,6 +88,13 @@ Good Friday `EASTER-2`. Easter itself is computed, so these move correctly every
 `SA-1;SU+1` means: if it falls on a Saturday move it one day back, if on a Sunday one day forward.
 Only the first matching clause is applied.
 
+**Holidays on a weekend that do not move:** Belgium's ten statutory holidays carry no shift rule.
+When one falls on a Sunday or a usual day off, the law requires a replacement working day, but the
+joint committee or the company chooses it, so the planner adds that day as an own company holiday.
+Ireland moves nothing either: the employer grants a paid day off within a month, an extra day of
+annual leave or an extra day's pay instead. Ireland's St. Brigid's Day (first Monday in February, or
+1 February when that is a Friday) uses the shift rule `TU+6;WE+5;TH+4;SA+2;SU+1` on `02/01`.
+
 ## The bundle and its entries
 
 Each entry in a bundle is a country-and-region pair with one extra choice:

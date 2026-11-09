@@ -646,6 +646,41 @@ INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,co
 ('06a00001-0001-0001-0001-000000000006', '08/25+00+MO', '', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bank Holiday im Sommer"",""en"":""Summer Bank Holiday"",""fr"":""Jour férié d''été"",""it"":""Festivo d''estate""}'),
 ('06a00001-0001-0001-0001-000000000007', '12/25', 'SA-1;SU+1', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Weihnachten"",""en"":""Christmas Day"",""fr"":""Noël"",""it"":""Natale""}'),
 ('06a00001-0001-0001-0001-000000000008', '12/26', 'SA-1;SU+1', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Zweiter Weihnachtsfeiertag"",""en"":""Boxing Day"",""fr"":""Lendemain de Noël"",""it"":""Santo Stefano""}');
+
+-- =====================================================
+-- BE PUBLIC HOLIDAYS (10 statutory days, law of 4 January 1974, national)
+-- A holiday on a Sunday or a usual non-working day is replaced by a working day that the joint
+-- committee or the company sets - no fixed date, therefore no substitution sub rule.
+-- Community holidays (11/07, 27/09, 15/11) are not statutory for private employers.
+-- =====================================================
+INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,country,description,name) VALUES
+('b0e00001-0001-0001-0001-000000000001', '01/01', '', true, true, 'BE', 'BE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Neujahr"",""en"":""New Year''s Day"",""fr"":""Jour de l''An"",""it"":""Capodanno""}'),
+('b0e00001-0001-0001-0001-000000000002', 'EASTER+01', '', true, true, 'BE', 'BE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Ostermontag"",""en"":""Easter Monday"",""fr"":""Lundi de Pâques"",""it"":""Lunedì dell''Angelo""}'),
+('b0e00001-0001-0001-0001-000000000003', '05/01', '', true, true, 'BE', 'BE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Tag der Arbeit"",""en"":""Labour Day"",""fr"":""Fête du Travail"",""it"":""Festa del lavoro""}'),
+('b0e00001-0001-0001-0001-000000000004', 'EASTER+39', '', true, true, 'BE', 'BE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Christi Himmelfahrt"",""en"":""Ascension Day"",""fr"":""Ascension"",""it"":""Ascensione""}'),
+('b0e00001-0001-0001-0001-000000000005', 'EASTER+50', '', true, true, 'BE', 'BE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Pfingstmontag"",""en"":""Whit Monday"",""fr"":""Lundi de Pentecôte"",""it"":""Lunedì di Pentecoste""}'),
+('b0e00001-0001-0001-0001-000000000006', '07/21', '', true, true, 'BE', 'BE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Belgischer Nationalfeiertag"",""en"":""Belgian National Day"",""fr"":""Fête nationale belge"",""it"":""Festa nazionale belga""}'),
+('b0e00001-0001-0001-0001-000000000007', '08/15', '', true, true, 'BE', 'BE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Mariä Himmelfahrt"",""en"":""Assumption of Mary"",""fr"":""Assomption"",""it"":""Assunzione di Maria""}'),
+('b0e00001-0001-0001-0001-000000000008', '11/01', '', true, true, 'BE', 'BE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Allerheiligen"",""en"":""All Saints'' Day"",""fr"":""Toussaint"",""it"":""Ognissanti""}'),
+('b0e00001-0001-0001-0001-000000000009', '11/11', '', true, true, 'BE', 'BE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Waffenstillstand"",""en"":""Armistice Day"",""fr"":""Armistice"",""it"":""Armistizio""}'),
+('b0e00001-0001-0001-0001-000000000010', '12/25', '', true, true, 'BE', 'BE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Weihnachten"",""en"":""Christmas Day"",""fr"":""Noël"",""it"":""Natale""}');
+
+-- =====================================================
+-- IE PUBLIC HOLIDAYS (Organisation of Working Time Act 1997, Schedule 2; St. Brigid's Day S.I. No. 50/2022, Regulations 4 and 5)
+-- St. Brigid's Day: first Monday in February, or 1 February when that is a Friday.
+-- No weekend substitution: section 21 lets the employer grant another day off, leave or pay instead.
+-- =====================================================
+INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,country,description,name) VALUES
+('01e00001-0001-0001-0001-000000000001', '01/01', '', true, true, 'IE', 'IE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Neujahr"",""en"":""New Year''s Day"",""fr"":""Jour de l''An"",""it"":""Capodanno""}'),
+('01e00001-0001-0001-0001-000000000002', '02/01', 'TU+6;WE+5;TH+4;SA+2;SU+1', true, true, 'IE', 'IE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Sankt-Brigida-Tag"",""en"":""St. Brigid''s Day"",""fr"":""Sainte-Brigitte"",""it"":""Festa di Santa Brigida""}'),
+('01e00001-0001-0001-0001-000000000003', '03/17', '', true, true, 'IE', 'IE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Sankt-Patricks-Tag"",""en"":""St. Patrick''s Day"",""fr"":""Saint-Patrick"",""it"":""Festa di San Patrizio""}'),
+('01e00001-0001-0001-0001-000000000004', 'EASTER+01', '', true, true, 'IE', 'IE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Ostermontag"",""en"":""Easter Monday"",""fr"":""Lundi de Pâques"",""it"":""Lunedì dell''Angelo""}'),
+('01e00001-0001-0001-0001-000000000005', '05/01+00+MO', '', true, true, 'IE', 'IE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bank Holiday im Mai"",""en"":""May Bank Holiday"",""fr"":""Jour férié de mai"",""it"":""Festivo di maggio""}'),
+('01e00001-0001-0001-0001-000000000006', '06/01+00+MO', '', true, true, 'IE', 'IE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bank Holiday im Juni"",""en"":""June Bank Holiday"",""fr"":""Jour férié de juin"",""it"":""Festivo di giugno""}'),
+('01e00001-0001-0001-0001-000000000007', '08/01+00+MO', '', true, true, 'IE', 'IE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bank Holiday im August"",""en"":""August Bank Holiday"",""fr"":""Jour férié d''août"",""it"":""Festivo di agosto""}'),
+('01e00001-0001-0001-0001-000000000008', '10/25+00+MO', '', true, true, 'IE', 'IE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bank Holiday im Oktober"",""en"":""October Bank Holiday"",""fr"":""Jour férié d''octobre"",""it"":""Festivo di ottobre""}'),
+('01e00001-0001-0001-0001-000000000009', '12/25', '', true, true, 'IE', 'IE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Weihnachten"",""en"":""Christmas Day"",""fr"":""Noël"",""it"":""Natale""}'),
+('01e00001-0001-0001-0001-000000000010', '12/26', '', true, true, 'IE', 'IE', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Stephanstag"",""en"":""St. Stephen''s Day"",""fr"":""Saint-Étienne"",""it"":""Santo Stefano""}');
 "
             );
         }

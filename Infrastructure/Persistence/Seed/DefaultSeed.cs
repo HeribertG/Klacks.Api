@@ -98,7 +98,9 @@ namespace Klacks.Api.Data.Seed
                 ('276e0392-bfa3-4230-b8a7-8e9fdfecad57', 'USA', '{""de"":""Vereinigte Staaten von Amerika"",""en"":""United States of America"",""fr"":""États-Unis d''Amérique"",""it"":""Stati Uniti d''America""}'::jsonb, '+1', '2023-07-10 07:17:54.545+00', 'admin', NULL, '', NULL, false, ''),
                 ('d8084ef6-df46-46ea-a71e-a708898d1650', 'IT', '{""de"":""Italien"",""en"":""Italy"",""fr"":""Italie"",""it"":""Italia""}'::jsonb, '+39', '2023-07-10 07:14:42.454+00', 'admin', NULL, '', NULL, false, ''),
                 ('2d576ac5-7978-4e3c-b92b-e3d67493aecb', 'FR', '{""de"":""Frankreich"",""en"":""France"",""fr"":""France"",""it"":""Francia""}'::jsonb, '+33', '2023-07-10 07:14:42.454+00', 'admin', NULL, '', NULL, false, ''),
-                ('e0a077be-d3b0-47ba-865a-c29e4745d90a', 'GB', '{""de"":""Vereinigtes Königreich"",""en"":""United Kingdom"",""fr"":""Royaume-Uni"",""it"":""Regno Unito""}'::jsonb, '+44', '2023-07-10 07:14:42.454+00', 'admin', NULL, '', NULL, false, '')"
+                ('e0a077be-d3b0-47ba-865a-c29e4745d90a', 'GB', '{""de"":""Vereinigtes Königreich"",""en"":""United Kingdom"",""fr"":""Royaume-Uni"",""it"":""Regno Unito""}'::jsonb, '+44', '2023-07-10 07:14:42.454+00', 'admin', NULL, '', NULL, false, ''),
+                ('8ebabd40-ee29-435d-974a-8e068ed378c7', 'BE', '{""de"":""Belgien"",""en"":""Belgium"",""fr"":""Belgique"",""it"":""Belgio""}'::jsonb, '+32', '2026-11-09 00:00:00+00', 'admin', NULL, '', NULL, false, ''),
+                ('1941819b-1b56-4287-a1bb-b810b9259237', 'IE', '{""de"":""Irland"",""en"":""Ireland"",""fr"":""Irlande"",""it"":""Irlanda""}'::jsonb, '+353', '2026-11-09 00:00:00+00', 'admin', NULL, '', NULL, false, '')"
             );
 
             migrationBuilder.Sql(

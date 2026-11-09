@@ -50,6 +50,7 @@
         "a1101001-0001-0001-0001-000000000013",
         "a1101001-0001-0001-0001-000000000014",
         "a1101001-0001-0001-0001-000000000015",
+        "b0e00001-0001-0001-0001-000000000008",
         "dea11001-0001-0001-0001-000000000001",
         "dea11001-0001-0001-0001-000000000002",
         "dea11001-0001-0001-0001-000000000003",
@@ -84,6 +85,7 @@
     {
       "en": "Armistice Day",
       "ids": [
+        "b0e00001-0001-0001-0001-000000000009",
         "f0000001-0001-0001-0001-000000000010"
       ],
       "name": {
@@ -115,6 +117,7 @@
       "ids": [
         "01000001-0001-0001-0001-000000000008",
         "a0000001-0001-0001-0001-000000000005",
+        "b0e00001-0001-0001-0001-000000000004",
         "de000001-0001-0001-0001-000000000005",
         "f0000001-0001-0001-0001-000000000005"
       ],
@@ -189,6 +192,7 @@
         "00815001-0001-0001-0001-000000000013",
         "00815001-0001-0001-0001-000000000014",
         "a0000001-0001-0001-0001-000000000008",
+        "b0e00001-0001-0001-0001-000000000007",
         "de081501-0001-0001-0001-000000000001",
         "de081501-0001-0001-0001-000000000002",
         "f0000001-0001-0001-0001-000000000008"
@@ -247,6 +251,35 @@
       }
     },
     {
+      "en": "August Bank Holiday",
+      "ids": [
+        "01e00001-0001-0001-0001-000000000007"
+      ],
+      "name": {
+        "ar": "عطلة أغسطس الرسمية",
+        "cs": "Srpnový bankovní svátek",
+        "da": "Bankferiedag i august",
+        "el": "Αργία Αυγούστου",
+        "es": "Festivo bancario de agosto",
+        "fi": "Elokuun pankkivapaapäivä",
+        "he": "חופשת הבנקים של אוגוסט",
+        "id": "Libur Bank Agustus",
+        "ja": "オーガスト・バンク・ホリデー",
+        "ko": "8월 뱅크 홀리데이",
+        "ms": "Cuti Bank Ogos",
+        "nb": "Offentlig fridag i august",
+        "nl": "Bankfeestdag in augustus",
+        "pl": "Sierpniowe święto bankowe",
+        "pt": "Feriado bancário de agosto",
+        "ro": "Sărbătoarea bancară din august",
+        "sv": "Bankhelgdag i augusti",
+        "th": "วันหยุดธนาคารเดือนสิงหาคม",
+        "vi": "Ngày nghỉ ngân hàng tháng Tám",
+        "zh-cn": "八月银行假日",
+        "zh-tw": "八月銀行假日"
+      }
+    },
+    {
       "en": "Bastille Day",
       "ids": [
         "f0000001-0001-0001-0001-000000000007"
@@ -302,6 +335,35 @@
         "vi": "Ngày tưởng niệm trận Näfels",
         "zh-cn": "奈费尔斯战役纪念日",
         "zh-tw": "奈費爾斯戰役紀念日"
+      }
+    },
+    {
+      "en": "Belgian National Day",
+      "ids": [
+        "b0e00001-0001-0001-0001-000000000006"
+      ],
+      "name": {
+        "ar": "العيد الوطني البلجيكي",
+        "cs": "Belgický státní svátek",
+        "da": "Belgiens nationaldag",
+        "el": "Εθνική Εορτή του Βελγίου",
+        "es": "Día Nacional de Bélgica",
+        "fi": "Belgian kansallispäivä",
+        "he": "היום הלאומי של בלגיה",
+        "id": "Hari Nasional Belgia",
+        "ja": "ベルギー建国記念日",
+        "ko": "벨기에 국경일",
+        "ms": "Hari Kebangsaan Belgium",
+        "nb": "Belgias nasjonaldag",
+        "nl": "Nationale feestdag",
+        "pl": "Święto Narodowe Belgii",
+        "pt": "Dia Nacional da Bélgica",
+        "ro": "Ziua Națională a Belgiei",
+        "sv": "Belgiens nationaldag",
+        "th": "วันชาติเบลเยียม",
+        "vi": "Quốc khánh Bỉ",
+        "zh-cn": "比利时国庆日",
+        "zh-tw": "比利時國慶日"
       }
     },
     {
@@ -482,10 +544,12 @@
       "en": "Christmas Day",
       "ids": [
         "01000001-0001-0001-0001-000000000016",
+        "01e00001-0001-0001-0001-000000000009",
         "05a00001-0001-0001-0001-000000000010",
         "06a00001-0001-0001-0001-000000000007",
         "10000001-0001-0001-0001-000000000011",
         "99fb49c4-8fea-4266-8836-e2b216345470",
+        "b0e00001-0001-0001-0001-000000000010",
         "f0000001-0001-0001-0001-000000000011"
       ],
       "name": {
@@ -920,7 +984,9 @@
         "00e00001-0001-0001-0001-000000000024",
         "00e00001-0001-0001-0001-000000000025",
         "01000001-0001-0001-0001-000000000006",
+        "01e00001-0001-0001-0001-000000000004",
         "a0000001-0001-0001-0001-000000000003",
+        "b0e00001-0001-0001-0001-000000000002",
         "de000001-0001-0001-0001-000000000003",
         "f0000001-0001-0001-0001-000000000002"
       ],
@@ -1423,6 +1489,35 @@
       }
     },
     {
+      "en": "June Bank Holiday",
+      "ids": [
+        "01e00001-0001-0001-0001-000000000006"
+      ],
+      "name": {
+        "ar": "عطلة يونيو الرسمية",
+        "cs": "Červnový bankovní svátek",
+        "da": "Bankferiedag i juni",
+        "el": "Αργία Ιουνίου",
+        "es": "Festivo bancario de junio",
+        "fi": "Kesäkuun pankkivapaapäivä",
+        "he": "חופשת הבנקים של יוני",
+        "id": "Libur Bank Juni",
+        "ja": "ジューン・バンク・ホリデー",
+        "ko": "6월 뱅크 홀리데이",
+        "ms": "Cuti Bank Jun",
+        "nb": "Offentlig fridag i juni",
+        "nl": "Bankfeestdag in juni",
+        "pl": "Czerwcowe święto bankowe",
+        "pt": "Feriado bancário de junho",
+        "ro": "Sărbătoarea bancară din iunie",
+        "sv": "Bankhelgdag i juni",
+        "th": "วันหยุดธนาคารเดือนมิถุนายน",
+        "vi": "Ngày nghỉ ngân hàng tháng Sáu",
+        "zh-cn": "六月银行假日",
+        "zh-tw": "六月銀行假日"
+      }
+    },
+    {
       "en": "Juneteenth National Independence Day",
       "ids": [
         "05a00001-0001-0001-0001-000000000011"
@@ -1553,6 +1648,7 @@
         "0da00001-0001-0001-0001-000000000009",
         "0da00001-0001-0001-0001-000000000010",
         "0da00001-0001-0001-0001-000000000011",
+        "b0e00001-0001-0001-0001-000000000003",
         "de000001-0001-0001-0001-000000000004",
         "f0000001-0001-0001-0001-000000000003"
       ],
@@ -1724,6 +1820,35 @@
         "vi": "Ngày Martin Luther King Jr.",
         "zh-cn": "马丁·路德·金纪念日",
         "zh-tw": "馬丁·路德·金恩紀念日"
+      }
+    },
+    {
+      "en": "May Bank Holiday",
+      "ids": [
+        "01e00001-0001-0001-0001-000000000005"
+      ],
+      "name": {
+        "ar": "عطلة مايو الرسمية",
+        "cs": "Květnový bankovní svátek",
+        "da": "Bankferiedag i maj",
+        "el": "Αργία Μαΐου",
+        "es": "Festivo bancario de mayo",
+        "fi": "Toukokuun pankkivapaapäivä",
+        "he": "חופשת הבנקים של מאי",
+        "id": "Libur Bank Mei",
+        "ja": "メイ・バンク・ホリデー",
+        "ko": "5월 뱅크 홀리데이",
+        "ms": "Cuti Bank Mei",
+        "nb": "Offentlig fridag i mai",
+        "nl": "Bankfeestdag in mei",
+        "pl": "Majowe święto bankowe",
+        "pt": "Feriado bancário de maio",
+        "ro": "Sărbătoarea bancară din mai",
+        "sv": "Bankhelgdag i maj",
+        "th": "วันหยุดธนาคารเดือนพฤษภาคม",
+        "vi": "Ngày nghỉ ngân hàng tháng Năm",
+        "zh-cn": "五月银行假日",
+        "zh-tw": "五月銀行假日"
       }
     },
     {
@@ -1904,11 +2029,13 @@
       "en": "New Year's Day",
       "ids": [
         "01000001-0001-0001-0001-000000000001",
+        "01e00001-0001-0001-0001-000000000001",
         "05a00001-0001-0001-0001-000000000001",
         "06a00001-0001-0001-0001-000000000001",
         "10000001-0001-0001-0001-000000000001",
         "613c22be-e39f-4a40-be5a-e1202d21678f",
         "a0000001-0001-0001-0001-000000000001",
+        "b0e00001-0001-0001-0001-000000000001",
         "de000001-0001-0001-0001-000000000001",
         "f0000001-0001-0001-0001-000000000001"
       ],
@@ -2021,6 +2148,35 @@
         "vi": "Đêm Giao thừa",
         "zh-cn": "新年前夜",
         "zh-tw": "跨年夜"
+      }
+    },
+    {
+      "en": "October Bank Holiday",
+      "ids": [
+        "01e00001-0001-0001-0001-000000000008"
+      ],
+      "name": {
+        "ar": "عطلة أكتوبر الرسمية",
+        "cs": "Říjnový bankovní svátek",
+        "da": "Bankferiedag i oktober",
+        "el": "Αργία Οκτωβρίου",
+        "es": "Festivo bancario de octubre",
+        "fi": "Lokakuun pankkivapaapäivä",
+        "he": "חופשת הבנקים של אוקטובר",
+        "id": "Libur Bank Oktober",
+        "ja": "オクトーバー・バンク・ホリデー",
+        "ko": "10월 뱅크 홀리데이",
+        "ms": "Cuti Bank Oktober",
+        "nb": "Offentlig fridag i oktober",
+        "nl": "Bankfeestdag in oktober",
+        "pl": "Październikowe święto bankowe",
+        "pt": "Feriado bancário de outubro",
+        "ro": "Sărbătoarea bancară din octombrie",
+        "sv": "Bankhelgdag i oktober",
+        "th": "วันหยุดธนาคารเดือนตุลาคม",
+        "vi": "Ngày nghỉ ngân hàng tháng Mười",
+        "zh-cn": "十月银行假日",
+        "zh-tw": "十月銀行假日"
       }
     },
     {
@@ -2514,6 +2670,35 @@
       }
     },
     {
+      "en": "St. Brigid's Day",
+      "ids": [
+        "01e00001-0001-0001-0001-000000000002"
+      ],
+      "name": {
+        "ar": "عيد القديسة بريجيد",
+        "cs": "Den svaté Brigity",
+        "da": "Sankt Brigids dag",
+        "el": "Ημέρα της Αγίας Βριγίδας",
+        "es": "Día de Santa Brígida",
+        "fi": "Pyhän Brigidan päivä",
+        "he": "יום בריג'יד הקדושה",
+        "id": "Hari Santa Brigida",
+        "ja": "聖ブリジッドの日",
+        "ko": "성 브리지다의 날",
+        "ms": "Hari Santa Brigid",
+        "nb": "Sankt Brigids dag",
+        "nl": "Sint-Brigidadag",
+        "pl": "Dzień Świętej Brygidy",
+        "pt": "Dia de Santa Brígida",
+        "ro": "Ziua Sfintei Brigida",
+        "sv": "Sankta Brigids dag",
+        "th": "วันนักบุญบริจิด",
+        "vi": "Ngày Thánh Brigid",
+        "zh-cn": "圣布里吉德节",
+        "zh-tw": "聖布里吉德節"
+      }
+    },
+    {
       "en": "St. Joseph's Day",
       "ids": [
         "00319001-0001-0001-0001-000000000001",
@@ -2581,6 +2766,35 @@
       }
     },
     {
+      "en": "St. Patrick's Day",
+      "ids": [
+        "01e00001-0001-0001-0001-000000000003"
+      ],
+      "name": {
+        "ar": "عيد القديس باتريك",
+        "cs": "Den svatého Patrika",
+        "da": "Sankt Patricks dag",
+        "el": "Ημέρα του Αγίου Πατρικίου",
+        "es": "Día de San Patricio",
+        "fi": "Pyhän Patrikin päivä",
+        "he": "יום פטריק הקדוש",
+        "id": "Hari Santo Patrick",
+        "ja": "聖パトリックの祝日",
+        "ko": "성 패트릭의 날",
+        "ms": "Hari Santo Patrick",
+        "nb": "Sankt Patricks dag",
+        "nl": "Sint-Patricksdag",
+        "pl": "Dzień Świętego Patryka",
+        "pt": "Dia de São Patrício",
+        "ro": "Ziua Sfântului Patrick",
+        "sv": "Sankt Patricks dag",
+        "th": "วันนักบุญแพทริก",
+        "vi": "Ngày Thánh Patrick",
+        "zh-cn": "圣帕特里克节",
+        "zh-tw": "聖派翠克節"
+      }
+    },
+    {
       "en": "St. Stephen's Day",
       "ids": [
         "a0000001-0001-0001-0001-000000000013"
@@ -2633,6 +2847,7 @@
         "01226001-0001-0001-0001-000000000018",
         "01226001-0001-0001-0001-000000000019",
         "01226001-0001-0001-0001-000000000020",
+        "01e00001-0001-0001-0001-000000000010",
         "10000001-0001-0001-0001-000000000012",
         "f0570001-0001-0001-0001-000000000002",
         "f0670001-0001-0001-0001-000000000002",
@@ -2955,6 +3170,7 @@
         "0f500001-0001-0001-0001-000000000026",
         "100aa001-0001-0001-0001-000000000001",
         "a0000001-0001-0001-0001-000000000006",
+        "b0e00001-0001-0001-0001-000000000005",
         "de000001-0001-0001-0001-000000000006",
         "f0000001-0001-0001-0001-000000000006"
       ],

@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Adds the installed plugin language to the multilingual name of the pre-seeded holiday rules (CalendarRulesSeed,
-/// AdditionalCalendarRulesSeed: CH incl. cantons, DE, AT, FR, IT, LI, GB, USA), which ship with the core languages
+/// AdditionalCalendarRulesSeed: CH incl. cantons, DE, AT, FR, IT, LI, GB, USA, BE, IE), which ship with the core languages
 /// only. The translations come from the shared master file default-calendar-rule-translations.json in the plugin
 /// root: one entry per holiday name, listing the fixed seed ids that carry it. A name that already carries the
 /// language (a non-empty value) is never overwritten, so customer edits survive every startup backfill; on uninstall only the names

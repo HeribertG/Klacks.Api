@@ -1,0 +1,337 @@
+{
+  "version": 1,
+  "region": "IE",
+  "languages": {
+    "default": "en"
+  },
+  "locale": {
+    "country": "IE",
+    "state": "IE",
+    "timeZone": "Europe/Dublin",
+    "calendarSelection": {
+      "country": "IE",
+      "state": "IE"
+    }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "vacationDaysPerYear": 20,
+    "maxWeeklyHours": 48,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightWindow": {
+      "start": "00:00",
+      "end": "07:00"
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": {
+        "rollingAverage": "warn"
+      },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      {
+        "windowWeeks": 17,
+        "maxAverageWeeklyHours": 48
+      }
+    ]
+  },
+  "export": {
+    "enabledFormats": [
+      "brightpay-ie-uk",
+      "generic-payroll-csv"
+    ],
+    "defaultPayrollTargetSystem": "brightpay-ie-uk"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "IE Home Support Standard",
+          "maxDailyHours": 13,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "QQI Level 5 Healthcare Support (Pflegehilfe-Abschluss)",
+            "en": "QQI Level 5 Major Award in Healthcare Support",
+            "fr": "QQI Level 5 Healthcare Support (diplôme d'aide-soignant)",
+            "it": "QQI Level 5 Healthcare Support (qualifica di operatore socio-sanitario)"
+          }
+        },
+        {
+          "name": {
+            "de": "Garda Vetting (Überprüfung durch das National Vetting Bureau)",
+            "en": "Garda vetting (National Vetting Bureau)",
+            "fr": "Garda vetting (contrôle des antécédents par le National Vetting Bureau)",
+            "it": "Garda vetting (verifica dei precedenti del National Vetting Bureau)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Manual-Handling-Schulung (Patientenhandling)",
+            "en": "Manual handling / patient moving and handling training",
+            "fr": "Formation manutention manuelle (mobilisation des patients)",
+            "it": "Formazione movimentazione manuale (mobilizzazione dei pazienti)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "First Aid Responder (FAR, PHECC-zertifiziert)",
+            "en": "First Aid Responder (FAR, PHECC-certified)",
+            "fr": "First Aid Responder (FAR, certifié PHECC)",
+            "it": "First Aid Responder (FAR, certificato PHECC)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "IE Hospital Standard",
+          "maxDailyHours": 13,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "NMBI-registrierte Pflegefachkraft (Nursing and Midwifery Board of Ireland)",
+            "en": "NMBI-registered nurse (Nursing and Midwifery Board of Ireland)",
+            "fr": "Infirmier/ière inscrit/e au NMBI (Nursing and Midwifery Board of Ireland)",
+            "it": "Infermiere/a iscritto/a al NMBI (Nursing and Midwifery Board of Ireland)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "QQI Level 5 Healthcare Support (Pflegehilfe-Abschluss)",
+            "en": "QQI Level 5 Major Award in Healthcare Support",
+            "fr": "QQI Level 5 Healthcare Support (diplôme d'aide-soignant)",
+            "it": "QQI Level 5 Healthcare Support (qualifica di operatore socio-sanitario)"
+          }
+        },
+        {
+          "name": {
+            "de": "BLS-Zertifikat (Basic Life Support, Irish Heart Foundation)",
+            "en": "Basic Life Support certificate (Irish Heart Foundation)",
+            "fr": "Certificat BLS (réanimation de base, Irish Heart Foundation)",
+            "it": "Certificato BLS (supporto vitale di base, Irish Heart Foundation)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "IE Security Standard",
+          "maxDailyHours": 13,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "PSA-Lizenz (Private Security Authority)",
+            "en": "PSA licence (Private Security Authority)",
+            "fr": "Licence PSA (Private Security Authority)",
+            "it": "Licenza PSA (Private Security Authority)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "QQI Level 4 Security Guarding Skills (Wachdienst-Grundausbildung)",
+            "en": "QQI Level 4 Security Guarding Skills",
+            "fr": "QQI Level 4 Security Guarding Skills (compétences d'agent de sécurité)",
+            "it": "QQI Level 4 Security Guarding Skills (competenze di guardia giurata)"
+          }
+        },
+        {
+          "name": {
+            "de": "First Aid Responder (FAR, PHECC-zertifiziert)",
+            "en": "First Aid Responder (FAR, PHECC-certified)",
+            "fr": "First Aid Responder (FAR, certifié PHECC)",
+            "it": "First Aid Responder (FAR, certificato PHECC)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "IE Cleaning Standard",
+          "maxDailyHours": 13,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Manual-Handling-Schulung (Patientenhandling)",
+            "en": "Manual handling / patient moving and handling training",
+            "fr": "Formation manutention manuelle (mobilisation des patients)",
+            "it": "Formazione movimentazione manuale (mobilizzazione dei pazienti)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Safe Pass (SOLAS-Sicherheitsschulung)",
+            "en": "Safe Pass (SOLAS safety awareness training)",
+            "fr": "Safe Pass (formation à la sécurité SOLAS)",
+            "it": "Safe Pass (formazione sulla sicurezza SOLAS)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "First Aid Responder (FAR, PHECC-zertifiziert)",
+            "en": "First Aid Responder (FAR, PHECC-certified)",
+            "fr": "First Aid Responder (FAR, certifié PHECC)",
+            "it": "First Aid Responder (FAR, certificato PHECC)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "IE Logistics Standard",
+          "maxDailyHours": 13,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Führerschein Klasse C/CE",
+            "en": "Driving licence category C/CE",
+            "fr": "Permis de conduire C/CE",
+            "it": "Patente di guida C/CE"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Driver CPC (Berufskraftfahrer-Qualifikation, 35 Stunden alle 5 Jahre)",
+            "en": "Driver CPC (35 hours of periodic training every 5 years)",
+            "fr": "Driver CPC (qualification de conducteur, 35 heures tous les 5 ans)",
+            "it": "Driver CPC (qualifica del conducente, 35 ore ogni 5 anni)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "ADR-Bescheinigung (Gefahrgut)",
+            "en": "ADR certificate (dangerous goods)",
+            "fr": "Certificat ADR (marchandises dangereuses)",
+            "it": "Certificato ADR (merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Staplerschein (Gabelstaplerausbildung)",
+            "en": "Forklift licence (forklift operator training)",
+            "fr": "Brevet de cariste (formation conducteur de chariot élévateur)",
+            "it": "Patentino per carrellisti (formazione conduttore di carrelli elevatori)"
+          }
+        }
+      ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "IE Hospitality Standard",
+          "maxDailyHours": 13,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "First Aid Responder (FAR, PHECC-zertifiziert)",
+            "en": "First Aid Responder (FAR, PHECC-certified)",
+            "fr": "First Aid Responder (FAR, certifié PHECC)",
+            "it": "First Aid Responder (FAR, certificato PHECC)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Lebensmittelsicherheits-Schulung (FSAI-Leitlinien, Level 2)",
+            "en": "Food safety training (FSAI guidance, level 2)",
+            "fr": "Formation sécurité alimentaire (guide FSAI, niveau 2)",
+            "it": "Formazione sulla sicurezza alimentare (linee guida FSAI, livello 2)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "QQI Level 6 Professional Culinary Practice (Kochausbildung)",
+            "en": "QQI Level 6 Professional Culinary Practice",
+            "fr": "QQI Level 6 Professional Culinary Practice (diplôme de cuisinier)",
+            "it": "QQI Level 6 Professional Culinary Practice (diploma di cuoco)"
+          }
+        },
+        {
+          "name": {
+            "de": "Responsible Serving of Alcohol (RSA-Schulung)",
+            "en": "Responsible Serving of Alcohol (RSA) training",
+            "fr": "Responsible Serving of Alcohol (formation au service responsable d'alcool)",
+            "it": "Responsible Serving of Alcohol (formazione al servizio responsabile di alcolici)"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

@@ -1,0 +1,320 @@
+{
+  "version": 1,
+  "region": "BE",
+  "languages": {
+    "install": [
+      "nl"
+    ],
+    "default": "fr"
+  },
+  "locale": {
+    "country": "BE",
+    "state": "BE",
+    "timeZone": "Europe/Brussels",
+    "calendarSelection": {
+      "country": "BE",
+      "state": "BE"
+    }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 7.6,
+    "overtimeThreshold": 38,
+    "vacationDaysPerYear": 20,
+    "maxDailyHours": 11,
+    "maxWeeklyHours": 50,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightWindow": {
+      "start": "20:00",
+      "end": "06:00"
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": {
+        "rollingAverage": "warn"
+      },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      {
+        "windowWeeks": 13,
+        "maxAverageWeeklyHours": 38
+      }
+    ]
+  },
+  "export": {
+    "enabledFormats": [
+      "generic-payroll-csv"
+    ],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "BE Aide à domicile / Thuiszorg Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 50,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "20:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Pflegefachkraft (infirmier / verpleegkundige, Visum des FÖD Volksgesundheit)",
+            "en": "Registered nurse (infirmier / verpleegkundige, visa of the FPS Public Health)",
+            "fr": "Infirmier/ière (visa du SPF Santé publique)",
+            "it": "Infermiere/a (infirmier / verpleegkundige, visto del SPF Salute pubblica)"
+          }
+        },
+        {
+          "name": {
+            "de": "Familien- und Seniorenhelfer/in (aide familial / verzorgende, bei der Gemeinschaft registriert)",
+            "en": "Family and senior care aide (aide familial / verzorgende, registered with the community)",
+            "fr": "Aide familial(e) (enregistrement auprès de la Communauté)",
+            "it": "Assistente familiare (aide familial / verzorgende, registrato presso la Comunità)"
+          }
+        },
+        {
+          "name": {
+            "de": "Pflegehelfer/in (aide-soignant / zorgkundige, Visum des FÖD Volksgesundheit)",
+            "en": "Care assistant (aide-soignant / zorgkundige, visa of the FPS Public Health)",
+            "fr": "Aide-soignant(e) (visa du SPF Santé publique)",
+            "it": "Operatore socio-sanitario (aide-soignant / zorgkundige, visto del SPF Salute pubblica)"
+          }
+        },
+        {
+          "name": {
+            "de": "Betrieblicher Ersthelfer (secouriste d'entreprise / bedrijfseerstehulpverlener)",
+            "en": "Workplace first aider (secouriste d'entreprise / bedrijfseerstehulpverlener)",
+            "fr": "Secouriste d'entreprise (formation et recyclage annuel)",
+            "it": "Addetto al primo soccorso aziendale (secouriste d'entreprise / bedrijfseerstehulpverlener)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "BE Hôpital / Ziekenhuis Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 50,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "20:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Pflegefachkraft (infirmier / verpleegkundige, Visum des FÖD Volksgesundheit)",
+            "en": "Registered nurse (infirmier / verpleegkundige, visa of the FPS Public Health)",
+            "fr": "Infirmier/ière (visa du SPF Santé publique)",
+            "it": "Infermiere/a (infirmier / verpleegkundige, visto del SPF Salute pubblica)"
+          }
+        },
+        {
+          "name": {
+            "de": "Pflegehelfer/in (aide-soignant / zorgkundige, Visum des FÖD Volksgesundheit)",
+            "en": "Care assistant (aide-soignant / zorgkundige, visa of the FPS Public Health)",
+            "fr": "Aide-soignant(e) (visa du SPF Santé publique)",
+            "it": "Operatore socio-sanitario (aide-soignant / zorgkundige, visto del SPF Salute pubblica)"
+          }
+        },
+        {
+          "name": {
+            "de": "BLS/AED-Zertifikat (Basic Life Support)",
+            "en": "BLS/AED certificate (Basic Life Support)",
+            "fr": "Certificat BLS/DEA (réanimation de base)",
+            "it": "Certificato BLS/DAE (supporto vitale di base)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "BE Gardiennage / Bewaking Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 50,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "20:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Identifikationskarte für Wachpersonal (Gesetz vom 2. Oktober 2017 über die private Sicherheit)",
+            "en": "Security officer identification card (Private Security Act of 2 October 2017)",
+            "fr": "Carte d'identification d'agent de gardiennage (loi du 2 octobre 2017 réglementant la sécurité privée)",
+            "it": "Tessera di identificazione per agente di vigilanza (legge del 2 ottobre 2017 sulla sicurezza privata)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Grundausbildung Wachpersonal (Kompetenzbescheinigung)",
+            "en": "Basic security officer training (certificate of competence)",
+            "fr": "Formation de base d'agent de gardiennage (attestation de compétence)",
+            "it": "Formazione di base per agente di vigilanza (attestato di competenza)"
+          }
+        },
+        {
+          "name": {
+            "de": "Betrieblicher Ersthelfer (secouriste d'entreprise / bedrijfseerstehulpverlener)",
+            "en": "Workplace first aider (secouriste d'entreprise / bedrijfseerstehulpverlener)",
+            "fr": "Secouriste d'entreprise (formation et recyclage annuel)",
+            "it": "Addetto al primo soccorso aziendale (secouriste d'entreprise / bedrijfseerstehulpverlener)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "BE Nettoyage / Schoonmaak Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 50,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "20:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "VCA-Basis (Sicherheitszertifikat, 10 Jahre gültig)",
+            "en": "VCA Basic safety certificate (valid 10 years)",
+            "fr": "VCA Base (certificat de sécurité, valable 10 ans)",
+            "it": "VCA Base (certificato di sicurezza, valido 10 anni)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Betrieblicher Ersthelfer (secouriste d'entreprise / bedrijfseerstehulpverlener)",
+            "en": "Workplace first aider (secouriste d'entreprise / bedrijfseerstehulpverlener)",
+            "fr": "Secouriste d'entreprise (formation et recyclage annuel)",
+            "it": "Addetto al primo soccorso aziendale (secouriste d'entreprise / bedrijfseerstehulpverlener)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "BE Transport / Logistiek Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 50,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "20:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Führerschein Klasse C/CE",
+            "en": "Driving licence category C/CE",
+            "fr": "Permis de conduire C/CE",
+            "it": "Patente di guida C/CE"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Code 95 / Berufskraftfahrer-Weiterbildung (35 Stunden alle 5 Jahre)",
+            "en": "Code 95 / driver CPC (35 hours of training every 5 years)",
+            "fr": "Code 95 / aptitude professionnelle du conducteur (35 heures de formation tous les 5 ans)",
+            "it": "Codice 95 / CQC conducente (35 ore di formazione ogni 5 anni)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "ADR-Bescheinigung (Gefahrgut)",
+            "en": "ADR certificate (dangerous goods)",
+            "fr": "Certificat ADR (marchandises dangereuses)",
+            "it": "Certificato ADR (merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Staplerschein (Gabelstaplerausbildung)",
+            "en": "Forklift licence (forklift operator training)",
+            "fr": "Brevet de cariste (formation conducteur de chariot élévateur)",
+            "it": "Patentino per carrellisti (formazione conduttore di carrelli elevatori)"
+          }
+        }
+      ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "BE Horeca Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 50,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "20:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Betrieblicher Ersthelfer (secouriste d'entreprise / bedrijfseerstehulpverlener)",
+            "en": "Workplace first aider (secouriste d'entreprise / bedrijfseerstehulpverlener)",
+            "fr": "Secouriste d'entreprise (formation et recyclage annuel)",
+            "it": "Addetto al primo soccorso aziendale (secouriste d'entreprise / bedrijfseerstehulpverlener)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Qualifikationszeugnis Koch/Köchin (Sekundarunterricht oder Erwachsenenbildung)",
+            "en": "Cook qualification certificate (secondary or adult education)",
+            "fr": "Certificat de qualification Cuisinier (enseignement secondaire ou de promotion sociale)",
+            "it": "Certificato di qualifica di cuoco (istruzione secondaria o per adulti)"
+          }
+        },
+        {
+          "name": {
+            "de": "Lebensmittelhygiene-Schulung (Eigenkontrolle nach AFSCA/FAVV)",
+            "en": "Food hygiene training (self-checking system of the food safety agency AFSCA/FAVV)",
+            "fr": "Formation à l'hygiène alimentaire (autocontrôle AFSCA)",
+            "it": "Formazione sull'igiene alimentare (autocontrollo AFSCA/FAVV)"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

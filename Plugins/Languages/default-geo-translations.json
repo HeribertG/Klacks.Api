@@ -181,6 +181,58 @@
         "zh-cn": "法国",
         "zh-tw": "法國"
       }
+    },
+    {
+      "id": "8ebabd40-ee29-435d-974a-8e068ed378c7",
+      "name": {
+        "ar": "بلجيكا",
+        "cs": "Belgie",
+        "da": "Belgien",
+        "el": "Βέλγιο",
+        "es": "Bélgica",
+        "fi": "Belgia",
+        "he": "בלגיה",
+        "id": "Belgia",
+        "ja": "ベルギー",
+        "ko": "벨기에",
+        "ms": "Belgium",
+        "nb": "Belgia",
+        "nl": "België",
+        "pl": "Belgia",
+        "pt": "Bélgica",
+        "ro": "Belgia",
+        "sv": "Belgien",
+        "th": "เบลเยียม",
+        "vi": "Bỉ",
+        "zh-cn": "比利时",
+        "zh-tw": "比利時"
+      }
+    },
+    {
+      "id": "1941819b-1b56-4287-a1bb-b810b9259237",
+      "name": {
+        "ar": "أيرلندا",
+        "cs": "Irsko",
+        "da": "Irland",
+        "el": "Ιρλανδία",
+        "es": "Irlanda",
+        "fi": "Irlanti",
+        "he": "אירלנד",
+        "id": "Irlandia",
+        "ja": "アイルランド",
+        "ko": "아일랜드",
+        "ms": "Ireland",
+        "nb": "Irland",
+        "nl": "Ierland",
+        "pl": "Irlandia",
+        "pt": "Irlanda",
+        "ro": "Irlanda",
+        "sv": "Irland",
+        "th": "ไอร์แลนด์",
+        "vi": "Ireland",
+        "zh-cn": "爱尔兰",
+        "zh-tw": "愛爾蘭"
+      }
     }
   ],
   "states": [

@@ -115,7 +115,11 @@ namespace Klacks.Api.Data.Seed
             { "FR-67", Guid.Parse("f5555555-5555-5555-5555-555555555555") },
             { "FR-68", Guid.Parse("f6666666-6666-6666-6666-666666666666") },
 
-            { "GB", Guid.Parse("a0d00001-0001-0001-0001-000000000001") }
+            { "GB", Guid.Parse("a0d00001-0001-0001-0001-000000000001") },
+
+            { "BE", Guid.Parse("a0d00002-0001-0001-0001-000000000001") },
+
+            { "IE", Guid.Parse("a0d00003-0001-0001-0001-000000000001") }
         };
 
         private static readonly List<(string Key, string Name, string Country, string State)> SelectionConfig = new()
@@ -226,7 +230,11 @@ namespace Klacks.Api.Data.Seed
             ("FR-67", "Département Bas-Rhin", "FR", "67"),
             ("FR-68", "Département Haut-Rhin", "FR", "68"),
 
-            ("GB", "Vereinigtes Königreich", "GB", "GB")
+            ("GB", "Vereinigtes Königreich", "GB", "GB"),
+
+            ("BE", "Belgien", "BE", "BE"),
+
+            ("IE", "Irland", "IE", "IE")
         };
 
         public static void SeedCalendarSelections(MigrationBuilder migrationBuilder)

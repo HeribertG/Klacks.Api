@@ -344,3 +344,16 @@ mounting, because public holidays differ per state.
   earlier keep their seeded 0.1 until an administrator changes it). Set an
   explicit rate only where a law or collective agreement grants a TIME credit;
   money premiums belong to payroll and have no rate in Klacks.
+
+## Country notes
+
+- `be.json` (Belgium) ships the ten national statutory holidays (law of 4 January 1974). When one of them falls on a
+  Sunday or a usual non-working day, the law requires a replacement day, which the joint committee, the works council or
+  the company sets; the calendar therefore has no fixed substitution date. The community holidays (11 July Flemish
+  Community, 27 September French Community, 15 November German-speaking Community) are not statutory for private
+  employers and are not part of the calendar; add them per company when a collective agreement grants them. The default
+  UI language is French, and the Dutch language pack is installed so Dutch-speaking users can switch.
+- `ie.json` (Ireland) ships the ten public holidays of the Organisation of Working Time Act 1997 (Schedule 2), including
+  St. Brigid's Day (first Monday in February, or 1 February when that is a Friday). Good Friday is not a public holiday.
+  A public holiday falling on a weekend does not move: section 21 lets the employer grant a paid day off within a month,
+  an extra day of annual leave or an extra day's pay instead.
