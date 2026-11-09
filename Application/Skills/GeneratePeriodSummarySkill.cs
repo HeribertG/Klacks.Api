@@ -70,8 +70,8 @@ public class GeneratePeriodSummarySkill : BaseSkillImplementation
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
         if (!scope.IsUnrestricted)
         {
-            var group = await _groupRepository.Get(groupId);
-            if (group == null || !scope.IsInScope(group))
+            var group = await ScopedGroupLookup.FindAsync(_groupRepository, scope, groupId);
+            if (group == null)
             {
                 return SkillResult.Error($"Group with ID '{groupId}' not found.");
             }

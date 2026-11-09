@@ -54,15 +54,10 @@ internal static class PeriodClosingGroupResolver
                 return (null, null, $"Invalid groupId UUID: {groupIdRaw}");
             }
 
-            var group = await groupRepository.Get(groupId);
+            var group = await ScopedGroupLookup.FindAsync(groupRepository, scope, groupId);
             if (group == null)
             {
                 return (null, null, $"Group with ID '{groupId}' not found.");
-            }
-
-            if (!scope.IsInScope(group))
-            {
-                return (null, null, scope.BuildOutOfScopeError(group.Name));
             }
 
             return (group.Id, group.Name, null);

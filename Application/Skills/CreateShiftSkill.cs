@@ -267,8 +267,8 @@ public class CreateShiftSkill : BaseSkillImplementation
             {
                 if (Guid.TryParse(gidStr, out var gid))
                 {
-                    var group = await _groupRepository.Get(gid);
-                    if (group == null || !await _groupVisibilityGuard.IsGroupVisibleAsync(gid, cancellationToken))
+                    if (!await _groupVisibilityGuard.IsGroupVisibleAsync(gid, cancellationToken)
+                        || await _groupRepository.Get(gid) == null)
                     {
                         return (null, $"Group with ID {gid} not found.");
                     }

@@ -46,16 +46,11 @@ public class DeleteGroupSkill : BaseSkillImplementation
         var groupId = GetRequiredGuid(parameters, "groupId");
         var forceCascade = GetParameter<bool>(parameters, "forceCascade", false);
 
-        var group = await _groupRepository.Get(groupId);
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var group = await ScopedGroupLookup.FindAsync(_groupRepository, scope, groupId);
         if (group == null)
         {
             return SkillResult.Error($"Group with ID '{groupId}' not found.");
-        }
-
-        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
-        if (!scope.IsInScope(group))
-        {
-            return SkillResult.Error(scope.BuildOutOfScopeError(group.Name));
         }
 
         var children = (await _groupRepository.GetChildren(groupId)).ToList();

@@ -57,26 +57,16 @@ public class MoveGroupSkill : BaseSkillImplementation
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
         var groups = scope.Filter(await _groupRepository.List());
 
-        var (group, groupError) = await ResolveAsync(parameters, "groupId", "groupName", groups);
+        var (group, groupError) = await ResolveAsync(parameters, "groupId", "groupName", scope, groups);
         if (groupError != null)
         {
             return SkillResult.Error(groupError);
         }
 
-        var (newParent, parentError) = await ResolveAsync(parameters, "newParentId", "newParentName", groups);
+        var (newParent, parentError) = await ResolveAsync(parameters, "newParentId", "newParentName", scope, groups);
         if (parentError != null)
         {
             return SkillResult.Error(parentError);
-        }
-
-        if (!scope.IsInScope(group!))
-        {
-            return SkillResult.Error(scope.BuildOutOfScopeError(group!.Name));
-        }
-
-        if (!scope.IsInScope(newParent!))
-        {
-            return SkillResult.Error(scope.BuildOutOfScopeError(newParent!.Name));
         }
 
         if (group!.Id == newParent!.Id)
@@ -128,6 +118,7 @@ public class MoveGroupSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         string idParameter,
         string nameParameter,
+        GroupScopeAccess scope,
         IReadOnlyList<Group> groupsInScope)
     {
         var idStr = GetParameter<string>(parameters, idParameter);
@@ -138,7 +129,7 @@ public class MoveGroupSkill : BaseSkillImplementation
                 return (null, $"Invalid {idParameter} UUID: {idStr}");
             }
 
-            var byId = await _groupRepository.Get(id);
+            var byId = await ScopedGroupLookup.FindAsync(_groupRepository, scope, id);
             return byId == null
                 ? (null, $"Group with ID '{id}' not found.")
                 : (byId, null);

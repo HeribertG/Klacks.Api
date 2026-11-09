@@ -4,7 +4,8 @@
 /// Resolved group scope of the user behind a skill execution. Unrestricted access passes every
 /// group through; restricted access allows only groups whose root belongs to the user's visible
 /// root groups (the whole subtree of an assigned root is in scope). A restricted access without
-/// any root allows no group at all and says so in its error messages.
+/// any root allows no group at all and says so in its error messages. There is deliberately no error text for a
+/// group outside the scope: skills answer such a group like a missing one, so its name stays hidden.
 /// </summary>
 /// <param name="visibleRootIds">Ids of the root groups the caller may act on (empty when unrestricted).</param>
 /// <param name="visibleRootNames">Display names of the visible root groups, used in error messages.</param>
@@ -13,17 +14,9 @@ namespace Klacks.Api.Domain.Models.Associations;
 
 public sealed class GroupScopeAccess
 {
-    private const string OutOfScopeTemplate =
-        "Group '{0}' is outside your assigned group scope. You can only work with groups under: {1}. " +
-        "Pick one of these groups or ask an administrator to extend your group scope.";
-
     private const string NoRootScopeTemplate =
         "Creating a root-level group is outside your assigned group scope. You can only work with " +
         "groups under: {0}. Create the group under one of these parents or ask an administrator.";
-
-    private const string NoScopeOutOfScopeTemplate =
-        "Group '{0}' is outside your group scope: no group is assigned to you. " +
-        "Ask an administrator to assign you a group scope.";
 
     private const string NoScopeRootCreationError =
         "Creating a root-level group is outside your group scope: no group is assigned to you. " +
@@ -62,11 +55,6 @@ public sealed class GroupScopeAccess
 
     public IReadOnlyList<Group> Filter(IEnumerable<Group> groups) =>
         IsUnrestricted ? groups.ToList() : groups.Where(IsInScope).ToList();
-
-    public string BuildOutOfScopeError(string groupName) =>
-        VisibleRootNames.Count == 0
-            ? string.Format(NoScopeOutOfScopeTemplate, groupName)
-            : string.Format(OutOfScopeTemplate, groupName, JoinRootNames());
 
     public string BuildRootCreationError() =>
         VisibleRootNames.Count == 0

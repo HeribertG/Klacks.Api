@@ -71,8 +71,8 @@ public class UpdateGroupSkill : BaseSkillImplementation
         var groupId = GetRequiredGuid(parameters, "groupId");
 
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
-        var group = await FindGroupAsync(groupId);
-        if (group == null || !scope.IsInScope(group))
+        var group = await ScopedGroupLookup.FindAsync(_groupRepository, scope, groupId);
+        if (group == null)
         {
             return SkillResult.Error($"Group with ID '{groupId}' not found.");
         }
@@ -128,18 +128,6 @@ public class UpdateGroupSkill : BaseSkillImplementation
         }
 
         return BuildUpdatedResult(groupId, group, changed);
-    }
-
-    private async Task<Group?> FindGroupAsync(Guid groupId)
-    {
-        try
-        {
-            return await _groupRepository.Get(groupId);
-        }
-        catch (KeyNotFoundException)
-        {
-            return null;
-        }
     }
 
     private static SkillResult BuildUpdatedResult(Guid groupId, Group group, List<string> changed)

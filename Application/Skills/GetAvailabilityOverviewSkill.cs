@@ -82,11 +82,6 @@ public class GetAvailabilityOverviewSkill : BaseSkillImplementation
                 return SkillResult.Error(resolveError);
             }
 
-            if (!scope.IsInScope(resolvedGroup!))
-            {
-                return SkillResult.Error(scope.BuildOutOfScopeError(resolvedGroup!.Name));
-            }
-
             selectedGroup = resolvedGroup!.Id;
             resolvedGroupName = resolvedGroup!.Name;
         }

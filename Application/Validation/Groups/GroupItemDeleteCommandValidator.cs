@@ -3,13 +3,16 @@
 /**
  * Validates that a group-item can be deleted.
  * Blocks deletion if the item is a client (employee) who has planned works in the group,
- * or a shift that has active works.
+ * or a shift that has active works. An item of a group the caller cannot see is not checked, so the handler answers
+ * it like a missing item instead of a validation error that would confirm the group and its planned works.
  * @param id - The GroupItem ID to delete
+ * @param groupVisibilityGuard - Decides whether the caller can see the item's group
  */
 
 using FluentValidation;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 
@@ -17,13 +20,16 @@ namespace Klacks.Api.Application.Validation.Groups;
 
 public class GroupItemDeleteCommandValidator : AbstractValidator<DeleteCommand<GroupItemResource>>
 {
-    public GroupItemDeleteCommandValidator(IGroupItemRepository groupItemRepository, IShiftRepository shiftRepository)
+    public GroupItemDeleteCommandValidator(
+        IGroupItemRepository groupItemRepository,
+        IShiftRepository shiftRepository,
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
         RuleFor(x => x.Id)
             .MustAsync(async (id, ct) =>
             {
                 var item = await groupItemRepository.Get(id);
-                if (item == null) return true;
+                if (item == null || !await groupVisibilityGuard.IsGroupVisibleAsync(item.GroupId, ct)) return true;
 
                 if (item.ClientId.HasValue)
                     return !await shiftRepository.HasWorksForClientInGroupAsync(item.ClientId.Value, item.GroupId, null, ct);

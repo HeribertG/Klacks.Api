@@ -154,8 +154,8 @@ public class CreateGroupSkill : BaseSkillImplementation
                 return (null, SkillResult.Error($"Invalid parentId UUID: {parentIdStr}"));
             }
 
-            var parent = await FindGroupAsync(parsedParent);
-            if (parent == null || !scope.IsInScope(parent))
+            var parent = await ScopedGroupLookup.FindAsync(_groupRepository, scope, parsedParent);
+            if (parent == null)
             {
                 return (null, SkillResult.Error($"Parent group '{parsedParent}' not found."));
             }
@@ -167,18 +167,6 @@ public class CreateGroupSkill : BaseSkillImplementation
         }
 
         return (parentId, null);
-    }
-
-    private async Task<Group?> FindGroupAsync(Guid groupId)
-    {
-        try
-        {
-            return await _groupRepository.Get(groupId);
-        }
-        catch (KeyNotFoundException)
-        {
-            return null;
-        }
     }
 
     private async Task<(Guid? CalendarSelectionId, SkillResult? Error)> ResolveCalendarAsync(string? calendarIdStr)

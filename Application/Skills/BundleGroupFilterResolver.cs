@@ -102,8 +102,10 @@ public sealed class BundleGroupFilterResolver
                     "groupName instead.");
             }
 
-            var group = await _groupRepository.Get(groupId);
-            if (group == null || !await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken))
+            var group = await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken)
+                ? await _groupRepository.Get(groupId)
+                : null;
+            if (group == null)
             {
                 return (null, $"Group with ID {groupId} not found.");
             }

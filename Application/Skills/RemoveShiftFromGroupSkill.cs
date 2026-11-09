@@ -73,16 +73,11 @@ public class RemoveShiftFromGroupSkill : BaseSkillImplementation
             return SkillResult.Error($"Shift with ID {shiftId} not found.");
         }
 
-        var group = await _groupRepository.Get(groupId);
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var group = await ScopedGroupLookup.FindAsync(_groupRepository, scope, groupId);
         if (group == null)
         {
             return SkillResult.Error($"Group with ID {groupId} not found.");
-        }
-
-        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
-        if (!scope.IsInScope(group))
-        {
-            return SkillResult.Error(scope.BuildOutOfScopeError(group.Name));
         }
 
         var groupItemId = await _groupItemRepository.FindShiftLinkIdAsync(shiftId, groupId, cancellationToken);

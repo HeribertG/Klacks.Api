@@ -56,7 +56,7 @@ public class GetGroupDetailsSkill : BaseSkillImplementation
                 return SkillResult.Error($"Invalid groupId UUID: {groupIdStr}");
             }
 
-            group = await _groupRepository.Get(groupId);
+            group = await ScopedGroupLookup.FindAsync(_groupRepository, scope, groupId);
             if (group == null)
             {
                 return SkillResult.Error($"Group with ID '{groupId}' not found.");
@@ -78,11 +78,6 @@ public class GetGroupDetailsSkill : BaseSkillImplementation
             }
 
             group = resolved!;
-        }
-
-        if (!scope.IsInScope(group))
-        {
-            return SkillResult.Error(scope.BuildOutOfScopeError(group.Name));
         }
 
         var path = (await _groupRepository.GetPath(group.Id)).ToList();

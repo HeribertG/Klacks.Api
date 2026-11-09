@@ -11,9 +11,24 @@ using Klacks.Api.Domain.Services.Common;
 
 namespace Klacks.Api.Application.Validation.Clients;
 
+/// <summary>
+/// Validates client updates: addresses, client type, legal entity, contracts, and that closing a group membership leaves
+/// no planned works after its end. The membership check runs only for a client and a group the caller can see, so a hidden
+/// client or group is answered by the handler like a missing one instead of a validation error that reveals planned works.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the caller can see the client being updated</param>
+/// <param name="groupVisibilityGuard">Decides whether the caller can see the group of a membership</param>
 public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
 {
-    public PutCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver, IAddressRepository addressRepository, IShiftRepository shiftRepository, IClientRepository clientRepository)
+    public PutCommandValidator(
+        IGeocodingService geocodingService,
+        StateAbbreviationResolver stateResolver,
+        ICountryResolver countryResolver,
+        IAddressRepository addressRepository,
+        IShiftRepository shiftRepository,
+        IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
         When(x => !x.Resource.SkipAddressValidation, () =>
         {
@@ -93,13 +108,19 @@ public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
         RuleFor(x => x)
             .MustAsync(async (command, ct) =>
             {
-                if (command.Resource.GroupItems == null)
+                if (command.Resource.GroupItems == null
+                    || !await clientVisibilityGuard.IsVisibleAsync(command.Resource.Id, ct))
                 {
                     return true;
                 }
 
                 foreach (var item in command.Resource.GroupItems.Where(gi => gi.ValidUntil.HasValue))
                 {
+                    if (!await groupVisibilityGuard.IsGroupVisibleAsync(item.GroupId, ct))
+                    {
+                        continue;
+                    }
+
                     var afterDate = DateOnly.FromDateTime(item.ValidUntil!.Value);
                     if (await shiftRepository.HasWorksForClientInGroupAsync(command.Resource.Id, item.GroupId, afterDate, ct))
                     {

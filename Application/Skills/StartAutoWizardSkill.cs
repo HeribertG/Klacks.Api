@@ -306,7 +306,7 @@ public class StartAutoWizardSkill : BaseSkillImplementation
         Group? group;
         if (groupId.HasValue)
         {
-            group = await _groupRepository.Get(groupId.Value);
+            group = await ScopedGroupLookup.FindAsync(_groupRepository, scope, groupId.Value);
             if (group == null)
             {
                 return (null, $"Group with ID {groupId} not found.");
@@ -324,9 +324,7 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             group = resolved!;
         }
 
-        return scope.IsInScope(group)
-            ? (group, null)
-            : (null, scope.BuildOutOfScopeError(group.Name));
+        return (group, null);
     }
 
     private async Task<IReadOnlyList<Guid>> ResolveAgentIdsAsync(

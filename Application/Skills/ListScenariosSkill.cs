@@ -71,10 +71,10 @@ public class ListScenariosSkill : BaseSkillImplementation
         string? groupName = null;
         if (groupId.HasValue)
         {
-            var group = await _groupRepository.Get(groupId.Value);
-            if (group == null
-                || group.IsDeleted
-                || !await _groupVisibilityGuard.IsGroupVisibleAsync(group.Id, cancellationToken))
+            var group = await _groupVisibilityGuard.IsGroupVisibleAsync(groupId.Value, cancellationToken)
+                ? await _groupRepository.Get(groupId.Value)
+                : null;
+            if (group == null || group.IsDeleted)
             {
                 return SkillResult.Error(string.Format(GroupNotFoundFormat, groupId));
             }
