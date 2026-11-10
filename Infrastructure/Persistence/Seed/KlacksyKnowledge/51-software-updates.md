@@ -112,6 +112,11 @@ downloaded" because the file is new, not because it is unsafe, and the file can 
 download list ("…" > "Keep" > "Show more" > "Keep anyway"). If Edge still does not let the file
 through, download it with another browser, for example Google Chrome.
 
+**Disk space on the office PC.** "Installed apps" shows the size of the program itself, about 700 MB
+(Klacks and its database server, measured when the setup is built). The data comes on top and is not
+counted there: on the first start Klacks downloads about 700 MB of AI models, and the database
+and backups grow with use. Uninstalling keeps this data unless the user chooses to delete it.
+
 ## Related skills
 
 - `get_update_status`, `get_update_config`, `update_update_config`
@@ -125,3 +130,4 @@ through, download it with another browser, for example Google Chrome.
 - "Läuft das Update auch ausserhalb des Wartungsfensters?"
 - "Das Setup sagt, Klacks sei bereits installiert."
 - "Edge sagt, die Datei werde selten heruntergeladen."
+- "Wie viel Speicherplatz braucht Klacks?"

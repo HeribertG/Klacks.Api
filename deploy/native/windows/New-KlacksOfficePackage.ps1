@@ -57,6 +57,20 @@ function Find-Iscc([string]$Explicit) {
     throw 'ISCC.exe (Inno Setup 6) not found; install it or pass -IsccPath.'
 }
 
+# Bytes the installation unpacks below C:\Program Files\Klacks: the bundle's files plus PostgreSQL. Shown under installed
+# apps; Inno itself would only count the few files in {app}. Data (database, AI models, backups) is not counted.
+function Get-InstalledProgramBytes([string]$BundlePath, [string]$PostgresPath) {
+    $zip = [IO.Compression.ZipFile]::OpenRead($BundlePath)
+    try {
+        $bundleBytes = ($zip.Entries | Measure-Object -Property Length -Sum).Sum
+    }
+    finally {
+        $zip.Dispose()
+    }
+    $postgresBytes = (Get-ChildItem -Recurse -File -Force $PostgresPath | Measure-Object -Property Length -Sum).Sum
+    return [long]($bundleBytes + $postgresBytes)
+}
+
 # Pascal source of FillRegions(Names, Codes) for the wizard's country list: one entry per region profile in the bundle.
 function New-RegionsInclude([string]$BundlePath, [string]$TargetPath) {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -132,7 +146,10 @@ try {
         $versionCore = ($Version -split '-')[0]
         # ISCC resolves a relative /DOutputDir against the folder of the .iss, not the current directory.
         $absoluteOutput = (Resolve-Path $OutputDirectory).Path
-        $isccArguments = @('/Q', "/DVersion=$Version", "/DVersionCore=$versionCore", "/DSourceDir=$staging", "/DOutputDir=$absoluteOutput")
+        $installedBytes = Get-InstalledProgramBytes $BundleZip (Join-Path $staging 'pgsql')
+        Write-Host "Installed size: $([math]::Round($installedBytes / 1MB)) MB"
+        $isccArguments = @('/Q', "/DVersion=$Version", "/DVersionCore=$versionCore", "/DSourceDir=$staging", "/DOutputDir=$absoluteOutput",
+            "/DInstalledSizeBytes=$installedBytes")
         if ($SignToolCommand) { $isccArguments += @('/DSign', "/Ssigntool=$SignToolCommand") }
         $isccArguments += $InstallerScript
         & $iscc @isccArguments

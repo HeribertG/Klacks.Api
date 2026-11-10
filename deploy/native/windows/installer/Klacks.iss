@@ -8,7 +8,7 @@
 ; uninstalled again; the script's report is kept as {app}\Deinstallationsbericht-*.txt.
 ;
 ; Defines (iscc /D...): Version = x.y.z[-suffix], VersionCore = x.y.z (defaults to Version), SourceDir = package staging folder (as built by New-KlacksOfficePackage.ps1),
-; OutputDir = target folder, Sign = sign setup and uninstaller (needs /Ssigntool=<command>), TestStub = dev build that needs no administrator rights (never shipped).
+; OutputDir = target folder, InstalledSizeBytes = size shown under installed apps (unpacked bundle plus PostgreSQL; data is not counted), Sign = sign setup and uninstaller (needs /Ssigntool=<command>), TestStub = dev build that needs no administrator rights (never shipped).
 ;
 ; Silent use:  Klacks-Setup-win-x64.exe /VERYSILENT /SUPPRESSMSGBOXES /REGION=CH /PORT=5180 /LOG=setup.log
 ;              unins000.exe /VERYSILENT [/REMOVEDATA]
@@ -36,7 +36,9 @@
 #define FailedMarker "FAILED"
 #define ReportTimestampFormat "yyyymmdd-hhnnss"
 #define UninstallReportPrefix "Deinstallationsbericht-"
-#define InstalledSizeBytes "1841299456"
+#ifndef InstalledSizeBytes
+  #error Pass /DInstalledSizeBytes=<bytes of the unpacked program, measured by New-KlacksOfficePackage.ps1>
+#endif
 #ifdef TestStub
   #define PowerShellExe "{sysnative}\WindowsPowerShell\v1.0\powershell.exe"
 #else
