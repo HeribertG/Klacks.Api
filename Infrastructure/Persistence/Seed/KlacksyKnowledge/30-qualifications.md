@@ -109,8 +109,8 @@ For a **mandatory** requirement:
 | Below the level, level binding | refused | Error | never assigns new (an existing assignment counts as a gap, see below) | excluded |
 | Below the level, not binding | allowed, with a warning | Warning | may assign, but prefers people at the required level | listed after the sufficiently qualified candidates, with the hint |
 
-In the dialog **Cover absence (Recovery)** (de: "Ausfall decken", en: "Cover absence (Recovery)", fr:
-"Couvrir une absence (récupération)", it: "Copri assenza (recupero)"), the list of other possible stand-ins marks such
+In the dialog **Cover absence** (de: "Ausfall decken", en: "Cover absence", fr:
+"Couvrir une absence", it: "Copri assenza"), the list of other possible stand-ins marks such
 a candidate with the badge (de: "Stufe zu niedrig", en: "Level too low", fr: "Niveau insuffisant", it: "Livello
 troppo basso").
 
