@@ -937,3 +937,57 @@ jobs:
         run: |
           bash deploy/native/verify-rolling-download.sh "$GITHUB_REPOSITORY" "$VERSION" "$ROLLING_TAG" \
             "$PACKAGE_FILE" "$INSTALLER_FILE"
+
+  # Microsoft Store package URL (release mode only): places the setup of this release, exactly as published on the
+  # version release v<version>, once on the store server (/root/apps/downloads/windows/<version>/) and checks that
+  # Klacks.Marketplace serves it without redirect. An existing file is never replaced (the Store rejects a changed binary
+  # behind a submitted URL); red here leaves the release, stable.json and office-pc untouched — re-run this job.
+  store-download:
+    name: Microsoft Store package URL
+    needs: [ui, publish]
+    if: ${{ always() && inputs.mode == 'release' && needs.ui.result == 'success' && needs.publish.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.ui.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Script tests
+        run: bash deploy/native/test-publish-store-download.sh
+
+      # GitHub records a SHA-256 digest per release asset; the download must match it before it is placed for good.
+      - name: Download the published setup
+        run: |
+          set -euo pipefail
+          mkdir -p store
+          gh release download "v${VERSION}" -R "$GITHUB_REPOSITORY" -p "$INSTALLER_FILE" -O "store/${INSTALLER_FILE}"
+          digest=$(gh release view "v${VERSION}" -R "$GITHUB_REPOSITORY" --json assets \
+            -q ".assets[] | select(.name == \"${INSTALLER_FILE}\") | .digest")
+          actual="sha256:$(sha256sum "store/${INSTALLER_FILE}" | cut -d' ' -f1)"
+          if [ -n "$digest" ] && [ "$digest" != "$actual" ]; then
+            echo "::error::Downloaded ${INSTALLER_FILE} (${actual}) does not match the release digest (${digest})."
+            exit 1
+          fi
+
+      - name: Place setup on the store server
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          STORE_SSH_HOST: ${{ secrets.SSH_HOST }}
+          STORE_SSH_USER: ${{ secrets.SSH_USERNAME }}
+          STORE_SSH_PORT: ${{ secrets.SSH_PORT || 22 }}
+          STORE_DOWNLOAD_ROOT: '/root/apps/downloads'
+          STORE_PUBLIC_BASE_URL: 'https://klacks-software.ch/store/api/downloads'
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/store-ssh-key"
+          trap 'rm -f "$key"' EXIT
+          printf '%s\n' "$SSH_KEY" > "$key"
+          STORE_SSH_KEY_FILE="$key" bash deploy/native/publish-store-download.sh "store/${INSTALLER_FILE}" "$VERSION"

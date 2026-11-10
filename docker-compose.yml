@@ -90,6 +90,7 @@ services:
       - PathBase=store
     volumes:
       - marketplace_data:/app/data
+      - /root/apps/downloads:/app/downloads:ro
     env_file:
       - /root/apps/marketplace.env
     networks:
