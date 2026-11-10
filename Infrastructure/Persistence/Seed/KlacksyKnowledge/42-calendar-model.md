@@ -86,7 +86,9 @@ Good Friday `EASTER-2`. Easter itself is computed, so these move correctly every
 
 **The shift rule** (de: "Subregel") applies only when the computed date lands on a named weekday.
 `SA-1;SU+1` means: if it falls on a Saturday move it one day back, if on a Sunday one day forward.
-Only the first matching clause is applied.
+Only the first matching clause is applied. The United Kingdom never moves a bank holiday back:
+New Year's Day carries `SA+2;SU+1`, Christmas Day and Boxing Day both carry `SA+2;SU+2`, so a
+Christmas on Saturday is taken on Monday the 27th and Boxing Day on Tuesday the 28th.
 
 **Holidays on a weekend that do not move:** Belgium's ten statutory holidays carry no shift rule.
 When one falls on a Sunday or a usual day off, the law requires a replacement working day, but the

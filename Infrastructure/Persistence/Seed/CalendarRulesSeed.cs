@@ -632,20 +632,20 @@ INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,co
 
 -- =====================================================
 -- GB FEIERTAGE (UK Bank Holidays, national - England/Wales)
--- Boxing Day: the substitution DSL has no chaining. In reality, if
--- Christmas Day shifts because it fell on SA/SU, Boxing Day would move
--- to the next available weekday after that. Simplification here:
--- Boxing Day gets its own independent SA-1;SO+1 rule, no chain logic.
+-- A bank holiday on a weekend moves to the next free weekday, never back to Friday.
+-- New Year's Day: SA+2;SU+1. Christmas and Boxing Day: SA+2;SU+2, which also covers
+-- the chain (Christmas on Saturday -> Mon 27, Boxing Day on Sunday -> Tue 28;
+-- Christmas on Sunday -> Tue 27; Boxing Day on Saturday -> Mon 28).
 -- =====================================================
 INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,country,description,name) VALUES
-('06a00001-0001-0001-0001-000000000001', '01/01', 'SA-1;SU+1', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Neujahr"",""en"":""New Year''s Day"",""fr"":""Jour de l''An"",""it"":""Capodanno""}'),
+('06a00001-0001-0001-0001-000000000001', '01/01', 'SA+2;SU+1', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Neujahr"",""en"":""New Year''s Day"",""fr"":""Jour de l''An"",""it"":""Capodanno""}'),
 ('06a00001-0001-0001-0001-000000000002', 'EASTER-02', '', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Karfreitag"",""en"":""Good Friday"",""fr"":""Vendredi saint"",""it"":""Venerdì Santo""}'),
 ('06a00001-0001-0001-0001-000000000003', 'EASTER+01', '', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Ostermontag"",""en"":""Easter Monday"",""fr"":""Lundi de Pâques"",""it"":""Lunedì dell''Angelo""}'),
 ('06a00001-0001-0001-0001-000000000004', '05/01+00+MO', '', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bank Holiday im Mai"",""en"":""Early May Bank Holiday"",""fr"":""Jour férié de mai"",""it"":""Festivo di inizio maggio""}'),
 ('06a00001-0001-0001-0001-000000000005', '05/25+00+MO', '', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bank Holiday im Frühling"",""en"":""Spring Bank Holiday"",""fr"":""Jour férié de printemps"",""it"":""Festivo di primavera""}'),
 ('06a00001-0001-0001-0001-000000000006', '08/25+00+MO', '', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bank Holiday im Sommer"",""en"":""Summer Bank Holiday"",""fr"":""Jour férié d''été"",""it"":""Festivo d''estate""}'),
-('06a00001-0001-0001-0001-000000000007', '12/25', 'SA-1;SU+1', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Weihnachten"",""en"":""Christmas Day"",""fr"":""Noël"",""it"":""Natale""}'),
-('06a00001-0001-0001-0001-000000000008', '12/26', 'SA-1;SU+1', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Zweiter Weihnachtsfeiertag"",""en"":""Boxing Day"",""fr"":""Lendemain de Noël"",""it"":""Santo Stefano""}');
+('06a00001-0001-0001-0001-000000000007', '12/25', 'SA+2;SU+2', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Weihnachten"",""en"":""Christmas Day"",""fr"":""Noël"",""it"":""Natale""}'),
+('06a00001-0001-0001-0001-000000000008', '12/26', 'SA+2;SU+2', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Zweiter Weihnachtsfeiertag"",""en"":""Boxing Day"",""fr"":""Lendemain de Noël"",""it"":""Santo Stefano""}');
 
 -- =====================================================
 -- BE PUBLIC HOLIDAYS (10 statutory days, law of 4 January 1974, national)
