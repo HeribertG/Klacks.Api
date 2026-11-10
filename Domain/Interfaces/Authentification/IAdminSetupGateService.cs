@@ -28,4 +28,30 @@ public interface IAdminSetupGateService
     /// call; callers that act on the answer re-check it under the administrator-role lock.
     /// </summary>
     Task<bool> IsFirstStartSetupOpenAsync();
+
+    /// <summary>
+    /// True when a first-start request from this origin can be accepted at all: always for a request straight from the
+    /// machine itself, otherwise only when the installer configured a one-time setup code.
+    /// </summary>
+    /// <param name="isLocalRequest">The request comes straight from the machine itself, without a proxy</param>
+    bool IsFirstStartReachable(bool isLocalRequest);
+
+    /// <summary>
+    /// True for a request straight from the machine itself, otherwise only when the supplied code matches the configured
+    /// one-time setup code (constant-time comparison); false whenever no code is configured.
+    /// </summary>
+    /// <param name="isLocalRequest">The request comes straight from the machine itself, without a proxy</param>
+    /// <param name="setupCode">Code the visitor typed</param>
+    bool IsFirstStartCodeAccepted(bool isLocalRequest, string? setupCode);
+
+    /// <summary>
+    /// True when a sign-in with this e-mail must be refused before the password is checked: the account is the seeded
+    /// admin, the request does not come straight from the machine itself, a one-time setup code is configured and the
+    /// first start is still open. Such an installation is claimed only through the first-start page with the code, so
+    /// the public default password no longer opens a way around it; checking before the password also keeps Identity
+    /// from rehashing the seeded hash, which would close the first start.
+    /// </summary>
+    /// <param name="email">E-mail address typed on the sign-in page</param>
+    /// <param name="isLocalRequest">The request comes straight from the machine itself, without a proxy</param>
+    Task<bool> IsSeedAdminSignInReservedForSetupCodeAsync(string email, bool isLocalRequest);
 }

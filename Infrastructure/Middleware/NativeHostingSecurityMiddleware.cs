@@ -10,8 +10,8 @@
 /// <param name="configuration">Effective configuration; Hosting:MapTileCspSources replaces the tile hosts in img-src like
 /// MAP_TILE_CSP_SOURCES does for nginx (an empty value allows no tile host)</param>
 
-using System.Net;
 using Klacks.Api.Application.Configuration;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Domain.Constants;
 using Microsoft.Net.Http.Headers;
 
@@ -82,9 +82,9 @@ public class NativeHostingSecurityMiddleware
             && (value.Length == prefix.Length || value[prefix.Length] == PathSeparator));
     }
 
-    public static bool IsLocalRequest(HttpContext context)
-    {
-        var remote = context.Connection.RemoteIpAddress;
-        return remote is not null && IPAddress.IsLoopback(remote.IsIPv4MappedToIPv6 ? remote.MapToIPv4() : remote);
-    }
+    /// <summary>
+    /// Loopback check for the hosting-only paths (/internal, /_blazor). Not an authorization decision: the first start
+    /// and the seeded-admin sign-in use DirectLoopbackRequest, which also refuses any request carrying proxy headers.
+    /// </summary>
+    public static bool IsLocalRequest(HttpContext context) => LoopbackAddress.IsLoopback(context.Connection.RemoteIpAddress);
 }

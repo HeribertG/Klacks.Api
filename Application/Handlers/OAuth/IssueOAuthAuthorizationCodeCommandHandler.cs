@@ -23,6 +23,8 @@ namespace Klacks.Api.Application.Handlers.OAuth;
 
 public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOAuthAuthorizationCodeCommand, OAuthAuthorizationCodeResult>
 {
+    private const string InvalidCredentialsDescription = "Invalid email or password.";
+
     private readonly IOAuthClientRepository _clientRepository;
     private readonly IAuthenticationService _authenticationService;
     private readonly IOAuthAuthorizationCodeStore _codeStore;
@@ -59,10 +61,15 @@ public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOA
                 "The redirect_uri is not registered for this client.");
         }
 
+        if (await _adminSetupGateService.IsSeedAdminSignInReservedForSetupCodeAsync(request.Email, request.IsLocalRequest))
+        {
+            return OAuthAuthorizationCodeResult.Rejected(OAuthConstants.ErrorAccessDenied, InvalidCredentialsDescription);
+        }
+
         var (isValid, user) = await _authenticationService.ValidateCredentialsAsync(request.Email, request.Password);
         if (!isValid || user == null)
         {
-            return OAuthAuthorizationCodeResult.Rejected(OAuthConstants.ErrorAccessDenied, "Invalid email or password.");
+            return OAuthAuthorizationCodeResult.Rejected(OAuthConstants.ErrorAccessDenied, InvalidCredentialsDescription);
         }
 
         if (user.Id == SystemAccounts.SeedAdminUserId && await _adminSetupGateService.IsGateActiveAsync())

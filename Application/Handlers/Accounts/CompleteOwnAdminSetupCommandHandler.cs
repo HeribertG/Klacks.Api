@@ -5,10 +5,12 @@
 /// register the new account, grant it the Admin role, then deactivate the seeded admin. The user name is always
 /// generated server-side from first and last name, the same convention the user administration uses; a user
 /// name sent by the client is ignored. A rejected registration is reported with Identity's reason codes (400);
-/// 409 is reserved for "already completed" and "not required in this environment". The administrator-role lock is taken
+/// 409 is reserved for "already completed", "not required in this environment" and the uniform answer of the
+/// first start (closed, or a request that does not come straight from the machine itself without the right setup code). The administrator-role lock is taken
 /// before the seeded admin is deactivated, so the last-administrator count is read under the same lock every other
-/// deactivation uses. The anonymous first-start path answers 409 before the transaction once the installation can no
-/// longer be claimed, so late anonymous calls never take the lock, and re-checks its eligibility under that lock, so of
+/// deactivation uses. The anonymous first-start path answers 409 before the transaction when a request that does not
+/// come straight from the machine itself lacks the right setup code, or once the installation can no longer be claimed,
+/// so such calls never take the lock; it re-checks its eligibility under that lock, so of
 /// two parallel requests exactly one creates the admin and the other gets the same 409 as every caller once the setup
 /// is done.
 /// </summary>
@@ -63,7 +65,9 @@ public class CompleteOwnAdminSetupCommandHandler : BaseHandler, IRequestHandler<
 
     public async Task<bool> Handle(CompleteOwnAdminSetupCommand request, CancellationToken cancellationToken)
     {
-        if (request.IsFirstStart && !await _adminSetupGateService.IsFirstStartSetupOpenAsync())
+        if (request.IsFirstStart
+            && (!_adminSetupGateService.IsFirstStartCodeAccepted(request.IsLocalRequest, request.SetupCode)
+                || !await _adminSetupGateService.IsFirstStartSetupOpenAsync()))
         {
             throw new ConflictException(AdminSetupMessages.FirstStartUnavailable);
         }

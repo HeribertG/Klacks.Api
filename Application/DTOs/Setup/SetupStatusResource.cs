@@ -7,4 +7,6 @@ public class SetupStatusResource
     public bool RequiresOwnAdmin { get; set; }
 
     public PasswordPolicyResource? PasswordPolicy { get; set; }
+
+    public bool RequiresSetupCode { get; set; }
 }

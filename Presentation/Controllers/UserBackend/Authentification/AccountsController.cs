@@ -158,7 +158,8 @@ public class AccountsController : BaseController
 
         _logger.LogInformation("Login attempt for user: {Email}", model.Email.MaskEmail());
 
-        var result = await _mediator.Send(new LoginUserQuery(model.Email, model.Password));
+        var result = await _mediator.Send(new LoginUserQuery(
+            model.Email, model.Password, DirectLoopbackRequest.IsDirectLoopback(HttpContext)));
         _refreshTokenCookie.Write(HttpContext, result.RefreshToken);
         _accessTokenCookie.Write(HttpContext, result.Token);
         return Ok(result);

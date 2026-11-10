@@ -14,6 +14,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Queries.OAuth;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Authentication;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -114,7 +115,8 @@ public class OAuthAuthorizationServerController : ControllerBase
         }
 
         var issueResult = await _mediator.Send(new IssueOAuthAuthorizationCodeCommand(
-            email, password, clientId!, validation.EffectiveRedirectUri!, codeChallenge!, scope));
+            email, password, clientId!, validation.EffectiveRedirectUri!, codeChallenge!, scope,
+            DirectLoopbackRequest.IsDirectLoopback(HttpContext)));
 
         if (issueResult.IsSetupRequired)
         {

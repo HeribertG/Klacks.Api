@@ -115,6 +115,16 @@ function New-Secret([int]$bytes = 48) {
     [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($buf)
     return [Convert]::ToBase64String($buf)
 }
+# One-time setup code (12 characters, no look-alike characters, grouped by four). The first visitor of a fresh
+# Klacks needs it once to create the own admin account; without it only the sign-in with the test account works.
+# 32 symbols divide 256 evenly, so taking each random byte modulo 32 keeps every symbol equally likely.
+function New-SetupCode {
+    $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+    $buf = New-Object byte[] 12
+    [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($buf)
+    $code = -join ($buf | ForEach-Object { $alphabet[$_ % $alphabet.Length] })
+    return '{0}-{1}-{2}' -f $code.Substring(0, 4), $code.Substring(4, 4), $code.Substring(8, 4)
+}
 function Set-IfEmpty($key, $value) { if (-not $envMap[$key]) { $envMap[$key] = $value } }
 function Set-IfAbsent($key, $value) { if (-not $envMap.Contains($key)) { $envMap[$key] = $value } }
 
@@ -139,6 +149,7 @@ function New-DataProtectionCertificate($password) {
 Set-IfEmpty 'COMPOSE_PROJECT_NAME' 'klacks'
 Set-IfEmpty 'POSTGRES_PASSWORD' (New-Secret)
 Set-IfEmpty 'JWT_SECRET' (New-Secret 64)
+Set-IfEmpty 'KLACKS_SETUP_CODE' (New-SetupCode)
 
 if (-not $envMap['DATAPROTECTION_CERT_BASE64']) {
     Write-Step 'Generating the DataProtection certificate...'
@@ -299,5 +310,9 @@ if ($healthy) {
     Write-Warn "API did not report healthy yet. Check: docker compose logs klacks-api"
 }
 Write-Host ""
-Write-Host "Default login:  admin@test.com  /  P@ssw0rt1" -ForegroundColor Green
-Write-Warn  "SECURITY: change this password immediately after first login, and update the mail/SMTP settings in the admin UI."
+Write-Host "Your setup code:  $($envMap['KLACKS_SETUP_CODE'])" -ForegroundColor Green
+Write-Host "   You need it once, when you open Klacks for the first time: it lets you create your own admin account."
+Write-Host "   It stays in .env as KLACKS_SETUP_CODE."
+Write-Host ""
+Write-Host "If Klacks shows the sign-in page instead: admin@test.com  /  P@ssw0rt1 (Klacks then asks for your own admin account)."
+Write-Warn  "Set the mail/SMTP settings in the admin UI after the first login."

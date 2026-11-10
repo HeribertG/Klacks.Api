@@ -16,6 +16,13 @@ public static class DeploymentConstants
     public const string IsPlaygroundConfigKey = "Deployment:IsPlayground";
 
     /// <summary>
+    /// One-time setup code the on-prem installers generate (KLACKS_SETUP_CODE in .env, passed as
+    /// Setup__FirstStartCode). Required by the anonymous first start for every request that does not come straight
+    /// from the machine itself; without it such requests cannot claim the installation.
+    /// </summary>
+    public const string FirstStartCodeConfigKey = "Setup:FirstStartCode";
+
+    /// <summary>
     /// ProblemDetails errorCode extension the frontend uses to tell "own admin setup required" apart
     /// from an ordinary 403 permission error and route to the setup screen instead.
     /// </summary>

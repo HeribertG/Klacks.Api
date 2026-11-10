@@ -13,14 +13,19 @@ namespace Klacks.Api.Application.Handlers.Accounts;
 
 public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResource>
 {
+    private const string InvalidCredentialsMessage = "Invalid e-mail address or password.";
+
     private readonly IAccountAuthenticationService _accountAuthenticationService;
+    private readonly IAdminSetupGateService _adminSetupGateService;
     private readonly ILogger<LoginUserQueryHandler> _logger;
 
     public LoginUserQueryHandler(
         IAccountAuthenticationService accountAuthenticationService,
+        IAdminSetupGateService adminSetupGateService,
         ILogger<LoginUserQueryHandler> logger)
     {
         _accountAuthenticationService = accountAuthenticationService;
+        _adminSetupGateService = adminSetupGateService;
         _logger = logger;
     }
 
@@ -29,7 +34,13 @@ public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResour
         try
         {
             _logger.LogInformation("Processing login request for user: {Email}", request.Email.MaskEmail());
-            
+
+            if (await _adminSetupGateService.IsSeedAdminSignInReservedForSetupCodeAsync(request.Email, request.IsLocalRequest))
+            {
+                _logger.LogWarning("Remote sign-in with the seeded admin refused: the installation is claimed with its setup code");
+                throw new UnauthorizedException(InvalidCredentialsMessage);
+            }
+
             var result = await _accountAuthenticationService.LogInUserAsync(request.Email, request.Password);
             
             if (result != null && result.Success)
@@ -56,7 +67,7 @@ public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResour
             }
             
             _logger.LogWarning("Login failed for user: {Email}", request.Email.MaskEmail());
-            throw new UnauthorizedException("Invalid e-mail address or password.");
+            throw new UnauthorizedException(InvalidCredentialsMessage);
         }
         catch (Exception ex)
         {

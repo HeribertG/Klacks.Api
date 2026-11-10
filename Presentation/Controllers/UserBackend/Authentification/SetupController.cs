@@ -3,7 +3,8 @@
 /// <summary>
 /// Own-admin setup of a freshly deployed instance. Two ways lead to it: the seeded admin signed in (Status,
 /// CompleteOwnAdmin) and the anonymous first start (FirstStartStatus, CompleteFirstStart), which only works while the
-/// installation can still be claimed and otherwise answers "not available" without saying why.
+/// installation can still be claimed and otherwise answers "not available" without saying why. A first-start request
+/// that does not come straight from the machine itself (DirectLoopbackRequest) has to carry the installer's setup code.
 /// </summary>
 /// <param name="mediator">Dispatches the setup status query and the completion command</param>
 
@@ -14,6 +15,7 @@ using Klacks.Api.Application.DTOs.Setup;
 using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Authentication;
 using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -59,15 +61,21 @@ public class SetupController : BaseController
     [HttpGet("FirstStartStatus")]
     public async Task<ActionResult<SetupStatusResource>> GetFirstStartStatus()
     {
-        return Ok(await _mediator.Send(new GetSetupStatusQuery(IsFirstStart: true)));
+        return Ok(await _mediator.Send(new GetSetupStatusQuery(
+            IsFirstStart: true,
+            IsLocalRequest: DirectLoopbackRequest.IsDirectLoopback(HttpContext))));
     }
 
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitingPolicies.Login)]
     [HttpPost("CompleteFirstStart")]
-    public async Task<ActionResult> CompleteFirstStart([FromBody] RegistrationResource model)
+    public async Task<ActionResult> CompleteFirstStart([FromBody] FirstStartRegistrationResource model)
     {
-        await _mediator.Send(new CompleteOwnAdminSetupCommand(model, IsFirstStart: true));
+        await _mediator.Send(new CompleteOwnAdminSetupCommand(
+            model,
+            IsFirstStart: true,
+            IsLocalRequest: DirectLoopbackRequest.IsDirectLoopback(HttpContext),
+            SetupCode: model.SetupCode));
         return Ok();
     }
 }

@@ -3,7 +3,9 @@
 /// <summary>
 /// Derives the own-admin setup gate from the seeded admin account on every call (nothing is persisted): active while the
 /// seeded admin is not deactivated, outside Development and the Playground. Also answers whether the first-start path
-/// may claim the installation without signing in.
+/// may claim the installation without signing in, and whether a first-start request must and does carry the one-time
+/// setup code the installer configured (Setup:FirstStartCode). Where such a code is configured, a remote sign-in with the
+/// seeded admin is refused while the first start is open, so the code cannot be bypassed with the public password.
 /// </summary>
 /// <param name="userManagementService">Reads the seeded admin, its roles and the number of active administrators</param>
 /// <param name="configuration">Provides the Playground switch (Deployment:IsPlayground)</param>
@@ -11,6 +13,7 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Services.Accounts;
 using Microsoft.Extensions.Hosting;
@@ -73,10 +76,34 @@ public class AdminSetupGateService : IAdminSetupGateService
         return await _userManagementService.CountActiveAdministratorsAsync() == SeedAdminOnlyAdministratorCount;
     }
 
+    public bool IsFirstStartReachable(bool isLocalRequest) =>
+        isLocalRequest || FirstStartSetupCode.IsConfigured(ConfiguredFirstStartCode());
+
+    public bool IsFirstStartCodeAccepted(bool isLocalRequest, string? setupCode) =>
+        isLocalRequest || FirstStartSetupCode.Matches(ConfiguredFirstStartCode(), setupCode);
+
+    public async Task<bool> IsSeedAdminSignInReservedForSetupCodeAsync(string email, bool isLocalRequest)
+    {
+        if (isLocalRequest || !FirstStartSetupCode.IsConfigured(ConfiguredFirstStartCode()) || string.IsNullOrWhiteSpace(email))
+        {
+            return false;
+        }
+
+        var account = await _userManagementService.FindUserByEmailAsync(email.Trim());
+        if (account is null || !string.Equals(account.Id, SystemAccounts.SeedAdminUserId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return await IsFirstStartSetupOpenAsync();
+    }
+
     public Task<bool> IsExemptAsync()
     {
         return Task.FromResult(IsExempt());
     }
+
+    private string? ConfiguredFirstStartCode() => _configuration[DeploymentConstants.FirstStartCodeConfigKey];
 
     private bool IsExempt()
     {

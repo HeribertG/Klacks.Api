@@ -38,8 +38,14 @@ industry presets on first boot — see [`regions/README.md`](regions/README.md) 
 list of supported country codes.
 
 ## First login
-`admin@test.com` / `P@ssw0rt1` — **change this password immediately** and set your
-mail/SMTP settings in the admin UI.
+At the end the installer prints **your setup code** (also kept in `.env` as `KLACKS_SETUP_CODE`).
+Open Klacks in the browser: the first page creates your own admin account and asks for this
+code once. Afterwards the built-in test account `admin@test.com` is switched off for good, and
+Klacks asks for the industry. Then set your mail/SMTP settings in the admin UI.
+
+Without a setup code (an installation made before this version, or a Docker Compose setup with
+an empty `KLACKS_SETUP_CODE`) Klacks shows the sign-in page: sign in once with
+`admin@test.com` / `P@ssw0rt1`, then Klacks asks for your own admin account.
 
 ## ERP order import drop point
 Order XML files can be picked up automatically from a folder, without going through the UI.

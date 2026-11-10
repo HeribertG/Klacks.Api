@@ -74,6 +74,13 @@ Next comes the page "Country and industry" (de: "Land und Branche"), see `explai
 - This works only once and only while nobody has used the built-in account yet: when its password was
   changed, it was already used to sign in, or another administrator exists, the normal sign-in page
   appears instead. Signing in with the built-in account then still leads to the same setup page.
+- On a server installation (Docker) the page also asks for the **setup code** (de: "Einrichtungscode"), even in a
+  browser on the server itself: the installer printed it at the end, and it stays in the file `.env` as
+  `KLACKS_SETUP_CODE`. A wrong code gives "The setup code does not match". While such a code is set, the built-in
+  test account cannot be used to sign in from a browser. Without a configured code (an older installation, or a
+  Docker Compose setup with an empty value) the sign-in page appears instead. On the office PC installation
+  (Windows, opened in a browser on that same PC) no code is needed; opened from another computer, only the
+  sign-in page appears.
 - If two people submit at the same moment, only the first one becomes administrator; the second gets
   "already completed" and goes to the sign-in page.
 - The public test environment and developer installations keep the built-in account and never show the page.
@@ -90,3 +97,4 @@ Next comes the page "Country and industry" (de: "Land und Branche"), see `explai
 - "How does someone reset a forgotten password themselves?"
 - "Warum zeigt Klacks nach der Installation zuerst 'Eigenes Admin-Konto einrichten'?"
 - "I installed Klacks, how do I get the first administrator account?"
+- "Wo finde ich den Einrichtungscode?"

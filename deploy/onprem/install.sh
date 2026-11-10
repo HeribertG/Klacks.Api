@@ -152,6 +152,13 @@ step "Checking memory..."
 check_memory
 
 gen_secret() { head -c "${1:-48}" /dev/urandom | base64 | tr -d '\n'; }
+# One-time setup code (12 characters, no look-alike characters, grouped by four). The first visitor of a fresh
+# Klacks needs it once to create the own admin account; without it only the sign-in with the test account works.
+gen_setup_code() {
+  local raw
+  raw="$(head -c 512 /dev/urandom | LC_ALL=C tr -dc 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789')"
+  printf '%s-%s-%s' "${raw:0:4}" "${raw:4:4}" "${raw:8:4}"
+}
 set_if_empty() { local k="$1" v="$2"; [ -z "${ENVMAP[$k]:-}" ] && ENVMAP["$k"]="$v" || true; }
 set_if_absent() { local k="$1" v="$2"; [ -z "${ENVMAP[$k]+x}" ] && ENVMAP["$k"]="$v" || true; }
 
@@ -162,6 +169,7 @@ ENVMAP[KLACKS_INSTALL_DIR]="$(pwd -P)"
 ENVMAP[KLACKS_UPDATER_PROJECT_DIR]="$(pwd -P)"
 set_if_empty POSTGRES_PASSWORD "$(gen_secret 48)"
 set_if_empty JWT_SECRET "$(gen_secret 64)"
+set_if_empty KLACKS_SETUP_CODE "$(gen_setup_code)"
 
 # Certificate that wraps the DataProtection key ring. The ring itself lives in the database, so a
 # pg_dump keeps it current even though it rotates every 90 days; this certificate is what stops
@@ -296,5 +304,9 @@ else
   warn "API did not report healthy yet. Check: docker compose logs klacks-api"
 fi
 echo ""
-printf '\033[32mDefault login:  admin@test.com  /  P@ssw0rt1\033[0m\n'
-warn "SECURITY: change this password immediately after first login, and update the mail/SMTP settings in the admin UI."
+printf '\033[32mYour setup code:  %s\033[0m\n' "${ENVMAP[KLACKS_SETUP_CODE]}"
+echo "   You need it once, when you open Klacks for the first time: it lets you create your own admin account."
+echo "   It stays in .env as KLACKS_SETUP_CODE."
+echo ""
+echo "If Klacks shows the sign-in page instead: admin@test.com  /  P@ssw0rt1 (Klacks then asks for your own admin account)."
+warn "Set the mail/SMTP settings in the admin UI after the first login."
