@@ -3,8 +3,8 @@ name: explain_planning_wizards
 description: |
   Explains the machinery behind automatic planning: three stages that run one after another. Stage
   one fills the plan with a genetic algorithm and no language model, stage two smooths the result
-  without touching coverage, stage three polishes it with a deterministic local search by default and
-  uses a picture-reading language model only when the installation switched it to one. Covers what each
+  without touching coverage, stage three polishes it with a deterministic local search; the earlier option
+  to run stage three on a language model has been retired. Covers what each
   stage does, when to run one alone, how long a run takes and how to stop it. Use this when the user asks
   how auto-planning works internally, which stage to use, why a run is slow or costly, or how to cancel one.
 category: Query
@@ -28,7 +28,7 @@ synonyms:
 
 ## Core idea (one sentence)
 
-Automatic planning is not one step but three; by default none of them needs a language model.
+Automatic planning is not one step but three; none of them needs a language model.
 
 ## The three stages
 
@@ -57,14 +57,15 @@ stage costs nothing beyond computing time.
 awkward sequences. It deliberately **does not touch coverage decisions** — who works at all was
 settled in stage one. It keeps every hard limit, the hours per week and per day included. Also no language model.
 
-**Stage three — polishing.** Reworks the smoothed plan as a whole. By default it runs a
+**Stage three — polishing.** Reworks the smoothed plan as a whole. It runs a
 **deterministic local search**: it tries swaps and pairs of swaps, keeps only those that make the plan
 more harmonious without breaking a hard rule and without moving anyone further from their target
 hours, and gives the same result for the same input. A swap between two different days is checked
 against the rest between duties, the days in a row and the hours per week and per day as well. No language model is involved and it costs only
-computing time. An installation can switch this stage to a language model that reads the plan **as a
-picture**; only then does it consume model usage, and it needs a model that can process images. If
-stage three fails, the chain keeps the plan of stage two.
+computing time. Harmony is computed, not judged by AI. The earlier option to let a language model read the
+plan as a picture has been retired because measurements showed no gain; there is no
+setting for it any more, and a request to switch to it is refused. If stage three fails, the chain keeps
+the plan of stage two.
 
 Run one after another, the three form the chain behind the autofill button in the schedule header.
 Autofill is planning work: everyone who may edit the schedule may start it, follow it and cancel it, a
@@ -146,7 +147,7 @@ yet evened out in the first stage.
 Each stage can be started on its own, which is worth knowing. Starting a single stage is for
 administrators only; everybody else uses the whole chain:
 
-- Only stage one when a first plan is needed and neither smoothing nor a language model is wanted.
+- Only stage one when a first plan is needed and no smoothing is wanted.
 - Only stage two on an existing plan that is complete but uneven.
 - Only stage three on an already smoothed plan that should be polished once more.
 

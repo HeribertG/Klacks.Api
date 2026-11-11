@@ -6472,7 +6472,7 @@
       ]
     },
     "synonymStatus": "reviewed",
-    "obsolete": false
+    "obsolete": true
   },
   {
     "targetId": "wizard3",

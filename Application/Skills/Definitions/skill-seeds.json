@@ -40700,7 +40700,7 @@
     {
       "name": "explain_guided_tour",
       "area": "navigation",
-      "description": "Explains the guided setup tour for administrators: twenty stations across the whole application where Klacksy explains each area, navigates to the page itself and makes the matching navigation icon pulse, while the user sets the pace and can skip, stop or ask questions at any station. It shows where things are rather than filling anything in, and can be repeated. Use this when somebody is new, asks where to begin, or wants an overview of the application.",
+      "description": "Explains the guided setup tour for administrators: nineteen stations across the whole application where Klacksy explains each area, navigates to the page itself and makes the matching navigation icon pulse, while the user sets the pace and can skip, stop or ask questions at any station. It shows where things are rather than filling anything in, and can be repeated. Use this when somebody is new, asks where to begin, or wants an overview of the application.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -40762,7 +40762,7 @@
         "fr": "Expliquer la visite guidée",
         "it": "Spiega il tour guidato"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_navigation_learning",
@@ -45926,7 +45926,7 @@
     {
       "name": "get_wizard_settings",
       "area": "settings",
-      "description": "Shows how the schedule harmonizer reworks a whole roster at once: with the deterministic local search (the default, no AI and no usage costs) or with a language model, and which model that would be. Use when someone asks why reworking a plan takes so long, whether that run costs money, or wants to see the current choice before switching it. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows how the schedule harmonizer reworks a whole roster at once: with the deterministic local search, no AI and no usage costs. Use when someone asks why reworking a plan takes so long, whether that run costs money, or which method it uses. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -45990,12 +45990,12 @@
         "fr": "Modèle IA de l'assistant de planification",
         "it": "Modello IA dell'assistente di pianificazione"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "update_wizard_settings",
       "area": "settings",
-      "description": "Sets how the schedule harmonizer reworks a whole roster at once: the deterministic local search (the default, no AI and no usage costs) or a language model, and which model that is. A model id is checked against the models the installation actually has, so a wrong one cannot leave the harmonizer pointing at nothing. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Sets the schedule harmonizer, which reworks a whole roster at once, to the deterministic local search (no AI and no usage costs). The language-model mode has been retired: a request to run the harmonizer on a language model or to pick a model for it is refused, and the reply tells the user so. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -46003,22 +46003,13 @@
       ],
       "parameters": [
         {
-          "name": "llmModelId",
-          "description": "Id of the model the harmonizer should use when it runs on a language model. Optional when only the mode changes.",
-          "type": "String",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
           "name": "mode",
-          "description": "How the harmonizer works: 'deterministic' (local search, no AI, the default) or 'llm' (language model). Optional when only the model changes.",
+          "description": "How the harmonizer works; only 'deterministic' (local search, no AI) is available. Leave it out when the user asks for a language model, so the reply explains that this mode is retired.",
           "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
-            "deterministic",
-            "llm"
+            "deterministic"
           ]
         }
       ],
@@ -46077,7 +46068,7 @@
         "fr": "Modifier le modèle IA de l'assistant de planification",
         "it": "Modifica il modello IA dell'assistente di pianificazione"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "get_export_formats_settings",

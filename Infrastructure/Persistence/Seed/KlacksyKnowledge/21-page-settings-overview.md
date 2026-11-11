@@ -143,8 +143,9 @@ mit — erwähne die Marker und Anker-IDs niemals im Text.
    (Anstellungs- und Lohnparameter wie Ferientage, Probezeit, Kündigungsfrist,
    Zahlungsintervall), `scheduling-defaults` (Planungs-Standardwerte, z. B.
    Standard-Arbeitstage), `scheduling-rules` (Planungsregeln: Arbeitszeit-Limits,
-   Zuschläge), `wizard` (Einstellungen des **Holistic Harmonizer**, des
-   Schichtplan-Wizards — Label in allen Sprachen "Holistic Harmonizer").
+   Zuschläge). Eine Karte für den **Holistic Harmonizer** (Stufe 3 der automatischen
+   Planung) gibt es nicht mehr: Stufe 3 rechnet immer deterministisch, ohne Sprachmodell,
+   und hat keine Einstellung.
 5. **Abwesenheit & Kalender** (de: "Abwesenheit & Kalender", en: "Absence & Calendar",
    fr: "Absences & Calendrier", it: "Assenze & Calendario"): `absence-types`
    (Absenztypen: Name, Kürzel, Farbe, Standardwerte), `absence-detail`
@@ -209,7 +210,7 @@ mit — erwähne die Marker und Anker-IDs niemals im Text.
   Limits dieser Seite als Fallback. Der Dienste-Balken zählt geplante Dienste
   (Container = 1; sporadische Dienste, Zeitraum-Schichten, versiegelte Aufträge und
   Szenario-Einträge zählen nicht); der Absenzen-Balken umfasst vorgeplante Platzhalter
-  und gebuchte Absenz-Dienste. Planungsregeln und Harmonizer-Einstellungen steuern
+  und gebuchte Absenz-Dienste. Die Planungsregeln steuern
   zudem die Vorschläge des Schichtplan-Wizards.
 - **LLM-Anbieter und -Modelle → Klacksy**: Die hier hinterlegten API-Keys und das
   gewählte Standard-Modell bestimmen, welches Sprachmodell im Klacksy-Chat antwortet;
@@ -292,7 +293,7 @@ mit — erwähne die Marker und Anker-IDs niemals im Text.
 
 - "Was sehe ich auf der Einstellungsseite?"
 - "Welche Einstellungen gibt es in Klacks?"
-- "Wo finde ich die Planungsregeln / den Holistic Harmonizer?"
+- "Wo finde ich die Planungsregeln?"
 - "Wo stelle ich den LLM-Anbieter für Klacksy ein?"
 - "Where do I set up email and IMAP?"
 - "Warum sehe ich das Zahnrad-Icon nicht?" (Admin-Berechtigung)

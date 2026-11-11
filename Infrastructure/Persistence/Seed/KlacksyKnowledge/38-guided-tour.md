@@ -1,7 +1,7 @@
 ---
 name: explain_guided_tour
 description: |
-  Explains the guided setup tour for administrators: twenty stations across the whole application
+  Explains the guided setup tour for administrators: nineteen stations across the whole application
   where Klacksy explains each area, navigates to the page itself and makes the matching navigation
   icon pulse, while the user sets the pace and can skip, stop or ask questions at any station. It
   shows where things are rather than filling anything in, and can be repeated. Use this when
@@ -42,8 +42,8 @@ Klacksy does the navigating.
   three sentences; asking for more goes deeper into that page. Its progress belongs to the account.
 - The **setup tour** is for the **administrator** of a new installation. Its progress is stored for
   the whole installation and only an administrator can read or continue it. It goes through
-  **twenty stations**: company name, branding and company address, default language, the AI
-  provider with its model sync and model check, the planning optimiser, the Klacksy settings, the
+  **nineteen stations**: company name, branding and company address, default language, the AI
+  provider with its model sync and model check, the Klacksy settings, the
   calendar (public holidays), email setup, absence types, weekend and scheduling defaults, people,
   shifts, availability, period closing, user administration, web search and plugins. An
   administrator who finished or declined the setup tour is not offered the short introduction on
