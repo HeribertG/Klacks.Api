@@ -51297,7 +51297,7 @@
     {
       "name": "explain_shift_classification",
       "area": "shift",
-      "description": "Explains how Klacks decides whether a shift counts as early, late or night: the bands early 06:00-14:59, late 15:00-22:59 and night 23:00-05:59, and the rule that the whole span decides rather than the start alone, so a shift reaching into a later band takes that band. Use this when someone asks why a shift is treated as late or night although it starts in the morning, why a non-shift worker cannot be assigned a particular shift, or where the boundary between early, late and night lies.",
+      "description": "Explains how Klacks decides whether a shift counts as early, late or night. Bands: early 06:00-17:00, late 17:01-22:59, night 23:00-05:59. The whole span decides: the stronger band wins (night, then late) unless the shift stays in it for at most 60 minutes and less than half of its length, so 09:00-18:00 is early and 13:00-19:00 is late. Use when someone asks why a shift counts as early, late or night, why a non-shift worker cannot get a shift, or where the boundaries lie.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -51338,7 +51338,7 @@
           "shift classification"
         ]
       },
-      "version": 5,
+      "version": 6,
       "synonyms": {
         "de": [
           "wann gilt eine schicht als nachtschicht",
