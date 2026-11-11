@@ -26,14 +26,36 @@ public sealed class ScenarioOwnedRowStager
     public async Task AddScenarioMembershipAsync(
         Guid token, Guid clientId, Guid groupId, DateOnly validFrom, DateOnly validUntil, CancellationToken cancellationToken)
     {
+        var from = validFrom.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var until = validUntil.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var existing = _context.Set<GroupItem>().Local.FirstOrDefault(gi =>
+                !gi.IsDeleted && gi.AnalyseToken == token && gi.ClientId == clientId && gi.GroupId == groupId && gi.ShiftId == null)
+            ?? await _context.Set<GroupItem>().FirstOrDefaultAsync(
+                gi => gi.AnalyseToken == token && gi.ClientId == clientId && gi.GroupId == groupId && gi.ShiftId == null,
+                cancellationToken);
+        if (existing is not null && _context.Entry(existing).State != EntityState.Deleted)
+        {
+            if (existing.ValidFrom > from)
+            {
+                existing.ValidFrom = from;
+            }
+
+            if (existing.ValidUntil < until)
+            {
+                existing.ValidUntil = until;
+            }
+
+            return;
+        }
+
         var membership = new GroupItem
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
             GroupId = groupId,
             ShiftId = null,
-            ValidFrom = validFrom.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
-            ValidUntil = validUntil.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
+            ValidFrom = from,
+            ValidUntil = until,
             AnalyseToken = token
         };
         await _context.Set<GroupItem>().AddAsync(membership, cancellationToken);

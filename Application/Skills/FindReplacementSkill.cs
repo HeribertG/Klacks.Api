@@ -83,6 +83,8 @@ public class FindReplacementSkill : BaseSkillImplementation
             c.ClientId,
             c.Name,
             c.IsOnCall,
+            Borrowed = c.IsBorrowed,
+            ContractDayOff = c.IsContractDayOff,
             c.IsPreferred,
             c.TargetHoursDeficit,
             c.LevelShortfall,
@@ -100,13 +102,18 @@ public class FindReplacementSkill : BaseSkillImplementation
             EligibleCount = result.Eligible.Count,
             ExcludedCount = result.Excluded.Count,
             Candidates = ranked,
-            Excluded = result.Excluded.Select(e => new { e.ClientId, e.Name, e.Reason })
+            Excluded = result.Excluded.Select(e => new { e.ClientId, e.Name, e.Reason, Borrowed = e.IsBorrowed })
         };
+
+        var borrowedCount = result.Eligible.Count(c => c.IsBorrowed);
+        var dayOffCount = result.Eligible.Count(c => c.IsContractDayOff);
 
         var scenarioNote = analyseToken.HasValue ? " (scenario)" : string.Empty;
         var message =
             $"{result.Eligible.Count} eligible replacement(s) for shift '{shift.Name}' on {date:yyyy-MM-dd}{scenarioNote}; " +
-            $"{result.Excluded.Count} excluded (absence / unavailable / collision / rest time / missing qualification / blacklist).";
+            $"{result.Excluded.Count} excluded (absence / unavailable / collision / rest time / missing qualification / blacklist). " +
+            $"{borrowedCount} of the eligible are borrowed from another group under the same root (Borrowed, listed after the own group); " +
+            $"{dayOffCount} have that weekday off by contract (ContractDayOff: shown and marked, ask them first).";
 
         return SkillResult.SuccessResult(data, message);
     }

@@ -31,6 +31,10 @@ Klacks first looks for a person who can take the shift as it stands: on call tha
 
 Every move keeps the hard rules: qualification, availability, rest time, days in a row, daily, weekly and period hours. Late before early or night before late is allowed once the rest time between the two shifts is kept; such a person only ranks behind one whose rhythm fits. The dialog lists every move of a chain under the covered shift, so everybody concerned can be asked. If a later rule check refuses the proposed person, Klacks takes the next candidate instead of leaving the shift open.
 
+### Alternatives: the same people, marked
+
+The alternatives for a covered shift come from the same pool as the automatic proposal: the members of the group first, then people from sister groups under the same root group, marked as borrowed. A borrowed person is also checked against their own plan, so a shift or an absence in their home group excludes them. A person whose contract lists that weekday as a day off is shown and marked, not excluded; ask them before you choose them. The automatic proposal never takes a person on their contract day off. When a borrowed person is accepted as the alternative, they join the group in the scenario for that day. Accepted on two separate days, the same person is a member for the whole span between those days, and taking the scenario over makes that span a real membership.
+
 ### Full cover: the shift moves
 
 A shift moves when one person covers exactly the whole shift and nothing holds it in place: no lock stage, no replacement, not a task inside a container. It moves with briefing, debriefing, travel time, corrections, expenses and, for a container, all tasks inside it. The time credits (night, weekend, holiday) are recalculated with the contract of the new person. The schedule shows an icon with the tooltip (de: "Übernommen von {{name}}", en: "Taken over from {{name}}", fr: "Repris de {{name}}", it: "Ripreso da {{name}}"), or (de: "Aus einem Ausfall übernommen", en: "Taken over after an absence") when the original person is not visible to you. A moved shift is fixed for all planning wizards; they never move it again.
@@ -69,6 +73,8 @@ An absence with a duration but no times counts as the whole day. An absence with
 - "Who gets the expenses when somebody covers a shift?"
 - "Warum muss Tom seinen Dienst abgeben, wenn Elsa krank ist?"
 - "Can Klacks swap shifts to cover an absence?"
+- "Why does the list of alternatives show somebody from another group?"
+- "Warum steht bei einer Alternative, dass die Person frei hat?"
 
 <!-- level:pitfalls -->
 

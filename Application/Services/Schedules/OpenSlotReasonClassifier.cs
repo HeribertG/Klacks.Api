@@ -11,6 +11,7 @@
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.ScheduleOptimizer.TokenEvolution.Initialization;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Application.Services.Schedules;
 
@@ -29,7 +30,7 @@ public static class OpenSlotReasonClassifier
             return ScenarioSummaryReasonCodes.NoAgentInScope;
         }
 
-        var working = contractsOnDate.Where(c => WorksOn(c, weekday)).ToList();
+        var working = contractsOnDate.Where(c => ContractWeekday.WorksOn(c, weekday)).ToList();
         if (working.Count == 0)
         {
             return ScenarioSummaryReasonCodes.NoAgentWorksOnWeekday;
@@ -42,16 +43,4 @@ public static class OpenSlotReasonClassifier
 
         return ScenarioSummaryReasonCodes.CapacityOrRules;
     }
-
-    private static bool WorksOn(EffectiveContractData data, DayOfWeek weekday) => weekday switch
-    {
-        DayOfWeek.Monday => data.WorkOnMonday,
-        DayOfWeek.Tuesday => data.WorkOnTuesday,
-        DayOfWeek.Wednesday => data.WorkOnWednesday,
-        DayOfWeek.Thursday => data.WorkOnThursday,
-        DayOfWeek.Friday => data.WorkOnFriday,
-        DayOfWeek.Saturday => data.WorkOnSaturday,
-        DayOfWeek.Sunday => data.WorkOnSunday,
-        _ => false,
-    };
 }

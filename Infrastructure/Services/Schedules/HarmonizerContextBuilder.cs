@@ -473,7 +473,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             .ToListAsync(ct);
     }
 
-    private static Dictionary<(Guid AgentId, DateOnly Date), bool> BuildContractDays(
+    internal static Dictionary<(Guid AgentId, DateOnly Date), bool> BuildContractDays(
         List<Guid> agentIds,
         DateOnly from,
         DateOnly until,
@@ -499,7 +499,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                     result[(agentId, date)] = false;
                     continue;
                 }
-                result[(agentId, date)] = WorksOnDay(data, date.DayOfWeek);
+                result[(agentId, date)] = ContractWeekday.WorksOn(data, date.DayOfWeek);
             }
         }
         return result;
@@ -545,18 +545,6 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             c => c.Id,
             c => (IReadOnlyCollection<Period>)c.IndividualPeriod!.Periods.ToList());
     }
-
-    private static bool WorksOnDay(EffectiveContractData data, DayOfWeek dayOfWeek) => dayOfWeek switch
-    {
-        DayOfWeek.Monday => data.WorkOnMonday,
-        DayOfWeek.Tuesday => data.WorkOnTuesday,
-        DayOfWeek.Wednesday => data.WorkOnWednesday,
-        DayOfWeek.Thursday => data.WorkOnThursday,
-        DayOfWeek.Friday => data.WorkOnFriday,
-        DayOfWeek.Saturday => data.WorkOnSaturday,
-        DayOfWeek.Sunday => data.WorkOnSunday,
-        _ => false,
-    };
 
     /// <summary>
     /// The bitmap agents. Consecutive-day, pause and rest-day caps come from the contract data of the first period day; the

@@ -34,6 +34,17 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
         return await GetClientIdsForGroups(allGroupIds);
     }
 
+    public async Task<List<Guid>> GetRealClientIdsFromGroupAndSubgroups(Guid groupId, CancellationToken cancellationToken)
+    {
+        var groupIds = await GetAllSubGroupIds(new List<Guid> { groupId });
+        return await _context.GroupItem
+            .AsNoTracking()
+            .Where(gi => gi.ClientId.HasValue && gi.AnalyseToken == null && groupIds.Contains(gi.GroupId))
+            .Select(gi => gi.ClientId!.Value)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<Guid>> GetAllClientIdsFromGroupsAndSubgroupsFromList(List<Guid> groupIds)
     {
         if (groupIds == null || !groupIds.Any())

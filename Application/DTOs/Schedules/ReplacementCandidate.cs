@@ -10,7 +10,9 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// rule headroom, so the candidate ranks higher. The target-hours deficit (target minus already
 /// assigned hours in the period) is a fairness signal — a larger positive deficit means the employee
 /// is further below their target, so they rank higher (Playbook §6.4 step 3b/3c). An employee on call
-/// that day ranks ahead of everyone else. A candidate holding a mandatory qualification below a non-binding minimum
+/// that day ranks ahead of the others of the same origin: members of the requested group come before borrowed
+/// people from the rest of its root. A candidate whose contract lists the weekday as a day off stays eligible and is
+/// marked. A candidate holding a mandatory qualification below a non-binding minimum
 /// level stays eligible but ranks after the sufficiently qualified ones (LevelShortfall).
 /// </summary>
 /// <param name="ClientId">Eligible employee</param>
@@ -23,6 +25,8 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="RhythmDelta">How the cover changes the rhythm of the candidate's own row (the same measure the
 /// automatic replacement uses): negative = it closes or extends a block of the same kind, 0 = neutral, positive = a
 /// lonely shift, a mixed block or a backward rotation. A tie-break only, right before the target-hours deficit.</param>
+/// <param name="IsBorrowed">True when the employee is no member of the requested group but of another group under the same root</param>
+/// <param name="IsContractDayOff">True when the effective contract data lists the weekday of the slot as a day off</param>
 /// <param name="Phone">Number to call the candidate on (mobile before fixed line); only filled on the planner endpoint, never in skill output</param>
 public sealed record ReplacementCandidate(
     Guid ClientId,
@@ -33,4 +37,6 @@ public sealed record ReplacementCandidate(
     bool IsOnCall = false,
     string? Phone = null,
     int LevelShortfall = 0,
-    int RhythmDelta = 0);
+    int RhythmDelta = 0,
+    bool IsBorrowed = false,
+    bool IsContractDayOff = false);

@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Handler for <see cref="FindReplacementQuery"/>. Candidates are the active members of the requested
-/// group and its subgroups; a candidate is hard-excluded when absent while the slot is occupied (a Break on the date
+/// Handler for <see cref="FindReplacementQuery"/>. Candidates are the pool the automatic absence cover uses
+/// (<see cref="IReplacementCandidatePoolResolver"/>): the members of the requested group and its subgroups and, marked
+/// IsBorrowed, the other people under the same root. The caller's visibility is applied first, then the borrowed part
+/// is cut to the first CrossGroupPoolCap people by id. A candidate is hard-excluded when absent while the slot is occupied (a Break on the date
 /// whose absence type is not on-call and whose real span overlaps the slot with its lead and trail; an on-call Break whose window overlaps the slot makes the candidate rank first,
 /// IsOnCall, while a non-overlapping one neither excludes nor prefers),
 /// when explicitly unavailable for an hour the shift occupies (an opt-in availability window), when
@@ -10,30 +12,32 @@
 /// qualification, a mandatory qualification held below a BINDING minimum level, or a
 /// Block-mode enforcement escalation such as restricted-time-window / period-cap / counter-rule /
 /// rest-day-rotation), when a rest-time violation is found (excluding even in Warn mode), or when the
-/// shift is blacklisted for them. Warning-level aggregate findings (overtime/consecutive/min-rest) are
-/// a soft ranking signal (less headroom -> lower rank). On-call candidates rank first, then preferred
+/// shift is blacklisted for them. A candidate whose contract lists the weekday of the slot as a day off is not
+/// excluded but marked (IsContractDayOff; an on-call day counts as a working day, as in the absence cover).
+/// Warning-level aggregate findings (overtime/consecutive/min-rest) are
+/// a soft ranking signal (less headroom -> lower rank). Members of the group rank before borrowed people, within
+/// each on-call candidates first, then the ones without a contract day off, then preferred
 /// employees, then the candidates holding every mandatory qualification at the required level ahead of those
 /// below a non-binding level (fewer missing levels first, LevelShortfall); among equally
 /// clean candidates the one whose own row keeps its rhythm best ranks higher (RhythmDelta, the same row measure
 /// the automatic replacement uses: a cover that closes a block of the same kind before a lonely shift), then the one
 /// furthest below their period target hours (fairness, 3b/3c).
-/// The candidate pool is resolved in two steps because IClientRepository filters on the group ROOT
-/// (Group.Root ?? Group.Id): a subgroup id matches no root and would silently yield an empty pool, so
-/// the root is resolved first and the root-wide result is then narrowed back to the requested group's
-/// own subtree.
+/// With a scenario token the checks read the scenario, which holds the plan of the requested group only. The home
+/// works and absences of a borrowed person live in the real plan, so borrowed candidates are checked against the real
+/// plan as well and a finding of either plan counts. The ranking signals (period hours, row rhythm) come from the plan
+/// of the request. Absent and unavailable candidates are sorted out before the conflict check runs.
 /// Group visibility is a security boundary: a group outside the caller's visibility is answered exactly like an
 /// unknown group (empty result, the pool is never loaded), and within a visible group the pool is narrowed to the
 /// clients the caller may see before anything else is evaluated, so neither the eligible nor the excluded list can
 /// name a hidden employee. Admins and callers without a user are unrestricted (the guards decide).
 /// </summary>
-/// <param name="clientRepository">Resolves the active clients under the group's root (the raw pool)</param>
-/// <param name="groupRepository">Resolves the requested group's root, because the client repository filters on the root id</param>
-/// <param name="groupClientService">Narrows the root-wide pool back to the requested group's own subtree</param>
+/// <param name="poolResolver">Resolves the members of the group and the borrowable people under its root</param>
 /// <param name="conflictChecker">Pre-commit guardrail used to test each candidate placement</param>
 /// <param name="preferenceRepository">Preferred/blacklisted shift preferences</param>
 /// <param name="scheduleEntriesService">Reads the day's grid to find absent (Break) members</param>
 /// <param name="availabilityRepository">Reads the day's hour-granular client availability windows</param>
 /// <param name="periodHoursService">Resolves each candidate's period target vs. already-assigned hours (fairness signal)</param>
+/// <param name="contractProvider">Reads the effective contract data of the pool for the weekday mark</param>
 /// <param name="overrideAuthorizer">Resolves whether a supervisor override is allowed at all (K1)</param>
 /// <param name="httpContextAccessor">Resolves the caller's name for the override audit log</param>
 /// <param name="absenceRepository">Resolves which absence types are on-call (not absent, preferred instead)</param>
@@ -55,6 +59,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
@@ -71,14 +76,13 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     private const string AbsentReason = "absent";
     private const string UnavailableReason = "unavailable";
 
-    private readonly IClientRepository _clientRepository;
-    private readonly IGroupRepository _groupRepository;
-    private readonly IGetAllClientIdsFromGroupAndSubgroups _groupClientService;
+    private readonly IReplacementCandidatePoolResolver _poolResolver;
     private readonly IPreCommitConflictChecker _conflictChecker;
     private readonly IClientShiftPreferenceRepository _preferenceRepository;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IClientAvailabilityRepository _availabilityRepository;
     private readonly IPeriodHoursService _periodHoursService;
+    private readonly IClientContractDataProvider _contractProvider;
     private readonly ISupervisorOverrideAuthorizer _overrideAuthorizer;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IAbsenceRepository _absenceRepository;
@@ -88,14 +92,13 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     private readonly ILogger<FindReplacementQueryHandler> _logger;
 
     public FindReplacementQueryHandler(
-        IClientRepository clientRepository,
-        IGroupRepository groupRepository,
-        IGetAllClientIdsFromGroupAndSubgroups groupClientService,
+        IReplacementCandidatePoolResolver poolResolver,
         IPreCommitConflictChecker conflictChecker,
         IClientShiftPreferenceRepository preferenceRepository,
         IScheduleEntriesService scheduleEntriesService,
         IClientAvailabilityRepository availabilityRepository,
         IPeriodHoursService periodHoursService,
+        IClientContractDataProvider contractProvider,
         ISupervisorOverrideAuthorizer overrideAuthorizer,
         IHttpContextAccessor httpContextAccessor,
         IAbsenceRepository absenceRepository,
@@ -105,14 +108,13 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         ILogger<FindReplacementQueryHandler> logger)
     {
         _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
-        _clientRepository = clientRepository;
-        _groupRepository = groupRepository;
-        _groupClientService = groupClientService;
+        _poolResolver = poolResolver;
         _conflictChecker = conflictChecker;
         _preferenceRepository = preferenceRepository;
         _scheduleEntriesService = scheduleEntriesService;
         _availabilityRepository = availabilityRepository;
         _periodHoursService = periodHoursService;
+        _contractProvider = contractProvider;
         _overrideAuthorizer = overrideAuthorizer;
         _httpContextAccessor = httpContextAccessor;
         _absenceRepository = absenceRepository;
@@ -128,18 +130,18 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             return new ReplacementSearchResult([], []);
         }
 
-        var members = await ResolveVisibleGroupMembersAsync(request.GroupId, cancellationToken);
-        if (members.Count == 0)
+        var pool = await ResolveVisiblePoolAsync(request, cancellationToken);
+        if (pool.Members.Count == 0)
         {
             return new ReplacementSearchResult([], []);
         }
 
-        var signals = await LoadCandidateSignalsAsync(request, members, cancellationToken);
+        var signals = await LoadCandidateSignalsAsync(request, pool, cancellationToken);
 
         var eligible = new List<ReplacementCandidate>();
         var excluded = new List<ExcludedCandidate>();
 
-        foreach (var member in members)
+        foreach (var member in pool.Members)
         {
             EvaluateCandidate(member, request, signals, eligible, excluded);
         }
@@ -152,13 +154,15 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     /// <summary>
     /// Everything the per-candidate evaluation needs, loaded once for the whole pool: absences and on-call breaks,
     /// availability windows, shift preferences, period hours, the conflicts each placement would introduce,
-    /// whether the caller may override a Block-mode escalation, and the members' row shift kinds around the slot.
+    /// whether the caller may override a Block-mode escalation, the members' row shift kinds around the slot and their
+    /// contract data. The conflict check only runs for candidates who are neither absent nor unavailable.
     /// </summary>
-    /// <param name="members">The visible candidate pool</param>
+    /// <param name="pool">The visible candidate pool</param>
     private async Task<CandidateSignals> LoadCandidateSignalsAsync(
-        FindReplacementQuery request, List<Client> members, CancellationToken cancellationToken)
+        FindReplacementQuery request, CandidatePool pool, CancellationToken cancellationToken)
     {
-        var (onLeaveClientIds, onCallClientIds) = await ResolveAbsencesAsync(request, cancellationToken);
+        var members = pool.Members;
+        var (onLeaveClientIds, onCallClientIds) = await ResolveAbsencesAsync(request, pool.BorrowedIds, cancellationToken);
 
         var availabilityEntries = await _availabilityRepository.GetByDateRange(request.Date, request.Date.AddDays(1));
         var availabilityByClient = availabilityEntries
@@ -174,15 +178,12 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         var periodHoursByClient = await _periodHoursService.GetPeriodHoursAsync(
             members.Select(m => m.Id).ToList(), periodFrom, periodUntil, request.AnalyseToken);
 
-        var plannedRows = members
-            .Select(m => new PlannedWorkRow(
-                m.Id, request.Date, request.StartTime, request.EndTime, request.ShiftId,
-                request.LeadHours, request.TrailHours, request.ExtraPaidHours))
+        var checkable = members
+            .Where(m => !onLeaveClientIds.Contains(m.Id) && !IsUnavailable(availabilityByClient, m.Id, request))
             .ToList();
-        var check = await _conflictChecker.CheckAsync(plannedRows, request.AnalyseToken, cancellationToken);
-        var conflictsByClient = check.NewConflicts
-            .GroupBy(c => c.ClientId)
-            .ToDictionary(g => g.Key, g => g.ToList());
+        var conflictsByClient = await CheckPlacementsAsync(request, checkable, pool.BorrowedIds, cancellationToken);
+        var contracts = await _contractProvider.GetEffectiveContractDataForClientsAsync(
+            members.Select(m => m.Id).ToList(), request.Date);
 
         var authorized = await _overrideAuthorizer.IsAuthorizedAsync(request.OverrideBlock);
         var rowKinds = await LoadRowKindsAsync(request, cancellationToken);
@@ -197,22 +198,55 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             conflictsByClient,
             authorized,
             rowKinds,
-            slotKind);
+            slotKind,
+            pool.BorrowedIds,
+            contracts);
+    }
+
+    /// <summary>
+    /// The conflicts each placement would introduce, per candidate. A borrowed candidate of a scenario request is also
+    /// checked against the real plan, where their home works live; a finding of the real plan that the scenario already
+    /// reports (ConflictFingerprint) is not added a second time. Findings of one plan are never merged.
+    /// </summary>
+    private async Task<Dictionary<Guid, List<ScheduleValidationNotificationDto>>> CheckPlacementsAsync(
+        FindReplacementQuery request, List<Client> candidates, HashSet<Guid> borrowedIds, CancellationToken cancellationToken)
+    {
+        var plannedRows = candidates
+            .Select(m => new PlannedWorkRow(
+                m.Id, request.Date, request.StartTime, request.EndTime, request.ShiftId,
+                request.LeadHours, request.TrailHours, request.ExtraPaidHours))
+            .ToList();
+        var conflicts = (await _conflictChecker.CheckAsync(plannedRows, request.AnalyseToken, cancellationToken))
+            .NewConflicts.ToList();
+
+        var borrowedRows = plannedRows.Where(row => borrowedIds.Contains(row.ClientId)).ToList();
+        if (request.AnalyseToken is not null && borrowedRows.Count > 0)
+        {
+            var reported = conflicts.Select(ConflictFingerprint.Of).ToHashSet();
+            var realPlan = (await _conflictChecker.CheckAsync(borrowedRows, null, cancellationToken)).NewConflicts;
+            conflicts.AddRange(realPlan.Where(c => !reported.Contains(ConflictFingerprint.Of(c))));
+        }
+
+        return conflicts
+            .GroupBy(c => c.ClientId)
+            .ToDictionary(g => g.Key, g => g.ToList());
     }
 
     /// <summary>
     /// The clients absent on the requested day (a Break whose absence type is not on-call) and the clients on call
-    /// during the requested slot (an on-call Break whose window overlaps it).
+    /// during the requested slot (an on-call Break whose window overlaps it). For a scenario request the breaks of the
+    /// borrowed people are read from the real plan in addition.
     /// </summary>
     private async Task<(HashSet<Guid> OnLeaveClientIds, HashSet<Guid> OnCallClientIds)> ResolveAbsencesAsync(
-        FindReplacementQuery request, CancellationToken cancellationToken)
+        FindReplacementQuery request, HashSet<Guid> borrowedIds, CancellationToken cancellationToken)
     {
-        var onLeaveCells = await _scheduleEntriesService.GetScheduleEntriesAsync(
-            new ScheduleEntriesCriteria(request.Date, request.Date, [request.GroupId], request.AnalyseToken)
-            {
-                EntryType = ScheduleEntryType.Break,
-            },
-            cancellationToken);
+        var onLeaveCells = await ReadBreaksAsync(request, request.AnalyseToken, null, cancellationToken);
+        if (request.AnalyseToken is not null && borrowedIds.Count > 0)
+        {
+            var realPlanCells = await ReadBreaksAsync(request, null, borrowedIds, cancellationToken);
+            onLeaveCells = [.. onLeaveCells, .. realPlanCells];
+        }
+
         var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
         var onLeaveClientIds = onLeaveCells
             .Where(c => !onCallAbsenceIds.Contains(c.EntryId)
@@ -228,6 +262,21 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         return (onLeaveClientIds, onCallClientIds);
     }
 
+    private Task<IReadOnlyList<ScheduleCell>> ReadBreaksAsync(
+        FindReplacementQuery request, Guid? analyseToken, IReadOnlyCollection<Guid>? clientIds, CancellationToken cancellationToken)
+        => _scheduleEntriesService.GetScheduleEntriesAsync(
+            new ScheduleEntriesCriteria(request.Date, request.Date, [request.GroupId], analyseToken)
+            {
+                ClientIds = clientIds,
+                EntryType = ScheduleEntryType.Break,
+            },
+            cancellationToken);
+
+    private static bool IsUnavailable(
+        Dictionary<Guid, IReadOnlyList<ClientAvailability>> availabilityByClient, Guid clientId, FindReplacementQuery request)
+        => availabilityByClient.TryGetValue(clientId, out var availability)
+            && AvailabilityMatcher.IsUnavailable(availability, request.Date, request.StartTime, request.EndTime);
+
     /// <summary>
     /// Adds the member either to the excluded list with the first reason that applies (absent, unavailable, a hard
     /// conflict that may not be overridden, blacklisted) or to the eligible list with its ranking signals; an
@@ -241,17 +290,17 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         List<ExcludedCandidate> excluded)
     {
         var name = DisplayName(member);
+        var isBorrowed = signals.BorrowedIds.Contains(member.Id);
 
         if (signals.OnLeaveClientIds.Contains(member.Id))
         {
-            excluded.Add(new ExcludedCandidate(member.Id, name, AbsentReason));
+            excluded.Add(new ExcludedCandidate(member.Id, name, AbsentReason, isBorrowed));
             return;
         }
 
-        if (signals.AvailabilityByClient.TryGetValue(member.Id, out var availability) &&
-            AvailabilityMatcher.IsUnavailable(availability, request.Date, request.StartTime, request.EndTime))
+        if (IsUnavailable(signals.AvailabilityByClient, member.Id, request))
         {
-            excluded.Add(new ExcludedCandidate(member.Id, name, UnavailableReason));
+            excluded.Add(new ExcludedCandidate(member.Id, name, UnavailableReason, isBorrowed));
             return;
         }
 
@@ -272,7 +321,7 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             var nonOverridable = hardConflicts.FirstOrDefault(c => !signals.IsOverrideAuthorized || !IsOverridableBlocking(c));
             if (nonOverridable != null)
             {
-                excluded.Add(new ExcludedCandidate(member.Id, name, nonOverridable.Comment));
+                excluded.Add(new ExcludedCandidate(member.Id, name, nonOverridable.Comment, isBorrowed));
                 return;
             }
             LogOverride(member.Id, hardConflicts);
@@ -284,7 +333,7 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         var hasPreference = signals.PreferenceByClient.TryGetValue(member.Id, out var preferenceType);
         if (hasPreference && preferenceType == ShiftPreferenceType.Blacklist)
         {
-            excluded.Add(new ExcludedCandidate(member.Id, name, BlacklistedReason));
+            excluded.Add(new ExcludedCandidate(member.Id, name, BlacklistedReason, isBorrowed));
             return;
         }
 
@@ -294,13 +343,18 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             ? hours.GuaranteedHours - hours.Hours
             : 0m;
 
+        var isOnCall = signals.OnCallClientIds.Contains(member.Id);
+        var contract = signals.Contracts.TryGetValue(member.Id, out var data) ? data : new EffectiveContractData();
+
         eligible.Add(new ReplacementCandidate(
             member.Id,
             name,
             IsPreferred: hasPreference && preferenceType == ShiftPreferenceType.Preferred,
             SoftConflicts: conflicts,
             TargetHoursDeficit: deficit,
-            IsOnCall: signals.OnCallClientIds.Contains(member.Id),
+            IsOnCall: isOnCall,
+            IsBorrowed: isBorrowed,
+            IsContractDayOff: !isOnCall && !ContractWeekday.WorksOn(contract, request.Date.DayOfWeek),
             LevelShortfall: SumLevelShortfall(conflicts),
             RhythmDelta: RowRhythm.CoverDelta(
                 day => signals.RowKinds.TryGetValue((member.Id, day), out var kind) ? kind : ShiftCategory.Free,
@@ -309,12 +363,15 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     }
 
     /// <summary>
-    /// On-call first, then preferred, then fewer missing qualification levels, fewer soft conflicts, the smaller
-    /// row-rhythm delta, the larger target-hours deficit, and finally the name.
+    /// Members of the group before borrowed people, on-call first, a contract day off last, then preferred, fewer
+    /// missing qualification levels, fewer soft conflicts, the smaller row-rhythm delta, the larger target-hours
+    /// deficit, and finally the name.
     /// </summary>
     private static List<ReplacementCandidate> Rank(List<ReplacementCandidate> eligible)
         => eligible
-            .OrderByDescending(c => c.IsOnCall)
+            .OrderBy(c => c.IsBorrowed)
+            .ThenByDescending(c => c.IsOnCall)
+            .ThenBy(c => c.IsContractDayOff)
             .ThenByDescending(c => c.IsPreferred)
             .ThenBy(c => c.LevelShortfall)
             .ThenBy(c => c.SoftConflicts.Count)
@@ -354,51 +411,45 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
 
     /// <summary>
     /// The candidate pool as the caller may see it. A hidden group yields the same empty pool as an unknown one
-    /// and is rejected before any group or client is loaded; otherwise the resolved members are narrowed to the
+    /// and is rejected before any group or client is loaded; otherwise the resolved pool is narrowed to the
     /// visible clients, so every later step (absences, conflicts, period hours, excluded reasons) only ever sees
-    /// employees the caller is allowed to know about.
+    /// employees the caller is allowed to know about. The borrowed part is cut to the cap after that, by id, and a
+    /// query for one person is answered from that cut pool, so it judges nobody the full list would not show. The
+    /// automatic cover cuts before the visibility, so both agree for a caller who sees everybody.
     /// </summary>
-    /// <param name="groupId">Group whose members form the candidate pool; may be a root or a subgroup</param>
-    private async Task<List<Client>> ResolveVisibleGroupMembersAsync(Guid groupId, CancellationToken cancellationToken)
+    private async Task<CandidatePool> ResolveVisiblePoolAsync(FindReplacementQuery request, CancellationToken cancellationToken)
     {
+        var groupId = request.GroupId;
         if (!await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken))
         {
             _logger.LogWarning("find_replacement was called for group {GroupId} outside the caller's visibility; no candidates.", groupId);
-            return [];
+            return CandidatePool.Empty;
         }
 
-        var members = await ResolveGroupMembersAsync(groupId, cancellationToken);
-        return await _clientVisibilityGuard.FilterVisibleAsync(members, c => c.Id, cancellationToken);
-    }
-
-    /// <summary>
-    /// Resolves the candidate pool for the requested group. <see cref="IClientRepository"/> filters on the
-    /// group ROOT (<c>Group.Root ?? Group.Id</c>), so handing it a subgroup id matches nothing and returns
-    /// an empty pool without any error - the same root resolution the recovery snapshot builder performs.
-    /// The root-wide result is then narrowed back to the requested group's own subtree, because the query
-    /// asks for the members of THAT group, not for everyone under its root. Only people who can take over a replacement
-    /// stay (<see cref="ReplacementPersonRule"/>), a customer is never a candidate.
-    /// </summary>
-    /// <param name="groupId">Group whose members form the candidate pool; may be a root or a subgroup</param>
-    private async Task<List<Client>> ResolveGroupMembersAsync(Guid groupId, CancellationToken cancellationToken)
-    {
-        var group = await _groupRepository.Get(groupId);
-        if (group == null)
+        var pool = await _poolResolver.ResolveAsync(groupId, cancellationToken);
+        if (pool is null)
         {
             _logger.LogWarning("find_replacement was called for unknown group {GroupId}; no candidates.", groupId);
-            return [];
+            return CandidatePool.Empty;
         }
 
-        var underRoot = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(
-            new List<Guid> { group.Root ?? groupId }, cancellationToken);
-        if (underRoot.Count == 0)
-        {
-            return [];
-        }
+        var crossGroupIds = pool.CrossGroup.Select(c => c.Id).ToHashSet();
+        var visible = await _clientVisibilityGuard.FilterVisibleAsync(
+            pool.InGroup.Concat(pool.CrossGroup).ToList(), c => c.Id, cancellationToken);
+        var borrowed = visible
+            .Where(c => crossGroupIds.Contains(c.Id))
+            .OrderBy(c => c.Id)
+            .Take(RecoveryBuildConstants.CrossGroupPoolCap)
+            .Where(c => IsAskedFor(request, c))
+            .ToList();
 
-        var memberIds = (await _groupClientService.GetAllClientIdsFromGroupAndSubgroups(groupId)).ToHashSet();
-        return ReplacementPersonRule.EligibleOnly(underRoot).Where(c => memberIds.Contains(c.Id)).ToList();
+        return new CandidatePool(
+            [.. visible.Where(c => !crossGroupIds.Contains(c.Id) && IsAskedFor(request, c)), .. borrowed],
+            borrowed.Select(c => c.Id).ToHashSet());
     }
+
+    private static bool IsAskedFor(FindReplacementQuery request, Client client)
+        => request.OnlyClientId is not { } only || client.Id == only;
 
     /// <summary>
     /// True when the absence's real span overlaps the time the slot occupies: the slot with its lead before and its trail
@@ -483,5 +534,13 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         Dictionary<Guid, List<ScheduleValidationNotificationDto>> ConflictsByClient,
         bool IsOverrideAuthorized,
         IReadOnlyDictionary<(Guid ClientId, DateOnly Date), ShiftCategory> RowKinds,
-        ShiftCategory SlotKind);
+        ShiftCategory SlotKind,
+        HashSet<Guid> BorrowedIds,
+        Dictionary<Guid, EffectiveContractData> Contracts);
+
+    /// <summary>The visible candidates, members of the group first, and which of them are borrowed.</summary>
+    private sealed record CandidatePool(List<Client> Members, HashSet<Guid> BorrowedIds)
+    {
+        public static CandidatePool Empty { get; } = new([], []);
+    }
 }

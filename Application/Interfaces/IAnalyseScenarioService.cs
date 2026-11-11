@@ -86,6 +86,8 @@ public interface IAnalyseScenarioService
     /// <summary>
     /// Materialises a temporary cross-group membership under the scenario token: the client joins the
     /// receiving group for the [validFrom, validUntil] window. Promote makes it real; Reject discards it.
+    /// A membership the client already has in that group under the token is widened to the window, not doubled:
+    /// there is one row per client, group and token, so two separate days span the days between them as well.
     /// </summary>
     Task AddScenarioMembershipAsync(Guid token, Guid clientId, Guid groupId, DateOnly validFrom, DateOnly validUntil, CancellationToken cancellationToken);
 

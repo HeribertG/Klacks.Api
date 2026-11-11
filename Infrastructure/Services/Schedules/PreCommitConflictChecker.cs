@@ -523,13 +523,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
     // key, so it is reported as a NEW conflict even though a violation pre-existed. This is harmless
     // for blocking (only collisions are Error and those key precisely), but a caller using HasAny
     // (find_replacement, P2.1) must decide deliberately how to treat aggregate worsening.
-    private static string BuildKey(ScheduleValidationNotificationDto entry)
-    {
-        var paramSignature = string.Join(
-            ",",
-            entry.CommentParams.OrderBy(p => p.Key).Select(p => $"{p.Key}={p.Value}"));
-        return $"{entry.Comment}|{entry.Date:O}|{entry.ClientId}|{paramSignature}";
-    }
+    private static string BuildKey(ScheduleValidationNotificationDto entry) => ConflictFingerprint.Of(entry);
 
     /// <summary>
     /// True when the plan vacates this work. Matched by id where the caller knows it, otherwise by the

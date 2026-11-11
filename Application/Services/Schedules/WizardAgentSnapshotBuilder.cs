@@ -81,7 +81,7 @@ public sealed class WizardAgentSnapshotBuilder
 
                 // A member day without an active contract is planned with the settings defaults (small companies
                 // keep no contracts); only days outside the membership or the group period are hard non-working days.
-                var worksOnDay = isPlannable && GetWorkOnDayFlag(data, date.DayOfWeek);
+                var worksOnDay = isPlannable && ContractWeekday.WorksOn(data, date.DayOfWeek);
                 contractDays.Add(new CoreContractDay(
                     AgentId: agentId.ToString(),
                     Date: date,
@@ -120,18 +120,6 @@ public sealed class WizardAgentSnapshotBuilder
         FullTimeShare: 0,
         MaximumHoursPerDay: 0,
         ContractId: Guid.Empty);
-
-    private static bool GetWorkOnDayFlag(EffectiveContractData data, DayOfWeek dayOfWeek) => dayOfWeek switch
-    {
-        DayOfWeek.Monday => data.WorkOnMonday,
-        DayOfWeek.Tuesday => data.WorkOnTuesday,
-        DayOfWeek.Wednesday => data.WorkOnWednesday,
-        DayOfWeek.Thursday => data.WorkOnThursday,
-        DayOfWeek.Friday => data.WorkOnFriday,
-        DayOfWeek.Saturday => data.WorkOnSaturday,
-        DayOfWeek.Sunday => data.WorkOnSunday,
-        _ => false,
-    };
 
     /// <summary>
     /// The engine agent of one employee. The targets the engine strives for (GuaranteedHours, FullTime, MinimumHours) are

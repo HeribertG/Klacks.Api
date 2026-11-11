@@ -19,8 +19,8 @@ using Microsoft.Extensions.Logging;
 namespace Klacks.Api.Application.Services.Schedules.Recovery;
 
 /// <summary>
-/// Builds the recovery <see cref="RecoverySnapshot"/> from the live plan. Reads the group's active
-/// members (candidate pool), their effective contract constraints (max-weekly / max-consecutive /
+/// Builds the recovery <see cref="RecoverySnapshot"/> from the live plan. Reads the candidate pool of the group
+/// (<see cref="IReplacementCandidatePoolResolver"/>, the borrowable part capped), their effective contract constraints (max-weekly / max-consecutive /
 /// min-pause / works-on-day), the period target-hours deficit (fairness), shift preferences (preferred /
 /// blacklist), the mandatory-qualification gate and explicit availability windows, plus every work in a
 /// context window around the absence. Candidates and days are frozen into a stable order by the snapshot;
@@ -40,7 +40,9 @@ namespace Klacks.Api.Application.Services.Schedules.Recovery;
 /// </summary>
 public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
 {
-    private readonly IClientRepository _clientRepository;
+    private const string GroupNotFoundMessage = "Group with ID {0} was not found";
+
+    private readonly IReplacementCandidatePoolResolver _poolResolver;
     private readonly IClientContractDataProvider _contractProvider;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IClientShiftPreferenceRepository _preferenceRepository;
@@ -48,7 +50,6 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     private readonly IClientAvailabilityRepository _availabilityRepository;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IScheduleCommandRepository _scheduleCommandRepository;
-    private readonly IGroupRepository _groupRepository;
     private readonly IGetAllClientIdsFromGroupAndSubgroups _groupClientService;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
     private readonly IAbsenceRepository _absenceRepository;
@@ -57,7 +58,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     private readonly ILogger<RecoverySnapshotBuilder> _logger;
 
     public RecoverySnapshotBuilder(
-        IClientRepository clientRepository,
+        IReplacementCandidatePoolResolver poolResolver,
         IClientContractDataProvider contractProvider,
         IPeriodHoursService periodHoursService,
         IClientShiftPreferenceRepository preferenceRepository,
@@ -65,7 +66,6 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IClientAvailabilityRepository availabilityRepository,
         IScheduleEntriesService scheduleEntriesService,
         IScheduleCommandRepository scheduleCommandRepository,
-        IGroupRepository groupRepository,
         IGetAllClientIdsFromGroupAndSubgroups groupClientService,
         IScheduleCommandKeywordProvider keywordProvider,
         IAbsenceRepository absenceRepository,
@@ -73,7 +73,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IMembershipWindowReader membershipWindowReader,
         ILogger<RecoverySnapshotBuilder> logger)
     {
-        _clientRepository = clientRepository;
+        _poolResolver = poolResolver;
         _contractProvider = contractProvider;
         _periodHoursService = periodHoursService;
         _preferenceRepository = preferenceRepository;
@@ -81,7 +81,6 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         _availabilityRepository = availabilityRepository;
         _scheduleEntriesService = scheduleEntriesService;
         _scheduleCommandRepository = scheduleCommandRepository;
-        _groupRepository = groupRepository;
         _groupClientService = groupClientService;
         _keywordProvider = keywordProvider;
         _absenceRepository = absenceRepository;
@@ -114,11 +113,11 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         // own subtree; the rest of the root are borrowable cross-group candidates (bounded). The works are
         // read over the whole root so a borrowed candidate's HOME commitments are in the snapshot and the
         // engine cannot double-book them.
-        var rootGroupId = await ResolveRootAsync(groupId);
-        var inGroupSet = (await _groupClientService.GetAllClientIdsFromGroupAndSubgroups(groupId)).ToHashSet();
-
-        var underRoot = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync([rootGroupId], cancellationToken);
-        var members = SelectCandidatePool(underRoot, inGroupSet, groupId, _logger);
+        var pool = await _poolResolver.ResolveAsync(groupId, cancellationToken)
+            ?? throw new KeyNotFoundException(string.Format(GroupNotFoundMessage, groupId));
+        var rootGroupId = pool.RootGroupId;
+        var inGroupSet = pool.InGroup.Select(m => m.Id).ToHashSet();
+        var members = pool.InGroup.Concat(CapCrossGroup(pool.CrossGroup, groupId, _logger)).ToList();
         var memberIds = members.Select(m => m.Id).ToList();
 
         var contracts = await _contractProvider.GetEffectiveContractDataForClientsAsync(memberIds, referenceDate);
@@ -279,36 +278,22 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         return merged;
     }
 
-    private async Task<Guid> ResolveRootAsync(Guid groupId)
-    {
-        var group = await _groupRepository.Get(groupId);
-        return group?.Root ?? groupId;
-    }
-
     /// <summary>
-    /// The candidates of the recovery: the in-group clients and a bounded set of cross-group ones. Only people who can
-    /// take over a replacement count (<see cref="ReplacementPersonRule"/>), a customer under the root is neither a
-    /// candidate nor part of the cap.
+    /// The borrowable candidates the engine gets: the first ones by id up to the cap; a cut is logged.
     /// </summary>
-    /// <param name="underRoot">Active clients under the root of the receiving group</param>
-    /// <param name="inGroupSet">Ids of the receiving group's own subtree</param>
-    /// <param name="groupId">The receiving group, named in the log when the cross-group candidates are capped</param>
-    internal static List<Client> SelectCandidatePool(
-        IReadOnlyList<Client> underRoot, IReadOnlySet<Guid> inGroupSet, Guid groupId, ILogger logger)
+    /// <param name="crossGroup">Borrowable candidates ordered by id</param>
+    /// <param name="groupId">The receiving group, named in the log when the candidates are capped</param>
+    internal static IReadOnlyList<Client> CapCrossGroup(IReadOnlyList<Client> crossGroup, Guid groupId, ILogger logger)
     {
-        var people = ReplacementPersonRule.EligibleOnly(underRoot).ToList();
-        var inGroup = people.Where(c => inGroupSet.Contains(c.Id)).ToList();
-        var crossGroup = people.Where(c => !inGroupSet.Contains(c.Id)).OrderBy(c => c.Id).ToList();
-
-        if (crossGroup.Count > RecoveryBuildConstants.CrossGroupPoolCap)
+        if (crossGroup.Count <= RecoveryBuildConstants.CrossGroupPoolCap)
         {
-            logger.LogInformation(
-                "Recovery cross-group pool for group {GroupId} capped at {Cap} of {Total} candidates.",
-                groupId, RecoveryBuildConstants.CrossGroupPoolCap, crossGroup.Count);
-            crossGroup = crossGroup.Take(RecoveryBuildConstants.CrossGroupPoolCap).ToList();
+            return crossGroup;
         }
 
-        return inGroup.Concat(crossGroup).ToList();
+        logger.LogInformation(
+            "Recovery cross-group pool for group {GroupId} capped at {Cap} of {Total} candidates.",
+            groupId, RecoveryBuildConstants.CrossGroupPoolCap, crossGroup.Count);
+        return crossGroup.OrderBy(c => c.Id).Take(RecoveryBuildConstants.CrossGroupPoolCap).ToList();
     }
 
     /// <summary>
@@ -547,7 +532,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                 var isMember = membershipWindows is null || MembershipWindows.IsMemberOn(membershipWindows, id, date);
                 var hasBlockingBreak = breakDays.Blocking.Contains((id, date));
                 var isOnCall = isMember && !hasBlockingBreak && breakDays.OnCall.Contains((id, date));
-                var worksOnDay = isMember && (isOnCall || WorksOnDay(contract, date.DayOfWeek));
+                var worksOnDay = isMember && (isOnCall || ContractWeekday.WorksOn(contract, date.DayOfWeek));
                 var keyword = keywordDays.TryGetValue((id, date), out var found) ? found : (ScheduleCommandKeyword?)null;
 
                 availability[new CellKey(id, date)] = new DayAvailability(
@@ -763,18 +748,6 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     private static decimal PlannedHoursOf(
         IReadOnlyDictionary<Guid, Domain.DTOs.Schedules.PeriodHoursResource> periodHours, Guid clientId)
         => periodHours.TryGetValue(clientId, out var hours) ? hours.Hours : 0m;
-
-    private static bool WorksOnDay(EffectiveContractData contract, DayOfWeek dayOfWeek) => dayOfWeek switch
-    {
-        DayOfWeek.Monday => contract.WorkOnMonday,
-        DayOfWeek.Tuesday => contract.WorkOnTuesday,
-        DayOfWeek.Wednesday => contract.WorkOnWednesday,
-        DayOfWeek.Thursday => contract.WorkOnThursday,
-        DayOfWeek.Friday => contract.WorkOnFriday,
-        DayOfWeek.Saturday => contract.WorkOnSaturday,
-        DayOfWeek.Sunday => contract.WorkOnSunday,
-        _ => false
-    };
 
     private static IReadOnlyList<DateOnly> EnumerateDays(DateOnly start, DateOnly end)
     {

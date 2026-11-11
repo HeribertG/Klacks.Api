@@ -475,6 +475,8 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Application.Services.Grouping.GroupMembershipStartPlanner>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupingFeasibilityNotifier,
                            Klacks.Api.Application.Services.Grouping.GroupingFeasibilityNotifier>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.Recovery.IReplacementCandidatePoolResolver,
+                           Klacks.Api.Application.Services.Schedules.Recovery.ReplacementCandidatePoolResolver>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.Recovery.IRecoverySnapshotBuilder,
                            Klacks.Api.Application.Services.Schedules.Recovery.RecoverySnapshotBuilder>();
         services.AddSingleton<Klacks.ScheduleRecovery.Engine.IRecoveryEngine,

@@ -29,6 +29,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.ScheduleOptimizer.TokenEvolution.Initialization;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Application.Services.Grouping;
 
@@ -169,7 +170,7 @@ public sealed class StaticEligibilityEvaluator : IGroupingEligibilityOracle
             return GroupingIneligibilityReason.NoActiveContract;
         }
 
-        if (!WorksOn(contract, day.DayOfWeek))
+        if (!ContractWeekday.WorksOn(contract, day.DayOfWeek))
         {
             return GroupingIneligibilityReason.WeekdayNotAllowed;
         }
@@ -241,7 +242,7 @@ public sealed class StaticEligibilityEvaluator : IGroupingEligibilityOracle
                     _clientsWithActiveContract.Add(clientId);
                 }
 
-                if (WorksOn(contract, day.DayOfWeek))
+                if (ContractWeekday.WorksOn(contract, day.DayOfWeek))
                 {
                     _workableWeekdays[clientId] = _workableWeekdays.GetValueOrDefault(clientId) | Bit(day.DayOfWeek);
                     if (contract.PerformsShiftWork)
@@ -295,16 +296,4 @@ public sealed class StaticEligibilityEvaluator : IGroupingEligibilityOracle
 
     private IReadOnlyList<DateOnly> RunDaysOf(Guid shiftId) =>
         _context.RunDays.GetValueOrDefault(shiftId, NoRunDays);
-
-    private static bool WorksOn(EffectiveContractData contract, DayOfWeek day) => day switch
-    {
-        DayOfWeek.Monday => contract.WorkOnMonday,
-        DayOfWeek.Tuesday => contract.WorkOnTuesday,
-        DayOfWeek.Wednesday => contract.WorkOnWednesday,
-        DayOfWeek.Thursday => contract.WorkOnThursday,
-        DayOfWeek.Friday => contract.WorkOnFriday,
-        DayOfWeek.Saturday => contract.WorkOnSaturday,
-        DayOfWeek.Sunday => contract.WorkOnSunday,
-        _ => false,
-    };
 }

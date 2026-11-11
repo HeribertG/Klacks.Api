@@ -16,7 +16,8 @@
 /// of the engine; a borrowed receiver who then holds nothing of the scenario loses the temporary membership of that day.
 /// A work that went away because its person is absent themselves (the request book knows that slot) stays. When a person
 /// of the chain still covers something else in the scenario, or a work on another day cannot return, the switch is refused
-/// as a whole. Recorded
+/// as a whole. A candidate borrowed from another group under the same root gets the temporary membership of the day in
+/// the scenario, like a borrowed person of the automatic cover. Recorded
 /// answers stay, they are facts. A later Declined or NotReached does not switch back; the latest acceptance wins. Works only
 /// on an active scenario and a slot that still has a replacement; anything else keeps just the answer. Only the planner's
 /// recorded answer triggers this, nobody is contacted. A slot moved by an earlier accept is settled, its acceptance keeps just
@@ -113,11 +114,13 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
         }
 
         var (slotStart, slotEnd) = StoredWindowOf(slotChange);
-        await EnsureCandidateFitsAsync(
-            row, slotChange.Work!, slotChange.ReplaceClientId!.Value, slotStart, slotEnd, scenario.GroupId ?? row.GroupId, token,
+        var groupId = scenario.GroupId ?? row.GroupId;
+        var isBorrowed = await EnsureCandidateFitsAsync(
+            row, slotChange.Work!, slotChange.ReplaceClientId!.Value, slotStart, slotEnd, groupId, token,
             overrideBlock, cancellationToken);
 
         await ReplaceStandInAsync(slotChange.Id, token, row.CandidateClientId, cancellationToken);
+        await JoinBorrowedCandidateAsync(isBorrowed, token, groupId, row, cancellationToken);
         await RemoveOldStandInRowsAsync(token, slotChange.ReplaceClientId!.Value, row, cancellationToken);
         return true;
     }
@@ -136,7 +139,7 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
             return true;
         }
 
-        await EnsureCandidateFitsAsync(
+        var isBorrowed = await EnsureCandidateFitsAsync(
             row, work, work.ClientId, work.StartTime, work.EndTime, groupId, token, overrideBlock, cancellationToken);
 
         switch (await _coverMaterializer.PassOnMovedWorkAsync(token, work.Id, row.CandidateClientId, cancellationToken))
@@ -149,6 +152,7 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
 
         row.Kind = ReplacementRequestKind.Move;
         row.WorkId = work.Id;
+        await JoinBorrowedCandidateAsync(isBorrowed, token, groupId, row, cancellationToken);
 
         await RemoveOldStandInRowsAsync(token, work.ClientId, row, cancellationToken);
         return true;
@@ -176,7 +180,8 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
         return atSlotStart.Count == 1 ? atSlotStart[0] : throw new ConflictException(AmbiguousSlotMessage);
     }
 
-    private async Task EnsureCandidateFitsAsync(
+    /// <returns>True when the candidate is borrowed from another group under the same root</returns>
+    private async Task<bool> EnsureCandidateFitsAsync(
         ReplacementRequest row,
         Work work,
         Guid oldStandInId,
@@ -187,11 +192,24 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
         bool overrideBlock,
         CancellationToken cancellationToken)
     {
-        await EnsureEligibleAsync(row, work, oldStandInId, slotStart, slotEnd, groupId, token, overrideBlock, cancellationToken);
+        var isBorrowed = await EnsureEligibleAsync(
+            row, work, oldStandInId, slotStart, slotEnd, groupId, token, overrideBlock, cancellationToken);
         if (await _workChangeRepository.HasOverlappingScenarioReplacementAsync(
                 token, row.CandidateClientId, row.Date, work.StartTime, slotStart, slotEnd, cancellationToken))
         {
             throw new ConflictException(AlreadyStandingInMessage);
+        }
+
+        return isBorrowed;
+    }
+
+    private async Task JoinBorrowedCandidateAsync(
+        bool isBorrowed, Guid token, Guid? groupId, ReplacementRequest row, CancellationToken cancellationToken)
+    {
+        if (isBorrowed && groupId is { } receivingGroupId)
+        {
+            await _scenarioService.AddScenarioMembershipAsync(
+                token, row.CandidateClientId, receivingGroupId, row.Date, row.Date, cancellationToken);
         }
     }
 
@@ -231,7 +249,7 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
             ? (change.StartTime, change.EndTime)
             : (change.Work!.StartTime, change.Work.EndTime);
 
-    private async Task EnsureEligibleAsync(
+    private async Task<bool> EnsureEligibleAsync(
         ReplacementRequest row,
         Work work,
         Guid oldStandInId,
@@ -252,13 +270,16 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
         var search = await _mediator.Send(
             new FindReplacementQuery(
                 row.ShiftId, DateOnly.FromDateTime(slot.StartAt), slotStart, slotEnd, searchGroupId, token, overrideBlock,
-                lead, trail, extraPaid),
+                lead, trail, extraPaid, row.CandidateClientId),
             cancellationToken);
-        if (search.Eligible.All(candidate => candidate.ClientId != row.CandidateClientId))
+        var accepted = search.Eligible.FirstOrDefault(candidate => candidate.ClientId == row.CandidateClientId);
+        if (accepted is null)
         {
             throw new ConflictException(
                 await TookTheSwappedWorkAsync(token, oldStandInId, row, cancellationToken) ? HopReceiverMessage : NotEligibleMessage);
         }
+
+        return accepted.IsBorrowed;
     }
 
     private async Task<bool> TookTheSwappedWorkAsync(

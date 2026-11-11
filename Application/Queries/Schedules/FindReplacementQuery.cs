@@ -13,7 +13,7 @@ namespace Klacks.Api.Application.Queries.Schedules;
 /// <param name="Date">Workday</param>
 /// <param name="StartTime">Slot start</param>
 /// <param name="EndTime">Slot end</param>
-/// <param name="GroupId">Group whose members are the candidate pool</param>
+/// <param name="GroupId">Group that needs the stand-in; its members and the borrowable people under its root are the candidate pool</param>
 /// <param name="AnalyseToken">Optional scenario token; candidates are checked against the isolated scenario</param>
 /// <param name="OverrideBlock">
 /// K1 supervisor override: when true and the caller holds the Admin or Authorised role, a candidate
@@ -23,6 +23,7 @@ namespace Klacks.Api.Application.Queries.Schedules;
 /// <param name="LeadHours">Briefing, start correction and start travel hours the slot carries before its start</param>
 /// <param name="TrailHours">Debriefing, end correction and end travel hours the slot carries after its end</param>
 /// <param name="ExtraPaidHours">Travel and correction hours on top of the slot's own hours</param>
+/// <param name="OnlyClientId">When set, only this one person of the pool is judged</param>
 public record FindReplacementQuery(
     Guid ShiftId,
     DateOnly Date,
@@ -33,4 +34,5 @@ public record FindReplacementQuery(
     bool OverrideBlock = false,
     decimal LeadHours = 0m,
     decimal TrailHours = 0m,
-    decimal ExtraPaidHours = 0m) : IRequest<ReplacementSearchResult>;
+    decimal ExtraPaidHours = 0m,
+    Guid? OnlyClientId = null) : IRequest<ReplacementSearchResult>;

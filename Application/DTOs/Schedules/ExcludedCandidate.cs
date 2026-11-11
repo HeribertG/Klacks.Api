@@ -8,4 +8,5 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="ClientId">Excluded employee</param>
 /// <param name="Name">Display name</param>
 /// <param name="Reason">Why they were excluded</param>
-public sealed record ExcludedCandidate(Guid ClientId, string Name, string Reason);
+/// <param name="IsBorrowed">True when the employee is no member of the requested group but of another group under the same root</param>
+public sealed record ExcludedCandidate(Guid ClientId, string Name, string Reason, bool IsBorrowed = false);

@@ -19624,7 +19624,7 @@
     {
       "name": "find_replacement",
       "area": "schedule",
-      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates are the group members; one is excluded only for a collision, a rest-time violation, a missing mandatory qualification or one below a binding level, or a blacklisted shift. Overtime / consecutive-day / min-rest findings and a level below a non-binding minimum lower the rank instead. On-call employees (IsOnCall) rank first, then preferred ones.",
+      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates: the group members, then (Borrowed) others under the same root group. Excluded only for a collision, a rest-time violation, a missing or binding-level mandatory qualification, or a blacklisted shift. Overtime / consecutive-day / min-rest findings and a non-binding level lower the rank. ContractDayOff = weekday off by contract: listed, marked, not excluded. On-call ranks first, then preferred.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19649,7 +19649,7 @@
         },
         {
           "name": "groupId",
-          "description": "UUID of the group whose members are the candidate pool",
+          "description": "UUID of the group that needs the replacement; its members and the other employees under the same root group are the candidate pool",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -19740,7 +19740,7 @@
         "fr": "Trouver un remplaçant pour un service",
         "it": "Trova un sostituto per un turno"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "propose_plan",
