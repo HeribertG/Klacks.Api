@@ -55,17 +55,25 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                 cancellationToken);
     }
 
-    public async Task<List<Work>> ListMovedByScenarioAsync(
+    public Task<List<Work>> ListMovedByScenarioAsync(
         Guid analyseToken, Guid movedFromClientId, DateOnly date, CancellationToken cancellationToken)
-    {
-        var works = await context.Work
+        => ListMovedByScenarioAsync(analyseToken, movedFromClientId, date, date, cancellationToken);
+
+    internal IQueryable<Work> QueryMovedInScenario(Guid analyseToken, Guid movedFromClientId, DateOnly from, DateOnly until)
+        => context.Work
             .AsNoTracking()
             .Where(work => work.AnalyseToken == analyseToken
                 && work.MovedFromClientId == movedFromClientId
-                && work.CurrentDate == date
+                && work.CurrentDate >= from
+                && work.CurrentDate <= until
                 && work.ParentWorkId == null)
-            .OrderBy(work => work.Id)
-            .ToListAsync(cancellationToken);
+            .OrderBy(work => work.CurrentDate)
+            .ThenBy(work => work.Id);
+
+    public async Task<List<Work>> ListMovedByScenarioAsync(
+        Guid analyseToken, Guid movedFromClientId, DateOnly from, DateOnly until, CancellationToken cancellationToken)
+    {
+        var works = await QueryMovedInScenario(analyseToken, movedFromClientId, from, until).ToListAsync(cancellationToken);
 
         var origins = await WorkCloneLineage.LoadRealOriginsAsync(
             context, works.Select(work => (work.Id, work.ClonedFromWorkId)), cancellationToken);

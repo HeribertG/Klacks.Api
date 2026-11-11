@@ -38,6 +38,17 @@ public interface IWorkChangeRepository : IBaseRepository<WorkChange>
         Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The replacements of the single-day overload over a range of workdays, ordered by workday.
+    /// </summary>
+    /// <param name="analyseToken">Scenario token</param>
+    /// <param name="clientId">Employee who owns the works</param>
+    /// <param name="from">First workday (inclusive)</param>
+    /// <param name="until">Last workday (inclusive)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<List<WorkChange>> ListReplacementsWrittenByScenarioAsync(
+        Guid analyseToken, Guid clientId, DateOnly from, DateOnly until, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// The work changes of one work that do not hand it to someone else (corrections, travel, briefing, debriefing), untracked.
     /// A work id belongs to one plan or scenario, so no token is needed.
     /// </summary>

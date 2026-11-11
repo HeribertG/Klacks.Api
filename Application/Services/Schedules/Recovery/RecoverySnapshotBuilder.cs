@@ -137,7 +137,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         var keywordDays = await LoadKeywordDaysAsync(memberIds, windowStart, windowEnd, source, coveredClientIds, cancellationToken);
         var availability = BuildAvailability(memberIds, contracts, breakDays, keywordDays, windowStart, windowEnd, membershipWindows);
         var ineligible = await BuildIneligibleAsync(
-            memberIds, dates, works, windowStart, windowEnd, cancellationToken);
+            memberIds, dates, works, windowStart, windowEnd, inGroupSet, cancellationToken);
 
         var agents = members
             .Select(m => new RecoveryAgent(
@@ -569,6 +569,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IReadOnlyDictionary<CellKey, IReadOnlyList<RecoveryWork>> works,
         DateOnly windowStart,
         DateOnly windowEnd,
+        IReadOnlySet<Guid> inGroupIds,
         CancellationToken cancellationToken)
     {
         // Every distinct working shift on the absence dates — the absent agent's demands AND any other
@@ -596,6 +597,27 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                         {
                             incumbentAssignments.Add((memberId.ToString(), id, date));
                         }
+                    }
+                }
+            }
+        }
+
+        // A swap chain may hand a movable work of an in-group member on, on any day within the relief reach of an
+        // absence day. Those shifts are gated as well, otherwise the taker of such a work would go unchecked.
+        foreach (var date in RecoveryReliefDays.Around(dates, windowStart, windowEnd))
+        {
+            foreach (var memberId in memberIds)
+            {
+                if (!inGroupIds.Contains(memberId) || !works.TryGetValue(new CellKey(memberId, date), out var list))
+                {
+                    continue;
+                }
+                foreach (var work in list)
+                {
+                    if (work.IsWorking && !work.IsLocked && !work.IsSwapLocked && work.ShiftId is Guid id && id != Guid.Empty)
+                    {
+                        shifts[(id, date)] = (work.StartAt, work.EndAt);
+                        incumbentAssignments.Add((memberId.ToString(), id, date));
                     }
                 }
             }

@@ -78,22 +78,32 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<WorkChange>> ListReplacementsWrittenByScenarioAsync(
+    public Task<List<WorkChange>> ListReplacementsWrittenByScenarioAsync(
         Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken = default)
+        => ListReplacementsWrittenByScenarioAsync(analyseToken, clientId, date, date, cancellationToken);
+
+    internal IQueryable<WorkChange> QueryScenarioReplacements(Guid analyseToken, Guid clientId, DateOnly from, DateOnly until)
     {
         var replacementTypes = ReplacementWorkChangeTypes.All.ToList();
 
-        var changes = await _context.WorkChange
+        return _context.WorkChange
             .AsNoTracking()
             .Include(wc => wc.Work)
             .Where(wc => wc.Work!.AnalyseToken == analyseToken
                 && wc.Work.ClientId == clientId
-                && wc.Work.CurrentDate == date
+                && wc.Work.CurrentDate >= from
+                && wc.Work.CurrentDate <= until
                 && wc.Work.ParentWorkId == null
                 && wc.ReplaceClientId != null
                 && replacementTypes.Contains(wc.Type))
-            .OrderBy(wc => wc.Id)
-            .ToListAsync(cancellationToken);
+            .OrderBy(wc => wc.Work!.CurrentDate)
+            .ThenBy(wc => wc.Id);
+    }
+
+    public async Task<List<WorkChange>> ListReplacementsWrittenByScenarioAsync(
+        Guid analyseToken, Guid clientId, DateOnly from, DateOnly until, CancellationToken cancellationToken = default)
+    {
+        var changes = await QueryScenarioReplacements(analyseToken, clientId, from, until).ToListAsync(cancellationToken);
 
         var origins = await WorkCloneLineage.LoadRealOriginsAsync(
             _context,

@@ -25,6 +25,12 @@ An absence on a day with a planned shift does not leave two contradicting entrie
 
 ## What moves, what is deleted, what stays
 
+### Who covers: a free person or a short chain
+
+Klacks first looks for a person who can take the shift as it stands: on call that day, then free, in the group first, then from a sister group under the same root group (borrowed for that day). If nobody can, it tries a chain of at most three moves: a qualified person takes the open shift and hands one of their own shifts to someone else, who may hand one on once more. The shift handed on can lie on the same day (the holder of the early takes the open late and gives the early away) or within seven days before or after the absence day, never in the past; this is how a person starts a block one day earlier and gives its last day away. A person from a sister group only ever ends a chain: their own shifts in the other group are never touched. Fewer moves always win; three moves are only proposed when nothing shorter is allowed.
+
+Every move keeps the hard rules: qualification, availability, rest time, days in a row, daily, weekly and period hours. Late before early or night before late is allowed once the rest time between the two shifts is kept; such a person only ranks behind one whose rhythm fits. The dialog lists every move of a chain under the covered shift, so everybody concerned can be asked. If a later rule check refuses the proposed person, Klacks takes the next candidate instead of leaving the shift open.
+
 ### Full cover: the shift moves
 
 A shift moves when one person covers exactly the whole shift and nothing holds it in place: no lock stage, no replacement, not a task inside a container. It moves with briefing, debriefing, travel time, corrections, expenses and, for a container, all tasks inside it. The time credits (night, weekend, holiday) are recalculated with the contract of the new person. The schedule shows an icon with the tooltip (de: "Übernommen von {{name}}", en: "Taken over from {{name}}", fr: "Repris de {{name}}", it: "Ripreso da {{name}}"), or (de: "Aus einem Ausfall übernommen", en: "Taken over after an absence") when the original person is not visible to you. A moved shift is fixed for all planning wizards; they never move it again.
@@ -61,6 +67,8 @@ An absence with a duration but no times counts as the whole day. An absence with
 - "Why was the shift deleted when I entered the absence?"
 - "Wieso steht beim Dienst übernommen von?"
 - "Who gets the expenses when somebody covers a shift?"
+- "Warum muss Tom seinen Dienst abgeben, wenn Elsa krank ist?"
+- "Can Klacks swap shifts to cover an absence?"
 
 <!-- level:pitfalls -->
 
@@ -69,5 +77,7 @@ An absence with a duration but no times counts as the whole day. An absence with
 **The route decides between moving and replacing.** The planner's dialog always treats the person as not having started, so a full cover moves the shift. Through Klacksy or a messenger, the shift moves only when the absence was reported before the shift starts; reported later, the cover becomes a replacement (the original person keeps the part already worked). Somebody who started and leaves early is replaced by hand; if nobody takes over, the planner shortens the shift.
 
 **A deletion cannot be brought back with its attachments.** Expenses and tasks of a deleted shift are gone; the open slot is the reminder. If the absence was a mistake, plan the shift again.
+
+**A chain is one proposal.** It only works when every person in it agrees. Accept the scenario once all of them agreed; otherwise reject it and cover again. A chain can hand a shift on, on another day than the absence: the scenario then spans that day as well, and accepting it writes the plan of the group for that day from the scenario. When another person takes the covered shift instead (an accepted alternative in the dialog), Klacks takes the chain of the previous person back: the shifts handed on return to their people, on other days too. If that is not clear-cut, because one of those people covers something else in the same scenario or a shift can no longer return, the change is refused; then reject the scenario and cover the absence again.
 
 **No group, no deletion.** Without a selected group nothing is deleted, also not in the dialog. If an uncovered shift unexpectedly stays, check the group selection.

@@ -27,6 +27,17 @@ public interface IWorkRepository : IBaseRepository<Work>
         Guid analyseToken, Guid movedFromClientId, DateOnly date, CancellationToken cancellationToken);
 
     /// <summary>
+    /// The works of the single-day overload over a range of workdays, ordered by workday.
+    /// </summary>
+    /// <param name="analyseToken">Token of the scenario</param>
+    /// <param name="movedFromClientId">The person the works came from</param>
+    /// <param name="from">First workday (inclusive)</param>
+    /// <param name="until">Last workday (inclusive)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<List<Work>> ListMovedByScenarioAsync(
+        Guid analyseToken, Guid movedFromClientId, DateOnly from, DateOnly until, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Whether this person owns a work a cover moved in this scenario, on any day.
     /// </summary>
     /// <param name="analyseToken">Token of the scenario</param>

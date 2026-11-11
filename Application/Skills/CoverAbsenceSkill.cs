@@ -77,6 +77,7 @@ public class CoverAbsenceSkill : BaseSkillImplementation
 
         var movedCount = outcome.Covered.Count(c => c.Kind == ReplacementRequestKind.Move);
         var replacedCount = outcome.Covered.Count - movedCount;
+        var chainCount = outcome.Covered.Count(c => c.Relocations is { Count: > 0 });
 
         var data = new
         {
@@ -97,7 +98,16 @@ public class CoverAbsenceSkill : BaseSkillImplementation
                 Date = c.Date.ToString(DateTimeFormats.IsoDate),
                 c.ReplacementClientId,
                 c.ReplacementName,
-                Kind = c.Kind.ToString()
+                Kind = c.Kind.ToString(),
+                ChainMoves = (c.Relocations ?? []).Select(r => new
+                {
+                    r.ShiftId,
+                    Date = r.Date.ToString(DateTimeFormats.IsoDate),
+                    r.FromClientId,
+                    r.FromName,
+                    r.ToClientId,
+                    r.ToName
+                })
             }),
             Uncovered = outcome.Uncovered.Select(u => new
             {
@@ -111,7 +121,11 @@ public class CoverAbsenceSkill : BaseSkillImplementation
             $"Absence cover scenario '{outcome.ScenarioName}' ({outcome.ScenarioId}): " +
             $"{outcome.Covered.Count} slot(s) covered ({movedCount} moved whole to the stand-in, {replacedCount} kept with a replacement), " +
             $"{outcome.Uncovered.Count} uncovered (locked / no eligible candidate). Accepting removes an uncovered service only " +
-            "if it has not started; a started one stays with a red notice. Review, then accept_scenario or reject_scenario.";
+            "if it has not started; a started one stays with a red notice. " +
+            (chainCount > 0
+                ? $"{chainCount} cover(s) work through a chain: the stand-in hands an own shift on (ChainMoves); every person named there has to agree. "
+                : string.Empty) +
+            "Review, then accept_scenario or reject_scenario.";
 
         return SkillResult.SuccessResult(data, message);
     }

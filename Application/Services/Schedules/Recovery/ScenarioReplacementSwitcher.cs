@@ -10,7 +10,13 @@
 /// still be eligible in the scenario at this moment for the stored window of the slot and may not already stand in at an overlapping time (the candidate
 /// search does not count replacements as occupancy). What belonged to the old stand-in goes with them: the relocation of
 /// their own work of a swap, moved or replaced, when this scenario wrote that relocation and, for a moved work, nothing holds it and
-/// they are free at that time, their untouched proposal row and, after their last cover, their temporary membership. Recorded
+/// they are free at that time, their untouched proposal row and, after their last cover, their temporary membership. A swap
+/// chain is taken back as far as it reaches: the works the old stand-in handed on on other days within the relief reach of
+/// the engine return as well, and whoever took one of them gets back what they handed on in turn, up to the chain length
+/// of the engine; a borrowed receiver who then holds nothing of the scenario loses the temporary membership of that day.
+/// A work that went away because its person is absent themselves (the request book knows that slot) stays. When a person
+/// of the chain still covers something else in the scenario, or a work on another day cannot return, the switch is refused
+/// as a whole. Recorded
 /// answers stay, they are facts. A later Declined or NotReached does not switch back; the latest acceptance wins. Works only
 /// on an active scenario and a slot that still has a replacement; anything else keeps just the answer. Only the planner's
 /// recorded answer triggers this, nobody is contacted. A slot moved by an earlier accept is settled, its acceptance keeps just
@@ -19,7 +25,7 @@
 /// <param name="workChangeRepository">Finds the slot's replacement and what else the old stand-in holds</param>
 /// <param name="workRepository">Finds the slot's moved work</param>
 /// <param name="coverMaterializer">Hands a moved work on or back</param>
-/// <param name="requestRepository">Stage-only request book</param>
+/// <param name="requestRepository">Stage-only request book; tells a cover of an own absence from a handed-on work</param>
 /// <param name="scenarioRepository">Scenario of the row</param>
 /// <param name="scenarioService">Maps scenario clone shifts to their root shift; removes temporary memberships</param>
 /// <param name="mediator">Runs the candidate search and the WorkChange commands</param>
@@ -35,6 +41,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
+using RulesetDefaults = Klacks.ScheduleRecovery.Model.RulesetDefaults;
 
 namespace Klacks.Api.Application.Services.Schedules.Recovery;
 
@@ -50,6 +57,10 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
     private const string HeldWorkMessage = "This service can no longer change person; it is sealed or replaced.";
     private const string HopReceiverMessage =
         "This person already took over the service the current stand-in gave up for this swap; change the swap in the schedule.";
+    private const string ChainNotUndoableMessage =
+        "This cover is part of a swap chain that cannot be undone automatically; reject the scenario and cover the absence again.";
+    private const int FirstReliefLevel = 1;
+    private const int MaxReliefLevels = RulesetDefaults.MaxSwapChainDepth - 1;
 
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IWorkRepository _workRepository;
@@ -290,36 +301,31 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
             ?? throw new KeyNotFoundException(string.Format(ChangeNotFoundMessage, workChangeId));
     }
 
+    /// <summary>
+    /// Takes back what the old stand-in gave up for the cover. On the day of the slot a work stays while they still stand
+    /// in at its time or something holds it; a work handed on on another day returns only when it is clear which cover it
+    /// belonged to, see <see cref="UndoReliefsAsync"/>.
+    /// </summary>
     private async Task RemoveOldStandInRowsAsync(
         Guid token, Guid oldStandInId, ReplacementRequest row, CancellationToken cancellationToken)
     {
-        var ownChanges = await _workChangeRepository.ListReplacementsWrittenByScenarioAsync(
-            token, oldStandInId, row.Date, cancellationToken);
-        foreach (var relocation in ownChanges.Where(IsRecoveryChange))
+        var reliefs = await ListReliefsAsync(token, oldStandInId, row.Date, cancellationToken);
+        var onOtherDays = reliefs.Where(relief => relief.Work.CurrentDate != row.Date).ToList();
+        if (onOtherDays.Count > 0)
         {
-            if (await _workChangeRepository.HasOverlappingScenarioReplacementAsync(
-                    token, oldStandInId, row.Date, relocation.Work!.StartTime, relocation.StartTime, relocation.EndTime, cancellationToken))
-            {
-                continue;
-            }
-
-            _ = await _mediator.Send(new DeleteCommand<WorkChangeResource>(relocation.Id), cancellationToken)
-                ?? throw new KeyNotFoundException(string.Format(ChangeNotFoundMessage, relocation.Id));
+            await UndoReliefsAsync(token, oldStandInId, onOtherDays, row.Date, FirstReliefLevel, cancellationToken);
         }
 
-        foreach (var hop in await _workRepository.ListMovedByScenarioAsync(token, oldStandInId, row.Date, cancellationToken))
+        foreach (var relief in reliefs.Where(relief => relief.Work.CurrentDate == row.Date))
         {
             if (await _workChangeRepository.HasOverlappingScenarioReplacementAsync(
-                    token, oldStandInId, row.Date, hop.StartTime, hop.StartTime, hop.EndTime, cancellationToken))
+                    token, oldStandInId, row.Date, relief.Work.StartTime, relief.Start, relief.End, cancellationToken)
+                || !await TakeBackAsync(token, oldStandInId, relief, staysWhenHeld: true, cancellationToken))
             {
                 continue;
             }
 
-            var returned = await _coverMaterializer.ReturnMovedWorkAsync(token, hop.Id, oldStandInId, cancellationToken);
-            if (returned == MovedWorkHandOverResult.RecalculationFailed)
-            {
-                throw new ConflictException(RecalculationFailedMessage);
-            }
+            await SettleReceiverAsync(token, relief, row.Date, FirstReliefLevel, cancellationToken);
         }
 
         var proposal = await _requestRepository.FindLiveAsync(token, oldStandInId, row.ShiftId, row.Date, cancellationToken);
@@ -328,11 +334,138 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
             _requestRepository.Remove(proposal);
         }
 
-        if (!await _workChangeRepository.IsReplacementInScenarioAsync(token, oldStandInId, cancellationToken)
-            && !await _workRepository.HoldsMovedWorkInScenarioAsync(token, oldStandInId, cancellationToken))
+        if (!await HoldsACoverAsync(token, oldStandInId, cancellationToken))
         {
             await _scenarioService.RemoveScenarioMembershipsAsync(token, oldStandInId, row.Date, cancellationToken);
         }
+    }
+
+    /// <summary>
+    /// Gives every listed work back to the person who handed it on. A person who still covers something in the scenario
+    /// may have handed the work on for that cover, so the switch is refused instead of guessed.
+    /// </summary>
+    /// <param name="personId">The person the works return to</param>
+    /// <param name="reliefs">The works that person handed on</param>
+    /// <param name="slotDate">Workday of the slot the chain was built for</param>
+    /// <param name="level">Position of the person in the chain, the old stand-in first</param>
+    private async Task UndoReliefsAsync(
+        Guid token, Guid personId, IReadOnlyList<Relief> reliefs, DateOnly slotDate, int level, CancellationToken cancellationToken)
+    {
+        if (await HoldsACoverAsync(token, personId, cancellationToken))
+        {
+            throw new ConflictException(ChainNotUndoableMessage);
+        }
+
+        foreach (var relief in reliefs)
+        {
+            await TakeBackAsync(token, personId, relief, staysWhenHeld: false, cancellationToken);
+            await SettleReceiverAsync(token, relief, slotDate, level, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// The receiver of a returned work lost the reason for what they handed on in turn, so that returns too; a receiver
+    /// who then holds nothing of the scenario loses the temporary membership of the day of the returned work.
+    /// </summary>
+    private async Task SettleReceiverAsync(
+        Guid token, Relief returned, DateOnly slotDate, int level, CancellationToken cancellationToken)
+    {
+        if (level < MaxReliefLevels)
+        {
+            var passedOn = await ListReliefsAsync(token, returned.ReceiverId, slotDate, cancellationToken);
+            if (passedOn.Count > 0)
+            {
+                await UndoReliefsAsync(token, returned.ReceiverId, passedOn, slotDate, level + 1, cancellationToken);
+            }
+        }
+
+        if (!await HoldsACoverAsync(token, returned.ReceiverId, cancellationToken))
+        {
+            await _scenarioService.RemoveScenarioMembershipsAsync(
+                token, returned.ReceiverId, returned.Work.CurrentDate, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Returns one work: a replaced one loses its recovery replacement, a moved one goes back to its person.
+    /// </summary>
+    /// <param name="staysWhenHeld">True on the day of the slot, where a held work stays without refusing the switch</param>
+    /// <returns>False when the work stayed where it is</returns>
+    private async Task<bool> TakeBackAsync(
+        Guid token, Guid ownerId, Relief relief, bool staysWhenHeld, CancellationToken cancellationToken)
+    {
+        if (relief.Relocation is { } relocation)
+        {
+            _ = await _mediator.Send(new DeleteCommand<WorkChangeResource>(relocation.Id), cancellationToken)
+                ?? throw new KeyNotFoundException(string.Format(ChangeNotFoundMessage, relocation.Id));
+            return true;
+        }
+
+        switch (await _coverMaterializer.ReturnMovedWorkAsync(token, relief.Work.Id, ownerId, cancellationToken))
+        {
+            case MovedWorkHandOverResult.RecalculationFailed:
+                throw new ConflictException(RecalculationFailedMessage);
+            case MovedWorkHandOverResult.Held when !staysWhenHeld:
+                throw new ConflictException(ChainNotUndoableMessage);
+            case MovedWorkHandOverResult.Held:
+                return false;
+            default:
+                return true;
+        }
+    }
+
+    /// <summary>
+    /// The works this scenario took from the person within the relief reach of the engine around the slot, replaced ones
+    /// first. A work of a slot the request book lists with that person as the absent one went away for their own absence
+    /// and is left out.
+    /// </summary>
+    private async Task<List<Relief>> ListReliefsAsync(
+        Guid token, Guid personId, DateOnly slotDate, CancellationToken cancellationToken)
+    {
+        var from = slotDate.AddDays(-RulesetDefaults.ReliefReachDays);
+        var until = slotDate.AddDays(RulesetDefaults.ReliefReachDays);
+        var replaced = await _workChangeRepository.ListReplacementsWrittenByScenarioAsync(
+            token, personId, from, until, cancellationToken);
+        var moved = await _workRepository.ListMovedByScenarioAsync(token, personId, from, until, cancellationToken);
+        var reliefs = replaced.Where(IsRecoveryChange).Select(change => new Relief(change.Work!, change))
+            .Concat(moved.Select(work => new Relief(work, null)))
+            .ToList();
+        if (reliefs.Count == 0)
+        {
+            return reliefs;
+        }
+
+        var ownAbsence = (await _requestRepository.ListLiveByTokenAsync(token, cancellationToken))
+            .Where(request => request.AbsentClientId == personId)
+            .ToList();
+        if (ownAbsence.Count == 0)
+        {
+            return reliefs;
+        }
+
+        var rootShiftIds = await _scenarioService.ResolveRootShiftIdsAsync(
+            reliefs.Select(relief => relief.Work.ShiftId).Distinct().ToList(), cancellationToken);
+        return reliefs
+            .Where(relief => !ownAbsence.Any(request => request.Date == relief.Work.CurrentDate
+                && (request.WorkId == relief.Work.Id
+                    || request.ShiftId == rootShiftIds.GetValueOrDefault(relief.Work.ShiftId, relief.Work.ShiftId))))
+            .ToList();
+    }
+
+    private async Task<bool> HoldsACoverAsync(Guid token, Guid personId, CancellationToken cancellationToken)
+        => await _workChangeRepository.IsReplacementInScenarioAsync(token, personId, cancellationToken)
+            || await _workRepository.HoldsMovedWorkInScenarioAsync(token, personId, cancellationToken);
+
+    /// <summary>A work a person gave up for a cover: moved to its receiver, or still theirs with a recovery replacement.</summary>
+    /// <param name="Work">The work</param>
+    /// <param name="Relocation">The recovery replacement on it; null for a moved work</param>
+    private sealed record Relief(Work Work, WorkChange? Relocation)
+    {
+        public TimeOnly Start => Relocation?.StartTime ?? Work.StartTime;
+
+        public TimeOnly End => Relocation?.EndTime ?? Work.EndTime;
+
+        public Guid ReceiverId => Relocation?.ReplaceClientId ?? Work.ClientId;
     }
 
     private static bool IsRecoveryChange(WorkChange change)
