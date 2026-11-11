@@ -220,7 +220,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
         System.Diagnostics.Stopwatch stopwatch,
         CancellationToken ct)
     {
-        var sortedBitmap = RowSorter.Sort(BitmapBuilder.Build(input));
+        var sortedBitmap = RowSorter.Sort(BitmapBuilder.Build(input), input.KeepAgentOrder);
         var originalForCache = CloneBitmap(sortedBitmap);
 
         var scorer = new HarmonyScorer();

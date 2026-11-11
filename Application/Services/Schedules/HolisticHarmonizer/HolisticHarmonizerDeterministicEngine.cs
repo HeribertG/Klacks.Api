@@ -58,10 +58,11 @@ public sealed class HolisticHarmonizerDeterministicEngine
                 input.ContextDaysBefore,
                 input.ContextDaysAfter,
                 KeywordMode: input.KeywordMode,
-                GroupId: input.GroupId),
+                GroupId: input.GroupId,
+                AgentOrderIsUserDefined: input.AgentOrderIsUserDefined),
             cancellationToken);
 
-        var sorted = RowSorter.Sort(BitmapBuilder.Build(context));
+        var sorted = RowSorter.Sort(BitmapBuilder.Build(context), context.KeepAgentOrder);
         var original = BitmapCloner.Clone(sorted);
         var working = BitmapCloner.Clone(sorted);
 

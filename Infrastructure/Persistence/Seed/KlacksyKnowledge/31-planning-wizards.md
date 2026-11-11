@@ -34,8 +34,8 @@ Automatic planning is not one step but three; by default none of them needs a la
 
 **Stage one — filling.** Builds the initial plan and decides who works which shift. It runs a
 **genetic algorithm**: thousands of plan variants are generated, scored and recombined until a
-balanced one stands. Hard rules always win — working-time law, rest periods, qualifications and
-availability are not negotiable — and only then does coverage count.
+balanced one stands. Hard rules always win — working-time law, rest periods, the limits on hours per
+week and per day, qualifications and availability are not negotiable — and only then does coverage count.
 
 Duties that already exist in the planned range, unlocked ones included, count as working days for the
 limit on days in a row (de: "Max. aufeinanderfolgende Arbeitstage", en: "Max. Consecutive Work Days",
@@ -55,12 +55,13 @@ stage costs nothing beyond computing time.
 
 **Stage two — smoothing.** Takes an existing plan and evens it out: fairer distribution, fewer
 awkward sequences. It deliberately **does not touch coverage decisions** — who works at all was
-settled in stage one. Also no language model.
+settled in stage one. It keeps every hard limit, the hours per week and per day included. Also no language model.
 
 **Stage three — polishing.** Reworks the smoothed plan as a whole. By default it runs a
 **deterministic local search**: it tries swaps and pairs of swaps, keeps only those that make the plan
 more harmonious without breaking a hard rule and without moving anyone further from their target
-hours, and gives the same result for the same input. No language model is involved and it costs only
+hours, and gives the same result for the same input. A swap between two different days is checked
+against the rest between duties, the days in a row and the hours per week and per day as well. No language model is involved and it costs only
 computing time. An installation can switch this stage to a language model that reads the plan **as a
 picture**; only then does it consume model usage, and it needs a model that can process images. If
 stage three fails, the chain keeps the plan of stage two.
@@ -79,7 +80,7 @@ shift-work flag from the same source (whether duties other than early ones may g
 by all three stages and by the replacement search: a person without shift work only gets early duties. Late or
 night duties such a person already holds are not cleared away; the planners only prevent new ones. An employee without any contract is therefore planned like everyone else; small companies
 often keep no contracts at all. A placeholder (a row for a person who is not in the system yet) follows
-the same company defaults but has target hours 0, and every stage puts every placeholder behind every real
+the same company defaults, the hour limits included, but has target hours 0, and every stage puts every placeholder behind every real
 person, also behind one with 0 target hours: the filling stage ranks every real person who can legally take a
 service before a placeholder, and no later stage gives a placeholder a service a real person may legally keep in
 exchange for a free day (swapping one service for another stays possible); only a service that breaks a rule for that
@@ -87,6 +88,58 @@ person may go to a placeholder for a free day (`explain_placeholder_employees`).
 missing mandatory qualification keep a person off a day. When somebody stays unplanned, check in this
 order: entry and exit dates, the ticked weekdays of the contract or the defaults, availability,
 absences, qualifications.
+
+## Who comes first, and what never gives way
+
+**The order of the people decides who is served first.** The person at the top gets the guaranteed hours
+first; the person at the bottom takes what is left. All three stages use the same order. It comes from one of
+two places:
+
+- **The planner's own order.** An order arranged by hand in the schedule is kept unchanged by all three stages.
+  From the autofill button this needs the sort mode (de: "Individuell Sortiert", en: "Individual Sort") to be
+  switched on and a saved order for the group that ranks at least one of the people shown. In the chat with
+  Klacksy the saved order of the person who asks is enough, whether or not the sort mode is on. People the saved
+  order does not mention follow behind the ranked ones.
+- **The automatic order.** Otherwise people are ranked by the hours their contract guarantees, highest first,
+  converted to the planned range: with one week planned, 40 hours a week rank above 100 hours a month. Somebody
+  who joins or leaves inside the range counts only the days of employment. Ties, and people without guaranteed
+  hours, are ranked by their full-time hours, highest first. Where pay periods are defined individually, the
+  calendar month stands in for the conversion.
+
+Placeholders always come last, also behind an order made by hand.
+
+Whose order applies depends on who starts the run. The autofill button and a request to Klacksy in the chat use
+the planner's own order as described above, and the automatic order when there is none. Planning that
+Klacksy starts on its own for the next period, an external AI that works over the MCP interface, and Klacksy's
+own target plan always use the automatic order. A saved order belongs to one user and one group, so two planners
+can have different orders for the same group.
+
+**Hours per week and per day are hard limits in every stage.** The limit is the one from the person's working
+conditions (de: "Max. Wochenstunden", en: "Max. Weekly Hours"), else the company default, else 50 hours a week;
+the daily limit works the same way and falls back to 10 hours a day when nothing is set (see `explain_scheduling_rules_model`).
+When the working conditions only start inside the planned range, every stage takes the person's weekly and daily
+limit from the first day that has active working conditions, not from the first day of the range; on each day the daily
+limit of the working conditions valid that day applies as well. A week runs
+Monday to Sunday, and a duty counts with its paid hours in the week of the day it starts. Absences and breaks
+never count towards the limits. Duties that already exist in the same week count together with the new ones,
+locked ones included and also when they lie just before or after the planned range, so a week that starts in the
+previous month counts those days too.
+
+**What wins when requirements collide**, from the top:
+
+1. Hard limits never break to fill a slot. A duty that would break one stays open and shows up as an open slot
+   in the result.
+2. Coverage: among the plans that keep every hard limit, the one with more filled slots wins.
+3. Restricting wishes (FREE, only-X, no-X): a veto in the strict run; in the second run they can be broken to fill
+   an open slot, never to reach hours (see `explain_shift_type_preferences`).
+4. Guaranteed hours, served by rank from the top.
+5. Positive wishes (-FREE, EARLY, LATE, NIGHT): they attract a duty but give way to the guaranteed hours of other
+   people.
+6. Full-time hours, then evenness.
+
+The rank settles conflicts: where two people compete for the same duty, the one higher in the order is served
+first. The rotation of early, late and night duties is aimed at for everybody in the plan. Weekend duties are not
+yet evened out in the first stage.
 
 ## Running one stage alone
 

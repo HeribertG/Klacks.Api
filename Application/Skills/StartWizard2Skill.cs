@@ -3,7 +3,8 @@
 /// <summary>
 /// Skill that starts only Wizard 2 (Harmonizer — Fuzzy/Conductor). Smooths an existing schedule
 /// without producing a coverage-first plan from scratch and without invoking the LLM Holistic
-/// Harmonizer. Caller typically passes the analyseToken of a freshly applied Wizard 1 scenario.
+/// Harmonizer. Caller typically passes the analyseToken of a freshly applied Wizard 1 scenario. The employees go to the run
+/// in the roster order ISkillRosterOrderResolver decides (the chat user's saved order, or the automatic order for another AI).
 /// </summary>
 
 using Klacks.Api.Application.Exceptions;
@@ -21,11 +22,16 @@ public class StartWizard2Skill : BaseSkillImplementation
 {
     private readonly IHarmonizerJobRunner _runner;
     private readonly IGroupPlanningAgentRepository _planningAgentRepository;
+    private readonly ISkillRosterOrderResolver _rosterOrderResolver;
 
-    public StartWizard2Skill(IHarmonizerJobRunner runner, IGroupPlanningAgentRepository planningAgentRepository)
+    public StartWizard2Skill(
+        IHarmonizerJobRunner runner,
+        IGroupPlanningAgentRepository planningAgentRepository,
+        ISkillRosterOrderResolver rosterOrderResolver)
     {
         _runner = runner;
         _planningAgentRepository = planningAgentRepository;
+        _rosterOrderResolver = rosterOrderResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -56,12 +62,14 @@ public class StartWizard2Skill : BaseSkillImplementation
             return SkillResult.Error($"No agents in group {groupId} — abort.");
         }
 
+        var rosterOrder = await _rosterOrderResolver.ResolveAsync(context, groupId, agentIds, cancellationToken);
         var request = new HarmonizerContextRequest(
             PeriodFrom: periodFrom,
             PeriodUntil: periodUntil,
-            AgentIds: agentIds,
+            AgentIds: rosterOrder.AgentIds,
             AnalyseToken: analyseToken,
-            GroupId: groupId);
+            GroupId: groupId,
+            AgentOrderIsUserDefined: rosterOrder.UserDefined);
 
         Guid jobId;
         try

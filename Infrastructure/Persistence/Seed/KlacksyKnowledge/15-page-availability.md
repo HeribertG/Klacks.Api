@@ -122,6 +122,13 @@ verfügbar erfasst sind.
   Checkboxen **Mitarbeiter** (de: "Mitarbeiter", en: "Employees", fr: "Employés", it:
   "Dipendenti") und **Extern** (de: "Extern", en: "Ext", fr: "Ext", it: "Est") zum Ein-/
   Ausblenden der beiden Typen.
+- **Sortierung und Autofill:** Die Sortierung hier ist nur eine Anzeige. Eine eigene Reihenfolge wird im
+  Einsatzplan festgelegt (Zeilen per Drag-Handle); auf dieser Seite wird sie nur angezeigt, wenn
+  **Individuell Sortiert** eingeschaltet ist. Für die automatische Planung zählt die im Einsatzplan gespeicherte
+  Reihenfolge der Gruppe, und nur wenn dort **Individuell Sortiert** an ist (im Chat mit Klacksy genügt die
+  gespeicherte Reihenfolge); sonst ordnet Klacks nach den vertraglich garantierten Stunden, umgerechnet auf den
+  Planzeitraum, und bei Gleichstand nach Vollzeitstunden, Platzhalter zuletzt. Verfügbarkeiten selbst bleiben für
+  alle Stufen des Autofills eine harte Grenze.
 - **Rechtsklick** auf eine Zeile öffnet ein Kontextmenü mit NUR **Adresse anzeigen**
   (de: "Adresse anzeigen", en: "Show address", fr: "Afficher l'adresse", it: "Mostra
   indirizzo") und springt zur Adressbearbeitung (`/workplace/edit-address/...`, mit

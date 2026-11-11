@@ -107,7 +107,9 @@ public sealed class WizardAgentSnapshotBuilder
                 MembershipTargetProration.FactorFor(membershipWindows.GetValueOrDefault(id), targetFrom, targetUntil)))
             .ToList();
 
-        return new AgentSnapshotResult(agents, contractDays);
+        var rankHours = RosterRankHours.Compute(agentIds, from, until, contractDataByDate, membershipWindows);
+
+        return new AgentSnapshotResult(agents, contractDays, rankHours);
     }
 
     private static CoreContractDay ClosedDay(Guid agentId, DateOnly date) => new(

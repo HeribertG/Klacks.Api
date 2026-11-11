@@ -185,7 +185,8 @@ internal sealed class AutoWizardStageChain
                 ContextDaysBefore: request.ContextDaysBefore,
                 ContextDaysAfter: request.ContextDaysAfter,
                 KeywordMode: request.KeywordMode,
-                GroupId: request.GroupId),
+                GroupId: request.GroupId,
+                AgentOrderIsUserDefined: request.AgentOrderIsUserDefined),
             ct);
 
         await WaitForStageAsync(_harmonizerRegistry.IsRunning, stageJobId, "Harmonizer", ct);
@@ -272,7 +273,8 @@ internal sealed class AutoWizardStageChain
                 ContextDaysBefore: request.ContextDaysBefore,
                 ContextDaysAfter: request.ContextDaysAfter,
                 KeywordMode: request.KeywordMode,
-                GroupId: request.GroupId),
+                GroupId: request.GroupId,
+                AgentOrderIsUserDefined: request.AgentOrderIsUserDefined),
             ct);
 
         try

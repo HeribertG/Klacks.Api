@@ -21,7 +21,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// (using IS NOT DISTINCT FROM semantics to propagate null as "main scenario"). A day sealed for an agent (global,
 /// or by a group the agent belongs to or worked for that day) becomes a zero-hour break blocker: no placement, no
 /// hours, like Free for consecutive days - so an apply never runs into the day lock. An on-call absence stays a break
-/// blocker but carries zero hours toward the target (BreakOwnHours).
+/// blocker but carries zero hours toward the target (BreakOwnHours). Unlocked existing works carry their own paid hours
+/// (WorkOwnHours; the substitute of a replacement the replaced hours) toward the maximum weekly hours.
 /// </summary>
 /// <param name="context">EF Core database context</param>
 /// <param name="keywordProvider">Source of the currently effective (admin-configurable) command keyword tokens</param>
@@ -128,6 +129,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
             .ToList();
     }
 
+    /// <summary>Existing works as blockers carrying their own paid hours toward the weekly cap (the substitute of a replacement the replaced hours); a container child of the agent's own container counts none, as the container already counts its time.</summary>
     private async Task<IReadOnlyList<CoreExistingWorkBlocker>> BuildExistingWorkBlockersAsync(
         List<Guid> agentIds,
         DateOnly from,
@@ -181,19 +183,47 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
         var substituteBlockers = covers
             .Where(c => agentIds.Contains(c.SubstituteClientId))
             .Select(c => new CoreExistingWorkBlocker(
-                AgentId: c.SubstituteClientId.ToString(), Date: c.Date, StartAt: c.StartAt, EndAt: c.EndAt));
+                AgentId: c.SubstituteClientId.ToString(), Date: c.Date, StartAt: c.StartAt, EndAt: c.EndAt)
+            {
+                Hours = c.Hours,
+            });
+
+        var ownHourWorkIds = await LoadOwnHourWorkIdsAsync(rawWorks, ct);
 
         return rawWorks
-            .Select(w => Blocker(w.ClientId, w.CurrentDate, w.StartTime, w.EndTime))
+            .Select(w => Blocker(w, ownHourWorkIds.Contains(w.Id) ? w.WorkTime : 0m))
             .Concat(substituteBlockers)
             .ToList();
     }
 
-    private static CoreExistingWorkBlocker Blocker(Guid agentId, DateOnly date, TimeOnly start, TimeOnly end)
+    private static CoreExistingWorkBlocker Blocker(Work work, decimal hours)
     {
-        var startAt = date.ToDateTime(start);
-        var endAt = end <= start ? date.AddDays(1).ToDateTime(end) : date.ToDateTime(end);
-        return new CoreExistingWorkBlocker(AgentId: agentId.ToString(), Date: date, StartAt: startAt, EndAt: endAt);
+        var startAt = work.CurrentDate.ToDateTime(work.StartTime);
+        var endAt = work.EndTime <= work.StartTime
+            ? work.CurrentDate.AddDays(1).ToDateTime(work.EndTime)
+            : work.CurrentDate.ToDateTime(work.EndTime);
+        return new CoreExistingWorkBlocker(AgentId: work.ClientId.ToString(), Date: work.CurrentDate, StartAt: startAt, EndAt: endAt)
+        {
+            Hours = hours,
+        };
+    }
+
+    /// <summary>Ids of the given works that count their own hours (<see cref="WorkOwnHours"/>).</summary>
+    private async Task<HashSet<Guid>> LoadOwnHourWorkIdsAsync(IReadOnlyCollection<Work> works, CancellationToken ct)
+    {
+        if (works.Count == 0)
+        {
+            return [];
+        }
+
+        var workIds = works.Select(w => w.Id).ToList();
+        return (await _context.Work
+                .AsNoTracking()
+                .Where(w => workIds.Contains(w.Id))
+                .Where(WorkOwnHours.Counts)
+                .Select(w => w.Id)
+                .ToListAsync(ct))
+            .ToHashSet();
     }
 
     private async Task<IReadOnlyList<CoreLockedWork>> BuildLockedWorksAsync(
@@ -227,14 +257,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
             .ToListAsync(ct);
 
         var locationContexts = await BuildLocationContextsAsync(rawWorks, ct);
-        var rawWorkIds = rawWorks.Select(w => w.Id).ToList();
-        var ownHourWorkIds = (await _context.Work
-                .AsNoTracking()
-                .Where(w => rawWorkIds.Contains(w.Id))
-                .Where(WorkOwnHours.Counts)
-                .Select(w => w.Id)
-                .ToListAsync(ct))
-            .ToHashSet();
+        var ownHourWorkIds = await LoadOwnHourWorkIdsAsync(rawWorks, ct);
 
         return rawWorks
             .Select(w =>

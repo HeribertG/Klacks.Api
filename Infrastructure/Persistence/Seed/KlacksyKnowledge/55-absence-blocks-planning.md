@@ -59,7 +59,7 @@ A booked absence blocks the person for the whole calendar day, whatever times th
 
 ### Hours
 
-Hours of a booked absence are added to the worked hours of the period, so somebody on holiday moves towards the guaranteed hours as if they had worked. The first wizard measures the period maximum against the hours already booked in the pay period before the planned range, absences included. The weekly maximum is checked only by the harmonizer; there an absence day is not a working day, so absence hours do not count towards that weekly cap.
+Hours of a booked absence are added to the worked hours of the period, so somebody on holiday moves towards the guaranteed hours as if they had worked. The first wizard measures the period maximum against the hours already booked in the pay period before the planned range, absences included. The weekly maximum is checked by all three stages, and absence hours never count towards that weekly cap: an absence day is not a working day for it.
 
 ### Consecutive working days
 
@@ -93,4 +93,4 @@ On a day with a booked absence or a planning command, the person's availability 
 
 **Time of day is ignored.** An absence entered with a time range does not leave the rest of the day free for the wizards.
 
-**Where the weekly maximum is checked.** Only the harmonizer checks a weekly maximum, and there absence hours are excluded. The first wizard knows the period maximum instead, and that one includes the absence hours booked before the planned range.
+**Where the weekly maximum is checked.** All three stages check it, and absence hours are excluded everywhere, so a sick week does not use up the weekly limit. The first wizard also knows a period maximum, and that one includes the absence hours booked before the planned range.

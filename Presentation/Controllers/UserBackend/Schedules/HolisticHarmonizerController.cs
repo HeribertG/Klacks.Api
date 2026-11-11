@@ -87,7 +87,8 @@ public sealed class HolisticHarmonizerController : BaseController
                 PeriodUntil: request.PeriodUntil,
                 AgentIds: request.AgentIds,
                 AnalyseToken: request.AnalyseToken,
-                Language: request.Language),
+                Language: request.Language,
+                AgentOrderIsUserDefined: request.AgentOrderIsUserDefined),
             CancellationToken.None);
 
         return Ok(new StartHolisticHarmonizerResponse(jobId));

@@ -63,7 +63,8 @@ public sealed class HarmonizerController : ControllerBase
                 PeriodUntil: request.PeriodUntil,
                 AgentIds: request.AgentIds,
                 AnalyseToken: request.AnalyseToken,
-                KeywordMode: request.KeywordMode),
+                KeywordMode: request.KeywordMode,
+                AgentOrderIsUserDefined: request.AgentOrderIsUserDefined),
             CancellationToken.None);
 
         return Ok(new StartHarmonizerResponse(jobId));

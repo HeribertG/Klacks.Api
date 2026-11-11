@@ -73,7 +73,8 @@ Anchor for this card: `scheduling-rules-table-header`. The edit dialog is
   fr: "Max. heures journalières", it: "Max. ore giornaliere") — hours on one calendar day.
   Anchor `scheduling-rule-modal-max-daily-hours-item`.
 - **Hours per week** (de: "Max. Wochenstunden", en: "Max. Weekly Hours",
-  fr: "Max. heures hebdomadaires", it: "Max. ore settimanali") — counted per ISO week.
+  fr: "Max. heures hebdomadaires", it: "Max. ore settimanali") — counted per ISO week (Monday to Sunday).
+  The automatic planning keeps it in every stage (see "How the limits are counted" below).
   Anchor `scheduling-rule-modal-max-weekly-hours-item`.
 - **Days in a row** (de: "Max. aufeinanderfolgende Arbeitstage", en: "Max. Consecutive Work Days",
   fr: "Max. jours de travail consécutifs", it: "Max. giorni lavorativi consecutivi").
@@ -110,6 +111,13 @@ longest working day, hours per week, days in a row — must be empty or at least
 The company-wide defaults card does not accept a maximum below 1 either; it raises the field to 1.
 Nothing checks a limit against another limit — a minimum above the maximum, or a daily figure that
 cannot add up to the weekly one, is accepted.
+
+**How the limits are counted.** The automatic planning treats the hours per week and the longest working day as
+hard limits in all three stages. It counts the paid hours of a duty in the week, and on the day, in which the duty
+starts. Absences and breaks never count, and duties that already exist in that week count too, locked ones
+included. The schedule check measures differently: it counts the real clock time of each duty per calendar day, so
+a night duty that runs over midnight at the end of a week is split between the two weeks there. For such a duty the
+planning and the check can therefore come to different weekly totals.
 
 <!-- level:effects -->
 

@@ -13,8 +13,8 @@ namespace Klacks.Api.Domain.Services.Schedules;
 /// gives 22/31. Klacks only plans; this is the target the engine strives for, not a payroll value. MaximumHours is a
 /// hard ceiling and is never scaled: the agent may not work more than the contract allows, but a shorter membership
 /// must not make the engine pack the full monthly target into the remaining days. Wizard 2/3 apply the same rule day by
-/// day while summing their pay-period target over the planned range (HarmonizerContextBuilder.ComputePeriodTargetHours
-/// skips non-member days); its target is range-based by construction. The period hours (PeriodHoursService,
+/// day while summing their pay-period target over the planned range (<see cref="PlanningRangeHours"/> skips non-member
+/// days; the roster priority order of every stage ranks by the same sum); its target is range-based by construction. The period hours (PeriodHoursService,
 /// WorkRepository.GetPeriodHoursForClients) report the same prorated target, so the schedule's target column,
 /// find_replacement, recovery and the target-drift trigger rank against it too.
 /// </summary>

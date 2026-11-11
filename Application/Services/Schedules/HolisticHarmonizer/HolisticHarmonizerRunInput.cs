@@ -18,6 +18,8 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 /// <param name="KeywordMode">Hard (default) vetoes the restricting schedule commands; Soft treats them as wishes.</param>
 /// <param name="GroupId">Group the run harmonises for; null = no group. Closes the days outside the agents' group period
 /// (see HarmonizerContextRequest.GroupId).</param>
+/// <param name="AgentOrderIsUserDefined">True keeps the hand-arranged AgentIds order as the row order (see
+/// HarmonizerContextRequest.AgentOrderIsUserDefined); false ranks automatically.</param>
 public sealed record HolisticHarmonizerRunInput(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -27,4 +29,5 @@ public sealed record HolisticHarmonizerRunInput(
     int ContextDaysBefore = ScenarioConstants.BoundaryDays,
     int ContextDaysAfter = ScenarioConstants.BoundaryDays,
     KeywordMode KeywordMode = KeywordMode.Hard,
-    Guid? GroupId = null);
+    Guid? GroupId = null,
+    bool AgentOrderIsUserDefined = false);

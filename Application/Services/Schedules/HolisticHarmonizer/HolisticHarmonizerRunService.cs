@@ -134,5 +134,6 @@ public sealed class HolisticHarmonizerRunService
             ContextDaysBefore: input.ContextDaysBefore,
             ContextDaysAfter: input.ContextDaysAfter,
             KeywordMode: input.KeywordMode,
-            GroupId: input.GroupId);
+            GroupId: input.GroupId,
+            AgentOrderIsUserDefined: input.AgentOrderIsUserDefined);
 }

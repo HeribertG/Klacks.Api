@@ -63,6 +63,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
 
     public async Task<CoreWizardContext> BuildContextAsync(WizardContextRequest request, CancellationToken ct)
     {
+        request = request with { AgentIds = request.AgentIds.Distinct().ToList() };
         var (payPeriodStart, payPeriodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(request.PeriodFrom);
         var currentHours = await LoadCurrentHoursAsync(request, payPeriodStart, ct);
 
@@ -152,7 +153,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         {
             PeriodFrom = request.PeriodFrom,
             PeriodUntil = request.PeriodUntil,
-            Agents = BuildRosterPriorityOrder(agentSnapshot.Agents, request.AgentOrderIsUserDefined, standInIds),
+            Agents = BuildRosterPriorityOrder(agentSnapshot.Agents, request.AgentOrderIsUserDefined, standInIds, agentSnapshot.RankHours),
             Shifts = shifts,
             ContractDays = agentSnapshot.ContractDays,
             ScheduleCommands = periodConstraints.ScheduleCommands,
@@ -179,24 +180,22 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
 
     /// <summary>
     /// Establishes the canonical top-down roster priority order consumed by the optimizer:
-    /// position 0 gets the most accurate plan, the bottom takes what is left. A hand-arranged
-    /// user order is kept verbatim; the regular list order is reshaped by contractually
-    /// guaranteed hours (descending). In both cases the stand-ins are marked
+    /// position 0 gets the most accurate plan, the bottom takes what is left. The order itself comes from
+    /// <see cref="RosterPriorityOrder"/>, the one rank of every wizard stage (user order verbatim, otherwise guaranteed
+    /// hours, then full-time hours, both scaled to the planned period with member days only, descending; stable). The
+    /// scaled values are sort keys only: <see cref="CoreAgent.GuaranteedHours"/>, which the fitness plans with, is not
+    /// changed. The stand-ins are marked here
     /// (<see cref="CoreAgent.IsStandIn"/>, which the fitness ranks right after legality, coverage and, in Soft keyword mode, the broken wishes) and move
     /// behind every real person, so the wizard fills them only where real people are not enough.
-    /// The sorts are stable, so ties keep the incoming order.
     /// </summary>
     private static IReadOnlyList<CoreAgent> BuildRosterPriorityOrder(
-        IReadOnlyList<CoreAgent> agentsInBaseOrder, bool agentOrderIsUserDefined, IReadOnlySet<Guid> standInIds)
+        IReadOnlyList<CoreAgent> agentsInBaseOrder, bool agentOrderIsUserDefined, IReadOnlySet<Guid> standInIds, RosterRankHours rankHours)
     {
-        IEnumerable<CoreAgent> personOrder = agentOrderIsUserDefined
-            ? agentsInBaseOrder
-            : agentsInBaseOrder.OrderByDescending(a => a.GuaranteedHours);
-
-        return personOrder
+        var marked = agentsInBaseOrder
             .Select(a => Guid.TryParse(a.Id, out var agentId) && standInIds.Contains(agentId) ? a with { IsStandIn = true } : a)
-            .OrderBy(a => a.IsStandIn)
             .ToList();
+
+        return RosterPriorityOrder.Apply(marked, agentOrderIsUserDefined, rankHours, a => Guid.Parse(a.Id), a => a.IsStandIn);
     }
 
     private static IReadOnlyList<AvailabilityShiftSlot> AvailabilitySlotsFromShifts(IReadOnlyList<CoreShift> shifts)

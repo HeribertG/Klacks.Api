@@ -94,7 +94,7 @@ public sealed class HolisticHarmonizerEngine
             request.LlmModelId, ping.IsHealthy, ping.LatencyMs, ping.Error ?? "<none>");
 
         var input = await _contextBuilder.BuildContextAsync(ToContextRequest(request), cancellationToken);
-        var sorted = RowSorter.Sort(BitmapBuilder.Build(input));
+        var sorted = RowSorter.Sort(BitmapBuilder.Build(input), input.KeepAgentOrder);
         var original = BitmapCloner.Clone(sorted);
         var working = BitmapCloner.Clone(sorted);
 
@@ -123,7 +123,8 @@ public sealed class HolisticHarmonizerEngine
             request.ContextDaysBefore,
             request.ContextDaysAfter,
             KeywordMode: request.KeywordMode,
-            GroupId: request.GroupId);
+            GroupId: request.GroupId,
+            AgentOrderIsUserDefined: request.AgentOrderIsUserDefined);
 
     private static HolisticHarmonizerRunResult BuildPreflightFailedResult(
         HolisticHarmonizerEngineRequest request,

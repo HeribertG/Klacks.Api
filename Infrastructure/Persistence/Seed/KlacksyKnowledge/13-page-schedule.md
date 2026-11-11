@@ -229,6 +229,17 @@ verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder ni
   "Contractually guaranteed hours"), den Modus **Individuell Sortiert** (de: "Individuell
   Sortiert", en: "Individual Sort" — Zeilen per Drag-Handle umordnen) sowie die Checkboxen
   **Mitarbeiter** (en: "Employees") und **Extern** (en: "Ext").
+- **Wirkung der Sortierung auf den Autofill:** Die Anzeige-Sortierungen (Vorname, Nachname, Firma, vertraglich
+  garantierte Stunden) legen den Rang bei der automatischen Planung nicht fest. Nur eine von Hand festgelegte
+  Reihenfolge zählt: **Individuell Sortiert** ist eingeschaltet und für die Gruppe ist eine Reihenfolge gespeichert,
+  die mindestens eine der gezeigten Personen einordnet. Dann arbeiten alle drei Stufen des Autofills genau in dieser
+  Reihenfolge: Wer oben steht, bekommt zuerst seine garantierten Stunden, wer unten steht, den Rest. Ohne eine
+  solche Reihenfolge ordnet Klacks selbst: nach den vertraglich garantierten Stunden, umgerechnet auf den
+  Planzeitraum (wöchentlich 40 Stunden vor monatlich 100 Stunden), bei Gleichstand nach Vollzeitstunden,
+  Platzhalter immer zuletzt. Die gespeicherte Reihenfolge gilt je Benutzer und Gruppe. Bittet man Klacksy im Chat zu
+  planen, genügt die gespeicherte Reihenfolge, der Schalter muss nicht an sein. Eine Planung, die Klacksy von sich
+  aus für die Folgeperiode startet, eine externe KI über die MCP-Schnittstelle und Klacksys eigener Zielplan nehmen
+  immer die automatische Ordnung.
 - **Kontextmenü Zeilenkopf** (Rechtsklick auf eine Mitarbeiterzeile): **Adresse anzeigen**
   (en: "Show address") — navigiert zur Personenmaske; **Dienstplan ausdrucken** (en: "Print
   Staff Schedule") — erzeugt ein PDF des persönlichen Dienstplans für diesen Mitarbeiter

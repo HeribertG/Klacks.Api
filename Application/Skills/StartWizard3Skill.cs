@@ -2,11 +2,14 @@
 
 /// <summary>
 /// Skill that starts only Wizard 3 (Holistic Harmonizer). Polishes an already harmonized schedule; by default
-/// with the deterministic local search (no LLM), with the LLM vision engine only when WIZARD3_MODE is "llm".
+/// with the deterministic local search (no LLM), with the LLM vision engine only when WIZARD3_MODE is "llm". The employees
+/// go to the run in the roster order ISkillRosterOrderResolver decides (the chat user's saved order, or the automatic order
+/// for another AI).
 /// </summary>
 
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Attributes;
@@ -20,11 +23,16 @@ public class StartWizard3Skill : BaseSkillImplementation
 {
     private readonly IHolisticHarmonizerJobRunner _runner;
     private readonly IGroupPlanningAgentRepository _planningAgentRepository;
+    private readonly ISkillRosterOrderResolver _rosterOrderResolver;
 
-    public StartWizard3Skill(IHolisticHarmonizerJobRunner runner, IGroupPlanningAgentRepository planningAgentRepository)
+    public StartWizard3Skill(
+        IHolisticHarmonizerJobRunner runner,
+        IGroupPlanningAgentRepository planningAgentRepository,
+        ISkillRosterOrderResolver rosterOrderResolver)
     {
         _runner = runner;
         _planningAgentRepository = planningAgentRepository;
+        _rosterOrderResolver = rosterOrderResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -56,13 +64,15 @@ public class StartWizard3Skill : BaseSkillImplementation
             return SkillResult.Error($"No agents in group {groupId} — abort.");
         }
 
+        var rosterOrder = await _rosterOrderResolver.ResolveAsync(context, groupId, agentIds, cancellationToken);
         var input = new HolisticHarmonizerRunInput(
             PeriodFrom: periodFrom,
             PeriodUntil: periodUntil,
-            AgentIds: agentIds,
+            AgentIds: rosterOrder.AgentIds,
             AnalyseToken: analyseToken,
             Language: language,
-            GroupId: groupId);
+            GroupId: groupId,
+            AgentOrderIsUserDefined: rosterOrder.UserDefined);
 
         Guid jobId;
         try

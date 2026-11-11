@@ -31,7 +31,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// target prorated to the bitmap date range, per-(agent, date) availability (WorksOnDay flag closed outside the company membership and, in a run
 /// for a group, outside the agent's period in that group (GroupPeriodRanges, the rule of the planning period guard); FREE keywords, break
 /// blockers), and ClientShiftPreference Blacklist sets handed down the order tree (ShiftPreferenceScopeQuery). Uses the same data sources as
-/// Wizard 1 and the same scenario-isolation semantics for the AnalyseToken.
+/// Wizard 1 and the same scenario-isolation semantics for the AnalyseToken. Agents come in Wizard 1's <see cref="RosterPriorityOrder"/>.
 /// </summary>
 /// <param name="context">EF Core database context</param>
 /// <param name="contractProvider">Source of effective contract data per client/date</param>
@@ -71,7 +71,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
 
     public async Task<BitmapInput> BuildContextAsync(HarmonizerContextRequest request, CancellationToken ct)
     {
-        var agentIds = request.AgentIds.ToList();
+        var agentIds = request.AgentIds.Distinct().ToList();
         var keywordMap = ScheduleCommandKeywordMapper.BuildMap(await _keywordProvider.GetAsync(ct));
 
         var works = await LoadWorksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
@@ -101,8 +101,10 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var softenings = await _softeningRepository.LoadAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
 
         var planningBasis = PlanningContractBasis.Select(agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, membershipWindows);
-        var agents = BuildAgents(agentIds, firstDayContracts, planningBasis, periodTargetHours, clients, preferredSymbols, blacklistByAgent);
-        var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions, keywordDays.Days);
+        var unorderedAgents = BuildAgents(agentIds, firstDayContracts, planningBasis, periodTargetHours, clients, preferredSymbols, blacklistByAgent);
+        var rankHours = RosterRankHours.Compute(agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, membershipWindows);
+        var agents = RosterPriorityOrder.Apply(unorderedAgents, request.AgentOrderIsUserDefined, rankHours, a => Guid.Parse(a.Id), a => a.IsStandIn);
+        var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions, keywordDays.Days, contractDataByDate);
         var agentIdSet = agentIds.ToHashSet();
         var covers = await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
         var correctedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
@@ -151,7 +153,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             ineligible,
             restrictedTimeWindows,
             planningRules,
-            request.KeywordMode);
+            request.KeywordMode,
+            KeepAgentOrder: true);
     }
 
     private async Task<IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)>> BuildIneligibleAsync(
@@ -242,10 +245,10 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             periodShiftIds, request.PeriodFrom, request.PeriodUntil, ct);
     }
 
-    private async Task<(BitmapPlanningRules? Rules, List<BitmapAgent> Agents)> ApplyPlanningRulesAsync(
+    private async Task<(BitmapPlanningRules? Rules, IReadOnlyList<BitmapAgent> Agents)> ApplyPlanningRulesAsync(
         HarmonizerContextRequest request,
         List<Guid> agentIds,
-        List<BitmapAgent> agents,
+        IReadOnlyList<BitmapAgent> agents,
         int coveredBoundaryDays,
         DateOnly contextFrom,
         DateOnly contextUntil,
@@ -299,7 +302,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     }
 
     /// <summary>Night window and workload of the planning rules come from the loader, the same source the validators use.</summary>
-    private static List<BitmapAgent> WithRuleAgents(List<BitmapAgent> agents, IReadOnlyList<RuleAgent> ruleAgents)
+    private static List<BitmapAgent> WithRuleAgents(IReadOnlyList<BitmapAgent> agents, IReadOnlyList<RuleAgent> ruleAgents)
     {
         var byId = ruleAgents.ToDictionary(agent => agent.Id, StringComparer.Ordinal);
         return agents
@@ -503,13 +506,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     }
 
     /// <summary>
-    /// Target hours of every agent over exactly the bitmap range [from, until]. GuaranteedHours is stated per
-    /// pay period (GuaranteedHoursBasisInterval, else PaymentInterval), while the bitmap only holds the planned range, so each day contributes its
-    /// pay-period share via <see cref="PayPeriodTargetHoursProrator"/>. Each day uses that day's own contract data,
-    /// so a contract change or a month-specific company value inside the range is honoured. An agent without
-    /// contract data on a day contributes nothing for that day, and neither does a day outside the agent's company
-    /// membership: the target is prorated by member days (<see cref="MembershipTargetProration"/>), while MaximumHours
-    /// stays the unscaled hard ceiling.
+    /// Target hours of every agent over exactly the bitmap range [from, until] (<see cref="PlanningRangeHours.GuaranteedHours"/>:
+    /// pay-period share per day, member days only); MaximumHours stays the unscaled hard ceiling.
     /// </summary>
     internal static Dictionary<Guid, decimal> ComputePeriodTargetHours(
         IReadOnlyList<Guid> agentIds,
@@ -518,35 +516,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         IReadOnlyDictionary<DateOnly, Dictionary<Guid, EffectiveContractData>> contractDataByDate,
         IReadOnlyDictionary<Guid, IReadOnlyCollection<Period>> individualPeriodsByContract,
         IReadOnlyDictionary<Guid, MembershipWindow>? membershipWindows = null)
-    {
-        var result = agentIds.ToDictionary(id => id, _ => 0m);
-        for (var date = from; date <= until; date = date.AddDays(1))
-        {
-            if (!contractDataByDate.TryGetValue(date, out var perDay))
-            {
-                continue;
-            }
-
-            foreach (var agentId in agentIds)
-            {
-                if (!perDay.TryGetValue(agentId, out var data)
-                    || (membershipWindows is not null
-                        && !MembershipWindows.IsMemberOn(membershipWindows, agentId, date)))
-                {
-                    continue;
-                }
-
-                var interval = (PaymentInterval)(data.GuaranteedHoursBasisInterval ?? data.PaymentInterval);
-                var periods = data.ContractId is { } contractId
-                    && individualPeriodsByContract.TryGetValue(contractId, out var found)
-                        ? found
-                        : null;
-                result[agentId] += PayPeriodTargetHoursProrator.DailyShare(data.GuaranteedHours, interval, date, periods);
-            }
-        }
-
-        return result;
-    }
+        => PlanningRangeHours.GuaranteedHours(agentIds, from, until, contractDataByDate, individualPeriodsByContract, membershipWindows);
 
     private async Task<IReadOnlyDictionary<Guid, IReadOnlyCollection<Period>>> LoadIndividualPeriodsAsync(
         IReadOnlyDictionary<DateOnly, Dictionary<Guid, EffectiveContractData>> contractDataByDate,
@@ -589,10 +559,12 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     };
 
     /// <summary>
-    /// The bitmap agents. The caps come from the contract data of the first period day; the shift-work flag comes
-    /// from <paramref name="planningBasis"/> (<see cref="PlanningContractBasis"/>, the same choice as Wizard 1), and an
-    /// employee without any member day with contract data gets no shift work. A stand-in is flagged, so the row sorter ranks
-    /// it after every real person.
+    /// The bitmap agents. Consecutive-day, pause and rest-day caps come from the contract data of the first period day; the
+    /// weekly cap and the shift-work flag come from <paramref name="planningBasis"/> (<see cref="PlanningContractBasis"/>, the
+    /// same choice as Wizard 1), and an employee without any member day with contract data gets no shift work; a missing
+    /// weekly cap falls back to <see cref="WizardSchedulingDefaults.MaxWeeklyHours"/> like Wizard 1. The daily cap is Wizard 1's agent cap (WizardAgentSnapshotBuilder): the value of <paramref name="planningBasis"/>,
+    /// otherwise <see cref="WizardSchedulingDefaults.MaxDailyHours"/>; the contract value of a single day travels in
+    /// <see cref="DayAvailability.MaxDailyHours"/>. A stand-in is flagged, so the roster priority order ranks it after every real person.
     /// </summary>
     private static List<BitmapAgent> BuildAgents(
         List<Guid> agentIds,
@@ -609,12 +581,14 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             var displayName = clients.TryGetValue(id, out var c) ? BuildDisplayName(c) : id.ToString();
             var contract = contracts.TryGetValue(id, out var ct) ? ct : null;
             var targetHours = periodTargetHours.GetValueOrDefault(id);
-            var maxWeekly = contract?.MaxWeeklyHours ?? 0m;
+            var basis = planningBasis.GetValueOrDefault(id);
+            var maxWeekly = basis?.MaxWeeklyHours > 0 ? basis.MaxWeeklyHours : (decimal)WizardSchedulingDefaults.MaxWeeklyHours;
             var maxConsec = contract?.MaxConsecutiveDays > 0 ? contract.MaxConsecutiveDays : 6;
             var minPause = contract?.MinPauseHours ?? (decimal)SchedulingPolicyDefaults.MinRestHours;
             var minRestDays = contract?.MinRestDays ?? SchedulingPolicyDefaults.MinRestDays;
             var prefs = preferences.TryGetValue(id, out var p) ? p : [];
             var blacklist = blacklists.TryGetValue(id, out var b) ? (IReadOnlySet<Guid>)b : null;
+            var maxDaily = basis?.MaxDailyHours > 0 ? basis.MaxDailyHours : (decimal)WizardSchedulingDefaults.MaxDailyHours;
             result.Add(new BitmapAgent(
                 Id: id.ToString(),
                 DisplayName: displayName,
@@ -625,12 +599,14 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 MinPauseHours: minPause,
                 BlacklistedShiftIds: blacklist,
                 MinRestDays: (int)Math.Ceiling(minRestDays),
-                PerformsShiftWork: planningBasis.TryGetValue(id, out var basis) && basis.PerformsShiftWork,
-                IsStandIn: c is not null && ClientTypeRules.IsStandIn(c.Type)));
+                PerformsShiftWork: basis is not null && basis.PerformsShiftWork,
+                IsStandIn: c is not null && ClientTypeRules.IsStandIn(c.Type),
+                MaxDailyHours: maxDaily));
         }
         return result;
     }
 
+    /// <summary>Per-day availability of each agent; the daily hour cap is the MaximumHoursPerDay of the contract valid that day (Wizard 1's contract-day override, CoreContractDay).</summary>
     private static Dictionary<(string AgentId, DateOnly Date), DayAvailability> BuildAvailability(
         List<Guid> agentIds,
         DateOnly from,
@@ -639,7 +615,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         IReadOnlySet<(Guid AgentId, DateOnly Date)> freeCommandDates,
         IReadOnlySet<(Guid AgentId, DateOnly Date)> breakDates,
         IReadOnlyDictionary<(Guid AgentId, DateOnly Date), (CellSymbol? Required, CellSymbol? Forbidden)> keywordRestrictions,
-        IReadOnlyDictionary<(Guid AgentId, DateOnly Date), KeywordDay>? wishDays)
+        IReadOnlyDictionary<(Guid AgentId, DateOnly Date), KeywordDay>? wishDays,
+        IReadOnlyDictionary<DateOnly, Dictionary<Guid, EffectiveContractData>> contractDataByDate)
     {
         var result = new Dictionary<(string, DateOnly), DayAvailability>();
         foreach (var agentId in agentIds)
@@ -662,7 +639,10 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                     wishDay = wishDay.WithoutPositiveWish();
                 }
 
-                result[(agentId.ToString(), date)] = new DayAvailability(worksOnDay, hasFree, hasBreak, required, forbidden, wishDay);
+                var dailyCap = contractDataByDate.TryGetValue(date, out var perDay) && perDay.TryGetValue(agentId, out var data)
+                    ? data.MaxDailyHours
+                    : 0m;
+                result[(agentId.ToString(), date)] = new DayAvailability(worksOnDay, hasFree, hasBreak, required, forbidden, wishDay, dailyCap);
             }
         }
         return result;

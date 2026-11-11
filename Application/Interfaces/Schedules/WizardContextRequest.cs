@@ -26,7 +26,8 @@
 /// <param name="AgentOrderIsUserDefined">
 /// True when <paramref name="AgentIds"/> reflects an individual roster order the user arranged by hand —
 /// that order is then used as the top-down priority order unchanged. False (default) means the order is the
-/// regular list sort and the builder reshapes it by contractually guaranteed hours (descending, stable).
+/// regular list sort and the builder reshapes it by contractually guaranteed hours, then full-time hours, both scaled to
+/// the planned period with member days only (descending, stable; RosterPriorityOrder, RosterRankHours).
 /// </param>
 /// <param name="GroupId">
 /// Group the run plans for; null = no group. With a group, a day outside an agent's group period in exactly that group

@@ -17,7 +17,7 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// crossing the period start. Default 14. Override with 0 to disable.
 /// </param>
 /// <param name="ContextDaysAfter">Same as <paramref name="ContextDaysBefore"/>, after <paramref name="PeriodUntil"/>.</param>
-/// <param name="AgentOrderIsUserDefined">True when AgentIds reflects an individual roster order arranged by the user; stage 1 then uses it as the top-down priority order verbatim instead of reshaping by guaranteed hours.</param>
+/// <param name="AgentOrderIsUserDefined">True when AgentIds reflects an individual roster order arranged by the user; all three stages then use it as the top-down priority order verbatim instead of ranking automatically (RosterPriorityOrder).</param>
 /// <param name="KeywordMode">Keyword mode of the Wizard and Harmonizer stages; Hard (default) vetoes the restricting
 /// schedule commands, Soft ranks them as wishes.</param>
 /// <param name="SoftKeywordRetry">True to run the chain a second time in Soft keyword mode when the strict (Hard) run

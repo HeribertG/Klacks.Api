@@ -34,6 +34,8 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// <param name="GroupId">Group the run harmonises for; null = no group. With a group, a day outside an agent's group period in
 /// exactly that group (GroupItem validity) is closed like a day outside the company membership, so no move hands the agent
 /// work there.</param>
+/// <param name="AgentOrderIsUserDefined">True when AgentIds reflects a roster order the planner arranged by hand; it is then
+/// kept verbatim as the row order (stand-ins last), like in Wizard 1. False ranks automatically (<see cref="RosterPriorityOrder"/>).</param>
 public sealed record HarmonizerContextRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -44,4 +46,5 @@ public sealed record HarmonizerContextRequest(
     int? Seed = null,
     bool LoadPlanningRules = true,
     KeywordMode KeywordMode = KeywordMode.Hard,
-    Guid? GroupId = null);
+    Guid? GroupId = null,
+    bool AgentOrderIsUserDefined = false);

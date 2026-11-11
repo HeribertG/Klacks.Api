@@ -11,7 +11,8 @@
 /// chain will stop after the harmonizer stage. The run asks for the soft-keyword retry (SoftKeywordRetry): when the strict
 /// plan leaves slots open and the employees have restricting schedule commands, a second chain plans with the keywords as
 /// wishes and is used only when it covers more slots: it replaces the strict scenario when it breaks no keyword, otherwise
-/// it is offered next to it.
+/// it is offered next to it. The employees go to the run in the roster order ISkillRosterOrderResolver decides: the saved
+/// individual order of the chat user, or the automatic order when another AI (MCP) or a self-reflection plan calls.
 /// </summary>
 /// <param name="groupId">Optional group UUID (the "selectedGroup" of the schedule view); takes precedence over groupName.</param>
 /// <param name="groupName">Optional group display name, resolved with fuzzy matching inside the caller's group scope.</param>
@@ -29,6 +30,7 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Attributes;
@@ -66,6 +68,7 @@ public class StartAutoWizardSkill : BaseSkillImplementation
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly ICompanyClock _companyClock;
     private readonly IHolisticHarmonizerReadinessCheck _holisticReadinessCheck;
+    private readonly ISkillRosterOrderResolver _rosterOrderResolver;
 
     public StartAutoWizardSkill(
         IAutoWizardJobRunner autoWizardJobRunner,
@@ -74,7 +77,8 @@ public class StartAutoWizardSkill : BaseSkillImplementation
         IShiftScheduleRepository shiftScheduleRepository,
         IGroupScopeGuard groupScopeGuard,
         ICompanyClock companyClock,
-        IHolisticHarmonizerReadinessCheck holisticReadinessCheck)
+        IHolisticHarmonizerReadinessCheck holisticReadinessCheck,
+        ISkillRosterOrderResolver rosterOrderResolver)
     {
         _autoWizardJobRunner = autoWizardJobRunner;
         _groupRepository = groupRepository;
@@ -83,6 +87,7 @@ public class StartAutoWizardSkill : BaseSkillImplementation
         _groupScopeGuard = groupScopeGuard;
         _companyClock = companyClock;
         _holisticReadinessCheck = holisticReadinessCheck;
+        _rosterOrderResolver = rosterOrderResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -145,16 +150,18 @@ public class StartAutoWizardSkill : BaseSkillImplementation
                 "Either pass explicit shiftIds or assign shifts to the group's hierarchy first.");
         }
 
+        var rosterOrder = await _rosterOrderResolver.ResolveAsync(context, group.Id, agentIds, cancellationToken);
         var request = new StartAutoWizardRequest(
             PeriodFrom: periodFrom,
             PeriodUntil: periodUntil,
-            AgentIds: agentIds,
+            AgentIds: rosterOrder.AgentIds,
             ShiftIds: shiftIds,
             GroupId: group.Id,
             AnalyseToken: analyseToken,
             Language: language,
             ContextDaysBefore: ScenarioConstants.BoundaryDays,
             ContextDaysAfter: ScenarioConstants.BoundaryDays,
+            AgentOrderIsUserDefined: rosterOrder.UserDefined,
             SoftKeywordRetry: true);
 
         var holisticReadiness = await _holisticReadinessCheck.CheckAsync(cancellationToken);

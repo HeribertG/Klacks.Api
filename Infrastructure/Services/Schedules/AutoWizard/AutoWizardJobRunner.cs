@@ -158,7 +158,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     /// missing one and - for a restricted caller - a run without a group, whose stage scenarios would be group-less and
     /// therefore refused by the next stage's own scenario check part-way through the chain, and shifts the caller may not
     /// see (EnsureShiftsVisibleAsync). Agents the caller may not see
-    /// are dropped from the selection like unknown ids, keeping the order of the rest, because the chain itself runs
+    /// are dropped from the selection like unknown ids, keeping the order of the rest (a repeated id once, at its first
+    /// position), because the chain itself runs
     /// without a user. Returns the request to run and the group the run's scenarios will belong to
     /// (ScenarioGroupInheritance, the rule the apply uses).
     /// </summary>
@@ -172,7 +173,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         await EnsureShiftsVisibleAsync(scope.ServiceProvider, request.ShiftIds, ct);
 
         var visibleAgentIds = await scope.ServiceProvider.GetRequiredService<IClientVisibilityGuard>()
-            .FilterVisibleAsync(request.AgentIds, agentId => agentId, ct);
+            .FilterVisibleAsync(request.AgentIds.Distinct().ToList(), agentId => agentId, ct);
 
         var sourceScenario = request.AnalyseToken is Guid sourceToken
             ? await scope.ServiceProvider.GetRequiredService<IAnalyseScenarioRepository>().GetByTokenAsync(sourceToken, ct)

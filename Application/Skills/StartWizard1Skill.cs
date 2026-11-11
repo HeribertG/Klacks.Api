@@ -3,7 +3,8 @@
 /// <summary>
 /// Skill that starts only Wizard 1 (TokenEvolution Planner) — the first stage of the AutoWizard chain.
 /// Use when the user wants an initial coverage-first plan without running the Harmonizer / Holistic
-/// Harmonizer afterwards. Auto-resolves agents and shifts from the group when not supplied.
+/// Harmonizer afterwards. Auto-resolves agents and shifts from the group when not supplied. The employees go to the run in
+/// the roster order ISkillRosterOrderResolver decides (the chat user's saved order, or the automatic order for another AI).
 /// </summary>
 
 using Klacks.Api.Application.Exceptions;
@@ -24,15 +25,18 @@ public class StartWizard1Skill : BaseSkillImplementation
     private readonly IWizardJobRunner _runner;
     private readonly IGroupPlanningAgentRepository _planningAgentRepository;
     private readonly IShiftScheduleRepository _shiftScheduleRepository;
+    private readonly ISkillRosterOrderResolver _rosterOrderResolver;
 
     public StartWizard1Skill(
         IWizardJobRunner runner,
         IGroupPlanningAgentRepository planningAgentRepository,
-        IShiftScheduleRepository shiftScheduleRepository)
+        IShiftScheduleRepository shiftScheduleRepository,
+        ISkillRosterOrderResolver rosterOrderResolver)
     {
         _runner = runner;
         _planningAgentRepository = planningAgentRepository;
         _shiftScheduleRepository = shiftScheduleRepository;
+        _rosterOrderResolver = rosterOrderResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -77,12 +81,14 @@ public class StartWizard1Skill : BaseSkillImplementation
             return SkillResult.Error($"No shifts visible for group {groupId} in {periodFrom}..{periodUntil} — abort.");
         }
 
+        var rosterOrder = await _rosterOrderResolver.ResolveAsync(context, groupId, agentIds, cancellationToken);
         var request = new WizardContextRequest(
             PeriodFrom: periodFrom,
             PeriodUntil: periodUntil,
-            AgentIds: agentIds,
+            AgentIds: rosterOrder.AgentIds,
             ShiftIds: shiftIds,
             AnalyseToken: analyseToken,
+            AgentOrderIsUserDefined: rosterOrder.UserDefined,
             GroupId: groupId);
 
         Guid jobId;
