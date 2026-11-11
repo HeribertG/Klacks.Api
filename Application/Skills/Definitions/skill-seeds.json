@@ -16737,7 +16737,7 @@
     {
       "name": "start_wizard3",
       "area": "wizard",
-      "description": "Starts only Wizard 3 (Holistic Harmonizer). Polishes an already harmonized plan without changing coverage and without moving anyone further from their target hours. By default it runs a deterministic local search that needs no language model and costs only computing time; only when the installation has switched this stage to an AI model does it call that model and consume its usage. Pass the analyseToken of the Wizard 2 scenario.",
+      "description": "Starts only Wizard 3 (Holistic Harmonizer). Polishes an already harmonized plan without changing coverage and without moving anyone further from their target hours. It always runs a deterministic local search that needs no language model and costs only computing time. Pass the analyseToken of the Wizard 2 scenario.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16778,7 +16778,7 @@
         },
         {
           "name": "language",
-          "description": "Optional UI language (e.g. 'de', 'en'); only used when this stage runs on an AI model.",
+          "description": "Optional UI language (e.g. 'de', 'en'); the deterministic run does not use it.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -16795,18 +16795,13 @@
           "wizard 3"
         ],
         "en": [
-          "holistic",
-          "llm polish"
-        ],
-        "und": [
-          "vision"
+          "holistic"
         ]
       },
       "synonyms": {
         "de": [
           "wizard 3",
           "holistisch",
-          "llm-feinschliff",
           "feinschliff",
           "politur",
           "nur den dritten wizard laufen lassen",
@@ -16817,8 +16812,6 @@
         "en": [
           "wizard 3",
           "holistic",
-          "llm polish",
-          "vision pass",
           "final polish",
           "run only the third wizard",
           "refine the already harmonized plan further",
@@ -16828,7 +16821,6 @@
         "fr": [
           "wizard 3",
           "holistique",
-          "peaufinage llm",
           "lancer uniquement le troisième wizard",
           "affiner encore le planning déjà harmonisé",
           "démarre l'harmoniseur holistique avec le jeton d'analyse",
@@ -16837,7 +16829,6 @@
         "it": [
           "wizard 3",
           "olistico",
-          "rifinitura llm",
           "avvia solo il terzo wizard",
           "rifinisci ulteriormente il piano già armonizzato",
           "avvia l'armonizzatore olistico con il token di analisi",
@@ -16850,7 +16841,7 @@
         "fr": "Démarrer l'assistant 3 (harmonisateur holistique)",
         "it": "Avvia il wizard 3 (armonizzatore olistico)"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "cancel_wizard_job",
@@ -39949,7 +39940,7 @@
     {
       "name": "explain_planning_wizards",
       "area": "wizard",
-      "description": "Explains the machinery behind automatic planning: three stages that run one after another. Stage one fills the plan with a genetic algorithm and no language model, stage two smooths the result without touching coverage decisions, stage three polishes it with a deterministic local search by default; only an installation that switched stage three to a picture-reading language model pays model usage for it. Covers running a single stage, polling a run and cancelling it.",
+      "description": "Explains the machinery behind automatic planning: three stages that run one after another. Stage one fills the plan with a genetic algorithm and no language model, stage two smooths the result without touching coverage decisions, stage three polishes it with a deterministic local search; the earlier option to run stage three on a language model has been retired and there is no setting for it. Covers running a single stage, polling a run and cancelling it.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -40017,7 +40008,7 @@
         "fr": "Expliquer la planification automatique en trois étapes",
         "it": "Spiega la pianificazione automatica in tre fasi"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_company_rules",
@@ -45922,153 +45913,6 @@
         "it": "Modifica le impostazioni degli straordinari"
       },
       "version": 8
-    },
-    {
-      "name": "get_wizard_settings",
-      "area": "settings",
-      "description": "Shows how the schedule harmonizer reworks a whole roster at once: with the deterministic local search, no AI and no usage costs. Use when someone asks why reworking a plan takes so long, whether that run costs money, or which method it uses. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
-      "category": "Query",
-      "executionType": "Skill",
-      "requiredPermissions": [
-        "CanViewSettings"
-      ],
-      "parameters": [],
-      "handlerConfig": null,
-      "handlerType": null,
-      "effect": "Read",
-      "isEnabled": true,
-      "alwaysOn": false,
-      "triggerKeywords": {
-        "mul": [
-          "harmonizer model"
-        ],
-        "de": [
-          "harmonisierer modell"
-        ],
-        "en": [
-          "which model harmonizes"
-        ]
-      },
-      "synonyms": {
-        "de": [
-          "welches modell nutzt der harmonisierer",
-          "modell für die gesamtüberarbeitung des plans",
-          "harmonisierer modell anzeigen",
-          "verursacht die plan-harmonisierung kosten",
-          "arbeitet der harmonisierer mit ki oder lokaler suche",
-          "warum dauert die überarbeitung des plans so lange",
-          "welche methode ist für die plan-überarbeitung gewählt"
-        ],
-        "en": [
-          "which model does the harmonizer use",
-          "model for reworking the whole roster",
-          "does harmonizing the plan cause costs",
-          "does the harmonizer work with ai or local search",
-          "why does reworking the plan take so long",
-          "which method is chosen for reworking the plan"
-        ],
-        "fr": [
-          "quel modele utilise l harmonisateur",
-          "modele pour retravailler tout le planning",
-          "l'harmonisation du planning engendre-t-elle des coûts",
-          "l'harmonisateur travaille-t-il avec l'ia ou la recherche locale",
-          "pourquoi la révision du planning prend-elle autant de temps",
-          "quelle méthode est choisie pour retravailler le planning"
-        ],
-        "it": [
-          "quale modello usa l armonizzatore",
-          "modello per rielaborare l intero piano",
-          "l'armonizzazione del piano comporta costi",
-          "l'armonizzatore lavora con l'ia o con la ricerca locale",
-          "perché la rielaborazione del piano richiede così tanto tempo",
-          "quale metodo è scelto per rielaborare il piano"
-        ]
-      },
-      "labels": {
-        "de": "KI-Modell des Planungsassistenten",
-        "en": "Scheduling wizard AI model",
-        "fr": "Modèle IA de l'assistant de planification",
-        "it": "Modello IA dell'assistente di pianificazione"
-      },
-      "version": 8
-    },
-    {
-      "name": "update_wizard_settings",
-      "area": "settings",
-      "description": "Sets the schedule harmonizer, which reworks a whole roster at once, to the deterministic local search (no AI and no usage costs). The language-model mode has been retired: a request to run the harmonizer on a language model or to pick a model for it is refused, and the reply tells the user so. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
-      "category": "Crud",
-      "executionType": "Skill",
-      "requiredPermissions": [
-        "CanEditSettings"
-      ],
-      "parameters": [
-        {
-          "name": "mode",
-          "description": "How the harmonizer works; only 'deterministic' (local search, no AI) is available. Leave it out when the user asks for a language model, so the reply explains that this mode is retired.",
-          "type": "Enum",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": [
-            "deterministic"
-          ]
-        }
-      ],
-      "handlerConfig": null,
-      "handlerType": null,
-      "effect": "Mutate",
-      "isEnabled": true,
-      "alwaysOn": false,
-      "triggerKeywords": {
-        "mul": [
-          "harmonizer model"
-        ],
-        "de": [
-          "harmonisierer modell setzen"
-        ],
-        "en": [
-          "set harmonizer model"
-        ]
-      },
-      "synonyms": {
-        "de": [
-          "modell des harmonisierers wechseln",
-          "anderes modell für die gesamtüberarbeitung",
-          "harmonisierer auf ein anderes modell stellen",
-          "harmonisierer auf lokale suche umstellen",
-          "sprachmodell für den harmonisierer festlegen",
-          "einstellung des dienstplan-harmonisierers ändern",
-          "für die gesamtplanung ein ki-modell wählen"
-        ],
-        "en": [
-          "switch the harmonizer to another model",
-          "set the model for reworking the whole roster",
-          "set the harmonizer to local search",
-          "choose a language model for the schedule harmonizer",
-          "change the harmonizer settings",
-          "pick which model reworks the roster"
-        ],
-        "fr": [
-          "changer le modele de l harmonisateur",
-          "régler l'harmonisateur sur la recherche locale",
-          "choisir un modèle de langage pour l'harmonisateur",
-          "modifier les paramètres de l'harmonisateur",
-          "définir le modèle qui retravaille le planning"
-        ],
-        "it": [
-          "cambiare il modello dell armonizzatore",
-          "imposta l'armonizzatore sulla ricerca locale",
-          "scegli un modello linguistico per l'armonizzatore",
-          "modifica le impostazioni dell'armonizzatore",
-          "definisci il modello che rielabora il piano"
-        ]
-      },
-      "labels": {
-        "de": "KI-Modell des Planungsassistenten ändern",
-        "en": "Update the scheduling wizard's AI model",
-        "fr": "Modifier le modèle IA de l'assistant de planification",
-        "it": "Modifica il modello IA dell'assistente di pianificazione"
-      },
-      "version": 9
     },
     {
       "name": "get_export_formats_settings",

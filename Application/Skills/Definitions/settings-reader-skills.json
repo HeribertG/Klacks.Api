@@ -272,19 +272,6 @@
       "sensitiveFields": []
     },
     {
-      "name": "get_wizard_settings",
-      "className": "GetWizardSettingsSkill",
-      "description": "Shows how the schedule harmonizer reworks a whole roster at once: with the deterministic local search, no AI and no usage costs. Use when someone asks why reworking a plan takes so long, whether that run costs money, or which method it uses.",
-      "category": "Query",
-      "effect": "Read",
-      "requiredPermissions": ["CanViewSettings"],
-      "resultMessage": "Harmonizer mode retrieved.",
-      "fields": [
-        { "constant": "Constants.Settings.HOLISTIC_HARMONIZER_MODE", "resultName": "Mode" }
-      ],
-      "sensitiveFields": []
-    },
-    {
       "name": "get_export_formats_settings",
       "className": "GetExportFormatsSettingsSkill",
       "description": "Shows which of the optional file formats may be written when figures are handed over, and which payroll system is the default receiver.",

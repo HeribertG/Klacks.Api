@@ -2234,13 +2234,6 @@
     "probíhá přepis řeči lokálně nebo externě",
     "je zapnutý whisper plugin"
   ],
-  "get_wizard_settings": [
-    "jaký model používá harmonizátor",
-    "zobrazit nastavení harmonizátoru",
-    "na jakém modelu běží harmonizátor",
-    "proč trvá úprava plánu tak dlouho",
-    "který model je vybraný pro harmonizaci"
-  ],
   "get_work_settings": [
     "nastavení práce",
     "pracovní nastavení",
@@ -3325,11 +3318,9 @@
     "spusť druhý wizard na právě aplikovaný scénář"
   ],
   "start_wizard3": [
-    "doladit plán pomocí umělé inteligence",
     "spustit konečný polishing",
     "aplikovat finální úpravy plánu",
     "spustit wizard 3",
-    "vylepšit plán llm",
     "projít finálním vylepšením",
     "pusť jen třetí wizard",
     "dále dolaď už harmonizovaný plán",
@@ -3967,16 +3958,6 @@
     "přepni vyhledávání na webu na jiného poskytovatele",
     "zadej nový api klíč pro internetové vyhledávání",
     "zvyš maximální počet výsledků na jeden dotaz"
-  ],
-  "update_wizard_settings": [
-    "změnit model harmonizátoru",
-    "přepnout harmonizátor na jiný model",
-    "nastavit model pro celkovou úpravu plánu",
-    "vybrat jiný model pro harmonizátor",
-    "změnit jazykový model pro harmonizaci",
-    "přepni harmonizér na lokální hledání",
-    "vyber jazykový model pro harmonizaci plánu",
-    "změň nastavení harmonizéru rozpisu"
   ],
   "update_work": [
     "změnit časy naplánované směny",

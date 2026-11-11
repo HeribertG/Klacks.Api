@@ -2226,13 +2226,6 @@
     "kører taletransskriptionen lokalt",
     "er whisper pluginnet installeret"
   ],
-  "get_wizard_settings": [
-    "hvilken model bruger harmonisatoren",
-    "hvilken sprogmodel bruges til at omarbejde hele planen",
-    "vis nuværende valg for harmonisator",
-    "hvorfor tager harmoniseringen så lang tid",
-    "hvilken model kører harmonisatoren på"
-  ],
   "get_work_settings": [
     "arbejdsindstillinger",
     "vagtindstillinger",
@@ -3289,11 +3282,8 @@
   ],
   "start_wizard3": [
     "start wizard 3",
-    "kør llm-polering",
     "finpuds planen",
-    "vision polering",
     "holistisk finjustering",
-    "llm efterbehandling",
     "kør kun den tredje wizard",
     "forfin den allerede harmoniserede plan yderligere",
     "start den holistiske harmonisering med analysetoken"
@@ -3914,15 +3904,6 @@
     "skift udbyder til websøgning",
     "indtast en ny api-nøgle til websøgningen",
     "hæv det maksimale antal resultater pr. søgning"
-  ],
-  "update_wizard_settings": [
-    "skift harmonisatoren til en anden model",
-    "sæt modellen for omarbejdning af hele planen",
-    "skift sprogmodel for harmonisatoren",
-    "opdater harmoniseringsindstillingerne",
-    "sæt harmonisereren til lokal søgning",
-    "vælg en sprogmodel til planharmonisereren",
-    "ændr indstillingerne for vagtplanens harmonisering"
   ],
   "update_work": [
     "ændre tiderne for en planlagt vagt",

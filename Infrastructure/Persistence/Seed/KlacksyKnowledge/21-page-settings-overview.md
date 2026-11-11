@@ -7,7 +7,7 @@ description: |
   sections: General (app name, owner address, data retention/GDPR), Users & Access (user
   administration, group visibility per user), Organization (branches, contracts, states,
   countries, qualifications, identity providers — the last only in expert mode), Work & Scheduling (work settings, scheduling
-  defaults, scheduling rules, Holistic Harmonizer), Absence & Calendar (absence types, absence
+  defaults, scheduling rules), Absence & Calendar (absence types, absence
   details, holiday rules, calendar selection), Communication & Reports (SMTP email, IMAP, spam
   rules, report templates and defaults), Appearance & Automation (grid colors, calculation
   macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech,

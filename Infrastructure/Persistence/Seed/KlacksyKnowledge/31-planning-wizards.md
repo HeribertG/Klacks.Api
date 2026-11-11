@@ -63,8 +63,9 @@ more harmonious without breaking a hard rule and without moving anyone further f
 hours, and gives the same result for the same input. A swap between two different days is checked
 against the rest between duties, the days in a row and the hours per week and per day as well. No language model is involved and it costs only
 computing time. Harmony is computed, not judged by AI. The earlier option to let a language model read the
-plan as a picture has been retired because measurements showed no gain; there is no
-setting for it any more, and a request to switch to it is refused. If stage three fails, the chain keeps
+plan as a picture has been retired because measurements showed no gain. There is no setting for stage
+three any more: it always computes deterministically, so there is nothing to switch to a language model or to
+another model. If stage three fails, the chain keeps
 the plan of stage two.
 
 Run one after another, the three form the chain behind the autofill button in the schedule header.

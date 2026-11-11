@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
 /// <summary>
-/// Default stage-3 engine without any LLM: loads the same context as the LLM engine and runs the
+/// Stage-3 engine without any LLM: loads the Wizard 2 schedule context and runs the
 /// <see cref="DeterministicHarmonyOptimizer"/> (best-improvement local search over the candidate pool with pairs,
 /// tabu list and fixed seed) through the same acceptance stack. Works offline; same input and seed give the same
 /// plan unless the wall-clock safety budget stops the search.
@@ -23,7 +23,7 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 /// <param name="logger">Logs one line per applied batch (coordinates, enums, scores only) and a run summary.</param>
 public sealed class HolisticHarmonizerDeterministicEngine
 {
-    /// <summary>Label reported in place of an LLM model id so run results and logs show which mode produced them.</summary>
+    /// <summary>Label reported in place of an LLM model id so run results and logs show which engine produced them.</summary>
     public const string EngineLabel = "deterministic-local-search";
 
     private const string EmptyLogValue = "-";
@@ -140,9 +140,7 @@ public sealed class HolisticHarmonizerDeterministicEngine
             Iterations: result.AppliedBatches,
             FitnessBefore: result.FitnessBefore,
             FitnessAfter: result.FitnessAfter,
-            LlmModelId: EngineLabel,
-            LlmParsingError: null,
-            LlmRawResponsePreview: null)
+            LlmModelId: EngineLabel)
         {
             InvalidPlanningRuleIds = context.Rules?.InvalidHardRuleIds ?? [],
             PlanningRuleHardCounts = hardCounts,

@@ -13,10 +13,8 @@ namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 /// (key schedule.error-list.planning-rule-invalid); the plan honours every valid rule</param>
 /// <param name="PlanningRuleRemaining">Hard planning-rule findings before and after the run; null when no planning rule
 /// applies. No hard rule gets worse in total during the run, but existing violations are not repaired.</param>
-/// <param name="PlanCritic">Vision-critic review of the final plan (informational, never applied); null when the
-/// response was produced outside the job runner.</param>
 /// <param name="HarmonyBefore">Global harmony (rhythm and fairness between the rows) of the input plan; null when
-/// the engine did not measure it (LLM mode).</param>
+/// the engine did not measure it.</param>
 /// <param name="HarmonyAfter">Global harmony of the final plan; null when the engine did not measure it.</param>
 public sealed record HolisticHarmonizerRunResponse(
     Guid JobId,
@@ -28,10 +26,7 @@ public sealed record HolisticHarmonizerRunResponse(
     IReadOnlyList<HolisticHarmonizerBatchDto> Batches,
     IReadOnlyList<string> AgentDisplayNames,
     IReadOnlyList<QualificationGapDetail> QualificationGaps,
-    string? LlmParsingError,
-    string? LlmRawResponsePreview,
     IReadOnlyList<ScheduleValidationNotificationDto>? PlanningRuleWarnings = null,
     PlanningRuleRemainingDto? PlanningRuleRemaining = null,
-    PlanCriticResultDto? PlanCritic = null,
     GlobalHarmonyDto? HarmonyBefore = null,
     GlobalHarmonyDto? HarmonyAfter = null);

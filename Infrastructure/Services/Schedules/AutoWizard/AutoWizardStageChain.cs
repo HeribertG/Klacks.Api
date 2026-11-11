@@ -23,10 +23,9 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// materialises the cached result as a scenario and chains its token into the next stage. Every scenario produced is
 /// appended to the caller's list at once, so a failure part-way leaves the caller knowing what to keep or delete. The
 /// AutoWizardJobRunner runs it once for the requested mode and, for the soft-keyword retry, a second time in Soft mode.
-/// The third stage is optional: when its prerequisite is missing or it fails, the chain ends with the Harmonizer
-/// scenario and names the reason.
+/// The third stage is optional: when it fails, the chain ends with the Harmonizer scenario and names the reason.
 /// </summary>
-/// <param name="scopeFactory">DI scope factory for the scoped apply services and the readiness check.</param>
+/// <param name="scopeFactory">DI scope factory for the scoped apply services.</param>
 /// <param name="wizardRunner">Background runner for the Wizard 1 (Planner) stage.</param>
 /// <param name="wizardRegistry">Wizard 1 registry, polled to detect stage completion.</param>
 /// <param name="wizardResultCache">Wizard 1 result cache, queried to detect stage success.</param>
@@ -111,7 +110,7 @@ internal sealed class AutoWizardStageChain
         var harmonizerScenario = await RunHarmonizerStageAsync(orchestratorJobId, request, wizardScenario.Token, ct);
         produced.Add(harmonizerScenario);
 
-        var holisticStage = await RunHolisticStageOrSkipAsync(orchestratorJobId, request, harmonizerScenario.Token, ct);
+        var holisticStage = await RunHolisticStageOrFallBackAsync(orchestratorJobId, request, harmonizerScenario.Token, ct);
         if (holisticStage.Scenario is not null)
         {
             produced.Add(holisticStage.Scenario);
@@ -211,34 +210,24 @@ internal sealed class AutoWizardStageChain
     }
 
     /// <summary>
-    /// Runs the Holistic Harmonizer stage when its prerequisite is met and skips it otherwise. Stage 3 only
-    /// polishes the complete stage-2 plan, so a failure of the stage never fails the chain: it falls back to
-    /// the stage-2 scenario and reports the reason as a skipped harmonization (warning in the log, reason in
-    /// the run result and on the kept scenario). Cancellation still ends the chain.
+    /// Runs the Holistic Harmonizer stage. Stage 3 only polishes the complete stage-2 plan, so a failure of the
+    /// stage never fails the chain: it falls back to the stage-2 scenario and reports the reason as a skipped
+    /// harmonization (warning in the log, reason in the run result and on the kept scenario). Cancellation still
+    /// ends the chain.
     /// </summary>
-    private async Task<(AutoWizardStageScenario? Scenario, string? SkippedReason)> RunHolisticStageOrSkipAsync(
+    private async Task<(AutoWizardStageScenario? Scenario, string? SkippedReason)> RunHolisticStageOrFallBackAsync(
         Guid orchestratorJobId,
         StartAutoWizardRequest request,
         Guid harmonizerScenarioToken,
         CancellationToken ct)
     {
-        var readiness = await CheckHolisticReadinessAsync(ct);
-        if (!readiness.IsReady)
-        {
-            _logger.LogWarning(
-                "AutoWizard {JobId} ({KeywordMode}) - stage 3 (Holistic Harmonizer) skipped: {Reason}",
-                orchestratorJobId, request.KeywordMode, readiness.Reason);
-            return (null, readiness.Reason);
-        }
-
         try
         {
             return (await RunHolisticStageAsync(orchestratorJobId, request, harmonizerScenarioToken, ct), null);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            var readinessAfterFailure = await CheckHolisticReadinessAsync(ct);
-            var reason = AutoWizardStageOutcomePlanner.HolisticStageFallbackReason(readinessAfterFailure, ex.Message);
+            var reason = AutoWizardStageOutcomePlanner.HolisticStageFallbackReason(ex.Message);
 
             _logger.LogWarning(
                 ex,
@@ -246,13 +235,6 @@ internal sealed class AutoWizardStageChain
                 orchestratorJobId, request.KeywordMode, reason);
             return (null, reason);
         }
-    }
-
-    private async Task<HolisticHarmonizerReadiness> CheckHolisticReadinessAsync(CancellationToken ct)
-    {
-        using var scope = _scopeFactory.CreateScope();
-        var readinessCheck = scope.ServiceProvider.GetRequiredService<IHolisticHarmonizerReadinessCheck>();
-        return await readinessCheck.CheckAsync(ct);
     }
 
     private async Task<AutoWizardStageScenario> RunHolisticStageAsync(

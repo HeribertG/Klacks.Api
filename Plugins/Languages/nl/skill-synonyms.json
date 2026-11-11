@@ -2238,13 +2238,6 @@
     "draait spraakherkenning op onze eigen server",
     "hoe staat het met het lokale whisper-model"
   ],
-  "get_wizard_settings": [
-    "welk model gebruikt de harmonisator",
-    "toon het model voor de planning",
-    "waarom duurt het zo lang om het rooster te herzien",
-    "welke taalmodel wordt gebruikt voor de wizard",
-    "toon de wizardinstellingen"
-  ],
   "get_work_settings": [
     "werkinstellingen",
     "arbeidsinstellingen",
@@ -3324,10 +3317,7 @@
   ],
   "start_wizard3": [
     "start wizard 3",
-    "laat de llm het plan afwerken",
     "holistische optimalisatie starten",
-    "laatste polijsting met ai",
-    "voer de visiepas uit",
     "start de holistische wizard",
     "draai alleen de derde wizard",
     "verfijn het al geharmoniseerde plan verder",
@@ -3969,16 +3959,6 @@
     "wissel van aanbieder voor het zoeken op internet",
     "nieuwe api-sleutel voor webzoeken invoeren",
     "verhoog het maximum aantal resultaten per zoekopdracht"
-  ],
-  "update_wizard_settings": [
-    "wijzig het model van de harmonisator",
-    "zet de harmonisator op een ander model",
-    "stel het taalmodel in voor de wizard",
-    "verander het model voor de planning",
-    "pas de wizardinstellingen aan",
-    "zet de harmonizer op lokaal zoeken",
-    "kies een taalmodel voor de rooster-harmonizer",
-    "bepaal welk model het hele rooster bewerkt"
   ],
   "update_work": [
     "tijden van een geplaatste dienst wijzigen",

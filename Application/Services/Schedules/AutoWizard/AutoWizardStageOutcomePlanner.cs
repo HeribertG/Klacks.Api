@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
-using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
 namespace Klacks.Api.Application.Services.Schedules.AutoWizard;
 
@@ -61,16 +60,11 @@ public static class AutoWizardStageOutcomePlanner
 
     /// <summary>
     /// Why a failed Holistic Harmonizer stage was dropped. Stage 3 only polishes a complete plan, so any failure
-    /// falls back to the stage-2 result instead of failing the chain. A missing prerequisite found by the
-    /// re-check (no model, or a model now known to be text-only) is named as such; every other failure carries
-    /// its own message.
+    /// falls back to the stage-2 result instead of failing the chain; the reason carries the failure message.
     /// </summary>
-    /// <param name="readinessAfterFailure">Holistic Harmonizer readiness re-checked after the stage failed.</param>
     /// <param name="failureMessage">Message of the exception that ended the stage.</param>
-    public static string HolisticStageFallbackReason(HolisticHarmonizerReadiness readinessAfterFailure, string failureMessage)
-        => !readinessAfterFailure.IsReady && !string.IsNullOrWhiteSpace(readinessAfterFailure.Reason)
-            ? readinessAfterFailure.Reason!
-            : string.Format(System.Globalization.CultureInfo.InvariantCulture, HolisticStageFailedReasonFormat, failureMessage);
+    public static string HolisticStageFallbackReason(string failureMessage)
+        => string.Format(System.Globalization.CultureInfo.InvariantCulture, HolisticStageFailedReasonFormat, failureMessage);
 
     /// <summary>
     /// The partial result stored next to a failure so a status poll can name the scenario the operator may

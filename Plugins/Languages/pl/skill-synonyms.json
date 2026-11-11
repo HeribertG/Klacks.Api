@@ -2246,13 +2246,6 @@
     "czy mowa jest przetwarzana lokalnie",
     "pokaż stan wtyczki whisper"
   ],
-  "get_wizard_settings": [
-    "jaki model ai używa harmonizator",
-    "pokaż wybrany model dla harmonizatora",
-    "dlaczego harmonizator pracuje tak długo",
-    "na jakim modelu działa harmonizator",
-    "sprawdź model harmonizatora"
-  ],
   "get_work_settings": [
     "ustawienia pracy",
     "ustawienia czasu pracy",
@@ -3344,10 +3337,8 @@
   "start_wizard3": [
     "poleruj plan",
     "uruchom końcowe szlify",
-    "zastosuj llm",
     "odpal holistyczny kreator",
     "wykonaj ostateczne poprawki",
-    "zrobić wizję llm",
     "uruchom tylko trzeciego kreatora",
     "dopracuj jeszcze zharmonizowany plan",
     "włącz harmonizer holistyczny z tokenem analizy"
@@ -3983,15 +3974,6 @@
     "zmień dostawcę wyszukiwania w internecie",
     "wpisz nowy klucz api do wyszukiwarki",
     "zwiększ maksymalną liczbę wyników zapytania"
-  ],
-  "update_wizard_settings": [
-    "zmień model harmonizatora na inny",
-    "przełącz harmonizator na model gpt-4",
-    "ustaw model dla harmonizatora",
-    "zmień model językowy do harmonizacji planu",
-    "przełącz harmonizer na wyszukiwanie lokalne",
-    "wybierz model językowy dla harmonizatora grafiku",
-    "zmień ustawienia harmonizatora"
   ],
   "update_work": [
     "zmień godziny umieszczonej zmiany",

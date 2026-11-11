@@ -2205,13 +2205,6 @@
     "adakah model suara dipasang?",
     "mana satu status plugin whisper sekarang?"
   ],
-  "get_wizard_settings": [
-    "model apa yang digunakan oleh penyelaras jadual?",
-    "kenapa proses menyusun semula jadual mengambil masa yang lama?",
-    "apakah model bahasa untuk penyelaras jadual?",
-    "tunjukkan model yang dipilih untuk penyelarasan jadual",
-    "yang mana model yang digunakan untuk rework jadual?"
-  ],
   "get_work_settings": [
     "semak tetapan kerja dan syif",
     "lihat konfigurasi tugasan kerja",
@@ -3269,9 +3262,7 @@
   ],
   "start_wizard3": [
     "mula wizard 3 untuk sentuhan akhir",
-    "gilap rancangan dengan ai wizard holistik",
     "optimumkan jadual dengan wizard terakhir",
-    "lancarkan wizard llm untuk penambahbaikan",
     "perhalusi jadual dengan wizard 3",
     "jalankan wizard ketiga sahaja",
     "perhalusi lagi jadual yang telah diharmonikan",
@@ -3905,16 +3896,6 @@
     "tukar penyedia carian web",
     "masukkan kunci api baharu untuk carian web",
     "naikkan bilangan keputusan maksimum setiap carian"
-  ],
-  "update_wizard_settings": [
-    "tukar model untuk penyelaras jadual",
-    "set model bahasa untuk penyelarasan jadual",
-    "guna model lain untuk menyusun semula jadual",
-    "pilih model ai untuk harmonisasi jadual",
-    "ubahkan model penyelaras jadual kepada yang lain",
-    "tetapkan harmonizer kepada carian tempatan",
-    "pilih model bahasa untuk penyelaras jadual",
-    "ubah tetapan penyelaras jadual"
   ],
   "update_work": [
     "ubah masa tugasan yang dijadualkan",

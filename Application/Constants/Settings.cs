@@ -141,10 +141,6 @@ namespace Klacks.Api.Application.Constants
 
         public const string ONBOARDING_STATE = "ONBOARDING_STATE";
 
-        public const string HOLISTIC_HARMONIZER_LLM_MODEL = "WIZARD3_LLM_MODEL";
-        public const string HOLISTIC_HARMONIZER_MODE = "WIZARD3_MODE";
-        public const string HOLISTIC_HARMONIZER_CRITIC_MODEL = "WIZARD3_CRITIC_MODEL";
-
         public const string UPDATE_AUTO_ENABLED = "UPDATE_AUTO_ENABLED";
         public const string UPDATE_CHANNEL = "UPDATE_CHANNEL";
         public const string UPDATE_CHECK_INTERVAL_HOURS = "UPDATE_CHECK_INTERVAL_HOURS";

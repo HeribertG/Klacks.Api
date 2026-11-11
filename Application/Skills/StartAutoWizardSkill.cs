@@ -6,10 +6,9 @@
 /// dates or by an ISO calendar week that the skill resolves itself (Monday to Sunday). When agentIds /
 /// shiftIds are omitted, the skill resolves them from the group via group_item membership and the
 /// visible-shift SP. Returns the orchestrator jobId; the chain runs in the background and ends in a
-/// proposal scenario. Stage 3 runs the deterministic local search by default; only when it is switched to an AI
-/// model and that model is missing or cannot read the plan image does the result message say up front that the
-/// chain will stop after the harmonizer stage. The run asks for the soft-keyword retry (SoftKeywordRetry): when the strict
-/// plan leaves slots open and the employees have restricting schedule commands, a second chain plans with the keywords as
+/// proposal scenario. Stage 3 runs the deterministic local search (no AI model). The run asks for the soft-keyword retry
+/// (SoftKeywordRetry): when the strict plan leaves slots open and the employees have restricting schedule commands, a
+/// second chain plans with the keywords as
 /// wishes and is used only when it covers more slots: it replaces the strict scenario when it breaks no keyword, otherwise
 /// it is offered next to it. The employees go to the run in the roster order ISkillRosterOrderResolver decides: the saved
 /// individual order of the chat user, or the automatic order when another AI (MCP) or a self-reflection plan calls.
@@ -23,7 +22,7 @@
 /// <param name="agentIds">Optional comma-separated client UUIDs; defaults to the clients the schedule shows for the group and its sub-groups in the period.</param>
 /// <param name="shiftIds">Optional comma-separated shift UUIDs; defaults to visible shifts via GetShiftSchedule.</param>
 /// <param name="analyseToken">Optional source scenario token; null = main scenario.</param>
-/// <param name="language">Optional UI language for Wizard 3 when it runs on an AI model, e.g. "de", "en". Falls back to engine default.</param>
+/// <param name="language">Optional UI language for the stage scenario names, e.g. "de", "en". Falls back to the default.</param>
 
 using System.Globalization;
 using Klacks.Api.Application.Exceptions;
@@ -32,7 +31,6 @@ using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
-using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Filter;
@@ -67,7 +65,6 @@ public class StartAutoWizardSkill : BaseSkillImplementation
     private readonly IShiftScheduleRepository _shiftScheduleRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly ICompanyClock _companyClock;
-    private readonly IHolisticHarmonizerReadinessCheck _holisticReadinessCheck;
     private readonly ISkillRosterOrderResolver _rosterOrderResolver;
 
     public StartAutoWizardSkill(
@@ -77,7 +74,6 @@ public class StartAutoWizardSkill : BaseSkillImplementation
         IShiftScheduleRepository shiftScheduleRepository,
         IGroupScopeGuard groupScopeGuard,
         ICompanyClock companyClock,
-        IHolisticHarmonizerReadinessCheck holisticReadinessCheck,
         ISkillRosterOrderResolver rosterOrderResolver)
     {
         _autoWizardJobRunner = autoWizardJobRunner;
@@ -86,7 +82,6 @@ public class StartAutoWizardSkill : BaseSkillImplementation
         _shiftScheduleRepository = shiftScheduleRepository;
         _groupScopeGuard = groupScopeGuard;
         _companyClock = companyClock;
-        _holisticReadinessCheck = holisticReadinessCheck;
         _rosterOrderResolver = rosterOrderResolver;
     }
 
@@ -164,8 +159,6 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             AgentOrderIsUserDefined: rosterOrder.UserDefined,
             SoftKeywordRetry: true);
 
-        var holisticReadiness = await _holisticReadinessCheck.CheckAsync(cancellationToken);
-
         Guid jobId;
         try
         {
@@ -184,11 +177,6 @@ public class StartAutoWizardSkill : BaseSkillImplementation
                 + "Join it or cancel it first.");
         }
 
-        var stageNote = holisticReadiness.IsReady
-            ? "Stages: planning, harmonizing and holistic harmonization."
-            : "Only planning and harmonizing will run: the holistic harmonization (stage 3) will be skipped because "
-              + $"{holisticReadiness.Reason} Tell the user this now; do not promise three stages.";
-
         var result = new
         {
             JobId = jobId,
@@ -199,8 +187,6 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             AgentCount = agentIds.Count,
             ShiftCount = shiftIds.Count,
             SourceAnalyseToken = analyseToken,
-            HolisticHarmonizationWillRun = holisticReadiness.IsReady,
-            HolisticHarmonizationSkipReason = holisticReadiness.Reason,
             SoftKeywordRetry = request.SoftKeywordRetry,
             MaxRunMinutes = AutoWizardTimeBudget.TotalMinutes,
             Hint = "The run takes a few minutes. Check the job status with this jobId to learn the outcome and the scenario to accept."
@@ -210,7 +196,7 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             result,
             $"AutoWizard job {jobId} started for '{group.Name}' covering {periodFrom:yyyy-MM-dd}..{periodUntil:yyyy-MM-dd} " +
             $"({agentIds.Count} agents, {shiftIds.Count} shifts). It runs in the background and ends in a proposal " +
-            $"scenario; the real schedule only changes once the user accepts it. {stageNote} " +
+            "scenario; the real schedule only changes once the user accepts it. Stages: planning, harmonizing and holistic harmonization. " +
             "If the plan leaves shifts open and employees have restricting schedule keywords (FREE, only/no early, late, night), " +
             "a second run treats those keywords as wishes and is used only if it covers more shifts: when it breaks no keyword it " +
             "replaces the first plan, otherwise it is offered next to it. The whole run can take " +

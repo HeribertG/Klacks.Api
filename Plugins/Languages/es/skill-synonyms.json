@@ -2229,12 +2229,6 @@
     "se usa el modelo de voz propio o externo",
     "dónde se procesa el audio a texto"
   ],
-  "get_wizard_settings": [
-    "¿qué modelo usa el armonizador?",
-    "¿qué modelo de lenguaje se usa para reorganizar el plan?",
-    "¿por qué tarda tanto la reorganización?",
-    "muéstrame el modelo actual del armonizador"
-  ],
   "get_work_settings": [
     "configuración laboral",
     "configuración de trabajo",
@@ -3320,7 +3314,6 @@
     "iniciar pulido final",
     "ejecutar wizard 3",
     "aplicar ajuste holístico",
-    "refinar con ia",
     "lanza solo el tercer wizard",
     "refina más el plan ya armonizado",
     "pule el plan sin cambiar la cobertura"
@@ -3955,15 +3948,6 @@
     "cambia el proveedor de búsqueda en internet",
     "introduce una nueva clave api para la búsqueda web",
     "sube el número máximo de resultados por búsqueda"
-  ],
-  "update_wizard_settings": [
-    "cambia el modelo del armonizador",
-    "establece el modelo para reorganizar el plan",
-    "cambia el armonizador a otro modelo",
-    "modifica el modelo del asistente de planificación",
-    "pon el armonizador en búsqueda local",
-    "elige un modelo de lenguaje para el armonizador del plan",
-    "cambia los ajustes del armonizador"
   ],
   "update_work": [
     "cambiar los horarios de un turno colocado",

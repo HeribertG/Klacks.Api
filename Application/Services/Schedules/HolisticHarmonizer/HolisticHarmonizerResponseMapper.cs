@@ -72,8 +72,6 @@ public static class HolisticHarmonizerResponseMapper
             Batches: batches,
             AgentDisplayNames: agentDisplayNames,
             QualificationGaps: qualificationGaps ?? [],
-            LlmParsingError: result.LlmParsingError,
-            LlmRawResponsePreview: result.LlmRawResponsePreview,
             PlanningRuleWarnings: PlanningRuleNotificationMapper.ToSkippedRuleWarnings(
                 result.InvalidPlanningRuleIds,
                 result.OriginalBitmap.DayCount > 0 ? result.OriginalBitmap.Days[0] : default),

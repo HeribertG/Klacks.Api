@@ -9,7 +9,7 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 /// <param name="PeriodUntil">End of the date range to load (inclusive).</param>
 /// <param name="AgentIds">Clients whose rows are part of the bitmap.</param>
 /// <param name="AnalyseToken">Source-scenario isolation token; null reads the main schedule.</param>
-/// <param name="Language">UI language; null falls back to English.</param>
+/// <param name="Language">UI language of the caller; the deterministic engine does not read it.</param>
 /// <param name="ContextDaysBefore">
 /// Days before <paramref name="PeriodFrom"/> loaded as boundary context for future boundary-aware validators.
 /// The bitmap stays sized to the period; boundary works/breaks land in BitmapInput.BoundaryAssignments. Default 14.

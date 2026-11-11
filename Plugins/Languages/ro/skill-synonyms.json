@@ -2224,13 +2224,6 @@
     "este activă recunoașterea vocală pe serverul nostru?",
     "ce model de vorbire este instalat?"
   ],
-  "get_wizard_settings": [
-    "ce model de limbaj folosește armonizatorul?",
-    "ce model este setat pentru armonizatorul de planuri?",
-    "care este modelul folosit pentru rearanjarea planului?",
-    "vrei să vezi setările armonizatorului?",
-    "ce model este configurat pentru armonizator?"
-  ],
   "get_work_settings": [
     "setări de lucru",
     "setări de muncă",
@@ -3296,9 +3289,7 @@
   "start_wizard3": [
     "pornește wizard 3",
     "aplică lustruirea finală",
-    "adaugă finisajul llm",
     "polizează planul holistic",
-    "perfecționează planul cu ai",
     "rulează doar al treilea wizard",
     "rafinează în continuare planul armonizat",
     "pornește armonizatorul holistic cu tokenul de analiză"
@@ -3935,16 +3926,6 @@
     "schimbă furnizorul pentru căutarea pe web",
     "introdu o cheie api nouă pentru căutarea web",
     "mărește numărul maxim de rezultate la o căutare"
-  ],
-  "update_wizard_settings": [
-    "schimbă modelul armonizatorului",
-    "setează alt model pentru armonizator",
-    "actualizează modelul armonizatorului",
-    "folosește alt model pentru rearanjarea planului",
-    "schimbă modelul de inteligență artificială pentru planificare",
-    "setează armonizatorul pe căutare locală",
-    "alege un model de limbaj pentru armonizatorul planului",
-    "schimbă setările armonizatorului planificării"
   ],
   "update_work": [
     "schimbă orele unei ture plasate",

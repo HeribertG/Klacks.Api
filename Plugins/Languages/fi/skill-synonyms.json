@@ -2218,13 +2218,6 @@
     "onko whisper asennettu paikallisesti",
     "näytä onko puheentunnistus paikallinen"
   ],
-  "get_wizard_settings": [
-    "mikä malli harmonisoijassa on käytössä",
-    "näytä harmonisoijan asetukset",
-    "mitä kielimallia käytetään",
-    "mikä malli on valittuna",
-    "näytä nykyinen malli"
-  ],
   "get_work_settings": [
     "työasetukset",
     "työn asetukset",
@@ -3297,9 +3290,7 @@
   "start_wizard3": [
     "käynnistä wizard 3",
     "tee loppukiillotus",
-    "viimeistele suunnitelma llm:llä",
     "aja holistinen harmonisointi",
-    "tee vision pass",
     "aja pelkkä kolmas wizard",
     "hienosäädä jo harmonisoitua suunnitelmaa vielä",
     "käynnistä holistinen harmonisoija analyysitunnisteella"
@@ -3921,15 +3912,6 @@
     "vaihda verkkohaun palveluntarjoaja",
     "syötä uusi api-avain verkkohakua varten",
     "nosta verkkohaun tulosten enimmäismäärää"
-  ],
-  "update_wizard_settings": [
-    "vaihda harmonisoijan mallia",
-    "aseta harmonisoijalle uusi malli",
-    "vaihda kielimallia",
-    "päivitä harmonisoijan malli",
-    "aseta harmonisoija käyttämään paikallista hakua",
-    "valitse kielimalli vuorolistan harmonisoijalle",
-    "muuta harmonisoijan asetuksia"
   ],
   "update_work": [
     "muuta sijoitetun vuoron aikoja",

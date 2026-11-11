@@ -766,10 +766,10 @@
       "message": "Warum dauert das Überarbeiten des ganzen Dienstplans so lange? Läuft der Harmonisierer lokal oder über ein Sprachmodell, und welches?",
       "locale": "de",
       "source": "w0.5-seed-coverage",
-      "expectedTool": "get_wizard_settings",
+      "expectedTool": "explain_planning_wizards",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "read-skill coverage: keyword-carrying natural request",
+      "comment": "retargeted 2026-11-11: the read skill for the harmonizer settings was removed with the stage-3 language-model mode; the stage explanation answers how the harmonizer works",
       "tags": []
     },
     {

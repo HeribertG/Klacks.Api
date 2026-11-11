@@ -533,19 +533,8 @@ internal static class DomainServiceCollectionExtensions
 
     private static void AddHolisticHarmonizerServices(this IServiceCollection services)
     {
-        services.AddScoped<Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm.IPlanProposalProvider,
-                           Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.LlmPlanProposalProvider>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerEngine>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerDeterministicEngine>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerRunService>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerModelCheckService>();
-        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer.IPlanCriticClient,
-                           Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.Critic.LlmPlanCriticClient>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.Critic.PlanCriticService>();
-        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer.IHolisticHarmonizerReadinessCheck,
-                           Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerReadinessCheck>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.IHarmonizerEvalRunnerService,
-                           Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HarmonizerEvalRunnerService>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.SpeechModelCheckService>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.KlacksyModelCheckService>();
     }
@@ -589,7 +578,6 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer.IHolisticHarmonizerApplyService,
                            Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerApplyService>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerJobRegistry>();
-        services.AddSingleton<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerModelCapabilityCache>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.JobTerminalStateCache<
             Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer.HolisticHarmonizerRunResponse>>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer.IHolisticHarmonizerJobRunner,

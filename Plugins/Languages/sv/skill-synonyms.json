@@ -2221,13 +2221,6 @@
     "är whisper-plugin installerad?",
     "hur fungerar transkriberingen – lokalt eller externt?"
   ],
-  "get_wizard_settings": [
-    "vilken modell använder harmoniseraren",
-    "visa vald språkmodell för harmoniseraren",
-    "vilken modell kör helhetsbearbetningen på",
-    "varför tar harmoniseringen så lång tid",
-    "visa modellen som används vid omplanering"
-  ],
   "get_work_settings": [
     "arbetsinställningar",
     "arbetsvillkor",
@@ -3284,7 +3277,6 @@
   "start_wizard3": [
     "kör wizard 3 för finslipning",
     "starta holistisk wizard",
-    "gör llm-finslipning av planen",
     "kör sista wizarden",
     "starta tredje wizarden",
     "kör bara den tredje wizarden",
@@ -3918,16 +3910,6 @@
     "byt leverantör för webbsökningen",
     "lägg in en ny api-nyckel för webbsökning",
     "höj max antal träffar per sökning på nätet"
-  ],
-  "update_wizard_settings": [
-    "byt språkmodell för harmoniseraren",
-    "sätt en annan modell för helhetsbearbetning",
-    "ändra vilken modell harmoniseraren använder",
-    "ställ in modell för omplanering",
-    "byt modell för schemaläggningsassistenten",
-    "sätt harmoniseraren på lokal sökning",
-    "välj en språkmodell för schemaharmoniseraren",
-    "ändra inställningarna för harmoniseraren"
   ],
   "update_work": [
     "ändra tiderna för ett placerat pass",

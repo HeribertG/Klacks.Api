@@ -873,8 +873,8 @@
       "hash": "55BCE58A5BABB84CBADDEE2D83769E36667C3D1FFF4069305EBF5DD22F2A71C8"
     },
     "explain_planning_wizards": {
-      "version": 5,
-      "hash": "4ED43120D25EF62656293D51605FCF1763DB775B4DDF3204D78046CDF0051A34"
+      "version": 6,
+      "hash": "A379219A7994EF47BBF591A7DA324505A141452F779495D66FA740F9DAB13D24"
     },
     "explain_plugin_architecture": {
       "version": 2,
@@ -1247,10 +1247,6 @@
     "get_whisper_plugin_status": {
       "version": 7,
       "hash": "3F25F290918AF03B8D9BD27054BF84B973E6B523BD186A137770EEF7B01F4563"
-    },
-    "get_wizard_settings": {
-      "version": 8,
-      "hash": "9EC67FA14F2C2C9C651AE61105F99F2F3E7ED91F2DE495B470F9BAF2D703E265"
     },
     "get_work_settings": {
       "version": 8,
@@ -1841,8 +1837,8 @@
       "hash": "6C18EE5FE5DD2143820E4DB4A63965EEEF333C351D533A5704208A6E5D873D6D"
     },
     "start_wizard3": {
-      "version": 6,
-      "hash": "2E5B5BB18F6B55576D5436E45F8D026AA409013BD6522DA4D250DFAA634349C6"
+      "version": 7,
+      "hash": "784A4D393F790EECEA690DF471EE4D424FC0E06CCF767CC092808C7EADF1F33F"
     },
     "stash_pending_note": {
       "version": 5,
@@ -2123,10 +2119,6 @@
     "update_web_search_settings": {
       "version": 9,
       "hash": "82D4365838AF4BE6956B15F6402A0B4A76ABAA53ACDCC96F76B3822583A1D473"
-    },
-    "update_wizard_settings": {
-      "version": 9,
-      "hash": "07A2D1833E705F86162BD537C6FEC0EFEC7C37E024A4492D048F229D379814A5"
     },
     "update_work": {
       "version": 6,

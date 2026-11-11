@@ -598,7 +598,6 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "update_general_settings",
         "update_scheduling_defaults",
         "update_work_settings",
-        "update_wizard_settings",
         "update_grid_color_settings",
         "update_owner_address",
         "update_active_industries_settings",

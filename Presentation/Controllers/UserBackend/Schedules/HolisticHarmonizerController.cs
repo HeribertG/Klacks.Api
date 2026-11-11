@@ -14,14 +14,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 
 /// <summary>
-/// REST entry point for Holistic Harmonizer (LLM-driven schedule harmonizer). The Start endpoint
+/// REST entry point for Holistic Harmonizer (wizard stage 3, deterministic local search). The Start endpoint
 /// kicks off a background job, returns the JobId immediately, and the actual progress and final
 /// result are streamed over SignalR via <see cref="Klacks.Api.Infrastructure.Hubs.HolisticHarmonizerJobHub"/>.
 /// Apply uses the existing <c>IHarmonizerApplyService</c> so the scenario flow is identical to Wizard 2.
 /// </summary>
 /// <param name="jobRunner">Background job orchestrator that broadcasts progress over SignalR.</param>
 /// <param name="applyService">Persists the cached run result as a new AnalyseScenario.</param>
-/// <param name="modelCheckService">Pings every configured LLM model so the UI can highlight unhealthy ones.</param>
+/// <param name="stateCache">Terminal job states, read by the Status endpoint for clients that missed the SignalR events.</param>
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
 [BlockedOnPlayground]
@@ -29,18 +29,15 @@ public sealed class HolisticHarmonizerController : BaseController
 {
     private readonly IHolisticHarmonizerJobRunner _jobRunner;
     private readonly IHolisticHarmonizerApplyService _applyService;
-    private readonly HolisticHarmonizerModelCheckService _modelCheckService;
     private readonly JobTerminalStateCache<HolisticHarmonizerRunResponse> _stateCache;
 
     public HolisticHarmonizerController(
         IHolisticHarmonizerJobRunner jobRunner,
         IHolisticHarmonizerApplyService applyService,
-        HolisticHarmonizerModelCheckService modelCheckService,
         JobTerminalStateCache<HolisticHarmonizerRunResponse> stateCache)
     {
         _jobRunner = jobRunner;
         _applyService = applyService;
-        _modelCheckService = modelCheckService;
         _stateCache = stateCache;
     }
 
@@ -59,23 +56,6 @@ public sealed class HolisticHarmonizerController : BaseController
         }
 
         return Ok(new HolisticHarmonizerJobStatusResponse(WizardJobStatusValues.Unknown, null, null));
-    }
-
-    [HttpPost("CheckAllModels")]
-    public async Task<ActionResult<HolisticHarmonizerModelCheckResponse>> CheckAllModels(CancellationToken ct)
-    {
-        var results = await _modelCheckService.CheckAllAsync(ct);
-        var dtos = results
-            .Select(r => new HolisticHarmonizerModelCheckDto(
-                r.ModelId,
-                r.DisplayName,
-                r.ProviderId,
-                r.IsHealthy,
-                r.LatencyMs,
-                r.Error,
-                r.EvalCompositeScore))
-            .ToArray();
-        return Ok(new HolisticHarmonizerModelCheckResponse(dtos));
     }
 
     [HttpPost("Start")]

@@ -2198,12 +2198,6 @@
     "bagaimana status instalasi model pengenal suara?",
     "transkripsi suara diproses secara lokal atau tidak?"
   ],
-  "get_wizard_settings": [
-    "model bahasa apa yang digunakan harmonisasi jadwal?",
-    "mengapa harmonisasi jadwal memakan waktu lama?",
-    "model apa yang dipakai untuk merombak seluruh jadwal?",
-    "tampilkan pengaturan wizard harmonisasi"
-  ],
   "get_work_settings": [
     "menampilkan pengaturan kerja",
     "melihat konfigurasi jam kerja",
@@ -3261,7 +3255,6 @@
   "start_wizard3": [
     "jalankan wizard 3 untuk polesan akhir grup [groupid]",
     "optimasi holistik dengan wizard 3",
-    "terapkan llm polish pada rencana grup [groupid]",
     "finishing rencana dengan wizard 3",
     "jalankan holistic harmonizer untuk grup [groupid]",
     "jalankan wizard ketiga saja",
@@ -3891,14 +3884,6 @@
     "ganti penyedia pencarian web",
     "masukkan kunci api baru untuk pencarian web",
     "naikkan jumlah hasil maksimal per pencarian internet"
-  ],
-  "update_wizard_settings": [
-    "ganti model harmonisasi jadwal ke model lain",
-    "atur model untuk merombak seluruh jadwal",
-    "pilih model bahasa untuk harmonisasi",
-    "ganti harmonizer ke pencarian lokal",
-    "pilih model bahasa untuk harmonizer jadwal",
-    "ubah pengaturan harmonizer"
   ],
   "update_work": [
     "ubah waktu tugas yang dijadwalkan",

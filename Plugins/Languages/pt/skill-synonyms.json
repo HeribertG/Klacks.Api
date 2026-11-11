@@ -2230,12 +2230,6 @@
     "a conversão de fala em texto é feita aqui dentro?",
     "me mostra se o plugin de transcrição local está ativo"
   ],
-  "get_wizard_settings": [
-    "qual modelo de ia o harmonizador usa",
-    "mostrar o modelo do harmonizador de escala",
-    "ver qual modelo está configurado para reorganizar o plano",
-    "qual modelo está sendo usado para ajustar a escala"
-  ],
   "get_work_settings": [
     "configuração de trabalho",
     "configuração laboral",
@@ -3315,10 +3309,7 @@
   ],
   "start_wizard3": [
     "iniciar wizard 3",
-    "polir plano com ia",
     "finalizar com holístico",
-    "rodar refinamento llm",
-    "aplicar polimento vision",
     "corre só o terceiro wizard",
     "refina mais o plano já harmonizado",
     "arranca o harmonizador holístico com o token de análise"
@@ -3951,15 +3942,6 @@
     "muda o fornecedor da pesquisa na web",
     "introduz uma nova chave de api para a pesquisa na internet",
     "aumenta o máximo de resultados por pesquisa"
-  ],
-  "update_wizard_settings": [
-    "trocar o modelo do harmonizador",
-    "definir outro modelo para reestruturar a escala",
-    "mudar o modelo de ia do harmonizador",
-    "atualizar o modelo do harmonizador",
-    "põe o harmonizador em pesquisa local",
-    "escolhe um modelo de linguagem para o harmonizador da escala",
-    "muda as definições do harmonizador"
   ],
   "update_work": [
     "alterar os horários de um turno colocado",

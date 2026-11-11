@@ -4512,13 +4512,11 @@
       "message": "Der Harmonisierer soll künftig ein anderes Sprachmodell für die Gesamtüberarbeitung nutzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
-      "expectedTool": "update_wizard_settings",
+      "expectedTool": "explain_planning_wizards",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request",
-      "tags": [
-        "crud"
-      ]
+      "comment": "retargeted 2026-11-11: the write skill for the harmonizer settings was removed with the stage-3 language-model mode; there is no setting, the stage explanation answers the request",
+      "tags": []
     },
     {
       "id": "w05-coverage-update-export-formats-settings",

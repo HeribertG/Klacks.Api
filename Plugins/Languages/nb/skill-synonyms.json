@@ -2204,14 +2204,6 @@
     "kjører taleskriving på egen server?",
     "er whisper-plugin installert?"
   ],
-  "get_wizard_settings": [
-    "hvilken språkmodell bruker planleggingsveiviseren?",
-    "vis modellen for helautomatisk planlegging",
-    "hvorfor tar harmoniseringen så lang tid?",
-    "hvilken modell kjører harmonisereren på?",
-    "vis innstillingene for planharmonisering",
-    "hvilken ai-modell brukes til å omarbeide hele vaktplanen?"
-  ],
   "get_work_settings": [
     "arbeidsinnstillinger",
     "jobbinnstillinger",
@@ -3264,9 +3256,7 @@
   "start_wizard3": [
     "start wizard 3",
     "kjør helhetlig feinslip",
-    "poler planen med llm",
     "gjør siste finpuss",
-    "kjør llm-polering",
     "kjør bare den tredje veiviseren",
     "finpuss den harmoniserte planen videre",
     "start den helhetlige harmoniseringen med analysetokenet"
@@ -3902,17 +3892,6 @@
     "bytt leverandør for nettsøk",
     "legg inn ny api-nøkkel for nettsøket",
     "øk maks antall treff per søk"
-  ],
-  "update_wizard_settings": [
-    "bytt modell for planleggingsveiviseren",
-    "sett en annen språkmodell for harmonisering",
-    "endre modellen som brukes til helautomatisk planlegging",
-    "oppdater innstillingene for veiviseren",
-    "bytt til en raskere modell for planrevisjon",
-    "sett modellen for å omarbeide hele vaktplanen",
-    "sett harmonisereren til lokalt søk",
-    "velg en språkmodell for vaktplanharmonisereren",
-    "bestem hvilken modell som omarbeider hele planen"
   ],
   "update_work": [
     "endre tidene for en plassert vakt",

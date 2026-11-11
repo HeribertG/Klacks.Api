@@ -3,7 +3,7 @@
 namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 
 /// <param name="BatchId">Stable id correlating to engine logs.</param>
-/// <param name="Intent">LLM-supplied intent label (e.g. "consolidate_block").</param>
+/// <param name="Intent">Intent label of the batch (e.g. "consolidate_block").</param>
 /// <param name="Result">Acceptance category: Accepted, PartiallyAccepted, Rejected, WouldDegrade.</param>
 /// <param name="AppliedStepCount">How many steps survived hard constraints and Score-Greedy.</param>
 /// <param name="RejectionCount">How many steps failed hard constraints inside this batch.</param>

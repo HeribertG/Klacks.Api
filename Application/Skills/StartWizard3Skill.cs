@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Skill that starts only Wizard 3 (Holistic Harmonizer). Polishes an already harmonized schedule; by default
-/// with the deterministic local search (no LLM), with the LLM vision engine only when WIZARD3_MODE is "llm". The employees
+/// Skill that starts only Wizard 3 (Holistic Harmonizer). Polishes an already harmonized schedule with the
+/// deterministic local search (no LLM). The employees
 /// go to the run in the roster order ISkillRosterOrderResolver decides (the chat user's saved order, or the automatic order
 /// for another AI).
 /// </summary>
