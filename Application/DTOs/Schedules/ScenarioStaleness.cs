@@ -9,7 +9,9 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="ChangedEntryCount">Real works, work changes, expenses, breaks and schedule notes in the accept scope that were created, updated or deleted after the scenario was created</param>
 /// <param name="LastChangeUtc">UTC instant of the most recent of those changes</param>
 /// <param name="AcceptedScenarioNames">Other scenarios of the same group with an overlapping range that were accepted after this one was created (a likely cause); empty when none</param>
+/// <param name="RootIsRealPlanCover">The root of the scenario's SourceToken chain (the scenario itself when it has no source) is the cover of an absence built on the real plan, or the root could not be reached; such a stale scenario is not overridable. Not part of the 409 body</param>
 public sealed record ScenarioStaleness(
     int ChangedEntryCount,
     DateTime LastChangeUtc,
-    IReadOnlyList<string> AcceptedScenarioNames);
+    IReadOnlyList<string> AcceptedScenarioNames,
+    bool RootIsRealPlanCover = false);

@@ -14,6 +14,8 @@
 /// <param name="dataDiscarder">Reject/delete sweep of a scenario</param>
 /// <param name="realPlanReplacer">Accept delete step on the real plan</param>
 /// <param name="stalenessDetector">Accept staleness check</param>
+/// <param name="realAbsenceGuard">Accept check that no real absence is deleted without a twin in the scenario</param>
+/// <param name="coverRedoPresetReader">Prefill for covering an absence again after its stale cover was refused</param>
 /// <param name="conflictValidator">Accept conflict checks</param>
 /// <param name="promoter">Accept promote step</param>
 /// <param name="slotReplacer">Wizard slot replacement in a scenario</param>
@@ -37,6 +39,8 @@ public sealed class AnalyseScenarioService : IAnalyseScenarioService
     private readonly ScenarioDataDiscarder _dataDiscarder;
     private readonly ScenarioRealPlanReplacer _realPlanReplacer;
     private readonly ScenarioStalenessDetector _stalenessDetector;
+    private readonly ScenarioRealAbsenceGuard _realAbsenceGuard;
+    private readonly ScenarioCoverRedoPresetReader _coverRedoPresetReader;
     private readonly ScenarioAcceptConflictValidator _conflictValidator;
     private readonly ScenarioPromoter _promoter;
     private readonly ScenarioSlotReplacer _slotReplacer;
@@ -52,6 +56,8 @@ public sealed class AnalyseScenarioService : IAnalyseScenarioService
         ScenarioDataDiscarder dataDiscarder,
         ScenarioRealPlanReplacer realPlanReplacer,
         ScenarioStalenessDetector stalenessDetector,
+        ScenarioRealAbsenceGuard realAbsenceGuard,
+        ScenarioCoverRedoPresetReader coverRedoPresetReader,
         ScenarioAcceptConflictValidator conflictValidator,
         ScenarioPromoter promoter,
         ScenarioSlotReplacer slotReplacer,
@@ -66,6 +72,8 @@ public sealed class AnalyseScenarioService : IAnalyseScenarioService
         _dataDiscarder = dataDiscarder;
         _realPlanReplacer = realPlanReplacer;
         _stalenessDetector = stalenessDetector;
+        _realAbsenceGuard = realAbsenceGuard;
+        _coverRedoPresetReader = coverRedoPresetReader;
         _conflictValidator = conflictValidator;
         _promoter = promoter;
         _slotReplacer = slotReplacer;
@@ -106,6 +114,12 @@ public sealed class AnalyseScenarioService : IAnalyseScenarioService
 
     public Task<ScenarioStaleness?> FindRealPlanChangesSinceCreationAsync(AnalyseScenario scenario, CancellationToken ct)
         => _stalenessDetector.FindRealPlanChangesSinceCreationAsync(scenario, ct);
+
+    public Task EnsureNoRealAbsenceDroppedAsync(AnalyseScenario scenario, CancellationToken ct)
+        => _realAbsenceGuard.EnsureNoRealAbsenceDroppedAsync(scenario, ct);
+
+    public Task<CoverRedoPreset> FindCoverRedoPresetAsync(Guid token, CancellationToken ct)
+        => _coverRedoPresetReader.FindCoverRedoPresetAsync(token, ct);
 
     public Task EnsureVariantAcceptAllowedAsync(Guid scenarioId, Guid token, CancellationToken ct)
         => _variantAcceptGate.EnsureAcceptAllowedAsync(scenarioId, token, ct);

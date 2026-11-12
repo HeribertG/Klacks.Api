@@ -36,6 +36,15 @@
 /// Before the compliance gate a staleness gate runs: when the original plan changed inside the accept scope after the
 /// scenario was created (another scenario accepted, edits, seals or a background recalculation), the accept would overwrite those changes and is refused
 /// with a SCENARIO_STALE conflict unless the caller acknowledged it with OverrideStale - independent of OverrideBlock.
+/// A scenario whose SourceToken chain starts at the cover of an absence built on the real plan (the root, the scenario
+/// without a source, has Origin AbsenceCover; the scenario itself when it has no source) is the exception: stale, it is
+/// refused as not overridable, with a prefill for covering the absence again, and no acknowledgement passes it. That holds
+/// for the root cover itself and for every scenario built on it (a further cover, a Wizard or Harmonizer apply), so building
+/// on a stale cover does not turn its refusal into an overridable warning. A chain whose root is no cover (a cover built on
+/// an Autofill scenario) keeps the overridable warning.
+/// For every scenario, an accept never deletes a real absence the scenario does not carry (same person, day and type):
+/// that is refused with SCENARIO_DROPS_REAL_ABSENCE, which no override lifts. Both refusals that no override lifts are
+/// checked before the overridable stale warning, so a caller is never asked to acknowledge an accept that cannot succeed.
 /// </summary>
 /// <param name="ScenarioId">ID of the scenario to accept</param>
 /// <param name="OverrideStale">Acknowledges that accepting overwrites real-plan changes made after the scenario was created</param>
@@ -153,7 +162,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             await _scenarioService.ValidateNoAcceptConflictsAsync(scenario.Token, cancellationToken);
 
-            await EnforceNotStaleAsync(scenario, command.OverrideStale, command.AcknowledgedStaleness, cancellationToken);
+            await EnforceAcceptableOverRealPlanAsync(scenario, command.OverrideStale, command.AcknowledgedStaleness, cancellationToken);
 
             await EnforceComplianceGateAsync(scenario.FromDate, scenario.UntilDate, scenario.GroupId, scenario.Token, command.OverrideBlock, cancellationToken);
 
@@ -346,18 +355,29 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     }
 
     /// <summary>
-    /// Read-only staleness gate, before the (more expensive) compliance gate and before any mutation: when the
-    /// original plan changed inside the accept scope after the scenario was created, the accept would silently
-    /// overwrite those changes, so it is refused unless the caller acknowledged exactly that (overrideStale). A plain
-    /// user acknowledgement, not a supervisor right; OverrideBlock never passes it.
+    /// Read-only gates against the real plan, before the (more expensive) compliance gate and before any mutation, in
+    /// this order: a stale scenario whose source chain starts at a cover built on the real plan is refused without any
+    /// override, prefilled from the scenario's own absences that are not real yet; then an accept that would
+    /// delete a real absence the scenario does not carry is refused without any override; last, when the original plan
+    /// changed inside the accept scope after the scenario was created, the accept would silently overwrite those changes,
+    /// so it is refused unless the caller acknowledged exactly that (overrideStale). A plain user acknowledgement, not a
+    /// supervisor right; OverrideBlock never passes it.
     /// </summary>
-    private async Task EnforceNotStaleAsync(
+    private async Task EnforceAcceptableOverRealPlanAsync(
         AnalyseScenario scenario,
         bool overrideStale,
         StaleScenarioOverwriteAcknowledgement? acknowledged,
         CancellationToken cancellationToken)
     {
         var staleness = await _scenarioService.FindRealPlanChangesSinceCreationAsync(scenario, cancellationToken);
+        if (staleness is { RootIsRealPlanCover: true })
+        {
+            throw ScenarioStaleException.NotOverridable(
+                staleness, await _scenarioService.FindCoverRedoPresetAsync(scenario.Token, cancellationToken));
+        }
+
+        await _scenarioService.EnsureNoRealAbsenceDroppedAsync(scenario, cancellationToken);
+
         if (staleness is null)
         {
             return;

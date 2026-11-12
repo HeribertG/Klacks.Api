@@ -8,6 +8,7 @@
 /// <param name="FromDate">Start of the scenario time range</param>
 /// <param name="UntilDate">End of the scenario time range</param>
 /// <param name="Kind">Scenario for a what-if copy of the plan, Variant for a key that only carries not yet active shifts</param>
+/// <param name="Origin">AbsenceCover when the cover of an absence produced the scenario, Other for every other producer</param>
 
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
@@ -76,4 +77,10 @@ public class AnalyseScenario : BaseEntity
     /// never accepted automatically. A single Wizard or Harmonizer run started in Soft mode does not set it yet.
     /// </summary>
     public bool SoftKeywordPlan { get; set; }
+
+    /// <summary>
+    /// What produced the scenario. Only the cover of an absence sets AbsenceCover; no clone, variant or apply copies it,
+    /// because the accept treats a stale cover built on the real plan as not overridable (it must be covered again).
+    /// </summary>
+    public AnalyseScenarioOrigin Origin { get; set; } = AnalyseScenarioOrigin.Other;
 }

@@ -36,6 +36,8 @@ public static class AnalyseScenarioServiceCollectionExtensions
         services.AddScoped<ScenarioAcceptScopeResolver>();
         services.AddScoped<ScenarioRealPlanReplacer>();
         services.AddScoped<ScenarioStalenessDetector>();
+        services.AddScoped<ScenarioRealAbsenceGuard>();
+        services.AddScoped<ScenarioCoverRedoPresetReader>();
         services.AddScoped<ScenarioAcceptConflictValidator>();
         services.AddScoped<ScenarioLockSkipCounter>();
         services.AddScoped<ScenarioDayRowPromoter>();

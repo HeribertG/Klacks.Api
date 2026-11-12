@@ -114,11 +114,30 @@ public interface IAnalyseScenarioService
     /// chain for a scenario built on another scenario). Real works count whatever their lock level (a seal after the
     /// snapshot would leave the sealed work next to its promoted clone); their work changes and expenses count only on
     /// movable works. Null when there are none (the accept overwrites nothing newer than the snapshot) or when the
-    /// scenario has no creation time to compare against.
+    /// scenario has no creation time to compare against. The result also tells whether the root of the SourceToken chain
+    /// is the cover of an absence built on the real plan (ScenarioStaleness.RootIsRealPlanCover).
     /// </summary>
-    /// <param name="scenario">The scenario about to be accepted (group, token, range and creation time are read)</param>
+    /// <param name="scenario">The scenario about to be accepted (group, token, range, origin, source and creation time are read)</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     Task<ScenarioStaleness?> FindRealPlanChangesSinceCreationAsync(AnalyseScenario scenario, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Read-only accept check for every scenario: throws <see cref="Klacks.Api.Application.Exceptions.ScenarioDropsRealAbsenceException"/>
+    /// when the delete step of the accept (<see cref="SoftDeleteRealScheduleDataAsync"/>, the same selection) would remove
+    /// a real absence (a break without a paused work) that has no twin in the scenario: same person, day and absence type.
+    /// </summary>
+    /// <param name="scenario">The scenario about to be accepted (group, token and range are read)</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task EnsureNoRealAbsenceDroppedAsync(AnalyseScenario scenario, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Prefill for covering an absence again after its stale cover was refused: person, absence type and days of the
+    /// absences the cover scenario added itself (scenario absences without a live real twin). Values that are not unique
+    /// stay null.
+    /// </summary>
+    /// <param name="token">Token of the refused cover scenario</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<CoverRedoPreset> FindCoverRedoPresetAsync(Guid token, CancellationToken cancellationToken);
 
     /// <summary>
     /// Accept rule for a scenario that carries variants (keys): throws <see cref="Klacks.Api.Application.Exceptions.ForbiddenException"/>

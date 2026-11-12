@@ -9,7 +9,11 @@
 /// pauses of every kept work. Such a change survives the accept, so the warning must not call it overwritten. Deleted
 /// rows are included (IgnoreQueryFilters), because a deletion after the snapshot is overwritten too: the accept brings
 /// the scenario's copy of the row back. A scenario built on another scenario carries rows of its source's snapshot, so
-/// the snapshot instant is the earliest creation along the SourceToken chain. The accepted scenarios named in the warning
+/// the snapshot instant is the earliest creation along the SourceToken chain. The same walk finds the root of the chain
+/// (the scenario without a source; the scenario itself when it has none): when that root is the cover of an absence
+/// (Origin AbsenceCover), the staleness is flagged RootIsRealPlanCover, so every scenario of the chain is refused as not
+/// overridable. A walk cut short (cycle, deeper than ScenarioSourceChainLimits.MaxDepth, missing source row) cannot see its
+/// root and is flagged the same way (fail closed), so a deep chain cannot hide a cover root. The accepted scenarios named in the warning
 /// are scenario rows only; a consumed variant (key) is not one. The changed rows are filtered in memory,
 /// because the locked (client, day) pairs do not translate into SQL.
 /// </summary>
@@ -36,10 +40,13 @@ public sealed class ScenarioStalenessDetector
         "Scenario {ScenarioId} has no creation time; the staleness check before accepting it is skipped";
 
     private const string SourceChainTooDeepMessage =
-        "Scenario {ScenarioId}: the SourceToken chain is deeper than {MaxDepth} scenarios; the staleness check uses the earliest creation found so far";
+        "Scenario {ScenarioId}: the SourceToken chain is deeper than {MaxDepth} scenarios; the staleness check uses the earliest creation found so far and treats the unknown root as an absence cover";
 
     private const string SourceChainCycleMessage =
-        "Scenario {ScenarioId}: the SourceToken chain contains a cycle at token {Token}; the staleness check uses the earliest creation found so far";
+        "Scenario {ScenarioId}: the SourceToken chain contains a cycle at token {Token}; the staleness check uses the earliest creation found so far and treats the unknown root as an absence cover";
+
+    private const string SourceChainBrokenMessage =
+        "Scenario {ScenarioId}: the source scenario with token {Token} was not found; the staleness check uses the earliest creation found so far and treats the unknown root as an absence cover";
 
     private readonly DataBaseContext _context;
     private readonly ScenarioAcceptScopeResolver _scopeResolver;
@@ -66,7 +73,8 @@ public sealed class ScenarioStalenessDetector
             return null;
         }
 
-        var since = await EarliestCreationAlongSourceChainAsync(scenario, ct);
+        var chain = await ResolveSourceChainAsync(scenario, ct);
+        var since = chain.EarliestCreation;
         var fromDate = scenario.FromDate;
         var untilDate = scenario.UntilDate;
         var (shiftIds, clientIds) = await _scopeResolver.ResolveRealAcceptScopeAsync(scenario.GroupId, scenario.Token, fromDate, untilDate, ct);
@@ -90,7 +98,7 @@ public sealed class ScenarioStalenessDetector
             .Max()!.Value;
         var acceptedScenarioNames = await AcceptedSiblingNamesSinceAsync(scenario, since, ct);
 
-        return new ScenarioStaleness(overwritten.Count, lastChange, acceptedScenarioNames);
+        return new ScenarioStaleness(overwritten.Count, lastChange, acceptedScenarioNames, chain.RootIsRealPlanCover);
     }
 
     /// <summary>
@@ -205,13 +213,16 @@ public sealed class ScenarioStalenessDetector
     }
 
     /// <summary>
-    /// The instant of the snapshot the scenario's rows stand for: its own creation, or the earlier creation of a source
-    /// scenario it was built on (transitively). Deleted or decided ancestors still count. A cycle or a chain deeper than
-    /// <see cref="ScenarioSourceChainLimits.MaxDepth"/> stops the walk with a warning.
+    /// Walks the SourceToken chain once: the instant of the snapshot the scenario's rows stand for (its own creation, or
+    /// the earlier creation of a source scenario it was built on, transitively) and whether the root of the chain is the
+    /// cover of an absence built on the real plan. Deleted or decided ancestors still count. A cycle, a chain deeper than
+    /// <see cref="ScenarioSourceChainLimits.MaxDepth"/> or a missing source row stops the walk with a warning; the root is
+    /// then unknown and counted as a cover (fail closed).
     /// </summary>
-    private async Task<DateTime> EarliestCreationAlongSourceChainAsync(AnalyseScenario scenario, CancellationToken ct)
+    private async Task<ScenarioSourceChain> ResolveSourceChainAsync(AnalyseScenario scenario, CancellationToken ct)
     {
         var earliest = scenario.CreateTime!.Value;
+        var rootOrigin = scenario.Origin;
         var visited = new HashSet<Guid> { scenario.Token };
         var next = scenario.SourceToken;
 
@@ -220,23 +231,24 @@ public sealed class ScenarioStalenessDetector
             if (depth == ScenarioSourceChainLimits.MaxDepth)
             {
                 _logger.LogWarning(SourceChainTooDeepMessage, scenario.Id, ScenarioSourceChainLimits.MaxDepth);
-                break;
+                return new ScenarioSourceChain(earliest, RootIsRealPlanCover: true);
             }
 
             if (!visited.Add(sourceToken))
             {
                 _logger.LogWarning(SourceChainCycleMessage, scenario.Id, sourceToken);
-                break;
+                return new ScenarioSourceChain(earliest, RootIsRealPlanCover: true);
             }
 
             var source = await _context.AnalyseScenarios.IgnoreQueryFilters()
                 .AsNoTracking()
                 .Where(s => s.Token == sourceToken)
-                .Select(s => new { s.CreateTime, s.SourceToken })
+                .Select(s => new { s.CreateTime, s.SourceToken, s.Origin })
                 .FirstOrDefaultAsync(ct);
             if (source is null)
             {
-                break;
+                _logger.LogWarning(SourceChainBrokenMessage, scenario.Id, sourceToken);
+                return new ScenarioSourceChain(earliest, RootIsRealPlanCover: true);
             }
 
             if (source.CreateTime is { } created && created < earliest)
@@ -244,10 +256,11 @@ public sealed class ScenarioStalenessDetector
                 earliest = created;
             }
 
+            rootOrigin = source.Origin;
             next = source.SourceToken;
         }
 
-        return earliest;
+        return new ScenarioSourceChain(earliest, rootOrigin == AnalyseScenarioOrigin.AbsenceCover);
     }
 
     private static Expression<Func<TEntity, bool>> ChangedSince<TEntity>(DateTime since)

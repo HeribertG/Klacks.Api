@@ -217,7 +217,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             UntilDate = scenarioUntil,
             Token = token,
             RunGroupId = Guid.NewGuid(),
-            SourceToken = source?.Token
+            SourceToken = source?.Token,
+            Origin = AnalyseScenarioOrigin.AbsenceCover
         };
         await _scenarioRepository.Add(scenario);
 

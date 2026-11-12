@@ -18,6 +18,10 @@
 /// shifts; the skill has no parameter for it. A refusal for a missing right or session (ForbiddenException) and a consumed
 /// key (ScenarioVariantConsumedException, a ConflictException) come back as an error result carrying the English message of
 /// the refusal, so the model can tell the user instead of the call failing unhandled.
+/// Two refusals get no confirmation token, because no confirmation would let the accept succeed: a stale cover of an
+/// absence built on the original plan (ScenarioStaleException with Overridable false; the way out is rejecting it and
+/// covering the absence again) and an accept that would delete a real absence the scenario does not carry
+/// (ScenarioDropsRealAbsenceException; the way out is recalculating the scenario). Both come back as an error result.
 /// </summary>
 /// <param name="scenarioId">UUID of the scenario to accept.</param>
 /// <param name="confirmationStore">Mints the one-time token for the stale-scenario confirmation.</param>
@@ -80,9 +84,17 @@ public class AcceptScenarioSkill : BaseSkillImplementation
                     AcknowledgedStaleness: acknowledgement),
                 cancellationToken);
         }
+        catch (ScenarioStaleException ex) when (!ex.Overridable)
+        {
+            return CoverNotOverridable(scenarioId, ex);
+        }
         catch (ScenarioStaleException ex)
         {
             return await RequireStaleConfirmationAsync(context, parameters, scenarioId, ex, cancellationToken);
+        }
+        catch (ScenarioDropsRealAbsenceException ex)
+        {
+            return DropsRealAbsence(scenarioId, ex);
         }
         catch (ForbiddenException ex)
         {
@@ -109,6 +121,49 @@ public class AcceptScenarioSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(
             new { ScenarioId = scenarioId, SkippedLockedEntries = skipped },
             $"Scenario {scenarioId} accepted — its works are now part of the main schedule.{lockedHint}");
+    }
+
+    private static SkillResult CoverNotOverridable(Guid scenarioId, ScenarioStaleException exception)
+    {
+        var staleness = exception.Staleness;
+        var acceptedSince = staleness.AcceptedScenarioNames.Count == 0
+            ? string.Empty
+            : string.Format(
+                CultureInfo.InvariantCulture,
+                ScenarioAcceptDefaults.AcceptedSinceScenariosFormat,
+                string.Join(", ", staleness.AcceptedScenarioNames));
+        var preset = exception.CoverRedo is { ClientId: { } clientId, FromDate: { } fromDate, UntilDate: { } untilDate }
+            ? string.Format(
+                CultureInfo.InvariantCulture,
+                ScenarioAcceptDefaults.CoverRedoPresetFormat,
+                clientId,
+                fromDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture),
+                untilDate.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture))
+            : string.Empty;
+
+        return SkillResult.Error(string.Format(
+            CultureInfo.InvariantCulture,
+            ScenarioAcceptDefaults.CoverNotOverridableMessageFormat,
+            scenarioId,
+            staleness.ChangedEntryCount,
+            acceptedSince,
+            preset));
+    }
+
+    private static SkillResult DropsRealAbsence(Guid scenarioId, ScenarioDropsRealAbsenceException exception)
+    {
+        var absences = string.Join(", ", exception.DroppedAbsences.Select(absence => string.Format(
+            CultureInfo.InvariantCulture,
+            ScenarioAcceptDefaults.AbsenceEntryFormat,
+            absence.ClientName,
+            absence.Date.ToString(DateTimeFormats.IsoDate, CultureInfo.InvariantCulture))));
+
+        return SkillResult.Error(string.Format(
+            CultureInfo.InvariantCulture,
+            ScenarioAcceptDefaults.DropsRealAbsenceMessageFormat,
+            scenarioId,
+            exception.DroppedAbsenceCount,
+            absences));
     }
 
     private async Task<SkillResult> RequireStaleConfirmationAsync(

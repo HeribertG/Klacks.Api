@@ -561,6 +561,11 @@ sondern ein Hinweis: Die Person ist an diesem Tag in dieser Ansicht nicht planba
   werden von keiner der beiden Neuberechnungen verändert.
 - **Szenario übernehmen ersetzt den Plan im Zeitraum** des Szenarios; gesperrte Einträge werden dabei
   übersprungen. Ein Gegenweg existiert nicht — vorher prüfen.
+- **Eine Übernahme löscht nie eine Absenz:** Fehlt einem Szenario eine Absenz des echten Plans (gleiche Person, gleicher
+  Tag, gleiche Art), etwa weil es vor dem Eintrag der Absenz berechnet wurde, lässt es sich nicht übernehmen, auch nicht
+  mit einer Bestätigung. Das gilt für jedes Szenario, auch für Autofill. Das Szenario auf dem aktuellen Plan neu berechnen.
+  Eine veraltete Ausfall-Deckung auf dem echten Plan wird nicht überschrieben, sondern verworfen und neu gedeckt
+  (`explain_absence_cover_move`).
 - **Kein allgemeines Rückgängig:** Klacks kennt kein generelles Rückgängigmachen. Ein gelöschter Einsatz lässt
   sich gezielt wiederherstellen (wer ihn gelöscht hat, nur in den ersten 60 Sekunden; ein
   Administrator jederzeit), alles andere wird über den Gegenweg korrigiert.

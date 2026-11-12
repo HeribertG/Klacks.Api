@@ -8800,6 +8800,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<int>("Origin")
+                        .HasColumnType("integer")
+                        .HasColumnName("origin");
+
                     b.Property<int?>("RejectReason")
                         .HasColumnType("integer")
                         .HasColumnName("reject_reason");
