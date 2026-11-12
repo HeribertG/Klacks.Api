@@ -4,6 +4,11 @@
 --
 -- Safe to re-run: deduplicates by (shift_id, group_id) and (client_id, group_id),
 -- removes fully orphaned rows, and repairs root pointers on top-level groups.
+--
+-- The client deduplication compares real-plan rows only (analyse_token IS NULL on both
+-- sides). A scenario owns its own membership rows: the temporary membership of a borrowed
+-- person may stand next to a row of another scenario or of the real plan for the same
+-- client and group, and this script runs on every backend start.
 
 BEGIN;
 
@@ -25,6 +30,8 @@ WHERE gi.shift_id IS NOT NULL
 DELETE FROM group_item gi
 USING group_item gi2
 WHERE gi.client_id IS NOT NULL
+  AND gi.analyse_token IS NULL
+  AND gi2.analyse_token IS NULL
   AND gi.client_id = gi2.client_id
   AND gi.group_id = gi2.group_id
   AND COALESCE(gi.update_time, gi.create_time, '1970-01-01'::timestamptz) <
@@ -33,6 +40,8 @@ WHERE gi.client_id IS NOT NULL
 DELETE FROM group_item gi
 USING group_item gi2
 WHERE gi.client_id IS NOT NULL
+  AND gi.analyse_token IS NULL
+  AND gi2.analyse_token IS NULL
   AND gi.client_id = gi2.client_id
   AND gi.group_id = gi2.group_id
   AND gi.id < gi2.id;

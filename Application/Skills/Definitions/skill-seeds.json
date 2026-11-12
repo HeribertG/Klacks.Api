@@ -19615,7 +19615,7 @@
     {
       "name": "find_replacement",
       "area": "schedule",
-      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates: the group members, then (Borrowed) others under the same root group. Excluded only for a collision, a rest-time violation, a missing or binding-level mandatory qualification, or a blacklisted shift. Overtime / consecutive-day / min-rest findings and a non-binding level lower the rank. ContractDayOff = weekday off by contract: listed, marked, not excluded. On-call ranks first, then preferred.",
+      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Names the ten best, the rest as numbers. Pool: group members, then (Borrowed) others under the same root group. Excluded only for collision, rest-time violation, missing or binding-level mandatory qualification, or blacklisted shift. Overtime, consecutive-day, min-rest findings and a non-binding level lower rank. ContractDayOff = weekday off by contract: marked, not excluded. On-call first, then preferred.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19731,7 +19731,7 @@
         "fr": "Trouver un remplaçant pour un service",
         "it": "Trova un sostituto per un turno"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "propose_plan",
