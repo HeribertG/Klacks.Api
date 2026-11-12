@@ -13,12 +13,12 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="AnalyseToken">Source-scenario isolation token; null = main scenario.</param>
 /// <param name="Language">Optional UI language for the LLM stage (e.g. "en", "de"); null = engine default.</param>
 /// <param name="ContextDaysBefore">
-/// Boundary context days propagated to all three stages so validators can detect MaxConsecutive / MinRest runs
+/// Boundary context days propagated to both stages so validators can detect MaxConsecutive / MinRest runs
 /// crossing the period start. Default 14. Override with 0 to disable.
 /// </param>
 /// <param name="ContextDaysAfter">Same as <paramref name="ContextDaysBefore"/>, after <paramref name="PeriodUntil"/>.</param>
-/// <param name="AgentOrderIsUserDefined">True when AgentIds reflects an individual roster order arranged by the user; all three stages then use it as the top-down priority order verbatim instead of ranking automatically (RosterPriorityOrder).</param>
-/// <param name="KeywordMode">Keyword mode of the Wizard and Harmonizer stages; Hard (default) vetoes the restricting
+/// <param name="AgentOrderIsUserDefined">True when AgentIds reflects an individual roster order arranged by the user; both stages then use it as the top-down priority order verbatim instead of ranking automatically (RosterPriorityOrder).</param>
+/// <param name="KeywordMode">Keyword mode of both stages; Hard (default) vetoes the restricting
 /// schedule commands, Soft ranks them as wishes.</param>
 /// <param name="SoftKeywordRetry">True to run the chain a second time in Soft keyword mode when the strict (Hard) run
 /// leaves slots open and the employees have restricting schedule commands (FREE, OnlyX, NoX) in the period; the soft

@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "準備期間群組或期間已變更。自動精靈未啟動。",
   "autoWizard.toast.started": "自動精靈已啟動",
   "autoWizard.toast.tooLarge": "選取範圍過大\n員工過多 {{agents}}，最多 {{maxAgents}}\n班次過多 {{shifts}}，最多 {{maxShifts}}",
-  "autoWizard.tooltip": "自動精靈 - 執行計畫 + 協調器 + 整體協調器",
+  "autoWizard.tooltip": "自動精靈 - 執行計畫 + 整體協調器",
   "back": "返回",
   "backend-unavailable.headline": "請稍候…",
   "backend-unavailable.hint": "花費時間太長了嗎？",

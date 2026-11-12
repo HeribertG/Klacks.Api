@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "กลุ่มหรือช่วงเวลาเปลี่ยนไประหว่างการเตรียมการ AutoWizard ยังไม่ได้เริ่มทำงาน",
   "autoWizard.toast.started": "เริ่ม AutoWizard แล้ว",
   "autoWizard.toast.tooLarge": "การเลือกใหญ่เกินไป\nพนักงานมากเกินไป {{agents}} คน สูงสุด {{maxAgents}}\nกะมากเกินไป {{shifts}} กะ สูงสุด {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard - เรียกใช้ Plan + Harmonizer + Holistic Harmonizer",
+  "autoWizard.tooltip": "AutoWizard - เรียกใช้ Plan + Holistic Harmonizer",
   "back": "ย้อนกลับ",
   "backend-unavailable.headline": "กรุณารอสักครู่…",
   "backend-unavailable.hint": "ใช้เวลานานเกินไปหรือไม่?",

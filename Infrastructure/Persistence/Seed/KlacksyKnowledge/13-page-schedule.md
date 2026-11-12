@@ -3,7 +3,7 @@ name: explain_page_schedule
 description: |
   Explains the Schedule page (Einsatzplan) at /workplace/schedule — the central planning
   board with an employees-by-days grid. Covers the toolbar (period navigation by week/
-  bi-week/month, send email, AutoWizard with Plan/Fuzzy Harmonizer/Holistic Harmonizer,
+  bi-week/month, send email, AutoWizard with Plan + Holistic Harmonizer,
   schedule PDF export, desired-absence bars, command and availability toggles, hour
   recalculation, scenario selector, day-timeline switch, zoom), the row header with
   sort/filter popup and hour slots, the grid with drag & drop booking, cell context menus,
@@ -130,7 +130,7 @@ verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder ni
   konfiguriert ist, und nur aktiv, wenn es seit dem letzten Versand ungesendete Änderungen
   gibt. Ergebnis-Toast: "{x} gesendet, {y} fehlgeschlagen, {z} ohne E-Mail".
 - **Wizard-Button** (`schedule-wizard-btn`): standardmäßig Ein-Klick-**AutoWizard**
-  (Tooltip de: "AutoWizard - Plan + Harmonizer + Holistic Harmonizer ausführen"). Der
+  (Tooltip de: "AutoWizard - Plan + Holistic Harmonizer ausführen"). Der
   Wizard-Button sieht jeder, der den Plan bearbeiten darf (Recht `CanEditSchedule`), also Planer
   ohne Rolle, Supervisoren und Admins: Autofill ist Planungsarbeit. Ein Planer mit eingeschränkter
   Gruppen-Sichtbarkeit plant nur eine Gruppe, die er sieht, und nur die Mitarbeitenden und Dienste, die er sieht;
@@ -232,7 +232,7 @@ verwerfen muss. Tage, an denen eine Person nicht angestellt ist (dunkel) oder ni
 - **Wirkung der Sortierung auf den Autofill:** Die Anzeige-Sortierungen (Vorname, Nachname, Firma, vertraglich
   garantierte Stunden) legen den Rang bei der automatischen Planung nicht fest. Nur eine von Hand festgelegte
   Reihenfolge zählt: **Individuell Sortiert** ist eingeschaltet und für die Gruppe ist eine Reihenfolge gespeichert,
-  die mindestens eine der gezeigten Personen einordnet. Dann arbeiten alle drei Stufen des Autofills genau in dieser
+  die mindestens eine der gezeigten Personen einordnet. Dann arbeiten beide Stufen des Autofills genau in dieser
   Reihenfolge: Wer oben steht, bekommt zuerst seine garantierten Stunden, wer unten steht, den Rest. Ohne eine
   solche Reihenfolge ordnet Klacks selbst: nach den vertraglich garantierten Stunden, umgerechnet auf den
   Planzeitraum (wöchentlich 40 Stunden vor monatlich 100 Stunden), bei Gleichstand nach Vollzeitstunden,

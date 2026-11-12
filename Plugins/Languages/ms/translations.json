@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "Kumpulan atau tempoh berubah semasa persediaan. AutoWizard tidak dimulakan.",
   "autoWizard.toast.started": "AutoWizard dimulakan",
   "autoWizard.toast.tooLarge": "Pilihan terlalu besar\nTerlalu ramai kakitangan {{agents}}, maks. {{maxAgents}}\nTerlalu banyak syif {{shifts}}, maks. {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard - Jalankan Plan + Harmonizer + Holistic Harmonizer",
+  "autoWizard.tooltip": "AutoWizard - Jalankan Plan + Holistic Harmonizer",
   "back": "Kembali",
   "backend-unavailable.headline": "Sila tunggu…",
   "backend-unavailable.hint": "Mengambil masa terlalu lama?",

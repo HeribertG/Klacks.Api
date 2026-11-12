@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Skill that kicks off the AutoWizard chain (Wizard 1 Planner + Wizard 2 Harmonizer + Wizard 3 Holistic
-/// Harmonizer) for a given group and period. The group is identified by id or by name, the period by ISO
+/// Skill that kicks off the AutoWizard chain (Wizard 1 Planner + protected Wizard 3 Holistic Harmonizer; the
+/// Wizard 2 Harmonizer is not part of the chain) for a given group and period. The group is identified by id or by name, the period by ISO
 /// dates or by an ISO calendar week that the skill resolves itself (Monday to Sunday). When agentIds /
 /// shiftIds are omitted, the skill resolves them from the group via group_item membership and the
 /// visible-shift SP. Returns the orchestrator jobId; the chain runs in the background and ends in a

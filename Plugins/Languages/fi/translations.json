@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "Ryhmä tai jakso vaihtui valmistelun aikana. AutoWizardia ei käynnistetty.",
   "autoWizard.toast.started": "AutoWizard käynnistetty",
   "autoWizard.toast.tooLarge": "Valinta liian suuri\nLiikaa työntekijöitä {{agents}}, maks. {{maxAgents}}\nLiikaa vuoroja {{shifts}}, maks. {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard – suorita Plan + Harmonizer + Holistic Harmonizer",
+  "autoWizard.tooltip": "AutoWizard – suorita Plan + Holistic Harmonizer",
   "back": "Takaisin",
   "backend-unavailable.headline": "Odota hetki…",
   "backend-unavailable.hint": "Kestääkö liian kauan?",

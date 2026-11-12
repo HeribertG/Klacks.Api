@@ -8,7 +8,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// <summary>
 /// Outcome of one finished AutoWizard stage chain.
 /// </summary>
-/// <param name="FinalScenario">The last scenario the chain produced (Holistic Harmonizer, or Harmonizer when stage 3 was skipped).</param>
+/// <param name="FinalScenario">The last scenario the chain produced (Holistic Harmonizer, or Wizard 1 when stage 3 was skipped).</param>
 /// <param name="WizardOutcome">Compliance outcome of the Wizard 1 stage's materialisation.</param>
 /// <param name="HarmonizationSkippedReason">Why stage 3 was skipped; null when it ran.</param>
 internal sealed record AutoWizardChainOutcome(

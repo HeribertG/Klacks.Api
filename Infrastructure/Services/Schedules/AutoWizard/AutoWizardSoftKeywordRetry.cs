@@ -22,7 +22,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// of the promoted chain's reports, after which the job runner removes the promoted scenario and reports Failed.
 /// </summary>
 /// <param name="scopeFactory">Creates the scope of the restricting-command check.</param>
-/// <param name="stageChain">Runs the three stages in Soft mode.</param>
+/// <param name="stageChain">Runs the chain's stages in Soft mode.</param>
 /// <param name="maintenance">Summary, keyword-mode mark and removal of the retry's scenarios.</param>
 /// <param name="logger">Logger of the orchestrator.</param>
 internal sealed class AutoWizardSoftKeywordRetry

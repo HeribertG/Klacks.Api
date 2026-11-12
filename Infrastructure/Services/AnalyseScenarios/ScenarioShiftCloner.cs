@@ -149,7 +149,7 @@ public sealed class ScenarioShiftCloner
             Id = cloneId,
             AnalyseToken = token,
             // Resolve to the real ROOT shift, not the immediate parent, so a clone-of-a-clone
-            // (chained AutoWizard W1->W2->W3) still remaps to the real shift on accept. Keep source
+            // (chained AutoWizard W1->W3, or single stages run one after another) still remaps to the real shift on accept. Keep source
             // and snapshot keyed on the same id, or ValidateNoAcceptConflictsAsync throws a false conflict.
             ScenarioSourceShiftId = RootShiftIdOf(shift, variantTokens),
             SourceChildCountSnapshot = RootShiftIdOf(shift, variantTokens) is { } rootId ? childCountBySource.GetValueOrDefault(rootId, 0) : 0,

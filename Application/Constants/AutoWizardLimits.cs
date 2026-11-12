@@ -4,7 +4,7 @@ namespace Klacks.Api.Application.Constants;
 
 /// <summary>
 /// Hard limits and warning thresholds for the AutoWizard orchestrator. The chain
-/// (Wizard 1 + Harmonizer + Holistic Harmonizer) scales with agents x shifts x periodDays;
+/// (Wizard 1 + Holistic Harmonizer) scales with agents x shifts x periodDays;
 /// runs above these limits will exhaust the 90s Wizard 1 time budget and produce no
 /// scenario. These constants are enforced both client-side (precheck) and server-side
 /// (controller) so direct API callers cannot bypass the gate.

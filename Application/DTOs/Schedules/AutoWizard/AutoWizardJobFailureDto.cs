@@ -8,7 +8,7 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// handing to the operator instead of discarding it silently.
 /// </summary>
 /// <param name="JobId">The orchestrator job.</param>
-/// <param name="FailedStage">Stage the chain stopped in (Wizard, Harmonizer, HolisticHarmonizer).</param>
+/// <param name="FailedStage">Stage the chain stopped in (Wizard, HolisticHarmonizer).</param>
 /// <param name="Reason">Why it stopped, in the stage's own words where available.</param>
 /// <param name="PartialScenarioId">Id of the last scenario that was produced, or null.</param>
 /// <param name="PartialScenarioToken">Token of that scenario, or null.</param>

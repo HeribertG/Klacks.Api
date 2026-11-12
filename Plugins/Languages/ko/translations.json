@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "준비하는 동안 그룹 또는 기간이 변경되었습니다. AutoWizard가 시작되지 않았습니다.",
   "autoWizard.toast.started": "AutoWizard가 시작되었습니다",
   "autoWizard.toast.tooLarge": "선택 범위가 너무 큽니다\n직원 수 초과: {{agents}}명 (최대 {{maxAgents}}명)\n근무 수 초과: {{shifts}}건 (최대 {{maxShifts}}건)",
-  "autoWizard.tooltip": "AutoWizard - Plan + Harmonizer + Holistic Harmonizer 실행",
+  "autoWizard.tooltip": "AutoWizard - Plan + Holistic Harmonizer 실행",
   "back": "뒤로",
   "backend-unavailable.headline": "잠시만 기다려 주세요…",
   "backend-unavailable.hint": "너무 오래 걸리나요?",

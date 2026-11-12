@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "De groep of periode is tijdens de voorbereiding gewijzigd. De AutoWizard is niet gestart.",
   "autoWizard.toast.started": "AutoWizard gestart",
   "autoWizard.toast.tooLarge": "Selectie te groot\nTe veel medewerkers {{agents}}, max. {{maxAgents}}\nTe veel diensten {{shifts}}, max. {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard - Plan + Harmonizer + Holistic Harmonizer uitvoeren",
+  "autoWizard.tooltip": "AutoWizard - Plan + Holistic Harmonizer uitvoeren",
   "back": "Terug",
   "backend-unavailable.headline": "Een ogenblik geduld…",
   "backend-unavailable.hint": "Duurt het te lang?",

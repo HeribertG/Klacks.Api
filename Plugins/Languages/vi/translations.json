@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "Nhóm hoặc khoảng thời gian đã thay đổi trong lúc chuẩn bị. AutoWizard chưa được khởi động.",
   "autoWizard.toast.started": "Đã khởi động AutoWizard",
   "autoWizard.toast.tooLarge": "Lựa chọn quá lớn Quá nhiều nhân viên {{agents}}, tối đa {{maxAgents}} Quá nhiều ca làm việc {{shifts}}, tối đa {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard - Thực hiện Plan + Harmonizer + Holistic Harmonizer",
+  "autoWizard.tooltip": "AutoWizard - Thực hiện Plan + Holistic Harmonizer",
   "back": "Quay lại",
   "backend-unavailable.headline": "Vui lòng chờ…",
   "backend-unavailable.hint": "Mất quá nhiều thời gian?",

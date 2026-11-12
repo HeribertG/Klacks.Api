@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "Grupul sau perioada s-a schimbat în timpul pregătirii. AutoWizard nu a fost pornit.",
   "autoWizard.toast.started": "AutoWizard pornit",
   "autoWizard.toast.tooLarge": "Selecție prea mare\nPrea mulți angajați {{agents}}, max. {{maxAgents}}\nPrea multe ture {{shifts}}, max. {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard - execută Plan + Harmonizer + Holistic Harmonizer",
+  "autoWizard.tooltip": "AutoWizard - execută Plan + Holistic Harmonizer",
   "back": "Înapoi",
   "backend-unavailable.headline": "Vă rugăm așteptați…",
   "backend-unavailable.hint": "Durează prea mult?",

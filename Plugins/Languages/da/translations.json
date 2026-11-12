@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "Gruppen eller perioden blev ændret under forberedelsen. AutoWizard blev ikke startet.",
   "autoWizard.toast.started": "AutoWizard startet",
   "autoWizard.toast.tooLarge": "Valget er for stort\nFor mange medarbejdere {{agents}}, maks. {{maxAgents}}\nFor mange vagter {{shifts}}, maks. {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard - kør plan + harmoniseringsassistent + Holistic Harmonizer",
+  "autoWizard.tooltip": "AutoWizard - kør plan + Holistic Harmonizer",
   "back": "Tilbage",
   "backend-unavailable.headline": "Vent venligst…",
   "backend-unavailable.hint": "Tager det for lang tid?",

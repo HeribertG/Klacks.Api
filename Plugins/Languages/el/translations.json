@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "Η ομάδα ή η περίοδος άλλαξε κατά την προετοιμασία. Ο AutoWizard δεν ξεκίνησε.",
   "autoWizard.toast.started": "Ο AutoWizard ξεκίνησε",
   "autoWizard.toast.tooLarge": "Η επιλογή είναι πολύ μεγάλη\nΠάρα πολλοί εργαζόμενοι {{agents}}, μέγ. {{maxAgents}}\nΠάρα πολλές βάρδιες {{shifts}}, μέγ. {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard - Εκτέλεση Plan + Harmonizer + Holistic Harmonizer",
+  "autoWizard.tooltip": "AutoWizard - Εκτέλεση Plan + Holistic Harmonizer",
   "back": "Πίσω",
   "backend-unavailable.headline": "Παρακαλώ περιμένετε…",
   "backend-unavailable.hint": "Διαρκεί πολύ;",

@@ -34,14 +34,13 @@ using Microsoft.Extensions.Logging;
 namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 
 /// <summary>
-/// Orchestrator that runs Wizard 1 (Planner), Harmonizer (Wizard 2) and Holistic Harmonizer
-/// (Wizard 3) sequentially in the backend. Drives each underlying JobRunner, waits for its
-/// per-job registry slot to release, materialises the cached result via the matching apply
+/// Orchestrator that runs Wizard 1 (Planner) and the protected Holistic Harmonizer (Wizard 3)
+/// sequentially in the backend (AutoWizardStageChain; the Harmonizer, Wizard 2, is not part of the chain).
+/// Drives each underlying JobRunner, waits for its per-job registry slot to release, materialises the cached result via the matching apply
 /// service, and chains the resulting analyse-scenario token into the next stage. Emits a
 /// single SignalR event (OnCompleted or OnFailed) at the end of the chain — intermediate
-/// stage progress is intentionally not forwarded. The third stage is optional: when its
-/// prerequisite is missing (no model configured, or a model known to be text-only) it is skipped
-/// and the chain completes with the Harmonizer scenario, flagged as not harmonized.
+/// stage progress is intentionally not forwarded. The Wizard 3 stage is optional: when it fails,
+/// the chain completes with the Wizard 1 scenario, flagged as not harmonized.
 /// The chain in the requested keyword mode is the run's result and runs under its own budget
 /// (AutoWizardTimeBudget.StrictChainMinutes). When the start asks for it, a soft-keyword retry
 /// (AutoWizardSoftKeywordRetry) follows under a budget of its own; a better soft scenario that breaks no restricting wish
@@ -57,9 +56,6 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
 /// <param name="wizardRunner">Background runner for the Wizard 1 (Planner) stage.</param>
 /// <param name="wizardRegistry">Wizard 1 registry, polled to detect stage completion.</param>
 /// <param name="wizardResultCache">Wizard 1 result cache, queried to detect stage success.</param>
-/// <param name="harmonizerRunner">Background runner for the Harmonizer (Wizard 2) stage.</param>
-/// <param name="harmonizerRegistry">Wizard 2 registry, polled to detect stage completion.</param>
-/// <param name="harmonizerResultCache">Wizard 2 result cache, queried to detect stage success.</param>
 /// <param name="holisticRunner">Background runner for the Holistic Harmonizer (Wizard 3) stage.</param>
 /// <param name="holisticRegistry">Wizard 3 registry, polled to detect stage completion.</param>
 /// <param name="holisticStateCache">Wizard 3 terminal states, read to name the real reason a stage failed.</param>
@@ -94,9 +90,6 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         IWizardJobRunner wizardRunner,
         WizardJobRegistry wizardRegistry,
         WizardResultCache wizardResultCache,
-        IHarmonizerJobRunner harmonizerRunner,
-        HarmonizerJobRegistry harmonizerRegistry,
-        HarmonizerResultCache harmonizerResultCache,
         IHolisticHarmonizerJobRunner holisticRunner,
         HolisticHarmonizerJobRegistry holisticRegistry,
         JobTerminalStateCache<HolisticHarmonizerRunResponse> holisticStateCache,
@@ -115,9 +108,6 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             wizardRunner,
             wizardRegistry,
             wizardResultCache,
-            harmonizerRunner,
-            harmonizerRegistry,
-            harmonizerResultCache,
             holisticRunner,
             holisticRegistry,
             holisticStateCache,
@@ -419,7 +409,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     }
 
     /// <summary>
-    /// Stages 2 and 3 skip an invalid approved hard planning constraint instead of failing (Report mode) and plan
+    /// Stage 3 skips an invalid approved hard planning constraint instead of failing (Report mode) and plans
     /// with the valid rules; the chain result carries one warning per skipped constraint, with the same
     /// translated key the period check uses, so the user learns that a binding rule was not honoured.
     /// </summary>

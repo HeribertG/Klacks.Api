@@ -51,7 +51,7 @@ The automatic planning (the wizards that propose a schedule) never moves or dele
 
 ### Which absences the wizards see
 
-The automatic planning first builds a plan (called the first wizard below) and then improves it with the harmonizers. They read the booked absences of the plan they work on: the real plan, or the scenario they are filling. A scenario works on its own copy of the absences. When the scenario is accepted, that copy replaces the real absences of its scope; absences that are confirmed or higher, or that lie on a locked day, stay as they are. Wishes are never read.
+The automatic planning first builds a plan (called the first wizard below) and then improves it with the holistic harmonizer; the harmonizer of stage two works the same way when an administrator runs it alone. They read the booked absences of the plan they work on: the real plan, or the scenario they are filling. A scenario works on its own copy of the absences. When the scenario is accepted, that copy replaces the real absences of its scope; absences that are confirmed or higher, or that lie on a locked day, stay as they are. Wishes are never read.
 
 ### The whole day is blocked
 

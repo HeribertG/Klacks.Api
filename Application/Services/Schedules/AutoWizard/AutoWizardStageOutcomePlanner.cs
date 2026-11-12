@@ -11,7 +11,7 @@ namespace Klacks.Api.Application.Services.Schedules.AutoWizard;
 /// </summary>
 public static class AutoWizardStageOutcomePlanner
 {
-    private const string HolisticStageFailedReasonFormat = "the stage failed and the harmonized plan of stage 2 is kept: {0}";
+    private const string HolisticStageFailedReasonFormat = "the stage failed and the plan of stage 1 is kept: {0}";
 
     /// <summary>
     /// Scenarios to delete after a successful run: everything except the last one.
@@ -60,7 +60,7 @@ public static class AutoWizardStageOutcomePlanner
 
     /// <summary>
     /// Why a failed Holistic Harmonizer stage was dropped. Stage 3 only polishes a complete plan, so any failure
-    /// falls back to the stage-2 result instead of failing the chain; the reason carries the failure message.
+    /// falls back to the Wizard 1 result instead of failing the chain; the reason carries the failure message.
     /// </summary>
     /// <param name="failureMessage">Message of the exception that ended the stage.</param>
     public static string HolisticStageFallbackReason(string failureMessage)

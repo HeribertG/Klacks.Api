@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Time budget of the AutoWizard orchestration. The strict chain (Wizard 1, Harmonizer, Holistic Harmonizer) keeps its
+/// Time budget of the AutoWizard orchestration. The strict chain (Wizard 1, Holistic Harmonizer) keeps its
 /// own budget; the optional soft-keyword retry runs the chain a second time under a budget of its own, so the retry can
 /// never eat into the strict result. Watchers of a whole run (the next-period auto-commit) derive their wait from
 /// <see cref="TotalMinutes"/>.
@@ -14,7 +14,7 @@ public static class AutoWizardTimeBudget
     /// <summary>Minutes each single stage may run before the chain gives up on it.</summary>
     public const int StageMinutes = 5;
 
-    /// <summary>Minutes the strict chain (all three stages) may take.</summary>
+    /// <summary>Minutes the strict chain (both stages) may take; kept above twice StageMinutes as a reserve.</summary>
     public const int StrictChainMinutes = 15;
 
     /// <summary>Minutes the soft-keyword retry chain may take; on timeout the strict result is kept alone.</summary>

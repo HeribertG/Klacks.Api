@@ -22,7 +22,7 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="QualificationGaps">Assignments in the final plan whose agent lacks a required mandatory qualification.</param>
 /// <param name="ComplianceViolations">Compliance warnings the Wizard-1 stage surfaced while materialising its scenario.</param>
 /// <param name="ComplianceSkippedPlacements">Placements the Wizard-1 stage's compliance partition blocked.</param>
-/// <param name="HarmonizationSkipped">True when the holistic harmonization (Wizard 3) did not run or could not work, so the final scenario is the Harmonizer (Wizard 2) result.</param>
+/// <param name="HarmonizationSkipped">True when the holistic harmonization (Wizard 3) did not run or could not work, so the final scenario is the Wizard 1 result.</param>
 /// <param name="HarmonizationSkippedReason">Why the holistic harmonization was skipped; null when it ran.</param>
 /// <param name="PlanningRuleWarnings">Approved hard planning constraints the chain skipped because they are invalid
 /// (key schedule.error-list.planning-rule-invalid); kept apart from ComplianceViolations so they are never counted

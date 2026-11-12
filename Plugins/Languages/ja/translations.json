@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "準備中にグループまたは期間が変更されました。AutoWizardは開始されませんでした。",
   "autoWizard.toast.started": "AutoWizardを開始しました",
   "autoWizard.toast.tooLarge": "選択範囲が大きすぎます\n従業員数が多すぎます {{agents}}、最大 {{maxAgents}}\nシフト数が多すぎます {{shifts}}、最大 {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard - プラン+ハーモナイザー+ホリスティックハーモナイザーを実行",
+  "autoWizard.tooltip": "AutoWizard - プラン+ホリスティックハーモナイザーを実行",
   "back": "戻る",
   "backend-unavailable.headline": "お待ちください…",
   "backend-unavailable.hint": "時間がかかりすぎていますか？",

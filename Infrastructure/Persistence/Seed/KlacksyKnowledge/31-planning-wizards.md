@@ -1,11 +1,11 @@
 ---
 name: explain_planning_wizards
 description: |
-  Explains the machinery behind automatic planning: three stages that run one after another. Stage
-  one fills the plan with a genetic algorithm and no language model, stage two smooths the result
-  without touching coverage, stage three polishes it with a deterministic local search; the earlier option
-  to run stage three on a language model has been retired. Covers what each
-  stage does, when to run one alone, how long a run takes and how to stop it. Use this when the user asks
+  Explains the machinery behind automatic planning: the autofill chain runs stage one, which fills the
+  plan with a genetic algorithm, and then stage three, which polishes it with a protected deterministic
+  local search; neither uses a language model. Stage two (smoothing) is no longer part of the chain and
+  exists only as a single stage for administrators. Covers what each stage does, what stage three
+  protects, when to run one alone, how long a run takes and how to stop it. Use this when the user asks
   how auto-planning works internally, which stage to use, why a run is slow or costly, or how to cancel one.
 category: Query
 executionType: Skill
@@ -24,25 +24,23 @@ synonyms:
   it: [assistente, riempimento automatico, pianificazione automatica, algoritmo genetico, annullare la pianificazione]
 ---
 
-# The planning assistants — three stages, one chain
+# The planning assistants — stage one and stage three, one chain
 
 ## Core idea (one sentence)
 
-Automatic planning is not one step but three; none of them needs a language model.
+Autofill fills the plan in stage one and polishes it in stage three; no stage needs a language model.
 
-## The three stages
+## The stages
 
 **Stage one — filling.** Builds the initial plan and decides who works which shift. It runs a
-**genetic algorithm**: thousands of plan variants are generated, scored and recombined until a
-balanced one stands. Hard rules always win — working-time law, rest periods, the limits on hours per
+**genetic algorithm** (plan variants are generated, scored and recombined). Hard rules always win — working-time law, rest periods, the limits on hours per
 week and per day, qualifications and availability are not negotiable — and only then does coverage count.
 
 Duties that already exist in the planned range, unlocked ones included, count as working days for the
 limit on days in a row (de: "Max. aufeinanderfolgende Arbeitstage", en: "Max. Consecutive Work Days",
-fr: "Max. jours de travail consécutifs", it: "Max. giorni lavorativi consecutivi"), just as they count
-for overlaps, the hours off between two working days and the weekly rest days. A second run over a
-range that is already partly filled therefore plans more cautiously: it may leave a slot open rather
-than push somebody past that limit.
+fr: "Max. jours de travail consécutifs", it: "Max. giorni lavorativi consecutivi"), for overlaps, the hours
+off between two working days and the weekly rest days, so a second run over a partly filled range may leave
+a slot open rather than break that limit.
 
 For qualifications the hard part is a missing mandatory qualification and a level below the minimum
 where that level is binding; a level below a non-binding minimum is allowed but penalised by the size of
@@ -50,25 +48,26 @@ the gap, so people at the required level are preferred (see `explain_qualificati
 exists **only in this stage**: stages two and three respect the same hard qualification rules, but they
 do not weigh a gap below a non-binding minimum, so a swap there can put a less qualified person on a
 duty. An assignment that already exists is not blocked afterwards because a level was later made
-binding; it counts as a gap below a non-binding minimum. **No language model is involved**, so this
-stage costs nothing beyond computing time.
+binding; it counts as a gap below a non-binding minimum.
 
-**Stage two — smoothing.** Takes an existing plan and evens it out: fairer distribution, fewer
-awkward sequences. It deliberately **does not touch coverage decisions** — who works at all was
-settled in stage one. It keeps every hard limit, the hours per week and per day included. Also no language model.
-
-**Stage three — polishing.** Reworks the smoothed plan as a whole. It runs a
+**Stage three — polishing.** Reworks the plan of stage one as a whole. It runs a
 **deterministic local search**: it tries swaps and pairs of swaps, keeps only those that make the plan
 more harmonious without breaking a hard rule and without moving anyone further from their target
-hours, and gives the same result for the same input. A swap between two different days is checked
-against the rest between duties, the days in a row and the hours per week and per day as well. No language model is involved and it costs only
-computing time. Harmony is computed, not judged by AI. The earlier option to let a language model read the
-plan as a picture has been retired because measurements showed no gain. There is no setting for stage
-three any more: it always computes deterministically, so there is nothing to switch to a language model or to
-another model. If stage three fails, the chain keeps
-the plan of stage two.
+hours, and gives the same result for the same input; it has no setting. A swap between two different days is
+checked against the rest between duties, the days in a row and the hours per week and per day as well.
 
-Run one after another, the three form the chain behind the autofill button in the schedule header.
+Stage three also protects what stage one achieved. It keeps a change only when, for the people it touches,
+nobody loses hours to somebody ranked below them; no work package (days in a row with duties) is cut up; nobody
+gets more packages, more short ones (one or two days), more longer than five days or more pairs with less than
+48 hours of rest between them; and mixed packages (several kinds of duty in one block) do not rise over those
+people together. A package running in from before the planned range counts with its full length. So stage three
+changes only a few assignments; if it cannot improve the plan, or fails, the chain keeps the plan of stage one.
+
+**Stage two — smoothing (not in the chain).** Evens out a plan without touching coverage. Autofill skips it
+since 2026-11-12: measured, it moved hours from the top of the order downwards and added short packages; stage
+three directly after stage one did better on both. Administrators can still run it alone.
+
+Stage one followed by stage three is the chain behind the autofill button in the schedule header.
 Autofill is planning work: everyone who may edit the schedule may start it, follow it and cancel it, a
 planner without a role included. A planner who sees only some groups plans only a group they see and
 only the people and shifts they see, and does not see or cancel the runs of other groups.
@@ -79,7 +78,7 @@ Every stage plans a person only between their entry and exit date (de: "Eintritt
 "Austrittsdatum"). On those days the working weekdays and the hours aimed for come from the person's
 active contract or, on a day without one, from the company-wide defaults in the settings. The
 shift-work flag from the same source (whether duties other than early ones may go to the person) is applied
-by all three stages and by the replacement search: a person without shift work only gets early duties. Late or
+by every stage and by the replacement search: a person without shift work only gets early duties. Late or
 night duties such a person already holds are not cleared away; the planners only prevent new ones. An employee without any contract is therefore planned like everyone else; small companies
 often keep no contracts at all. A placeholder (a row for a person who is not in the system yet) follows
 the same company defaults, the hour limits included, but has target hours 0, and every stage puts every placeholder behind every real
@@ -94,10 +93,10 @@ absences, qualifications.
 ## Who comes first, and what never gives way
 
 **The order of the people decides who is served first.** The person at the top gets the guaranteed hours
-first; the person at the bottom takes what is left. All three stages use the same order. It comes from one of
+first; the person at the bottom takes what is left. Both stages of the chain use the same order (stage two does too when run alone). It comes from one of
 two places:
 
-- **The planner's own order.** An order arranged by hand in the schedule is kept unchanged by all three stages.
+- **The planner's own order.** An order arranged by hand in the schedule is kept unchanged by both stages of the chain.
   From the autofill button this needs the sort mode (de: "Individuell Sortiert", en: "Individual Sort") to be
   switched on and a saved order for the group that ranks at least one of the people shown. In the chat with
   Klacksy the saved order of the person who asks is enough, whether or not the sort mode is on. People the saved
@@ -145,15 +144,8 @@ yet evened out in the first stage.
 
 ## Running one stage alone
 
-Each stage can be started on its own, which is worth knowing. Starting a single stage is for
-administrators only; everybody else uses the whole chain:
-
-- Only stage one when a first plan is needed and no smoothing is wanted.
-- Only stage two on an existing plan that is complete but uneven.
-- Only stage three on an already smoothed plan that should be polished once more.
-
-Stages two and three always work on the result of the stage before, so they need a plan to start
-from — they cannot create one.
+Starting a single stage is for administrators only; everybody else uses the chain. Stage one alone gives a
+first plan without polishing; stage two or three alone works on an existing plan and cannot create one.
 
 ## While it runs
 

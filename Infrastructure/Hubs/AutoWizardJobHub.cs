@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.SignalR;
 namespace Klacks.Api.Infrastructure.Hubs;
 
 /// <summary>
-/// SignalR hub for the AutoWizard orchestrator that runs Wizard 1, Harmonizer (Wizard 2)
-/// and Holistic Harmonizer (Wizard 3) sequentially in the backend. Clients subscribe via
+/// SignalR hub for the AutoWizard orchestrator that runs Wizard 1 and the Holistic Harmonizer
+/// (Wizard 3) sequentially in the backend. Clients subscribe via
 /// <see cref="JoinJob"/> using the JobId returned from /Start. JWT authentication scheme is
 /// pinned explicitly because Identity overrides the default scheme to cookies.
 /// Connecting needs the planning right CanEditSchedule (policy RequireScheduleEditing), like the start endpoint of

@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "Během přípravy se změnila skupina nebo období. AutoWizard nebyl spuštěn.",
   "autoWizard.toast.started": "AutoWizard spuštěn",
   "autoWizard.toast.tooLarge": "Výběr je příliš velký\nPříliš mnoho zaměstnanců {{agents}}, max. {{maxAgents}}\nPříliš mnoho směn {{shifts}}, max. {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard – spustit Plán + Harmonizer + Holistic Harmonizer",
+  "autoWizard.tooltip": "AutoWizard – spustit Plán + Holistic Harmonizer",
   "back": "Zpět",
   "backend-unavailable.headline": "Prosím čekejte…",
   "backend-unavailable.hint": "Trvá to příliš dlouho?",

@@ -14,13 +14,13 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 
 /// <summary>
 /// REST entry point for the AutoWizard orchestrator (the autofill of the schedule). Start launches a single background
-/// job that runs Wizard 1, Harmonizer (Wizard 2) and Holistic Harmonizer (Wizard 3) sequentially and emits one final
+/// job that runs Wizard 1 and the Holistic Harmonizer (Wizard 3) sequentially and emits one final
 /// SignalR event when the chain finishes. Autofill is planning work, so it needs the planning right CanEditSchedule
 /// (policy RequireScheduleEditing, the same right as its skills), which every role including the role-less planner floor holds.
 /// Group visibility bounds it: the runner refuses a start for a group the caller may not see, and Status and Cancel answer
 /// a job the caller may not address (IAutoWizardJobAccessGuard) exactly like an unknown one.
 /// </summary>
-/// <param name="runner">Background orchestrator that drives the three sequential stages.</param>
+/// <param name="runner">Background orchestrator that drives the sequential stages.</param>
 /// <param name="stateCache">Terminal outcomes of finished jobs.</param>
 /// <param name="jobAccessGuard">Decides whether the caller may address a job.</param>
 [ApiController]

@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "Podczas przygotowania zmieniła się grupa lub okres. AutoWizard nie został uruchomiony.",
   "autoWizard.toast.started": "AutoWizard uruchomiony",
   "autoWizard.toast.tooLarge": "Wybór zbyt duży\nZbyt wielu pracowników {{agents}}, maks. {{maxAgents}}\nZbyt wiele zmian {{shifts}}, maks. {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard - uruchom Plan + Harmonizer + Holistic Harmonizer",
+  "autoWizard.tooltip": "AutoWizard - uruchom Plan + Holistic Harmonizer",
   "back": "Wstecz",
   "backend-unavailable.headline": "Proszę czekać…",
   "backend-unavailable.hint": "Trwa to zbyt długo?",

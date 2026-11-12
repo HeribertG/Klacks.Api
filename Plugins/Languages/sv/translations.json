@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "Gruppen eller perioden ändrades under förberedelsen. AutoWizard startades inte.",
   "autoWizard.toast.started": "AutoWizard startad",
   "autoWizard.toast.tooLarge": "Urvalet är för stort\nFör många medarbetare {{agents}}, max {{maxAgents}}\nFör många skift {{shifts}}, max {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard - kör Plan + Harmonizer + Holistic Harmonizer",
+  "autoWizard.tooltip": "AutoWizard - kör Plan + Holistic Harmonizer",
   "back": "Tillbaka",
   "backend-unavailable.headline": "Var god vänta…",
   "backend-unavailable.hint": "Tar det för lång tid?",

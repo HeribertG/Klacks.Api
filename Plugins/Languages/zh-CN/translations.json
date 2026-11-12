@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "准备期间组或期间已更改。自动向导未启动。",
   "autoWizard.toast.started": "自动向导已启动",
   "autoWizard.toast.tooLarge": "选择范围过大\n员工过多 {{agents}}，最多 {{maxAgents}}\n班次过多 {{shifts}}，最多 {{maxShifts}}",
-  "autoWizard.tooltip": "自动向导 - 执行 计划+协调器+整体协调器",
+  "autoWizard.tooltip": "自动向导 - 执行 计划+整体协调器",
   "back": "返回",
   "backend-unavailable.headline": "请稍候…",
   "backend-unavailable.hint": "耗时太长了吗？",

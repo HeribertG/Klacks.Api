@@ -813,7 +813,7 @@
   "autoWizard.toast.scopeChanged": "הקבוצה או התקופה השתנו במהלך ההכנה. AutoWizard לא הופעל.",
   "autoWizard.toast.started": "AutoWizard הופעל",
   "autoWizard.toast.tooLarge": "הבחירה גדולה מדי\nיותר מדי עובדים {{agents}}, מקסימום {{maxAgents}}\nיותר מדי משמרות {{shifts}}, מקסימום {{maxShifts}}",
-  "autoWizard.tooltip": "AutoWizard - הפעל Plan + Harmonizer + Holistic Harmonizer",
+  "autoWizard.tooltip": "AutoWizard - הפעל Plan + Holistic Harmonizer",
   "back": "חזרה",
   "backend-unavailable.headline": "אנא המתן…",
   "backend-unavailable.hint": "לוקח יותר מדי זמן?",

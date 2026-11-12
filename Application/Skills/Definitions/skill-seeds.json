@@ -39932,7 +39932,7 @@
     {
       "name": "explain_planning_wizards",
       "area": "wizard",
-      "description": "Explains the machinery behind automatic planning: three stages that run one after another. Stage one fills the plan with a genetic algorithm and no language model, stage two smooths the result without touching coverage decisions, stage three polishes it with a deterministic local search; the earlier option to run stage three on a language model has been retired and there is no setting for it. Covers running a single stage, polling a run and cancelling it.",
+      "description": "Explains the machinery behind automatic planning: the autofill chain runs stage one, which fills the plan with a genetic algorithm, and then stage three, which polishes it with a protected deterministic local search (no hours to lower ranks, no package cut up or made shorter, longer or more mixed); no language model and no setting. Stage two (smoothing) is no longer part of the chain and runs only as a single stage. Covers running a single stage, polling a run and cancelling it.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -39997,10 +39997,10 @@
       "labels": {
         "de": "Planungs-Wizards erklären",
         "en": "Explain the planning wizards",
-        "fr": "Expliquer la planification automatique en trois étapes",
-        "it": "Spiega la pianificazione automatica in tre fasi"
+        "fr": "Expliquer les étapes de la planification automatique",
+        "it": "Spiega le fasi della pianificazione automatica"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_company_rules",
