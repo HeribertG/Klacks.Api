@@ -6,7 +6,6 @@ namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 /// <param name="PeriodUntil">End date (inclusive).</param>
 /// <param name="AgentIds">Clients whose rows are part of the bitmap.</param>
 /// <param name="AnalyseToken">Source-scenario isolation token; null = main scenario.</param>
-/// <param name="Language">UI language of the caller; the deterministic engine does not read it.</param>
 /// <param name="AgentOrderIsUserDefined">True when AgentIds reflects a roster order the planner arranged by hand; it is then
 /// kept as the row order (stand-ins last). False (default) ranks automatically.</param>
 public sealed record HolisticHarmonizerRunRequest(
@@ -14,5 +13,4 @@ public sealed record HolisticHarmonizerRunRequest(
     DateOnly PeriodUntil,
     IReadOnlyList<Guid> AgentIds,
     Guid? AnalyseToken,
-    string? Language,
     bool AgentOrderIsUserDefined = false);

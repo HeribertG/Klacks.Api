@@ -251,7 +251,6 @@ internal sealed class AutoWizardStageChain
                 PeriodUntil: request.PeriodUntil,
                 AgentIds: request.AgentIds,
                 AnalyseToken: harmonizerScenarioToken,
-                Language: request.Language,
                 ContextDaysBefore: request.ContextDaysBefore,
                 ContextDaysAfter: request.ContextDaysAfter,
                 KeywordMode: request.KeywordMode,

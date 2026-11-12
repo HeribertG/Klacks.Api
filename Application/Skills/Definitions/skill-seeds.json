@@ -16775,14 +16775,6 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
-        },
-        {
-          "name": "language",
-          "description": "Optional UI language (e.g. 'de', 'en'); the deterministic run does not use it.",
-          "type": "String",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -16841,7 +16833,7 @@
         "fr": "Démarrer l'assistant 3 (harmonisateur holistique)",
         "it": "Avvia il wizard 3 (armonizzatore olistico)"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "cancel_wizard_job",

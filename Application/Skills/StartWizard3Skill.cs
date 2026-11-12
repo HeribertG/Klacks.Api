@@ -45,7 +45,6 @@ public class StartWizard3Skill : BaseSkillImplementation
             ?? throw new ArgumentException("Required parameter 'periodFrom' is missing");
         var periodUntil = GetParameter<DateOnly?>(parameters, "periodUntil")
             ?? throw new ArgumentException("Required parameter 'periodUntil' is missing");
-        var language = GetParameter<string>(parameters, "language");
 
         if (periodFrom > periodUntil)
         {
@@ -70,7 +69,6 @@ public class StartWizard3Skill : BaseSkillImplementation
             PeriodUntil: periodUntil,
             AgentIds: rosterOrder.AgentIds,
             AnalyseToken: analyseToken,
-            Language: language,
             GroupId: groupId,
             AgentOrderIsUserDefined: rosterOrder.UserDefined);
 
@@ -100,8 +98,7 @@ public class StartWizard3Skill : BaseSkillImplementation
                 PeriodFrom = periodFrom,
                 PeriodUntil = periodUntil,
                 AgentCount = agentIds.Count,
-                SourceAnalyseToken = analyseToken,
-                Language = language
+                SourceAnalyseToken = analyseToken
             },
             $"Wizard 3 (Holistic Harmonizer) job {jobId} started for group {groupId}, {periodFrom}..{periodUntil}.");
     }

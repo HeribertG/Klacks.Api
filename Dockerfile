@@ -59,9 +59,6 @@ EXPOSE 443
 # - libgssapi-krb5-2: Kerberos for Npgsql
 # - libldap2: LDAP authentication
 # - curl: healthcheck probe
-# - libfontconfig1 / libfreetype6: required by SkiaSharp on Linux so the LLM
-#   capability check can rasterize a test bitmap (without these, SkiaSharp's
-#   static initializer crashes with "type initializer for SKImageInfo").
 # Canonical's primary ports.ubuntu.com IPs are unreachable from Hetzner, and any
 # single regional mirror can be temporarily down (2026-07-16: de.ports failed a
 # release build). Try regional mirrors in order and fall back to the primary.
@@ -78,7 +75,7 @@ RUN set -e; \
         apply_mirror "$mirror"; \
         if apt-get -o Acquire::Retries=3 -o Acquire::ForceIPv4=true update && \
            apt-get -o Acquire::Retries=3 -o Acquire::ForceIPv4=true install -y --no-install-recommends \
-               libgssapi-krb5-2 libldap2 curl libfontconfig1 libfreetype6 gosu; then \
+               libgssapi-krb5-2 libldap2 curl gosu; then \
             installed=1; break; \
         fi; \
         echo "package install via $mirror failed, trying next mirror"; \
