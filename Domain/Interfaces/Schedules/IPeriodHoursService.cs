@@ -20,6 +20,20 @@ public interface IPeriodHoursService
         Guid? analyseToken = null);
 
     /// <summary>
+    /// The live period hours (the Hours of CalculatePeriodHoursAsync) of several clients for one date range, summed in
+    /// one pass. The result holds one entry per requested client; neither the target hours nor the cache are read.
+    /// </summary>
+    /// <param name="clientIds">Clients to sum</param>
+    /// <param name="startDate">First day of the range</param>
+    /// <param name="endDate">Last day of the range</param>
+    /// <param name="analyseToken">Scenario token of the rows, null for the real plan</param>
+    Task<Dictionary<Guid, decimal>> CalculateHoursForClientsAsync(
+        IReadOnlyCollection<Guid> clientIds,
+        DateOnly startDate,
+        DateOnly endDate,
+        Guid? analyseToken = null);
+
+    /// <summary>
     /// Recalculates and stores the client's row of this pay period. A frozen period (IFrozenPeriodPolicy) is left
     /// unchanged unless <paramref name="includeFrozen"/> is set (admin override, which also lifts the guard for the
     /// removal of overlapping rows with other boundaries).

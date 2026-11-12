@@ -7,7 +7,10 @@
 /// when no Work row touches it. Runs as a direct database check over the full window (the
 /// PeriodCapEvaluator pattern) because the window (typically 4-26 weeks) far exceeds the +-2-week
 /// timeline the ScheduleValidationBuilder callers load. Warning escalates to Error when the
-/// restDayRotation compliance rule's enforcement mode is Block.
+/// restDayRotation compliance rule's enforcement mode is Block. The evaluation of the planned rows of several
+/// clients runs the same per-client inspection; it reads the rule list and the mode once, the contract data once
+/// per distinct day, the employment starts in one read and the Work rows once per distinct load range for all
+/// clients that inspect it; a value that was not read ahead throws instead of being read for the client alone.
 /// </summary>
 /// <param name="ruleRepository">Reads the active RestDayRotationRule set</param>
 /// <param name="context">Database access for the client's Work rows in the window</param>
@@ -31,7 +34,9 @@
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -99,6 +104,81 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
         return await EvaluateCoreAsync(clientId, clientName, candidateDates, plannedWorks, analyseToken, cancellationToken);
     }
 
+    public async Task<List<ScheduleValidationNotificationDto>> EvaluatePlannedRowsAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
+        Guid? analyseToken = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (plannedRows.Count == 0)
+        {
+            return [];
+        }
+
+        var allRules = await _ruleRepository.GetAllActiveAsync();
+        if (allRules.Count == 0)
+        {
+            return [];
+        }
+
+        var clients = plannedRows
+            .GroupBy(row => row.ClientId)
+            .Select(group => new PlannedClient(
+                group.Key,
+                group.Select(row => row.Date).Distinct().ToList(),
+                group.Select(row => ToInterval(row.Date, row.StartTime, row.EndTime)).ToList()))
+            .ToList();
+
+        var contracts = await ClientContractDataBatch.LoadAsync(
+            _contractDataProvider, clients.Select(client => (client.ClientId, client.CandidateDates.Max())));
+        var evaluations = clients
+            .Select(client => (Client: client, Contract: contracts[(client.ClientId, client.CandidateDates.Max())]))
+            .Select(evaluation => (
+                evaluation.Client,
+                Rules: ApplicableRules(allRules, evaluation.Contract.SchedulingRuleId),
+                evaluation.Contract.MinRestDays))
+            .Where(evaluation => evaluation.Rules.Count > 0)
+            .ToList();
+        if (evaluations.Count == 0)
+        {
+            return [];
+        }
+
+        var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.RestDayRotation);
+        var membershipStarts = await _membershipStartResolver.GetValidFromForClientsAsync(
+            evaluations.Select(evaluation => evaluation.Client.ClientId).ToList(), cancellationToken);
+        var worksByRange = await LoadWorksOfClientsAsync(
+            evaluations.SelectMany(evaluation => InspectedWindows(
+                    evaluation.Rules, evaluation.Client.CandidateDates, membershipStarts.GetValueOrDefault(evaluation.Client.ClientId))
+                .Select(window => (
+                    evaluation.Client.ClientId,
+                    window.WindowStart.AddDays(-1),
+                    window.WindowEnd.AddDays(LookAheadDays(evaluation.MinRestDays))))),
+            analyseToken,
+            cancellationToken);
+
+        var entries = new List<ScheduleValidationNotificationDto>();
+        foreach (var (client, rules, minimumRestDays) in evaluations)
+        {
+            entries.AddRange(await BuildEntriesAsync(
+                client.ClientId,
+                string.Empty,
+                client.CandidateDates,
+                client.PlannedWorks,
+                rules,
+                minimumRestDays,
+                membershipStarts[client.ClientId],
+                mode,
+                (loadStart, loadEnd) => Task.FromResult(worksByRange[(client.ClientId, loadStart, loadEnd)])));
+        }
+
+        return entries;
+    }
+
+    private sealed record PlannedClient(
+        Guid ClientId,
+        IReadOnlyList<DateOnly> CandidateDates,
+        IReadOnlyList<WorkInterval> PlannedWorks);
+
     private async Task<List<ScheduleValidationNotificationDto>> EvaluateCoreAsync(
         Guid clientId,
         string clientName,
@@ -115,28 +195,45 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
         }
 
         var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, asOfDate);
-        var rules = allRules
-            .Where(r => r.SchedulingRuleId == null || r.SchedulingRuleId == effectiveData.SchedulingRuleId)
-            .ToList();
+        var rules = ApplicableRules(allRules, effectiveData.SchedulingRuleId);
         if (rules.Count == 0)
         {
             return [];
         }
 
-        var minimumRestDays = effectiveData.MinRestDays;
-        var minimumFreeBlock = CalendarWeekRestDays.MinimumFreeBlock(minimumRestDays);
-        var lookAheadDays = (int)Math.Ceiling(minimumFreeBlock.TotalDays) + LookAheadPaddingDays;
-
         var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.RestDayRotation);
         var membershipStart = await _membershipStartResolver.GetValidFromAsync(clientId);
 
-        var entries = new List<ScheduleValidationNotificationDto>();
-        var reportedWindows = new HashSet<(Guid RuleId, DateOnly WindowEnd)>();
+        return await BuildEntriesAsync(
+            clientId,
+            clientName,
+            candidateDates,
+            plannedWorks,
+            rules,
+            effectiveData.MinRestDays,
+            membershipStart,
+            mode,
+            (loadStart, loadEnd) => LoadWorksAsync(clientId, loadStart, loadEnd, analyseToken, cancellationToken));
+    }
 
-        // A Work anchored on a candidate date can occupy BOTH that date and the following day
-        // (cross-midnight), so the window anchored at the next day must be inspected as well - otherwise
-        // a Saturday 22:00-07:00 placement would only ever check the window ending on the PREVIOUS
-        // Sunday and the Sunday it actually occupies would never be an inspected occurrence.
+    private static List<RestDayRotationRule> ApplicableRules(List<RestDayRotationRule> rules, Guid? schedulingRuleId) =>
+        rules
+            .Where(r => r.SchedulingRuleId == null || r.SchedulingRuleId == schedulingRuleId)
+            .ToList();
+
+    private static int LookAheadDays(decimal minimumRestDays) =>
+        (int)Math.Ceiling(CalendarWeekRestDays.MinimumFreeBlock(minimumRestDays).TotalDays) + LookAheadPaddingDays;
+
+    // A Work anchored on a candidate date can occupy BOTH that date and the following day
+    // (cross-midnight), so the window anchored at the next day must be inspected as well - otherwise
+    // a Saturday 22:00-07:00 placement would only ever check the window ending on the PREVIOUS
+    // Sunday and the Sunday it actually occupies would never be an inspected occurrence.
+    private static IEnumerable<(RestDayRotationRule Rule, DateOnly WindowStart, DateOnly WindowEnd)> InspectedWindows(
+        IReadOnlyList<RestDayRotationRule> rules,
+        IReadOnlyList<DateOnly> candidateDates,
+        DateOnly? membershipStart)
+    {
+        var reportedWindows = new HashSet<(Guid RuleId, DateOnly WindowEnd)>();
         var anchorDates = candidateDates
             .SelectMany(date => new[] { date, date.AddDays(1) })
             .Distinct()
@@ -158,30 +255,91 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
                     continue;
                 }
 
-                var works = await LoadWorksAsync(
-                    clientId, windowStart.AddDays(-1), windowEnd.AddDays(lookAheadDays), analyseToken, cancellationToken);
-                works.AddRange(plannedWorks);
-
-                var freeCount = 0;
-                for (var occurrence = windowStart; occurrence <= windowEnd; occurrence = occurrence.AddDays(DaysPerWeek))
-                {
-                    if (!CalendarWeekRestDays.IsWorkDay(occurrence, works, minimumFreeBlock))
-                    {
-                        freeCount++;
-                    }
-                }
-
-                if (freeCount >= rule.MinFreeCount)
-                {
-                    continue;
-                }
-
-                entries.Add(BuildEntry(clientId, clientName, windowEnd, rule, freeCount, mode));
+                yield return (rule, windowStart, windowEnd);
             }
+        }
+    }
+
+    private static async Task<List<ScheduleValidationNotificationDto>> BuildEntriesAsync(
+        Guid clientId,
+        string clientName,
+        IReadOnlyList<DateOnly> candidateDates,
+        IReadOnlyList<WorkInterval> plannedWorks,
+        IReadOnlyList<RestDayRotationRule> rules,
+        decimal minimumRestDays,
+        DateOnly? membershipStart,
+        RuleEnforcementMode mode,
+        Func<DateOnly, DateOnly, Task<List<WorkInterval>>> worksOfRange)
+    {
+        var minimumFreeBlock = CalendarWeekRestDays.MinimumFreeBlock(minimumRestDays);
+        var lookAheadDays = LookAheadDays(minimumRestDays);
+        var entries = new List<ScheduleValidationNotificationDto>();
+
+        foreach (var (rule, windowStart, windowEnd) in InspectedWindows(rules, candidateDates, membershipStart))
+        {
+            var persistedWorks = await worksOfRange(windowStart.AddDays(-1), windowEnd.AddDays(lookAheadDays));
+            var works = persistedWorks.Concat(plannedWorks).ToList();
+
+            var freeCount = 0;
+            for (var occurrence = windowStart; occurrence <= windowEnd; occurrence = occurrence.AddDays(DaysPerWeek))
+            {
+                if (!CalendarWeekRestDays.IsWorkDay(occurrence, works, minimumFreeBlock))
+                {
+                    freeCount++;
+                }
+            }
+
+            if (freeCount >= rule.MinFreeCount)
+            {
+                continue;
+            }
+
+            entries.Add(BuildEntry(clientId, clientName, windowEnd, rule, freeCount, mode));
         }
 
         return entries;
     }
+
+    /// <summary>
+    /// Reads the Work rows of the requested (client, range) pairs with one query per distinct range and chunk of
+    /// IdListQueryLimits.ChunkSize clients, through the query of the single-client read. Every requested pair gets an entry.
+    /// </summary>
+    /// <param name="requests">The (client, first day, last day) triples to read</param>
+    /// <param name="analyseToken">Scenario token; null reads the real schedule</param>
+    private async Task<Dictionary<(Guid ClientId, DateOnly Start, DateOnly End), List<WorkInterval>>> LoadWorksOfClientsAsync(
+        IEnumerable<(Guid ClientId, DateOnly Start, DateOnly End)> requests,
+        Guid? analyseToken,
+        CancellationToken cancellationToken)
+    {
+        var result = requests.Distinct().ToDictionary(request => request, _ => new List<WorkInterval>());
+
+        foreach (var range in result.Keys.GroupBy(request => (request.Start, request.End), request => request.ClientId).ToList())
+        {
+            foreach (var chunk in range.Chunk(IdListQueryLimits.ChunkSize))
+            {
+                var rows = await QueryWorksOfClients(chunk, range.Key.Start, range.Key.End, analyseToken)
+                    .ToListAsync(cancellationToken);
+                foreach (var row in rows)
+                {
+                    result[(row.ClientId, range.Key.Start, range.Key.End)]
+                        .Add(ToInterval(row.Date, row.StartTime, row.EndTime));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    internal IQueryable<ClientWorkRow> QueryWorksOfClients(
+        Guid[] clientIds, DateOnly loadStart, DateOnly loadEnd, Guid? analyseToken)
+        => _context.Work
+            .AsNoTracking()
+            .Where(w => clientIds.Contains(w.ClientId)
+                && !w.IsDeleted
+                && w.AnalyseToken == analyseToken
+                && w.CurrentDate >= loadStart
+                && w.CurrentDate <= loadEnd)
+            .Select(w => new ClientWorkRow(w.ClientId, w.CurrentDate, w.StartTime, w.EndTime));
 
     private async Task<List<WorkInterval>> LoadWorksAsync(
         Guid clientId,
@@ -190,17 +348,10 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
-        var works = await _context.Work
-            .AsNoTracking()
-            .Where(w => w.ClientId == clientId
-                && !w.IsDeleted
-                && w.AnalyseToken == analyseToken
-                && w.CurrentDate >= loadStart
-                && w.CurrentDate <= loadEnd)
-            .Select(w => new { w.CurrentDate, w.StartTime, w.EndTime })
+        var works = await QueryWorksOfClients([clientId], loadStart, loadEnd, analyseToken)
             .ToListAsync(cancellationToken);
 
-        return works.Select(work => ToInterval(work.CurrentDate, work.StartTime, work.EndTime)).ToList();
+        return works.Select(work => ToInterval(work.Date, work.StartTime, work.EndTime)).ToList();
     }
 
     private static WorkInterval ToInterval(DateOnly date, TimeOnly startTime, TimeOnly endTime)

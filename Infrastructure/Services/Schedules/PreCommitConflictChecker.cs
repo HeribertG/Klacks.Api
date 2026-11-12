@@ -1,11 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Default <see cref="IPreCommitConflictChecker"/>. For each affected client it loads the existing
-/// works/changes/breaks in a +/- BoundaryDays window, builds the schedule timeline once with and
+/// Default <see cref="IPreCommitConflictChecker"/>. It loads the existing works/changes/breaks of all affected
+/// clients in a +/- BoundaryDays window around all planned dates (one query per table and chunk of IdListQueryLimits.ChunkSize
+/// ids, the rows then grouped by client in memory) and their scheduling policies with one resolver call per
+/// distinct day. For each affected client it builds the schedule timeline once with and
 /// once without synthetic blocks for the planned rows, runs the shared validation builders over both
 /// and returns the violations present only in the augmented run (the ones the placement introduces).
-/// Grouped per client so the timeline is loaded once per client even for batch placements. A placement
+/// The rule evaluators (period cap, rest-day rotation, counter, restricted time window, compensatory rest, holiday
+/// work) are called once with the rows of all clients. A placement
 /// over an on-call break is reported as an on-call-overlap Warning instead of a blocking collision.
 /// The lead and trail of a planned row enter the augmented timeline as briefing and debriefing work changes and take part in
 /// the collision check only; the rest, overtime and consecutive-day checks count work blocks alone. The extra paid hours of
@@ -119,20 +122,25 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         var affectedClients = rowsByClient.Keys.Union(removalsByClient.Keys).ToList();
         var onCallAbsenceIds = await OnCallAbsenceQuery.LoadIdsAsync(_context, cancellationToken);
 
+        var worksByClient = await LoadWorksAsync(affectedClients, windowStart, windowEnd, analyseToken, cancellationToken);
+        var workChangesByClient = await LoadWorkChangesAsync(worksByClient, cancellationToken);
+        var breaksByClient = await LoadBreaksAsync(affectedClients, windowStart, windowEnd, analyseToken, cancellationToken);
+        var earliestDateByClient = affectedClients.ToDictionary(
+            clientId => clientId,
+            clientId => rowsByClient.TryGetValue(clientId, out var ownRows)
+                ? ownRows.Min(x => x.Date)
+                : removalsByClient[clientId].Min(x => x.Date));
+        var policyByClient = await LoadPoliciesAsync(earliestDateByClient);
+
         foreach (var clientId in affectedClients)
         {
             var clientRows = rowsByClient.TryGetValue(clientId, out var r) ? r : [];
             var clientRemovals = removalsByClient.TryGetValue(clientId, out var rem) ? rem : [];
 
-            var works = await LoadWorksAsync(clientId, windowStart, windowEnd, analyseToken, cancellationToken);
-            var workIds = works.Select(w => w.Id).ToList();
-            var workChanges = await LoadWorkChangesAsync(workIds, cancellationToken);
-            var breaks = await LoadBreaksAsync(clientId, windowStart, windowEnd, analyseToken, cancellationToken);
-
-            var earliestDate = clientRows.Count > 0
-                ? clientRows.Min(x => x.Date)
-                : clientRemovals.Min(x => x.Date);
-            var policy = await _policyResolver.GetForClientAsync(clientId, earliestDate);
+            var works = worksByClient.TryGetValue(clientId, out var ownWorks) ? ownWorks : [];
+            var workChanges = workChangesByClient.TryGetValue(clientId, out var ownWorkChanges) ? ownWorkChanges : [];
+            var breaks = breaksByClient.TryGetValue(clientId, out var ownBreaks) ? ownBreaks : [];
+            var policy = policyByClient[clientId];
 
             // The baseline stays on the untouched world so the diff reports exactly what the target
             // state breaks.
@@ -176,10 +184,10 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // K10 rest-day rotations: same ABSOLUTE post-save-projection semantics as the period caps -
         // the minimum-free-weekday count is a hard property of the resulting window, not of "did this
         // placement introduce the breach".
-        newConflicts.AddRange(await BuildRestDayRotationConflictsAsync(plannedRows, analyseToken, cancellationToken));
+        newConflicts.AddRange(await _restDayRotationEvaluator.EvaluatePlannedRowsAsync(plannedRows, analyseToken, cancellationToken));
 
         // K18 counter rules: same ABSOLUTE post-save-projection semantics as the period caps.
-        newConflicts.AddRange(await BuildCounterRuleConflictsAsync(plannedRows, analyseToken, cancellationToken));
+        newConflicts.AddRange(await _counterRuleEvaluator.EvaluatePlannedRowsAsync(plannedRows, analyseToken, cancellationToken));
 
         // Planning constraints (sequence rules): a before/after DIFF over the rule horizon, unlike the absolute
         // counter rules above - a pre-existing violation never blocks an unrelated write, only a finding the
@@ -191,7 +199,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // K16 restricted time windows: an ABSOLUTE per-(shift, date, time) check on the planned rows -
         // a placement inside a seasonal daily forbidden window is reported regardless of the surrounding
         // plan, because the ban is a hard property of the placement itself.
-        newConflicts.AddRange(await BuildRestrictedTimeWindowConflictsAsync(plannedRows, analyseToken, cancellationToken));
+        newConflicts.AddRange(await _restrictedTimeWindowEvaluator.EvaluatePlannedRowsAsync(plannedRows, cancellationToken));
 
         // K12 compensatory rest: same ABSOLUTE semantics again, but on state rather than on the rows -
         // an obligation is a property of the client, not of the placement. Adding more work while a
@@ -232,46 +240,31 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
-        var conflicts = new List<ScheduleValidationNotificationDto>();
+        // Anchored on the last day the plan touches, so an obligation whose deadline falls inside
+        // the planned range is judged as overdue rather than merely due.
+        var clients = plannedRows
+            .GroupBy(r => r.ClientId)
+            .Select(group => new ClientAsOfDate(group.Key, group.Max(r => r.Date)))
+            .ToList();
 
-        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
-        {
-            // Anchored on the last day the plan touches, so an obligation whose deadline falls inside
-            // the planned range is judged as overdue rather than merely due.
-            var asOfDate = group.Max(r => r.Date);
-
-            conflicts.AddRange(await _compensatoryRestEvaluator.EvaluateAsync(
-                group.Key,
-                string.Empty,
-                asOfDate,
-                analyseToken,
-                cancellationToken));
-        }
-
-        return conflicts;
+        return await _compensatoryRestEvaluator.EvaluateForClientsAsync(clients, analyseToken, cancellationToken);
     }
 
     private async Task<List<ScheduleValidationNotificationDto>> BuildHolidayWorkConflictsAsync(
         IReadOnlyList<PlannedWorkRow> plannedRows,
         CancellationToken cancellationToken)
     {
-        var conflicts = new List<ScheduleValidationNotificationDto>();
-
-        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
-        {
-            var workDates = group
-                .SelectMany(r => WorkedCalendarDates.FromTimeRange(r.Date, r.StartTime, r.EndTime))
-                .Distinct()
-                .ToList();
-
-            conflicts.AddRange(await _holidayWorkEvaluator.EvaluateAsync(
+        var clients = plannedRows
+            .GroupBy(r => r.ClientId)
+            .Select(group => new ClientWorkDates(
                 group.Key,
-                string.Empty,
-                workDates,
-                cancellationToken));
-        }
+                group
+                    .SelectMany(r => WorkedCalendarDates.FromTimeRange(r.Date, r.StartTime, r.EndTime))
+                    .Distinct()
+                    .ToList()))
+            .ToList();
 
-        return conflicts;
+        return await _holidayWorkEvaluator.EvaluateForClientsAsync(clients, cancellationToken);
     }
 
     private async Task<List<ScheduleValidationNotificationDto>> BuildEligibilityConflictsAsync(
@@ -371,7 +364,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
-        var conflicts = new List<ScheduleValidationNotificationDto>();
+        var clients = new List<ClientPlannedHours>();
 
         var addedByClient = plannedRows.GroupBy(r => r.ClientId).ToDictionary(g => g.Key, g => g.ToList());
         var removedByClient = removals.GroupBy(r => r.ClientId).ToDictionary(g => g.Key, g => g.ToList());
@@ -392,87 +385,10 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
                 plannedHours.AddRange(removed.Select(row => (row.Date, -ComputePlannedHours(row.StartTime, row.EndTime) - row.ExtraPaidHours)));
             }
 
-            conflicts.AddRange(await _periodCapEvaluator.EvaluatePlannedAsync(
-                clientId,
-                string.Empty,
-                plannedHours,
-                analyseToken,
-                cancellationToken));
+            clients.Add(new ClientPlannedHours(clientId, plannedHours));
         }
 
-        return conflicts;
-    }
-
-    private async Task<List<ScheduleValidationNotificationDto>> BuildRestDayRotationConflictsAsync(
-        IReadOnlyList<PlannedWorkRow> plannedRows,
-        Guid? analyseToken,
-        CancellationToken cancellationToken)
-    {
-        var conflicts = new List<ScheduleValidationNotificationDto>();
-
-        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
-        {
-            var plannedSlots = group
-                .Select(row => (row.Date, row.StartTime, row.EndTime))
-                .ToList();
-
-            conflicts.AddRange(await _restDayRotationEvaluator.EvaluatePlannedAsync(
-                group.Key,
-                string.Empty,
-                plannedSlots,
-                analyseToken,
-                cancellationToken));
-        }
-
-        return conflicts;
-    }
-
-    private async Task<List<ScheduleValidationNotificationDto>> BuildCounterRuleConflictsAsync(
-        IReadOnlyList<PlannedWorkRow> plannedRows,
-        Guid? analyseToken,
-        CancellationToken cancellationToken)
-    {
-        var conflicts = new List<ScheduleValidationNotificationDto>();
-
-        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
-        {
-            var plannedSlots = group
-                .Select(row => (row.Date, row.StartTime, row.EndTime))
-                .ToList();
-
-            conflicts.AddRange(await _counterRuleEvaluator.EvaluatePlannedAsync(
-                group.Key,
-                string.Empty,
-                plannedSlots,
-                analyseToken,
-                cancellationToken));
-        }
-
-        return conflicts;
-    }
-
-    private async Task<List<ScheduleValidationNotificationDto>> BuildRestrictedTimeWindowConflictsAsync(
-        IReadOnlyList<PlannedWorkRow> plannedRows,
-        Guid? analyseToken,
-        CancellationToken cancellationToken)
-    {
-        var conflicts = new List<ScheduleValidationNotificationDto>();
-
-        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
-        {
-            var plannedSlots = group
-                .Select(row => (row.Date, row.StartTime, row.EndTime, row.ShiftId))
-                .ToList();
-
-            conflicts.AddRange(await _restrictedTimeWindowEvaluator.EvaluatePlannedAsync(
-                group.Key,
-                string.Empty,
-                plannedSlots,
-                analyseToken,
-                cancellationToken));
-        }
-
-        return conflicts;
+        return await _periodCapEvaluator.EvaluatePlannedForClientsAsync(clients, analyseToken, cancellationToken);
     }
 
     private static decimal ComputePlannedHours(TimeOnly start, TimeOnly end)
@@ -546,54 +462,136 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         AnalyseToken = null
     };
 
-    private async Task<List<Work>> LoadWorksAsync(
-        Guid clientId,
+    /// <summary>
+    /// The top-level works of the clients in the window, exact on the token, grouped by client. One query per chunk
+    /// of IdListQueryLimits.ChunkSize clients; a client without works has no entry.
+    /// </summary>
+    private async Task<Dictionary<Guid, List<Work>>> LoadWorksAsync(
+        IReadOnlyList<Guid> clientIds,
         DateOnly from,
         DateOnly to,
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
-        return await _context.Work
+        var worksByClient = new Dictionary<Guid, List<Work>>();
+
+        foreach (var chunk in clientIds.Chunk(IdListQueryLimits.ChunkSize))
+        {
+            var works = await QueryWorks(chunk, from, to, analyseToken).ToListAsync(cancellationToken);
+            foreach (var work in works)
+            {
+                AddTo(worksByClient, work.ClientId, work);
+            }
+        }
+
+        return worksByClient;
+    }
+
+    internal IQueryable<Work> QueryWorks(Guid[] clientIds, DateOnly from, DateOnly to, Guid? analyseToken)
+        => _context.Work
             .AsNoTracking()
-            .Where(w => w.ClientId == clientId
+            .Where(w => clientIds.Contains(w.ClientId)
                 && w.CurrentDate >= from
                 && w.CurrentDate <= to
                 && !w.IsDeleted
                 && w.ParentWorkId == null
-                && w.AnalyseToken == analyseToken)
-            .ToListAsync(cancellationToken);
-    }
+                && w.AnalyseToken == analyseToken);
 
-    private async Task<List<WorkChange>> LoadWorkChangesAsync(
-        List<Guid> workIds,
+    /// <summary>
+    /// The work changes of the loaded works, grouped by the client of their work. One query per chunk of IdListQueryLimits.ChunkSize
+    /// work ids, none without works.
+    /// </summary>
+    /// <param name="worksByClient">The loaded works per client</param>
+    private async Task<Dictionary<Guid, List<WorkChange>>> LoadWorkChangesAsync(
+        IReadOnlyDictionary<Guid, List<Work>> worksByClient,
         CancellationToken cancellationToken)
     {
-        if (workIds.Count == 0)
+        var clientByWorkId = worksByClient
+            .SelectMany(entry => entry.Value.Select(work => (WorkId: work.Id, ClientId: entry.Key)))
+            .ToDictionary(pair => pair.WorkId, pair => pair.ClientId);
+        var workChangesByClient = new Dictionary<Guid, List<WorkChange>>();
+
+        foreach (var chunk in clientByWorkId.Keys.Chunk(IdListQueryLimits.ChunkSize))
         {
-            return [];
+            var workChanges = await QueryWorkChanges(chunk).ToListAsync(cancellationToken);
+            foreach (var workChange in workChanges)
+            {
+                AddTo(workChangesByClient, clientByWorkId[workChange.WorkId], workChange);
+            }
         }
 
-        return await _context.WorkChange
-            .AsNoTracking()
-            .Where(wc => workIds.Contains(wc.WorkId) && !wc.IsDeleted)
-            .ToListAsync(cancellationToken);
+        return workChangesByClient;
     }
 
-    private async Task<List<Break>> LoadBreaksAsync(
-        Guid clientId,
+    internal IQueryable<WorkChange> QueryWorkChanges(Guid[] workIds)
+        => _context.WorkChange
+            .AsNoTracking()
+            .Where(wc => workIds.Contains(wc.WorkId) && !wc.IsDeleted);
+
+    /// <summary>
+    /// The top-level breaks of the clients in the window, exact on the token, grouped by client. One query per chunk
+    /// of IdListQueryLimits.ChunkSize clients; a client without breaks has no entry.
+    /// </summary>
+    private async Task<Dictionary<Guid, List<Break>>> LoadBreaksAsync(
+        IReadOnlyList<Guid> clientIds,
         DateOnly from,
         DateOnly to,
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
-        return await _context.Break
+        var breaksByClient = new Dictionary<Guid, List<Break>>();
+
+        foreach (var chunk in clientIds.Chunk(IdListQueryLimits.ChunkSize))
+        {
+            var breaks = await QueryBreaks(chunk, from, to, analyseToken).ToListAsync(cancellationToken);
+            foreach (var entry in breaks)
+            {
+                AddTo(breaksByClient, entry.ClientId, entry);
+            }
+        }
+
+        return breaksByClient;
+    }
+
+    internal IQueryable<Break> QueryBreaks(Guid[] clientIds, DateOnly from, DateOnly to, Guid? analyseToken)
+        => _context.Break
             .AsNoTracking()
-            .Where(b => b.ClientId == clientId
+            .Where(b => clientIds.Contains(b.ClientId)
                 && b.CurrentDate >= from
                 && b.CurrentDate <= to
                 && !b.IsDeleted
                 && b.ParentWorkId == null
-                && b.AnalyseToken == analyseToken)
-            .ToListAsync(cancellationToken);
+                && b.AnalyseToken == analyseToken);
+
+    /// <summary>
+    /// The scheduling policy of every client on its own day, with one resolver call per distinct day. A client the
+    /// resolver leaves out has no entry, and the caller's lookup of that client throws.
+    /// </summary>
+    /// <param name="dateByClient">The day each client's policy is resolved on</param>
+    private async Task<Dictionary<Guid, SchedulingPolicy>> LoadPoliciesAsync(IReadOnlyDictionary<Guid, DateOnly> dateByClient)
+    {
+        var policyByClient = new Dictionary<Guid, SchedulingPolicy>();
+
+        foreach (var day in dateByClient.GroupBy(entry => entry.Value, entry => entry.Key))
+        {
+            var policies = await _policyResolver.GetForClientsAsync(day.ToList(), day.Key);
+            foreach (var (clientId, policy) in policies)
+            {
+                policyByClient[clientId] = policy;
+            }
+        }
+
+        return policyByClient;
+    }
+
+    private static void AddTo<TValue>(Dictionary<Guid, List<TValue>> lists, Guid key, TValue value)
+    {
+        if (!lists.TryGetValue(key, out var list))
+        {
+            list = [];
+            lists[key] = list;
+        }
+
+        list.Add(value);
     }
 }

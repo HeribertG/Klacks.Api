@@ -3,7 +3,8 @@
 /// <summary>
 /// Default <see cref="IComplianceEscalationService"/>. Holds the timeline-key-to-rule-name map and
 /// escalates a rule's Warning entries to Error when the rule's enforcement mode is Block, exactly as
-/// the pre-commit checker did before the extraction (behavior-preserving).
+/// the pre-commit checker did before the extraction (behavior-preserving). Escalating a list of violations
+/// resolves the mode of a rule once per call and applies it to every entry of that rule in the list.
 /// </summary>
 /// <param name="enforcementResolver">Resolves warn/block per rule type for the K1 Block-mode escalation</param>
 using Klacks.Api.Application.DTOs.Notifications;
@@ -34,6 +35,8 @@ public sealed class ComplianceEscalationService : IComplianceEscalationService
 
     public async Task EscalateBlockedViolationsAsync(List<ScheduleValidationNotificationDto> newConflicts)
     {
+        var blockModeByRule = new Dictionary<string, bool>();
+
         for (var i = 0; i < newConflicts.Count; i++)
         {
             var entry = newConflicts[i];
@@ -43,7 +46,13 @@ public sealed class ComplianceEscalationService : IComplianceEscalationService
                 continue;
             }
 
-            if (!await IsBlockModeAsync(ruleName))
+            if (!blockModeByRule.TryGetValue(ruleName, out var isBlockMode))
+            {
+                isBlockMode = await IsBlockModeAsync(ruleName);
+                blockModeByRule[ruleName] = isBlockMode;
+            }
+
+            if (!isBlockMode)
             {
                 continue;
             }

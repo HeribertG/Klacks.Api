@@ -6,6 +6,7 @@
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Interfaces.Schedules;
 
@@ -21,5 +22,16 @@ public interface IHolidayWorkEvaluator
         Guid clientId,
         string clientName,
         IReadOnlyCollection<DateOnly> workDates,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The evaluation for several clients in one call: per client the entries of EvaluateAsync with an empty client
+    /// name, in the order of <paramref name="clients"/>. The contract data is read once per distinct first-to-last
+    /// day range, the exemptions and the enforcement mode once, and a calendar once per calendar selection and
+    /// year. A client without work dates reports nothing.
+    /// </summary>
+    /// <param name="clients">One entry per client with the days it has work on</param>
+    Task<List<ScheduleValidationNotificationDto>> EvaluateForClientsAsync(
+        IReadOnlyList<ClientWorkDates> clients,
         CancellationToken cancellationToken = default);
 }

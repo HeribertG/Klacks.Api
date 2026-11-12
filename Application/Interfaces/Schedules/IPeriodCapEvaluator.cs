@@ -7,6 +7,7 @@
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Interfaces.Schedules;
 
@@ -41,6 +42,19 @@ public interface IPeriodCapEvaluator
         Guid clientId,
         string clientName,
         IReadOnlyList<(DateOnly Date, decimal Hours)> plannedHours,
+        Guid? analyseToken = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The planned evaluation for several clients in one call: per client the entries of EvaluatePlannedAsync with an
+    /// empty client name, in the order of <paramref name="clients"/>. The rule list, the enforcement modes, the
+    /// employment starts and the persisted baseline hours are read for all clients together. A client without planned
+    /// hours reports nothing.
+    /// </summary>
+    /// <param name="clients">One entry per client with its not-yet-saved (date, hours) pairs</param>
+    /// <param name="analyseToken">Scenario token; null evaluates the real (non-scenario) schedule</param>
+    Task<List<ScheduleValidationNotificationDto>> EvaluatePlannedForClientsAsync(
+        IReadOnlyList<ClientPlannedHours> clients,
         Guid? analyseToken = null,
         CancellationToken cancellationToken = default);
 }

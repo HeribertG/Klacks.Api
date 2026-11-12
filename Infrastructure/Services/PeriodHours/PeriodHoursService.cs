@@ -146,6 +146,27 @@ public class PeriodHoursService : IPeriodHoursService
         };
     }
 
+    public async Task<Dictionary<Guid, decimal>> CalculateHoursForClientsAsync(
+        IReadOnlyCollection<Guid> clientIds,
+        DateOnly startDate,
+        DateOnly endDate,
+        Guid? analyseToken = null)
+    {
+        if (clientIds.Count == 0)
+        {
+            return new Dictionary<Guid, decimal>();
+        }
+
+        var results = await CalculatePeriodHoursForClientsAsync(
+            clientIds.Distinct().ToList(),
+            startDate,
+            endDate,
+            analyseToken,
+            await LoadOnCallAbsenceIdsAsync());
+
+        return results.ToDictionary(entry => entry.Key, entry => entry.Value.Hours);
+    }
+
     public async Task RecalculatePeriodHoursAsync(
         Guid clientId,
         DateOnly startDate,

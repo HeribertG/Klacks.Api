@@ -5,7 +5,9 @@
 /// as-of date, or the not-yet-saved planned slots) is tested against every active rule: the work's shift
 /// must be in the rule's group-tag scope, and the work interval must overlap the rule's daily forbidden
 /// window on a calendar day inside the season. Runs as a direct database check (the PeriodCapEvaluator
-/// pattern). Warning escalates to Error when the restrictedTimeWindow enforcement mode is Block.
+/// pattern). Warning escalates to Error when the restrictedTimeWindow enforcement mode is Block. The evaluation
+/// of the planned rows of several clients reads the rules, the mode and the group links of all rows' shifts once
+/// and runs the same per-client test on them.
 /// </summary>
 /// <param name="ruleRepository">Reads the active RestrictedTimeWindowRule set</param>
 /// <param name="context">Database access for the client's Work rows and the group-tag scoping join</param>
@@ -25,6 +27,7 @@
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -95,6 +98,41 @@ public sealed class RestrictedTimeWindowEvaluator : IRestrictedTimeWindowEvaluat
         return await EvaluateCoreAsync(clientId, clientName, works, cancellationToken);
     }
 
+    public async Task<List<ScheduleValidationNotificationDto>> EvaluatePlannedRowsAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
+        CancellationToken cancellationToken = default)
+    {
+        if (plannedRows.Count == 0)
+        {
+            return [];
+        }
+
+        var rules = await _ruleRepository.GetAllActiveAsync();
+        if (rules.Count == 0)
+        {
+            return [];
+        }
+
+        var worksByClient = plannedRows
+            .GroupBy(row => row.ClientId)
+            .Select(group => (
+                ClientId: group.Key,
+                Works: group.Select(row => new CandidateWork(row.Date, row.StartTime, row.EndTime, row.ShiftId)).ToList()))
+            .ToList();
+
+        var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.RestrictedTimeWindow);
+        var tagsByShift = await LoadGroupTagsByShiftAsync(
+            worksByClient.SelectMany(client => client.Works).ToList(), cancellationToken);
+
+        var entries = new List<ScheduleValidationNotificationDto>();
+        foreach (var (clientId, works) in worksByClient)
+        {
+            entries.AddRange(BuildEntries(clientId, string.Empty, works, rules, mode, tagsByShift));
+        }
+
+        return entries;
+    }
+
     private async Task<List<ScheduleValidationNotificationDto>> EvaluateCoreAsync(
         Guid clientId,
         string clientName,
@@ -115,6 +153,17 @@ public sealed class RestrictedTimeWindowEvaluator : IRestrictedTimeWindowEvaluat
         var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.RestrictedTimeWindow);
         var tagsByShift = await LoadGroupTagsByShiftAsync(works, cancellationToken);
 
+        return BuildEntries(clientId, clientName, works, rules, mode, tagsByShift);
+    }
+
+    private static List<ScheduleValidationNotificationDto> BuildEntries(
+        Guid clientId,
+        string clientName,
+        IReadOnlyList<CandidateWork> works,
+        IReadOnlyList<RestrictedTimeWindowRule> rules,
+        RuleEnforcementMode mode,
+        IReadOnlyDictionary<Guid, List<GroupTagLink>> tagsByShift)
+    {
         var entries = new List<ScheduleValidationNotificationDto>();
         var reported = new HashSet<(Guid RuleId, DateOnly Date, TimeOnly Start, TimeOnly End, Guid? ShiftId)>();
 

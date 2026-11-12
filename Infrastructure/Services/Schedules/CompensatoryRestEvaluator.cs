@@ -6,7 +6,9 @@
 /// deadline has passed, otherwise <see cref="ScheduleValidationKeys.CompensatoryRestDue"/>. Warning by
 /// default; escalates to Error (tagged with the enforcement-rule param) when the compensatoryRest rule is
 /// in Block mode. Returns nothing when the feature is disabled or in scenario mode (analyseToken set), so
-/// disabling the feature both stops new obligations and stops surfacing stale ones.
+/// disabling the feature both stops new obligations and stops surfacing stale ones. The evaluation for several
+/// clients reads the enabled flag once, the open obligations of all clients in one repository call and the mode
+/// once, and builds the same entries per client.
 /// </summary>
 /// <param name="obligationRepository">Reads the open (unfulfilled) obligation set for the client</param>
 /// <param name="enforcementResolver">Resolves warn/block for the compensatoryRest compliance rule</param>
@@ -14,6 +16,7 @@
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -48,13 +51,7 @@ public sealed class CompensatoryRestEvaluator : ICompensatoryRestEvaluator
         Guid? analyseToken = null,
         CancellationToken cancellationToken = default)
     {
-        if (analyseToken is not null)
-        {
-            return [];
-        }
-
-        var enabledSetting = await _settingsReader.GetSetting(SettingKeys.ComplianceCompensatoryRestEnabled);
-        if (!string.Equals(enabledSetting?.Value, TrueValue, StringComparison.OrdinalIgnoreCase))
+        if (analyseToken is not null || !await IsEnabledAsync())
         {
             return [];
         }
@@ -69,6 +66,44 @@ public sealed class CompensatoryRestEvaluator : ICompensatoryRestEvaluator
         var isBlocked = mode == RuleEnforcementMode.Block;
 
         return open.Select(o => BuildEntry(clientId, clientName, asOfDate, o, isBlocked)).ToList();
+    }
+
+    public async Task<List<ScheduleValidationNotificationDto>> EvaluateForClientsAsync(
+        IReadOnlyList<ClientAsOfDate> clients,
+        Guid? analyseToken = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (clients.Count == 0 || analyseToken is not null || !await IsEnabledAsync())
+        {
+            return [];
+        }
+
+        var openByClient = await _obligationRepository.GetOpenByClientsAsync(
+            clients.Select(client => client.ClientId).Distinct().ToList(), cancellationToken);
+        if (openByClient.Count == 0)
+        {
+            return [];
+        }
+
+        var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.CompensatoryRest);
+        var isBlocked = mode == RuleEnforcementMode.Block;
+
+        var entries = new List<ScheduleValidationNotificationDto>();
+        foreach (var client in clients)
+        {
+            if (openByClient.TryGetValue(client.ClientId, out var open))
+            {
+                entries.AddRange(open.Select(o => BuildEntry(client.ClientId, string.Empty, client.AsOfDate, o, isBlocked)));
+            }
+        }
+
+        return entries;
+    }
+
+    private async Task<bool> IsEnabledAsync()
+    {
+        var enabledSetting = await _settingsReader.GetSetting(SettingKeys.ComplianceCompensatoryRestEnabled);
+        return string.Equals(enabledSetting?.Value, TrueValue, StringComparison.OrdinalIgnoreCase);
     }
 
     private static ScheduleValidationNotificationDto BuildEntry(

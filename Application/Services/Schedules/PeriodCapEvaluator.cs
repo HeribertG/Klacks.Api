@@ -17,6 +17,12 @@
 /// RollingAverage). Both CapHours-based modes additionally emit an approaching-cap Warning once the
 /// evaluated hours reach WarnAtPercent percent of CapHours while still at or under the cap itself;
 /// this pre-warning is informational only and never escalates to Error regardless of enforcement mode.
+/// The evaluation for several clients runs the same rule evaluation per client; it reads the rule list once,
+/// each enforcement mode at most once, and the contract data, employment starts and TotalHours / rolling-average
+/// baseline hours of all clients in grouped reads (one per distinct day or window) before the per-client pass; the
+/// read-ahead and the evaluation take their windows from the same <see cref="PeriodCapWindows"/> methods, and a value
+/// that was not read ahead throws instead of being read for the client alone. The OvertimeHours scope is still read
+/// per client. The window arithmetic lives in <see cref="PeriodCapWindows"/>.
 /// </summary>
 /// <param name="ruleRepository">Reads the active PeriodCapRule set</param>
 /// <param name="periodHoursService">Sums a client's persisted work/break hours for a date range (TotalHours scope)</param>
@@ -29,6 +35,7 @@
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -42,7 +49,6 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
 {
-    private const int DaysPerWeek = 7;
     private const decimal PercentDivisor = 100m;
 
     private readonly IPeriodCapRuleRepository _ruleRepository;
@@ -98,9 +104,95 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
 
         var latestCandidateDate = plannedHours.Max(p => p.Date);
         var rules = await ResolveApplicableRulesAsync(clientId, latestCandidateDate);
-        var rollingAverageRules = rules.Where(IsRollingAverageRule).ToList();
-        var fixedPeriodRules = rules.Where(r => !IsRollingAverageRule(r) && r.Scope == PeriodCapScope.TotalHours).ToList();
-        var overtimeCapRules = rules.Where(r => !IsRollingAverageRule(r) && r.Scope == PeriodCapScope.OvertimeHours).ToList();
+        var reads = new CapReads(
+            _enforcementResolver.GetModeAsync,
+            () => _membershipStartResolver.GetValidFromAsync(clientId),
+            (start, end) => ResolveCapBaselineHoursAsync(clientId, start, end, analyseToken));
+
+        return await EvaluateRulesAsync(
+            clientId, clientName, plannedHours, rules, latestCandidateDate, reads, analyseToken, cancellationToken);
+    }
+
+    public async Task<List<ScheduleValidationNotificationDto>> EvaluatePlannedForClientsAsync(
+        IReadOnlyList<ClientPlannedHours> clients,
+        Guid? analyseToken = null,
+        CancellationToken cancellationToken = default)
+    {
+        var planned = clients
+            .Where(c => c.PlannedHours.Count > 0)
+            .Select(c => (Client: c, LatestCandidateDate: c.PlannedHours.Max(p => p.Date)))
+            .ToList();
+        if (planned.Count == 0)
+        {
+            return [];
+        }
+
+        var allRules = await _ruleRepository.GetAllActiveAsync();
+        var contracts = allRules.All(r => r.SchedulingRuleId == null)
+            ? null
+            : await ClientContractDataBatch.LoadAsync(
+                _contractDataProvider, planned.Select(p => (p.Client.ClientId, p.LatestCandidateDate)));
+        var evaluations = planned
+            .Select(p => (
+                p.Client,
+                p.LatestCandidateDate,
+                Rules: contracts == null
+                    ? allRules
+                    : ApplicableRules(allRules, contracts[(p.Client.ClientId, p.LatestCandidateDate)].SchedulingRuleId)))
+            .ToList();
+
+        var modes = new Dictionary<string, RuleEnforcementMode>();
+        var membershipStarts = await _membershipStartResolver.GetValidFromForClientsAsync(
+            evaluations.Where(e => e.Rules.Any(PeriodCapWindows.IsRollingAverageRule)).Select(e => e.Client.ClientId).Distinct().ToList(),
+            cancellationToken);
+        var baselines = await LoadBaselineHoursAsync(
+            evaluations.SelectMany(e => PeriodCapWindows.BaselineWindows(e.Client.PlannedHours, e.Rules, membershipStarts.GetValueOrDefault(e.Client.ClientId))
+                .Select(window => (e.Client.ClientId, window.Start, window.End))),
+            analyseToken);
+
+        var entries = new List<ScheduleValidationNotificationDto>();
+        foreach (var (client, latestCandidateDate, rules) in evaluations)
+        {
+            var clientId = client.ClientId;
+            var reads = new CapReads(
+                async ruleName =>
+                {
+                    if (!modes.TryGetValue(ruleName, out var mode))
+                    {
+                        mode = await _enforcementResolver.GetModeAsync(ruleName);
+                        modes[ruleName] = mode;
+                    }
+
+                    return mode;
+                },
+                () => Task.FromResult(membershipStarts[clientId]),
+                (start, end) => Task.FromResult(baselines[(clientId, start, end)]));
+
+            entries.AddRange(await EvaluateRulesAsync(
+                clientId, string.Empty, client.PlannedHours, rules, latestCandidateDate, reads, analyseToken, cancellationToken));
+        }
+
+        return entries;
+    }
+
+    private sealed record CapReads(
+        Func<string, Task<RuleEnforcementMode>> Mode,
+        Func<Task<DateOnly?>> MembershipStart,
+        Func<DateOnly, DateOnly, Task<decimal>> BaselineHours);
+
+    private async Task<List<ScheduleValidationNotificationDto>> EvaluateRulesAsync(
+        Guid clientId,
+        string clientName,
+        IReadOnlyList<(DateOnly Date, decimal Hours)> plannedHours,
+        List<PeriodCapRule> rules,
+        DateOnly latestCandidateDate,
+        CapReads reads,
+        Guid? analyseToken,
+        CancellationToken cancellationToken)
+    {
+        var rollingAverageRules = rules.Where(PeriodCapWindows.IsRollingAverageRule).ToList();
+        var fixedPeriodRules = rules.Where(r => !PeriodCapWindows.IsRollingAverageRule(r) && r.Scope == PeriodCapScope.TotalHours).ToList();
+        var overtimeCapRules = rules.Where(r => !PeriodCapWindows.IsRollingAverageRule(r) && r.Scope == PeriodCapScope.OvertimeHours).ToList();
 
         if (fixedPeriodRules.Count == 0 && rollingAverageRules.Count == 0 && overtimeCapRules.Count == 0)
         {
@@ -111,11 +203,11 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
 
         if (fixedPeriodRules.Count > 0 || overtimeCapRules.Count > 0)
         {
-            var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.PeriodCap);
+            var mode = await reads.Mode(ComplianceRuleNames.PeriodCap);
             if (fixedPeriodRules.Count > 0)
             {
                 entries.AddRange(await EvaluateFixedPeriodRulesAsync(
-                    clientId, clientName, plannedHours, fixedPeriodRules, mode, analyseToken, cancellationToken));
+                    clientId, clientName, plannedHours, fixedPeriodRules, mode, reads));
             }
 
             if (overtimeCapRules.Count > 0)
@@ -127,10 +219,10 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
 
         if (rollingAverageRules.Count > 0)
         {
-            var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.RollingAverage);
-            var membershipStart = await _membershipStartResolver.GetValidFromAsync(clientId);
+            var mode = await reads.Mode(ComplianceRuleNames.RollingAverage);
+            var membershipStart = await reads.MembershipStart();
             entries.AddRange(await EvaluateRollingAverageRulesAsync(
-                clientId, clientName, plannedHours, rollingAverageRules, membershipStart, mode, analyseToken, cancellationToken));
+                clientId, clientName, plannedHours, rollingAverageRules, membershipStart, mode, reads));
         }
 
         return entries;
@@ -149,13 +241,37 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
         }
 
         var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, asOfDate);
-        return rules
-            .Where(r => r.SchedulingRuleId == null || r.SchedulingRuleId == effectiveData.SchedulingRuleId)
-            .ToList();
+        return ApplicableRules(rules, effectiveData.SchedulingRuleId);
     }
 
-    private static bool IsRollingAverageRule(PeriodCapRule rule) =>
-        rule.RollingWindowWeeks.HasValue && rule.MaxAverageWeeklyHours.HasValue;
+    private static List<PeriodCapRule> ApplicableRules(List<PeriodCapRule> rules, Guid? schedulingRuleId) =>
+        rules
+            .Where(r => r.SchedulingRuleId == null || r.SchedulingRuleId == schedulingRuleId)
+            .ToList();
+
+    /// <summary>
+    /// Reads the persisted period hours of the requested client windows with one call per distinct window.
+    /// </summary>
+    /// <param name="requests">The (client, window start, window end) triples to read</param>
+    /// <param name="analyseToken">Scenario token; null reads the real schedule</param>
+    private async Task<Dictionary<(Guid ClientId, DateOnly Start, DateOnly End), decimal>> LoadBaselineHoursAsync(
+        IEnumerable<(Guid ClientId, DateOnly Start, DateOnly End)> requests,
+        Guid? analyseToken)
+    {
+        var baselines = new Dictionary<(Guid ClientId, DateOnly Start, DateOnly End), decimal>();
+
+        foreach (var window in requests.Distinct().GroupBy(r => (r.Start, r.End), r => r.ClientId))
+        {
+            var hoursByClient = await _periodHoursService.CalculateHoursForClientsAsync(
+                window.ToList(), window.Key.Start, window.Key.End, analyseToken);
+            foreach (var (clientId, hours) in hoursByClient)
+            {
+                baselines[(clientId, window.Key.Start, window.Key.End)] = hours;
+            }
+        }
+
+        return baselines;
+    }
 
     private async Task<decimal> ResolveCapBaselineHoursAsync(
         Guid clientId, DateOnly start, DateOnly end, Guid? analyseToken)
@@ -170,22 +286,17 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
         IReadOnlyList<(DateOnly Date, decimal Hours)> plannedHours,
         List<PeriodCapRule> fixedPeriodRules,
         RuleEnforcementMode mode,
-        Guid? analyseToken,
-        CancellationToken cancellationToken)
+        CapReads reads)
     {
         var entries = new List<ScheduleValidationNotificationDto>();
 
         foreach (var rule in fixedPeriodRules)
         {
-            var windowGroups = plannedHours
-                .Select(p => (Window: ResolveFixedPeriodBoundaries(rule, p.Date), p.Date, p.Hours))
-                .GroupBy(x => x.Window);
-
-            foreach (var group in windowGroups)
+            foreach (var group in PeriodCapWindows.FixedPeriodWindows(rule, plannedHours))
             {
                 var (start, end) = group.Key;
                 var additionalHours = group.Sum(x => x.Hours);
-                var baselineHours = await ResolveCapBaselineHoursAsync(clientId, start, end, analyseToken);
+                var baselineHours = await reads.BaselineHours(start, end);
                 var projectedHours = baselineHours + additionalHours;
                 var isOverCap = projectedHours > rule.CapHours;
                 if (!isOverCap && !ReachesWarnThreshold(rule, projectedHours))
@@ -233,7 +344,7 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
         foreach (var rule in overtimeCapRules)
         {
             var windowGroups = plannedHours
-                .Select(p => (Window: ResolveFixedPeriodBoundaries(rule, p.Date), p.Date))
+                .Select(p => (Window: PeriodCapWindows.ResolveFixedPeriodBoundaries(rule, p.Date), p.Date))
                 .GroupBy(x => x.Window);
 
             foreach (var group in windowGroups)
@@ -325,14 +436,14 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
         var weekStartOfWindowStart = await _weekConfiguration.GetWeekStartAsync(windowStart, cancellationToken);
         var firstAttributedWeekStart = weekStartOfWindowStart >= windowStart
             ? weekStartOfWindowStart
-            : weekStartOfWindowStart.AddDays(DaysPerWeek);
+            : weekStartOfWindowStart.AddDays(CalendarConstants.DaysPerWeek);
         if (firstAttributedWeekStart > windowEnd)
         {
             return 0m;
         }
 
         var lastAttributedWeekStart = WeekStartOf(firstAttributedWeekStart, windowEnd);
-        var queryEnd = lastAttributedWeekStart.AddDays(DaysPerWeek - 1);
+        var queryEnd = lastAttributedWeekStart.AddDays(CalendarConstants.DaysPerWeek - 1);
 
         var persisted = await _workHoursProvider.GetWorkHoursByDayAsync(clientId, firstAttributedWeekStart, queryEnd, analyseToken);
         var hoursByWeek = new Dictionary<DateOnly, decimal>();
@@ -361,7 +472,7 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
     private static DateOnly WeekStartOf(DateOnly anchorWeekStart, DateOnly date)
     {
         var dayOffset = date.DayNumber - anchorWeekStart.DayNumber;
-        return anchorWeekStart.AddDays((dayOffset / DaysPerWeek) * DaysPerWeek);
+        return anchorWeekStart.AddDays((dayOffset / CalendarConstants.DaysPerWeek) * CalendarConstants.DaysPerWeek);
     }
 
     private async Task<List<ScheduleValidationNotificationDto>> EvaluateRollingAverageRulesAsync(
@@ -371,30 +482,19 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
         List<PeriodCapRule> rollingAverageRules,
         DateOnly? membershipStart,
         RuleEnforcementMode mode,
-        Guid? analyseToken,
-        CancellationToken cancellationToken)
+        CapReads reads)
     {
         var entries = new List<ScheduleValidationNotificationDto>();
-        var candidateDates = plannedHours.Select(p => p.Date).Distinct().OrderBy(d => d).ToList();
 
         foreach (var rule in rollingAverageRules)
         {
-            foreach (var date in candidateDates)
+            foreach (var (date, windowStart, effectiveWeeks) in PeriodCapWindows.RollingAverageWindows(rule, plannedHours, membershipStart))
             {
-                var (windowStart, effectiveWeeks) = ResolveRollingWindow(rule, date, membershipStart);
-                if (effectiveWeeks <= 0)
-                {
-                    // Not enough employment history yet to form even one complete week - averaging over
-                    // a shorter-than-a-week span would either divide by (near) zero or, if padded with
-                    // zero-hour weeks, silently hide a real breach. Skip until a full week exists.
-                    continue;
-                }
-
                 var additionalHours = plannedHours
                     .Where(p => p.Date >= windowStart && p.Date <= date)
                     .Sum(p => p.Hours);
 
-                var baselineHours = await ResolveCapBaselineHoursAsync(clientId, windowStart, date, analyseToken);
+                var baselineHours = await reads.BaselineHours(windowStart, date);
                 var projectedAverage = (baselineHours + additionalHours) / effectiveWeeks;
                 if (projectedAverage <= rule.MaxAverageWeeklyHours!.Value)
                 {
@@ -406,30 +506,6 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
         }
 
         return entries;
-    }
-
-    // The naive window is [date - RollingWindowWeeks*7 + 1, date]. Clamped to Membership.ValidFrom so a
-    // recently started client is averaged only over the weeks actually worked, never over non-existent
-    // pre-employment weeks (padding those with zero would artificially lower the average and hide a real
-    // breach). effectiveWeeks is the number of COMPLETE weeks in the clamped window (floor division) - a
-    // partial trailing week is deliberately excluded rather than counted as a fraction, which is the
-    // conservative direction (it can only inflate, never hide, a violation).
-    private static (DateOnly WindowStart, int EffectiveWeeks) ResolveRollingWindow(
-        PeriodCapRule rule, DateOnly date, DateOnly? membershipStart)
-    {
-        var windowWeeks = rule.RollingWindowWeeks!.Value;
-        var naiveStart = date.AddDays(-((windowWeeks * DaysPerWeek) - 1));
-        var effectiveStart = membershipStart.HasValue && membershipStart.Value > naiveStart
-            ? membershipStart.Value
-            : naiveStart;
-
-        if (effectiveStart > date)
-        {
-            return (effectiveStart, 0);
-        }
-
-        var effectiveDays = date.DayNumber - effectiveStart.DayNumber + 1;
-        return (effectiveStart, effectiveDays / DaysPerWeek);
     }
 
     // The approaching-cap pre-warning is informational only: it fires between WarnAtPercent percent of
@@ -613,36 +689,5 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
             Comment = ScheduleValidationKeys.RollingAverage,
             CommentParams = commentParams,
         };
-    }
-
-    private static (DateOnly Start, DateOnly End) ResolveFixedPeriodBoundaries(PeriodCapRule rule, DateOnly date)
-    {
-        switch (rule.Period)
-        {
-            case PeriodCapPeriod.Month:
-                var monthStart = new DateOnly(date.Year, date.Month, 1);
-                return (monthStart, monthStart.AddMonths(1).AddDays(-1));
-
-            case PeriodCapPeriod.Quarter:
-                var quarterStartMonth = (((date.Month - 1) / CalendarConstants.MonthsPerQuarter) * CalendarConstants.MonthsPerQuarter) + 1;
-                var quarterStart = new DateOnly(date.Year, quarterStartMonth, 1);
-                return (quarterStart, quarterStart.AddMonths(CalendarConstants.MonthsPerQuarter).AddDays(-1));
-
-            case PeriodCapPeriod.Year:
-                return (new DateOnly(date.Year, 1, 1), new DateOnly(date.Year, CalendarConstants.MonthsPerYear, DateTime.DaysInMonth(date.Year, CalendarConstants.MonthsPerYear)));
-
-            case PeriodCapPeriod.CustomWeeks:
-                if (!rule.CustomPeriodWeeks.HasValue || rule.CustomPeriodWeeks.Value <= 0)
-                {
-                    throw new NotSupportedException(
-                        "PeriodCapRule with period CustomWeeks requires CustomPeriodWeeks to be set; this indicates a data integrity issue - the region-setup importer validates CustomPeriodWeeks on write.");
-                }
-
-                var windowDays = rule.CustomPeriodWeeks.Value * DaysPerWeek;
-                return (date.AddDays(-(windowDays - 1)), date);
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(rule), rule.Period, "Unknown period cap period.");
-        }
     }
 }

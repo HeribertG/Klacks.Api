@@ -9,7 +9,10 @@
 /// candidate date. Only the first candidate date of a period is evaluated per rule, so periods without a
 /// candidate date are never reported. Warning escalates to Error when the effective enforcement mode is Block:
 /// the global counterRule mode is resolved once per evaluation, but each rule's own
-/// <see cref="CounterRule.Enforcement"/> override (when set) wins over it for that rule only.
+/// <see cref="CounterRule.Enforcement"/> override (when set) wins over it for that rule only. The evaluation of
+/// the planned rows of several clients runs the same per-client count; it reads the rule list and the mode once,
+/// the contract data once per distinct day and the Work rows once per distinct calendar period for all clients
+/// that count it; a period that was not read ahead throws instead of being read for the client alone.
 /// </summary>
 /// <param name="ruleRepository">Reads the active CounterRule set</param>
 /// <param name="context">Database access for the client's Work rows in the counted period</param>
@@ -28,12 +31,15 @@
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.PlanningRules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Scheduling;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.ScheduleOptimizer.Constraints.Rules;
@@ -90,6 +96,76 @@ public sealed class CounterRuleEvaluator : ICounterRuleEvaluator
         return await EvaluateCoreAsync(clientId, clientName, candidateDates, plannedSlots, analyseToken, cancellationToken);
     }
 
+    public async Task<List<ScheduleValidationNotificationDto>> EvaluatePlannedRowsAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
+        Guid? analyseToken = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (plannedRows.Count == 0)
+        {
+            return [];
+        }
+
+        var allRules = await _ruleRepository.GetAllActiveAsync();
+        if (allRules.Count == 0)
+        {
+            return [];
+        }
+
+        var clients = plannedRows
+            .GroupBy(row => row.ClientId)
+            .Select(group => new PlannedClient(
+                group.Key,
+                group.Select(row => (row.Date, row.StartTime, row.EndTime)).ToList(),
+                group.Select(row => row.Date).Distinct().ToList()))
+            .ToList();
+
+        var contracts = NeedsContract(allRules)
+            ? await ClientContractDataBatch.LoadAsync(
+                _contractDataProvider, clients.Select(client => (client.ClientId, client.CandidateDates.Max())))
+            : null;
+        var evaluations = clients
+            .Select(client => (
+                Client: client,
+                Applicable: contracts == null
+                    ? (Rules: allRules, NightWindow: DefaultNightWindow())
+                    : ApplyContract(allRules, contracts[(client.ClientId, client.CandidateDates.Max())])))
+            .Where(evaluation => evaluation.Applicable.Rules.Count > 0)
+            .ToList();
+        if (evaluations.Count == 0)
+        {
+            return [];
+        }
+
+        var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.CounterRule);
+        var worksByPeriod = await LoadWorksOfClientsAsync(
+            evaluations.SelectMany(evaluation => CountedPeriods(evaluation.Applicable.Rules, evaluation.Client.CandidateDates)
+                .Select(period => (evaluation.Client.ClientId, period.Start, period.End))),
+            analyseToken,
+            cancellationToken);
+
+        var entries = new List<ScheduleValidationNotificationDto>();
+        foreach (var (client, applicable) in evaluations)
+        {
+            entries.AddRange(await BuildEntriesAsync(
+                client.ClientId,
+                string.Empty,
+                client.CandidateDates,
+                client.Slots,
+                applicable.Rules,
+                applicable.NightWindow,
+                mode,
+                (periodStart, periodEnd) => Task.FromResult(worksByPeriod[(client.ClientId, periodStart, periodEnd)])));
+        }
+
+        return entries;
+    }
+
+    private sealed record PlannedClient(
+        Guid ClientId,
+        IReadOnlyList<(DateOnly Date, TimeOnly StartTime, TimeOnly EndTime)> Slots,
+        IReadOnlyList<DateOnly> CandidateDates);
+
     private async Task<List<ScheduleValidationNotificationDto>> EvaluateCoreAsync(
         Guid clientId,
         string clientName,
@@ -106,6 +182,27 @@ public sealed class CounterRuleEvaluator : ICounterRuleEvaluator
 
         var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.CounterRule);
 
+        return await BuildEntriesAsync(
+            clientId,
+            clientName,
+            candidateDates,
+            plannedSlots,
+            rules,
+            nightWindow,
+            mode,
+            (periodStart, periodEnd) => LoadWorksAsync(clientId, periodStart, periodEnd, analyseToken, cancellationToken));
+    }
+
+    private static async Task<List<ScheduleValidationNotificationDto>> BuildEntriesAsync(
+        Guid clientId,
+        string clientName,
+        IReadOnlyList<DateOnly> candidateDates,
+        IReadOnlyList<(DateOnly Date, TimeOnly StartTime, TimeOnly EndTime)> plannedSlots,
+        IReadOnlyList<CounterRule> rules,
+        (TimeOnly Start, TimeOnly End) nightWindow,
+        RuleEnforcementMode mode,
+        Func<DateOnly, DateOnly, Task<List<WorkSegment>>> worksOfPeriod)
+    {
         var entries = new List<ScheduleValidationNotificationDto>();
         var reportedPeriods = new HashSet<(Guid RuleId, DateOnly PeriodStart)>();
 
@@ -119,7 +216,7 @@ public sealed class CounterRuleEvaluator : ICounterRuleEvaluator
                     continue;
                 }
 
-                var works = await LoadWorksAsync(clientId, periodStart, periodEnd, analyseToken, cancellationToken);
+                var works = await worksOfPeriod(periodStart, periodEnd);
                 var slotsInPeriod = plannedSlots
                     .Where(s => s.Date >= periodStart && s.Date <= periodEnd)
                     .Select(s => new WorkSegment(s.Date, s.StartTime, s.EndTime));
@@ -190,18 +287,56 @@ public sealed class CounterRuleEvaluator : ICounterRuleEvaluator
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
-        var works = await _context.Work
+        var works = await QueryWorksOfClients([clientId], periodStart, periodEnd, analyseToken)
+            .ToListAsync(cancellationToken);
+
+        return works.Select(w => new WorkSegment(w.Date, w.StartTime, w.EndTime)).ToList();
+    }
+
+    /// <summary>
+    /// Reads the Work rows of the requested (client, period) pairs with one query per distinct period and chunk of
+    /// IdListQueryLimits.ChunkSize clients, through the query of the single-client read. Every requested pair gets an entry.
+    /// </summary>
+    /// <param name="requests">The (client, period start, period end) triples to read</param>
+    /// <param name="analyseToken">Scenario token; null reads the real schedule</param>
+    private async Task<Dictionary<(Guid ClientId, DateOnly Start, DateOnly End), List<WorkSegment>>> LoadWorksOfClientsAsync(
+        IEnumerable<(Guid ClientId, DateOnly Start, DateOnly End)> requests,
+        Guid? analyseToken,
+        CancellationToken cancellationToken)
+    {
+        var result = requests.Distinct().ToDictionary(request => request, _ => new List<WorkSegment>());
+
+        foreach (var period in result.Keys.GroupBy(request => (request.Start, request.End), request => request.ClientId).ToList())
+        {
+            foreach (var chunk in period.Chunk(IdListQueryLimits.ChunkSize))
+            {
+                var rows = await QueryWorksOfClients(chunk, period.Key.Start, period.Key.End, analyseToken)
+                    .ToListAsync(cancellationToken);
+                foreach (var row in rows)
+                {
+                    result[(row.ClientId, period.Key.Start, period.Key.End)]
+                        .Add(new WorkSegment(row.Date, row.StartTime, row.EndTime));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    internal IQueryable<ClientWorkRow> QueryWorksOfClients(
+        Guid[] clientIds, DateOnly periodStart, DateOnly periodEnd, Guid? analyseToken)
+        => _context.Work
             .AsNoTracking()
-            .Where(w => w.ClientId == clientId
+            .Where(w => clientIds.Contains(w.ClientId)
                 && !w.IsDeleted
                 && w.AnalyseToken == analyseToken
                 && w.CurrentDate >= periodStart
                 && w.CurrentDate <= periodEnd)
-            .Select(w => new { w.CurrentDate, w.StartTime, w.EndTime })
-            .ToListAsync(cancellationToken);
+            .Select(w => new ClientWorkRow(w.ClientId, w.CurrentDate, w.StartTime, w.EndTime));
 
-        return works.Select(w => new WorkSegment(w.CurrentDate, w.StartTime, w.EndTime)).ToList();
-    }
+    private static IEnumerable<(DateOnly Start, DateOnly End)> CountedPeriods(
+        IReadOnlyList<CounterRule> rules, IReadOnlyList<DateOnly> candidateDates)
+        => rules.SelectMany(rule => candidateDates.Select(date => ResolvePeriod(rule.Period, date))).Distinct();
 
     // One contract resolution serves BOTH concerns: industry scoping (SchedulingRuleId) and the K2
     // night window (NightStart/NightEnd already resolved rule -> contract -> settings -> default by
@@ -210,24 +345,27 @@ public sealed class CounterRuleEvaluator : ICounterRuleEvaluator
     private async Task<(List<CounterRule> Rules, (TimeOnly Start, TimeOnly End) NightWindow)> ResolveApplicableRulesAndNightWindowAsync(
         Guid clientId, DateOnly asOfDate)
     {
-        var defaultWindow = (
-            ParseTimeOrDefault(SurchargeDefaults.NightStart, SurchargeDefaults.NightStart),
-            ParseTimeOrDefault(SurchargeDefaults.NightEnd, SurchargeDefaults.NightEnd));
-
         var rules = await _ruleRepository.GetAllActiveAsync();
-        if (rules.Count == 0)
+        if (rules.Count == 0 || !NeedsContract(rules))
         {
-            return (rules, defaultWindow);
-        }
-
-        var needsContract = rules.Any(r => r.SchedulingRuleId != null)
-            || rules.Any(r => r.EventType == CounterEventType.NightShift);
-        if (!needsContract)
-        {
-            return (rules, defaultWindow);
+            return (rules, DefaultNightWindow());
         }
 
         var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, asOfDate);
+        return ApplyContract(rules, effectiveData);
+    }
+
+    private static (TimeOnly Start, TimeOnly End) DefaultNightWindow() => (
+        ParseTimeOrDefault(SurchargeDefaults.NightStart, SurchargeDefaults.NightStart),
+        ParseTimeOrDefault(SurchargeDefaults.NightEnd, SurchargeDefaults.NightEnd));
+
+    private static bool NeedsContract(IReadOnlyList<CounterRule> rules) =>
+        rules.Any(r => r.SchedulingRuleId != null)
+        || rules.Any(r => r.EventType == CounterEventType.NightShift);
+
+    private static (List<CounterRule> Rules, (TimeOnly Start, TimeOnly End) NightWindow) ApplyContract(
+        List<CounterRule> rules, EffectiveContractData effectiveData)
+    {
         var nightWindow = (
             ParseTimeOrDefault(effectiveData.NightStart, SurchargeDefaults.NightStart),
             ParseTimeOrDefault(effectiveData.NightEnd, SurchargeDefaults.NightEnd));

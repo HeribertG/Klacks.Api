@@ -11,6 +11,9 @@
 /// The finding is a Warning and escalates to Error when the holidayWork rule is configured as Block.
 /// The holiday name travels as a MultiLanguage parameter: the finding is broadcast to every planner of the
 /// group, each in their own language, so it is localized at display time, not here.
+/// The evaluation for several clients judges each client with the same per-day test; it reads the contract data
+/// once per distinct first-to-last day range, the mode once, and asks the calendar resolver once per calendar
+/// selection and year of the call.
 /// </summary>
 /// <param name="exemptionRepository">Reads the active exemptions</param>
 /// <param name="holidayCalendarResolver">Answers which days are holidays for this client</param>
@@ -18,13 +21,16 @@
 /// <param name="enforcementResolver">Resolves warn/block for the holidayWork compliance rule</param>
 
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Interfaces.CalendarSelections;
 using Klacks.Api.Domain.Interfaces.Scheduling;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Scheduling;
 
 namespace Klacks.Api.Application.Services.Schedules;
@@ -74,6 +80,69 @@ public sealed class HolidayWorkEvaluator : IHolidayWorkEvaluator
         var exemptions = await GetExemptionsAsync();
         var isBlocked = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.HolidayWork) == RuleEnforcementMode.Block;
 
+        await AddEntriesAsync(
+            entries, clientId, clientName, orderedDates, contractByDate, exemptions, isBlocked,
+            _holidayCalendarResolver.GetCalculatorAsync);
+
+        return entries;
+    }
+
+    public async Task<List<ScheduleValidationNotificationDto>> EvaluateForClientsAsync(
+        IReadOnlyList<ClientWorkDates> clients,
+        CancellationToken cancellationToken = default)
+    {
+        var entries = new List<ScheduleValidationNotificationDto>();
+        var planned = clients
+            .Where(client => client.WorkDates.Count > 0)
+            .Select(client => (client.ClientId, OrderedDates: client.WorkDates.Distinct().OrderBy(d => d).ToList()))
+            .ToList();
+        if (planned.Count == 0)
+        {
+            return entries;
+        }
+
+        var contractByRange = new Dictionary<(DateOnly From, DateOnly Until), Dictionary<DateOnly, Dictionary<Guid, EffectiveContractData>>>();
+        foreach (var range in planned.GroupBy(client => (From: client.OrderedDates[0], Until: client.OrderedDates[^1]), client => client.ClientId))
+        {
+            contractByRange[range.Key] = await _contractDataProvider.GetEffectiveContractDataForClientsRangeAsync(
+                range.Distinct().ToList(), range.Key.From, range.Key.Until);
+        }
+
+        var exemptions = await GetExemptionsAsync();
+        var isBlocked = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.HolidayWork) == RuleEnforcementMode.Block;
+
+        var calculators = new Dictionary<(Guid? CalendarSelectionId, int Year), IHolidaysListCalculator?>();
+        async Task<IHolidaysListCalculator?> CalculatorOfAsync(Guid? calendarSelectionId, int year)
+        {
+            if (!calculators.TryGetValue((calendarSelectionId, year), out var calculator))
+            {
+                calculator = await _holidayCalendarResolver.GetCalculatorAsync(calendarSelectionId, year);
+                calculators[(calendarSelectionId, year)] = calculator;
+            }
+
+            return calculator;
+        }
+
+        foreach (var (clientId, orderedDates) in planned)
+        {
+            await AddEntriesAsync(
+                entries, clientId, string.Empty, orderedDates, contractByRange[(orderedDates[0], orderedDates[^1])],
+                exemptions, isBlocked, CalculatorOfAsync);
+        }
+
+        return entries;
+    }
+
+    private static async Task AddEntriesAsync(
+        List<ScheduleValidationNotificationDto> entries,
+        Guid clientId,
+        string clientName,
+        IReadOnlyList<DateOnly> orderedDates,
+        IReadOnlyDictionary<DateOnly, Dictionary<Guid, EffectiveContractData>> contractByDate,
+        IReadOnlyList<HolidayWorkExemptionRule> exemptions,
+        bool isBlocked,
+        Func<Guid?, int, Task<IHolidaysListCalculator?>> calculatorOf)
+    {
         foreach (var date in orderedDates)
         {
             if (!contractByDate.TryGetValue(date, out var perClient)
@@ -87,7 +156,7 @@ public sealed class HolidayWorkEvaluator : IHolidayWorkEvaluator
                 continue;
             }
 
-            var calculator = await _holidayCalendarResolver.GetCalculatorAsync(contractData.CalendarSelectionId, date.Year);
+            var calculator = await calculatorOf(contractData.CalendarSelectionId, date.Year);
             if (calculator == null || calculator.IsHoliday(date) != HolidayStatus.OfficialHoliday)
             {
                 continue;
@@ -95,8 +164,6 @@ public sealed class HolidayWorkEvaluator : IHolidayWorkEvaluator
 
             entries.Add(BuildEntry(clientId, clientName, date, calculator.GetHolidayInfo(date)?.Name, isBlocked));
         }
-
-        return entries;
     }
 
     /// <summary>

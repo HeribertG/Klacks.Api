@@ -9,6 +9,7 @@
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Interfaces.Schedules;
 
@@ -37,5 +38,16 @@ public interface IRestrictedTimeWindowEvaluator
         string clientName,
         IReadOnlyList<(DateOnly Date, TimeOnly StartTime, TimeOnly EndTime, Guid? ShiftId)> plannedSlots,
         Guid? analyseToken = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The planned evaluation for the rows of several clients in one call: the rows are grouped by client, and per
+    /// client the entries of EvaluatePlannedAsync over its (date, start, end, shift) slots are reported with an empty
+    /// client name, in the order the clients first appear. The rule list, the enforcement mode and the group links of
+    /// the shifts are read for all clients together.
+    /// </summary>
+    /// <param name="plannedRows">Not-yet-saved rows of any number of clients</param>
+    Task<List<ScheduleValidationNotificationDto>> EvaluatePlannedRowsAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
         CancellationToken cancellationToken = default);
 }

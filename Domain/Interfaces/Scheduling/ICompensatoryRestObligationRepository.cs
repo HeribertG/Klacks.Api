@@ -20,6 +20,16 @@ public interface ICompensatoryRestObligationRepository
 
     Task<List<CompensatoryRestObligation>> GetOpenByClientAsync(Guid clientId);
 
+    /// <summary>
+    /// The open (unfulfilled) obligations of several clients in one read, per client ordered by trigger date like
+    /// GetOpenByClientAsync. A client without an open obligation has no entry.
+    /// </summary>
+    /// <param name="clientIds">Clients to look up</param>
+    /// <param name="cancellationToken">Cancels the read</param>
+    Task<Dictionary<Guid, List<CompensatoryRestObligation>>> GetOpenByClientsAsync(
+        IReadOnlyCollection<Guid> clientIds,
+        CancellationToken cancellationToken = default);
+
     void Add(CompensatoryRestObligation obligation);
 
     void Update(CompensatoryRestObligation obligation);
