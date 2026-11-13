@@ -1,5 +1,5 @@
 {
-  "version": 28,
+  "version": 29,
   "skills": [
     {
       "name": "get_current_time",
@@ -2505,7 +2505,10 @@
           "chef",
           "leitung",
           "manager",
-          "fuehrungskraft"
+          "fuehrungskraft",
+          "alle angaben zu einer person",
+          "profil eines mitarbeiters anzeigen",
+          "was wissen wir über jemanden"
         ],
         "en": [
           "employee",
@@ -2521,7 +2524,10 @@
           "manager",
           "boss",
           "lead",
-          "team lead"
+          "team lead",
+          "everything we have on a person",
+          "show an employee's profile",
+          "details of a person"
         ],
         "fr": [
           "employe",
@@ -2531,7 +2537,9 @@
           "client",
           "clientele",
           "personne",
-          "effectif"
+          "effectif",
+          "toutes les infos sur une personne",
+          "fiche d'un collaborateur"
         ],
         "it": [
           "dipendente",
@@ -2541,7 +2549,9 @@
           "cliente",
           "clientela",
           "persona",
-          "forza lavoro"
+          "forza lavoro",
+          "tutte le informazioni su una persona",
+          "scheda di un collaboratore"
         ]
       },
       "labels": {
@@ -2550,7 +2560,7 @@
         "fr": "Obtenir les détails complets d'une personne",
         "it": "Ottieni i dettagli completi di una persona"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "get_general_settings",
@@ -14953,7 +14963,7 @@
     {
       "name": "approve_day",
       "area": "schedule",
-      "description": "Approves all Work entries on a given day for a given group — sets LockLevel=Approved (2). Stronger than confirm: even Wizards on individual cells stop. Returns the number of affected works; only services that have already ended are approved. Use when the user says: 'tag freigeben', 'approve Monday', 'freigeben am 15.05.'. Wraps ApproveDayCommand.",
+      "description": "Approves all Work entries on a given day for a given group, so that the day's plan can no longer be changed — sets LockLevel=Approved (2). Stronger than confirm: even Wizards on individual cells stop. Returns the number of affected works; only services that have already ended are approved. Use when the user says: 'tag freigeben', 'approve Monday', 'freigeben am 15.05.'. Wraps ApproveDayCommand.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15000,7 +15010,10 @@
           "alle einsätze am montag für die gruppe freigeben",
           "den 15.05. für diese gruppe abnehmen",
           "ich möchte den tag für das team verbindlich freigeben",
-          "arbeitseinträge des tages auf freigegeben setzen"
+          "arbeitseinträge des tages auf freigegeben setzen",
+          "tag verbindlich machen",
+          "änderungen an einem tag verhindern",
+          "plan eines tages sperren"
         ],
         "en": [
           "approve",
@@ -15012,7 +15025,10 @@
           "approve all works on monday for the group",
           "sign off the 15th of may for this group",
           "i want to lock the day as approved for the team",
-          "set the day's work entries to approved"
+          "set the day's work entries to approved",
+          "prevent further changes to a day",
+          "finalize a day's plan",
+          "freeze the day"
         ],
         "fr": [
           "approuver",
@@ -15021,7 +15037,10 @@
           "approuver tous les services du lundi pour le groupe",
           "valider le 15 mai pour ce groupe",
           "je voudrais approuver définitivement la journée pour l'équipe",
-          "passer les affectations du jour au statut approuvé"
+          "passer les affectations du jour au statut approuvé",
+          "figer le planning du jour",
+          "empêcher les modifications d'une journée",
+          "rendre la journée définitive"
         ],
         "it": [
           "approvare",
@@ -15029,7 +15048,10 @@
           "liberare il giorno",
           "convalidare il 15 maggio per questo gruppo",
           "vorrei approvare definitivamente la giornata per il team",
-          "impostare le assegnazioni del giorno come approvate"
+          "impostare le assegnazioni del giorno come approvate",
+          "congelare la giornata",
+          "impedire modifiche a un giorno",
+          "rendere definitivo il piano del giorno"
         ]
       },
       "labels": {
@@ -15038,7 +15060,7 @@
         "fr": "Approuver une journée pour un groupe",
         "it": "Approva una giornata per un gruppo"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "revoke_day_approval",
@@ -19383,7 +19405,13 @@
           "wer arbeitet am montag in der gruppe",
           "zeig mir die belegung der kalenderwoche 12",
           "welche dienste sind im august schon vergeben",
-          "wie sieht der plan der gruppe im moment aus"
+          "wie sieht der plan der gruppe im moment aus",
+          "wer hat dienst",
+          "wer ist an dem tag eingeplant",
+          "ist der tag gut besetzt",
+          "fehlt an einem tag noch personal",
+          "wer übernimmt die frühschicht",
+          "wer macht nachtdienst"
         ],
         "en": [
           "read schedule",
@@ -19394,7 +19422,13 @@
           "who works on monday in the group",
           "show me the assignments of calendar week 12",
           "which shifts are already filled in august",
-          "what does the group's plan look like right now"
+          "what does the group's plan look like right now",
+          "who is on duty",
+          "who is rostered that day",
+          "is the day covered",
+          "are we short-staffed on a day",
+          "who has the early shift",
+          "who does the night shift"
         ],
         "fr": [
           "lire le planning",
@@ -19404,7 +19438,13 @@
           "qui travaille lundi dans le groupe",
           "montre-moi les affectations de la semaine 12",
           "quels services sont déjà attribués en août",
-          "à quoi ressemble le planning du groupe en ce moment"
+          "à quoi ressemble le planning du groupe en ce moment",
+          "qui est de service",
+          "qui est prévu ce jour-là",
+          "la journée est-elle couverte",
+          "manque-t-il du personnel un jour",
+          "qui fait l'équipe du matin",
+          "qui fait la nuit"
         ],
         "it": [
           "leggi pianificazione",
@@ -19414,7 +19454,13 @@
           "chi lavora lunedì nel gruppo",
           "mostrami le assegnazioni della settimana 12",
           "quali turni sono già assegnati ad agosto",
-          "com'è il piano del gruppo in questo momento"
+          "com'è il piano del gruppo in questo momento",
+          "chi è di turno",
+          "chi è in programma quel giorno",
+          "la giornata è coperta",
+          "manca personale in un giorno",
+          "chi fa il turno di mattina",
+          "chi fa la notte"
         ]
       },
       "labels": {
@@ -19423,7 +19469,7 @@
         "fr": "Lire l'état actuel du planning",
         "it": "Leggi lo stato attuale del planning"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "detect_conflicts",
@@ -47427,7 +47473,7 @@
     {
       "name": "explain_scheduling_rules_model",
       "area": "schedule",
-      "description": "Explains the limits a roster has to respect: the longest working day, the ceiling on hours per week, how many days in a row somebody may work, the minimum hours off between two working days and the minimum rest days between two blocks of work. Covers where a limit that is left empty takes its value from, what an entered zero actually does, and whether exceeding a limit only warns the planner or refuses the assignment.",
+      "description": "Explains the limits a roster has to respect: the longest working day, the ceiling on hours per week, how many days in a row somebody may work, the minimum hours off between two working days (e.g. whether a late duty may be followed by an early one the next morning) and the minimum rest days between two blocks of work. Covers where a limit that is left empty takes its value from, what an entered zero actually does, and whether exceeding a limit only warns the planner or refuses the assignment.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -47524,7 +47570,7 @@
         "fr": "Expliquer le modèle des règles de planification",
         "it": "Spiega il modello delle regole di pianificazione"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_compliance_rules_model",
