@@ -14,4 +14,13 @@ public interface IClientGroupFilterService : ICallerGroupRestriction
 {
     Task<IQueryable<Client>> FilterClientsByGroupId(
         Guid? selectedGroupId, IQueryable<Client> query, bool withoutGroup = false);
+
+    /// <summary>
+    /// Narrows the query to the clients with a regular membership (RegularMembership) in the selected group or one of
+    /// its subgroups, intersected with the groups the caller may see like FilterClientsByGroupId. A person who was only
+    /// borrowed into the group for single days is left out; FilterClientsByGroupId keeps listing her.
+    /// </summary>
+    /// <param name="selectedGroupId">Selected group; may be a root, an inner node or a leaf</param>
+    /// <param name="query">Client query to narrow</param>
+    Task<IQueryable<Client>> FilterRegularMembersOfGroup(Guid selectedGroupId, IQueryable<Client> query);
 }

@@ -1,9 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Resolves the planning agents of a selected group through the schedule view's own client scope and
-/// group filter, so planning skills see a sub-group's members (and its descendants) exactly as the
-/// schedule does — unlike the root-keyed ClientRepository.GetActiveClientsWithAddressesForGroupsAsync.
+/// Resolves the planning agents of a selected group through the schedule view's own client scope and the group
+/// filter's subtree and visibility rule, so planning skills see a sub-group's members (and its descendants) —
+/// unlike the root-keyed ClientRepository.GetActiveClientsWithAddressesForGroupsAsync. Agents are the regular members
+/// only (FilterRegularMembersOfGroup): a person who was borrowed into the group for single days still shows in the
+/// schedule of the group, but a planning run of the group does not plan her, because her absences of the home group
+/// are not part of the group's scenario.
 /// </summary>
 /// <param name="context">Database context</param>
 /// <param name="groupFilterService">Group subtree + visibility filter shared with the schedule client list</param>
@@ -32,7 +35,7 @@ public class GroupPlanningAgentRepository : IGroupPlanningAgentRepository
         Guid groupId, DateOnly periodFrom, DateOnly periodUntil, CancellationToken cancellationToken = default)
     {
         var scoped = ScheduleClientScope.ActiveInPeriod(_context.Client.AsNoTracking(), periodFrom, periodUntil);
-        var inGroup = await _groupFilterService.FilterClientsByGroupId(groupId, scoped);
+        var inGroup = await _groupFilterService.FilterRegularMembersOfGroup(groupId, scoped);
 
         return await inGroup
             .Select(c => c.Id)
@@ -44,7 +47,7 @@ public class GroupPlanningAgentRepository : IGroupPlanningAgentRepository
         Guid groupId, DateOnly periodFrom, DateOnly periodUntil, CancellationToken cancellationToken = default)
     {
         var scoped = ScheduleClientScope.ActiveInPeriod(_context.Client.AsNoTracking(), periodFrom, periodUntil);
-        var inGroup = await _groupFilterService.FilterClientsByGroupId(groupId, scoped);
+        var inGroup = await _groupFilterService.FilterRegularMembersOfGroup(groupId, scoped);
 
         var rows = await inGroup
             .Select(c => new { c.Id, c.Membership!.ValidFrom, c.Membership.ValidUntil })

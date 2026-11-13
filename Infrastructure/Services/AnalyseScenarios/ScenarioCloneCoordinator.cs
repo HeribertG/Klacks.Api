@@ -3,7 +3,9 @@
 /// <summary>
 /// Runs the clone of a new scenario in its fixed order: resolve the source and the group scope, clone the shifts, then
 /// the works (with work changes and expenses), breaks, notes and commands of the window widened by the boundary days,
-/// then the shift satellites and the rows only a source scenario has. The source resolver sorts the variants (keys) of the
+/// then the shift satellites and the rows only a source scenario has. The employees whose breaks, notes and commands
+/// are cloned are read once and handed to the day-row cloner: the regular members of the group hierarchy, the same
+/// people the accept reads its scope for. The source resolver sorts the variants (keys) of the
 /// source once: the shift clone sees the tokens of the caller plus those of the keys inside the group hierarchy of the new
 /// scenario, so a chained run counts key children in its snapshot like the source did, and the new scenario receives the
 /// links of those keys. Of any other key neither the clones of the source nor their works are taken. Everything is staged
@@ -69,9 +71,12 @@ public sealed class ScenarioCloneCoordinator
         var (shiftIdMap, clonedShifts, leftBehindShiftIds) = await _shiftCloner.CloneShifts(groupIds, additionalShiftIds, token, source, variants, ct);
         var workShiftIdMap = ScenarioShiftCloner.WithRootAliases(clonedShifts, shiftIdMap, source);
         var workIdMap = await _workCloner.CloneWorks(groupIds, boundaryFrom, boundaryUntil, token, workShiftIdMap, leftBehindShiftIds, source, ct);
-        await _dayRowCloner.CloneBreaks(groupIds, boundaryFrom, boundaryUntil, token, workIdMap, source, ct);
-        await _dayRowCloner.CloneScheduleNotes(groupIds, boundaryFrom, boundaryUntil, token, source, ct);
-        await _dayRowCloner.CloneScheduleCommands(groupIds, boundaryFrom, boundaryUntil, token, source, ct);
+        (List<Guid> Real, List<Guid> WithSource)? clientScope = groupIds is null
+            ? null
+            : await _groupScopeReader.LoadGroupClientScopeAsync(groupIds, source, ct);
+        await _dayRowCloner.CloneBreaks(clientScope, boundaryFrom, boundaryUntil, token, workIdMap, source, ct);
+        await _dayRowCloner.CloneScheduleNotes(clientScope, boundaryFrom, boundaryUntil, token, source, ct);
+        await _dayRowCloner.CloneScheduleCommands(clientScope, boundaryFrom, boundaryUntil, token, source, ct);
         await _satelliteCloner.CloneClientShiftPreferences(shiftIdMap, token, source, ct);
         await _satelliteCloner.CloneShiftExpenses(shiftIdMap, token, source, ct);
         await _satelliteCloner.CloneShiftRequiredQualifications(shiftIdMap, token, ct);

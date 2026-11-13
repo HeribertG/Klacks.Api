@@ -42,6 +42,11 @@ fr: "Max. jours de travail consécutifs", it: "Max. giorni lavorativi consecutiv
 off between two working days and the weekly rest days, so a second run over a partly filled range may leave
 a slot open rather than break that limit.
 
+A place on a shift that somebody already holds with a fixed duty (locked, corrected, handed over in a replacement or
+moved by an absence cover) counts as staffed, also when that person is not one of the people the run plans, for example
+a colleague from a sister group who took the duty over. Stage one does not staff that place a second time: with two
+places on the shift and one held that way, it fills only the other one. Only fixed duties are counted this way.
+
 For qualifications the hard part is a missing mandatory qualification and a level below the minimum
 where that level is binding; a level below a non-binding minimum is allowed but penalised by the size of
 the gap, so people at the required level are preferred (see `explain_qualifications`). That penalty
@@ -86,9 +91,11 @@ person, also behind one with 0 target hours: the filling stage ranks every real 
 service before a placeholder, and no later stage gives a placeholder a service a real person may legally keep in
 exchange for a free day (swapping one service for another stays possible); only a service that breaks a rule for that
 person may go to a placeholder for a free day (`explain_placeholder_employees`). A booked absence, an availability that leaves no usable hours and a
-missing mandatory qualification keep a person off a day. When somebody stays unplanned, check in this
-order: entry and exit dates, the ticked weekdays of the contract or the defaults, availability,
-absences, qualifications.
+missing mandatory qualification keep a person off a day. A person who is only borrowed into the group for single
+days (a cover from a sister group) is not planned by the autofill or the wizards of that group, also not when they
+show in its schedule; they are planned in their home group (`explain_absence_cover_move`). When somebody stays
+unplanned, check in this order: entry and exit dates, the ticked weekdays of the contract or the defaults,
+availability, absences, qualifications, and whether the person is only borrowed into the group.
 
 ## Who comes first, and what never gives way
 

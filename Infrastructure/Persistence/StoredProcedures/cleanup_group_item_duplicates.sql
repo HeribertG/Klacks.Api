@@ -5,10 +5,12 @@
 -- Safe to re-run: deduplicates by (shift_id, group_id) and (client_id, group_id),
 -- removes fully orphaned rows, and repairs root pointers on top-level groups.
 --
--- The client deduplication compares real-plan rows only (analyse_token IS NULL on both
--- sides). A scenario owns its own membership rows: the temporary membership of a borrowed
--- person may stand next to a row of another scenario or of the real plan for the same
--- client and group, and this script runs on every backend start.
+-- The client deduplication compares regular real-plan rows only (analyse_token IS NULL and
+-- is_temporary = false on both sides). A scenario owns its own membership rows: the temporary
+-- membership of a borrowed person may stand next to a row of another scenario or of the real
+-- plan for the same client and group. After a scenario is taken over the borrowed days stay
+-- temporary rows of the real plan, one per day, next to each other and next to a regular
+-- membership. This script runs on every backend start and must leave all of them alone.
 
 BEGIN;
 
@@ -32,6 +34,8 @@ USING group_item gi2
 WHERE gi.client_id IS NOT NULL
   AND gi.analyse_token IS NULL
   AND gi2.analyse_token IS NULL
+  AND gi.is_temporary = false
+  AND gi2.is_temporary = false
   AND gi.client_id = gi2.client_id
   AND gi.group_id = gi2.group_id
   AND COALESCE(gi.update_time, gi.create_time, '1970-01-01'::timestamptz) <
@@ -42,6 +46,8 @@ USING group_item gi2
 WHERE gi.client_id IS NOT NULL
   AND gi.analyse_token IS NULL
   AND gi2.analyse_token IS NULL
+  AND gi.is_temporary = false
+  AND gi2.is_temporary = false
   AND gi.client_id = gi2.client_id
   AND gi.group_id = gi2.group_id
   AND gi.id < gi2.id;

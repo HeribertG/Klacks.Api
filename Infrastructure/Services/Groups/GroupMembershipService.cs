@@ -1,9 +1,20 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Reads and changes the memberships of clients in groups as the master data knows them. Every read and every change
+/// goes through the regular memberships (RegularMembership): a scenario membership and the temporary membership of a
+/// borrowed day are neither listed, counted nor removed here, and a person who only has those counts as not yet a
+/// member.
+/// </summary>
+/// <param name="context">Database context holding the group items</param>
+/// <param name="logger">Logs the membership changes</param>
+/// <param name="hierarchyService">Resolves the descendants of a group</param>
+
 using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,19 +33,21 @@ public class GroupMembershipService : IGroupMembershipService
         _hierarchyService = hierarchyService;
     }
 
+    private IQueryable<GroupItem> RegularMemberships() => _context.GroupItem.Where(RegularMembership.IsRegular);
+
     public async Task UpdateGroupMembershipAsync(Guid groupId, IEnumerable<Guid> newClientIds, Guid? shiftId = null)
     {
         _logger.LogInformation("Updating group membership for group {GroupId} with {Count} clients",
             groupId, newClientIds.Count());
 
-        var existingIds = await _context.GroupItem
+        var existingIds = await RegularMemberships()
             .Where(x => x.GroupId == groupId && x.ClientId.HasValue)
             .Select(x => x.ClientId!.Value)
             .ToHashSetAsync();
 
         var newIds = newClientIds.ToHashSet();
 
-        var itemsToDelete = await _context.GroupItem
+        var itemsToDelete = await RegularMemberships()
             .Where(x => x.GroupId == groupId &&
                        x.ClientId.HasValue &&
                        !newIds.Contains(x.ClientId.Value))
@@ -68,7 +81,7 @@ public class GroupMembershipService : IGroupMembershipService
     {
         _logger.LogInformation("Adding client {ClientId} to group {GroupId}", clientId, groupId);
 
-        var existingItem = await _context.GroupItem
+        var existingItem = await RegularMemberships()
             .FirstOrDefaultAsync(x => x.GroupId == groupId && x.ClientId == clientId);
 
         if (existingItem != null)
@@ -94,7 +107,7 @@ public class GroupMembershipService : IGroupMembershipService
     {
         _logger.LogInformation("Removing client {ClientId} from group {GroupId}", clientId, groupId);
 
-        var groupItem = await _context.GroupItem
+        var groupItem = await RegularMemberships()
             .FirstOrDefaultAsync(x => x.GroupId == groupId && x.ClientId == clientId);
 
         if (groupItem == null)
@@ -113,7 +126,7 @@ public class GroupMembershipService : IGroupMembershipService
     {
         _logger.LogInformation("Getting members for group {GroupId}", groupId);
 
-        var members = await _context.GroupItem
+        var members = await RegularMemberships()
             .Where(gi => gi.GroupId == groupId && gi.ClientId.HasValue)
             .Include(gi => gi.Client)
             .Select(gi => gi.Client!)
@@ -127,7 +140,7 @@ public class GroupMembershipService : IGroupMembershipService
     {
         _logger.LogInformation("Getting groups for client {ClientId}", clientId);
 
-        var groups = await _context.GroupItem
+        var groups = await RegularMemberships()
             .Where(gi => gi.ClientId == clientId)
             .Include(gi => gi.Group)
             .Select(gi => gi.Group)
@@ -142,7 +155,7 @@ public class GroupMembershipService : IGroupMembershipService
     {
         _logger.LogDebug("Checking if client {ClientId} is in group {GroupId}", clientId, groupId);
 
-        var exists = await _context.GroupItem
+        var exists = await RegularMemberships()
             .AnyAsync(gi => gi.GroupId == groupId && gi.ClientId == clientId);
 
         _logger.LogDebug("Employee {ClientId} membership in group {GroupId}: {IsMember}", clientId, groupId, exists);
@@ -153,7 +166,7 @@ public class GroupMembershipService : IGroupMembershipService
     {
         _logger.LogDebug("Getting member count for group {GroupId}", groupId);
 
-        var count = await _context.GroupItem
+        var count = await RegularMemberships()
             .Where(gi => gi.GroupId == groupId && gi.ClientId.HasValue)
             .CountAsync();
 
@@ -168,7 +181,7 @@ public class GroupMembershipService : IGroupMembershipService
         var descendants = await _hierarchyService.GetDescendantsAsync(groupId, includeParent: true);
         var descendantIds = descendants.Select(g => g.Id).ToList();
 
-        var hierarchyMembers = await _context.GroupItem
+        var hierarchyMembers = await RegularMemberships()
             .Where(gi => descendantIds.Contains(gi.GroupId) && gi.ClientId.HasValue)
             .Include(gi => gi.Client)
             .Select(gi => gi.Client!)
@@ -185,7 +198,7 @@ public class GroupMembershipService : IGroupMembershipService
 
         var clientIdsList = clientIds.ToList();
 
-        var existingIds = await _context.GroupItem
+        var existingIds = await RegularMemberships()
             .Where(gi => gi.GroupId == groupId && gi.ClientId.HasValue && clientIdsList.Contains(gi.ClientId!.Value))
             .Select(gi => gi.ClientId!.Value)
             .ToHashSetAsync();
@@ -218,7 +231,7 @@ public class GroupMembershipService : IGroupMembershipService
 
         var clientIdsList = clientIds.ToList();
 
-        var itemsToRemove = await _context.GroupItem
+        var itemsToRemove = await RegularMemberships()
             .Where(gi => gi.GroupId == groupId && gi.ClientId.HasValue && clientIdsList.Contains(gi.ClientId.Value))
             .ToListAsync();
 

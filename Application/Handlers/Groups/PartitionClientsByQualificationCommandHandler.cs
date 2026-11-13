@@ -16,6 +16,7 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Groups;
@@ -224,7 +225,7 @@ public sealed class PartitionClientsByQualificationCommandHandler
             foreach (var clientId in planned.MemberClientIds.Where(id => !newIds.Contains(id)))
             {
                 var held = clientsById[clientId].GroupItems
-                    .FirstOrDefault(gi => !gi.IsDeleted && gi.AnalyseToken == null && gi.GroupId == planned.ExistingGroupId);
+                    .FirstOrDefault(gi => !gi.IsDeleted && RegularMembership.Holds(gi) && gi.GroupId == planned.ExistingGroupId);
                 if (held is not null)
                 {
                     existing.Add(new ExistingMembershipStart(clientId, held.ValidFrom, held.Id, planned.ExistingGroupId, held.ValidUntil));

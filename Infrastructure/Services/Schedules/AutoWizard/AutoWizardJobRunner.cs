@@ -150,7 +150,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     /// see (EnsureShiftsVisibleAsync). Agents the caller may not see
     /// are dropped from the selection like unknown ids, keeping the order of the rest (a repeated id once, at its first
     /// position), because the chain itself runs
-    /// without a user. Returns the request to run and the group the run's scenarios will belong to
+    /// without a user. People who are only borrowed into the planning group are dropped as well (IBorrowedAgentFilter):
+    /// a planning run of a group plans its own people, a borrowed person is planned in her home group. Returns the request to run and the group the run's scenarios will belong to
     /// (ScenarioGroupInheritance, the rule the apply uses).
     /// </summary>
     private async Task<(StartAutoWizardRequest Request, Guid? ScenarioGroupId)> ResolveStartScopeAsync(
@@ -164,11 +165,13 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
         var visibleAgentIds = await scope.ServiceProvider.GetRequiredService<IClientVisibilityGuard>()
             .FilterVisibleAsync(request.AgentIds.Distinct().ToList(), agentId => agentId, ct);
+        var plannedAgentIds = await scope.ServiceProvider.GetRequiredService<IBorrowedAgentFilter>()
+            .RemoveBorrowedAsync(visibleAgentIds, request.GroupId, request.AnalyseToken, ct);
 
         var sourceScenario = request.AnalyseToken is Guid sourceToken
             ? await scope.ServiceProvider.GetRequiredService<IAnalyseScenarioRepository>().GetByTokenAsync(sourceToken, ct)
             : null;
-        return (request with { AgentIds = visibleAgentIds }, ScenarioGroupInheritance.Resolve(request.GroupId, sourceScenario));
+        return (request with { AgentIds = plannedAgentIds }, ScenarioGroupInheritance.Resolve(request.GroupId, sourceScenario));
     }
 
     /// <summary>

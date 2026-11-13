@@ -70,6 +70,10 @@ public sealed class WizardJobRunner : IWizardJobRunner
     public async Task<Guid> StartAsync(WizardContextRequest request, CancellationToken chainCt)
     {
         await _scopeFactory.EnsureScenarioTokenVisibleAsync(request.AnalyseToken, chainCt);
+        request = request with
+        {
+            AgentIds = await _scopeFactory.RemoveBorrowedAgentsAsync(request.AgentIds, request.GroupId, request.AnalyseToken, chainCt),
+        };
 
         _startGuard.EnsureWithinLimits(
             AutofillFamily.Wizard1, request.AgentIds.Count, request.ShiftIds?.Count ?? 0,

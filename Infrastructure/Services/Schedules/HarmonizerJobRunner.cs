@@ -94,6 +94,10 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
     public async Task<Guid> StartAsync(HarmonizerContextRequest request, CancellationToken chainCt)
     {
         await _scopeFactory.EnsureScenarioTokenVisibleAsync(request.AnalyseToken, chainCt);
+        request = request with
+        {
+            AgentIds = await _scopeFactory.RemoveBorrowedAgentsAsync(request.AgentIds, request.GroupId, request.AnalyseToken, chainCt),
+        };
 
         _startGuard.EnsureWithinLimits(
             AutofillFamily.Harmonizer, request.AgentIds.Count, 0, request.PeriodFrom, request.PeriodUntil);

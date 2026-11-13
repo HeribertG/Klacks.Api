@@ -23,6 +23,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// hours, like Free for consecutive days - so an apply never runs into the day lock. An on-call absence stays a break
 /// blocker but carries zero hours toward the target (BreakOwnHours). Unlocked existing works carry their own paid hours
 /// (WorkOwnHours; the substitute of a replacement the replaced hours) toward the maximum weekly hours.
+/// LoadForeignFixedSeatsAsync is the one read the other way round: the slots that fixed works of persons outside the run
+/// already hold, so the context builder can take those seats out of the demand.
 /// </summary>
 /// <param name="context">EF Core database context</param>
 /// <param name="keywordProvider">Source of the currently effective (admin-configurable) command keyword tokens</param>
@@ -63,6 +65,56 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
 
         return new HardConstraintResult(commands, preferences, blockers, lockedWorks, existingBlockers);
     }
+
+    public async Task<IReadOnlyList<(Guid ShiftId, DateOnly Date)>> LoadForeignFixedSeatsAsync(
+        IReadOnlyList<Guid> agentIds,
+        IReadOnlyCollection<Guid> shiftIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken,
+        CancellationToken ct)
+    {
+        if (shiftIds.Count == 0)
+        {
+            return [];
+        }
+
+        var foreignWorks = await ForeignWorksQuery(_context, agentIds.ToList(), shiftIds.ToList(), from, until, analyseToken)
+            .Select(w => new { w.Id, w.ShiftId, w.CurrentDate, w.LockLevel })
+            .ToListAsync(ct);
+        if (foreignWorks.Count == 0)
+        {
+            return [];
+        }
+
+        // The protected set stays in memory, so no id list of unbounded length goes into the query.
+        var fixedWorkIds = await CorrectedWorkQuery.LoadFixedWorkIdsAsync(_context, analyseToken, from, until, ct);
+        return foreignWorks
+            .Where(w => w.LockLevel > WorkLockLevel.None || fixedWorkIds.Contains(w.Id))
+            .Select(w => (w.ShiftId, w.CurrentDate))
+            .ToList();
+    }
+
+    /// <summary>
+    /// Works on the run's shifts in the period that a person outside the run holds, in exactly the given token world.
+    /// Container children and split parts are not filtered out, exactly like the agents' locked works, so a work of an agent
+    /// and of anybody else occupy a slot alike (key ShiftId + CurrentDate, one per row). Soft-deleted works are left out by
+    /// the query filter.
+    /// </summary>
+    internal static IQueryable<Work> ForeignWorksQuery(
+        DataBaseContext context,
+        List<Guid> agentIds,
+        List<Guid> shiftIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken)
+        => context.Work
+            .AsNoTracking()
+            .Where(w => !agentIds.Contains(w.ClientId)
+                        && shiftIds.Contains(w.ShiftId)
+                        && w.CurrentDate >= from
+                        && w.CurrentDate <= until
+                        && (w.AnalyseToken == analyseToken || (w.AnalyseToken == null && analyseToken == null)));
 
     private async Task<IReadOnlyList<CoreScheduleCommand>> BuildScheduleCommandsAsync(
         List<Guid> agentIds, DateOnly from, DateOnly until, Guid? analyseToken, CancellationToken ct)

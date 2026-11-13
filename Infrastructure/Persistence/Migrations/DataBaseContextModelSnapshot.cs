@@ -5962,6 +5962,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<bool>("IsTemporary")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_temporary");
+
                     b.Property<Guid?>("ScenarioSourceGroupItemId")
                         .HasColumnType("uuid")
                         .HasColumnName("scenario_source_group_item_id");
@@ -5988,23 +5992,28 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.HasIndex("ClientId", "GroupId")
                         .IsUnique()
                         .HasDatabaseName("ix_group_item_client_id_group_id")
-                        .HasFilter("\"client_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NULL");
+                        .HasFilter("\"client_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NULL AND \"is_temporary\" = false");
 
                     b.HasIndex("ShiftId", "GroupId")
                         .IsUnique()
                         .HasDatabaseName("ix_group_item_shift_id_group_id")
                         .HasFilter("\"shift_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NULL");
 
-                    b.HasIndex("ClientId", "GroupId", "AnalyseToken")
-                        .IsUnique()
-                        .HasDatabaseName("ix_group_item_client_id_group_id_analyse_token")
-                        .HasFilter("\"client_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NOT NULL");
-
                     b.HasIndex("ClientId", "GroupId", "ShiftId")
                         .HasDatabaseName("ix_group_item_client_id_group_id_shift_id");
 
+                    b.HasIndex("ClientId", "GroupId", "ValidFrom")
+                        .IsUnique()
+                        .HasDatabaseName("ix_group_item_client_id_group_id_valid_from")
+                        .HasFilter("\"client_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NULL AND \"is_temporary\" = true");
+
                     b.HasIndex("GroupId", "ClientId", "IsDeleted")
                         .HasDatabaseName("ix_group_item_group_id_client_id_is_deleted");
+
+                    b.HasIndex("ClientId", "GroupId", "AnalyseToken", "ValidFrom")
+                        .IsUnique()
+                        .HasDatabaseName("ix_group_item_client_id_group_id_analyse_token_valid_from")
+                        .HasFilter("\"client_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NOT NULL");
 
                     b.ToTable("group_item", (string)null);
                 });

@@ -483,6 +483,8 @@ internal static class DomainServiceCollectionExtensions
                               Klacks.ScheduleRecovery.Engine.LocalRepairEngine>();
 
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutofillStartGuard>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IBorrowedAgentFilter,
+                           Klacks.Api.Application.Services.Schedules.BorrowedAgentFilter>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardJobRegistry>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardResultCache>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules

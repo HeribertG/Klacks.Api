@@ -10,10 +10,12 @@
 /// still be eligible in the scenario at this moment for the stored window of the slot and may not already stand in at an overlapping time (the candidate
 /// search does not count replacements as occupancy). What belonged to the old stand-in goes with them: the relocation of
 /// their own work of a swap, moved or replaced, when this scenario wrote that relocation and, for a moved work, nothing holds it and
-/// they are free at that time, their untouched proposal row and, after their last cover, their temporary membership. A swap
+/// they are free at that time, their untouched proposal row and, when they cover nothing else on the day of the slot, their
+/// temporary membership of that day; their memberships of other days stay. A swap
 /// chain is taken back as far as it reaches: the works the old stand-in handed on on other days within the relief reach of
 /// the engine return as well, and whoever took one of them gets back what they handed on in turn, up to the chain length
-/// of the engine; a borrowed receiver who then holds nothing of the scenario loses the temporary membership of that day.
+/// of the engine; a borrowed receiver who then covers nothing on the day of the returned work loses the temporary
+/// membership of that day.
 /// A work that went away because its person is absent themselves (the request book knows that slot) stays. When a person
 /// of the chain still covers something else in the scenario, or a work on another day cannot return, the switch is refused
 /// as a whole. A candidate borrowed from another group under the same root gets the temporary membership of the day in
@@ -355,7 +357,7 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
             _requestRepository.Remove(proposal);
         }
 
-        if (!await HoldsACoverAsync(token, oldStandInId, cancellationToken))
+        if (!await HoldsACoverOnDayAsync(token, oldStandInId, row.Date, cancellationToken))
         {
             await _scenarioService.RemoveScenarioMembershipsAsync(token, oldStandInId, row.Date, cancellationToken);
         }
@@ -386,7 +388,7 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
 
     /// <summary>
     /// The receiver of a returned work lost the reason for what they handed on in turn, so that returns too; a receiver
-    /// who then holds nothing of the scenario loses the temporary membership of the day of the returned work.
+    /// who then covers nothing on the day of the returned work loses the temporary membership of that day.
     /// </summary>
     private async Task SettleReceiverAsync(
         Guid token, Relief returned, DateOnly slotDate, int level, CancellationToken cancellationToken)
@@ -400,7 +402,7 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
             }
         }
 
-        if (!await HoldsACoverAsync(token, returned.ReceiverId, cancellationToken))
+        if (!await HoldsACoverOnDayAsync(token, returned.ReceiverId, returned.Work.CurrentDate, cancellationToken))
         {
             await _scenarioService.RemoveScenarioMembershipsAsync(
                 token, returned.ReceiverId, returned.Work.CurrentDate, cancellationToken);
@@ -476,6 +478,14 @@ public sealed class ScenarioReplacementSwitcher : IScenarioReplacementSwitcher
     private async Task<bool> HoldsACoverAsync(Guid token, Guid personId, CancellationToken cancellationToken)
         => await _workChangeRepository.IsReplacementInScenarioAsync(token, personId, cancellationToken)
             || await _workRepository.HoldsMovedWorkInScenarioAsync(token, personId, cancellationToken);
+
+    /// <summary>
+    /// Whether the person stands in on a work or owns a moved work of the scenario whose workday is that day. The
+    /// temporary membership is kept per day, so only a cover of the same day keeps the membership of that day.
+    /// </summary>
+    private async Task<bool> HoldsACoverOnDayAsync(Guid token, Guid personId, DateOnly date, CancellationToken cancellationToken)
+        => await _workChangeRepository.IsReplacementInScenarioOnDayAsync(token, personId, date, cancellationToken)
+            || await _workRepository.HoldsMovedWorkInScenarioOnDayAsync(token, personId, date, cancellationToken);
 
     /// <summary>A work a person gave up for a cover: moved to its receiver, or still theirs with a recovery replacement.</summary>
     /// <param name="Work">The work</param>

@@ -1,5 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Brings the stored child rows of a parent in line with an incoming collection: a stored row with a matching key takes
+/// the incoming values, one without a match is deleted, an incoming row without a match is added.
+/// </summary>
+/// <param name="context">Database context that tracks the stored rows</param>
+/// <param name="keySelector">Key the stored and incoming rows are matched by; without it the id</param>
+/// <param name="takesPart">Limits the stored rows that are matched, changed or deleted; a stored row outside is left alone. Null takes every row</param>
+
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -30,10 +38,11 @@ public class EntityCollectionUpdateService
         ICollection<TEntity> updatedCollection,
         Guid parentId,
         Action<TEntity, Guid> setParentId,
-        Func<TEntity, TKey> keySelector)
+        Func<TEntity, TKey> keySelector,
+        Func<TEntity, bool>? takesPart = null)
         where TEntity : BaseEntity
     {
-        var existingList = existingCollection.ToList();
+        var existingList = existingCollection.Where(existing => takesPart is null || takesPart(existing)).ToList();
         var updatedList = updatedCollection.ToList();
         var emptyIdSentinel = (object)Guid.Empty;
 

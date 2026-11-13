@@ -65,6 +65,16 @@ public interface IWorkChangeRepository : IBaseRepository<WorkChange>
     Task<bool> IsReplacementInScenarioAsync(Guid analyseToken, Guid clientId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// True when the employee stands in on a work of the scenario whose workday is the given day. A replacement that
+    /// runs past midnight counts for the workday of its work.
+    /// </summary>
+    /// <param name="analyseToken">Scenario token</param>
+    /// <param name="clientId">Replacing employee</param>
+    /// <param name="date">Workday</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<bool> IsReplacementInScenarioOnDayAsync(Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken);
+
+    /// <summary>
     /// True when the employee already stands in on a work of the scenario at a time that overlaps the slot. Compares the
     /// effective replacement windows, including those of the neighbouring days that run past midnight.
     /// </summary>

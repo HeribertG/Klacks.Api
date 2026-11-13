@@ -31,6 +31,12 @@ public class GroupItem : BaseEntity
 
     public Guid? ScenarioSourceGroupItemId { get; set; }
 
+    /// <summary>
+    /// True for a membership a cover lent a person for single days (a borrowed stand-in), in a scenario and after the
+    /// scenario is taken over. Such a row counts in the schedule on its days, but is no regular membership of the master data.
+    /// </summary>
+    public bool IsTemporary { get; set; }
+
     [JsonIgnore]
     public virtual Client? Client { get; set; } = null!;
 

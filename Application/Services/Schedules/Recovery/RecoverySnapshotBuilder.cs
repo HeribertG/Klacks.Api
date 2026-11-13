@@ -122,7 +122,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
 
         var contracts = await _contractProvider.GetEffectiveContractDataForClientsAsync(memberIds, referenceDate);
         var (periodFrom, periodUntil) = await _periodHoursService.GetPeriodBoundariesAsync(referenceDate);
-        var coveredClientIds = await LoadSourceCoveredClientIdsAsync(source);
+        var coveredClientIds = await LoadSourceCoveredClientIdsAsync(source, cancellationToken);
         var periodHours = await LoadPeriodHoursAsync(memberIds, periodFrom, periodUntil, source, coveredClientIds);
         var (preferred, blacklisted) = PreferenceSets(await LoadPreferencesAsync(memberIds, source, cancellationToken));
         var membershipWindows = await _membershipWindowReader.GetWindowsAsync(memberIds, cancellationToken);
@@ -175,9 +175,16 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         return real.Concat(scenario).ToList();
     }
 
-    private async Task<IReadOnlyCollection<Guid>?> LoadSourceCoveredClientIdsAsync(ScenarioSourceScope? source)
+    /// <summary>
+    /// The people whose whole plan the source scenario owns on its days: the regular members of its group, the people
+    /// whose real breaks and notes its clone copied. Everybody else, a person the source scenario borrowed and a person
+    /// who was borrowed into that group at some time, keeps the real plan and only takes the source scenario's rows
+    /// on its shifts (ScenarioSourceRowMerger). Null without a group: the source scenario then owns everybody.
+    /// </summary>
+    private async Task<IReadOnlyCollection<Guid>?> LoadSourceCoveredClientIdsAsync(
+        ScenarioSourceScope? source, CancellationToken cancellationToken)
         => source?.GroupId is { } sourceGroupId
-            ? await _groupClientService.GetAllClientIdsFromGroupAndSubgroups(sourceGroupId)
+            ? await _groupClientService.GetRealClientIdsFromGroupAndSubgroups(sourceGroupId, cancellationToken)
             : null;
 
     /// <summary>

@@ -1,10 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Read-side repository for period-closing lookups: group/user display names and schedule-note issues.
+/// Read-side repository for period-closing lookups: group/user display names and schedule-note issues. With a group
+/// the note issues are those of its regular members and of the people borrowed on a day of the period.
 /// </summary>
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -64,8 +66,10 @@ public class PeriodClosingReadRepository : IPeriodClosingReadRepository
         if (groupId.HasValue)
         {
             var resolvedGroupId = groupId.Value;
+            var memberOfThePeriod = RegularMembership.OrTemporaryWithin(fromDate, toDate);
             query = query.Where(x =>
                 _context.GroupItem.AsNoTracking()
+                    .Where(memberOfThePeriod)
                     .Any(gi => !gi.IsDeleted && gi.ClientId == x.client.Id && gi.GroupId == resolvedGroupId));
         }
 

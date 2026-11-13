@@ -117,7 +117,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     {
         Logger.LogInformation("Fetching group with ID: {GroupId}", id);
         var group = await context.Group.Where(x => x.Id == id)
-            .Include(gr => gr.GroupItems.Where(gi => !gi.ShiftId.HasValue && gi.ClientId.HasValue))
+            .Include(RegularMembership.MembersOfGroup)
                 .ThenInclude(gi => gi.Client)
             .AsNoTracking()
             .FirstOrDefaultAsync();
@@ -212,7 +212,8 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     public async Task<IReadOnlyList<Guid>> GetGroupIdsWithMembersAsync(CancellationToken cancellationToken = default)
     {
         return await context.GroupItem
-            .Where(gi => gi.AnalyseToken == null && (gi.ClientId != null || gi.ShiftId != null))
+            .Where(gi => gi.ClientId != null || gi.ShiftId != null)
+            .Where(RegularMembership.OrTemporary)
             .Select(gi => gi.GroupId)
             .Distinct()
             .ToListAsync(cancellationToken);
@@ -371,7 +372,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     private IQueryable<Group> GroupsWithRealItems() =>
         context.Group
-            .Include(gr => gr.GroupItems.Where(gi => gi.AnalyseToken == null))
+            .Include(RegularMembership.ItemsOfGroup)
             .ThenInclude(gi => gi.Client)
             .AsNoTracking()
             .OrderBy(g => g.Root);

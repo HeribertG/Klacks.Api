@@ -24,8 +24,9 @@ public sealed class ScenarioSourceOnlyRowCloner
     }
 
     /// <summary>
-    /// Copies the source scenario's temporary cross-group memberships (borrowed employees) into the new scenario, so a
-    /// cover that relies on them survives into the child and is promoted with it on accept.
+    /// Copies the source scenario's temporary cross-group memberships (borrowed employees) row by row into the new
+    /// scenario, each marked temporary, so a cover that relies on them survives into the child and is promoted with it
+    /// on accept.
     /// </summary>
     internal async Task CloneScenarioMemberships(ScenarioCloneSource source, Guid token, CancellationToken ct)
     {
@@ -49,7 +50,8 @@ public sealed class ScenarioSourceOnlyRowCloner
                 ShiftId = null,
                 ValidFrom = membership.ValidFrom,
                 ValidUntil = membership.ValidUntil,
-                AnalyseToken = token
+                AnalyseToken = token,
+                IsTemporary = true
             }, ct);
         }
     }

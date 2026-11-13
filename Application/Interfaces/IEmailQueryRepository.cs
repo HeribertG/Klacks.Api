@@ -20,6 +20,12 @@ public interface IEmailQueryRepository
 
     Task<List<string>> GetEmailAddressesByClientAsync(Guid clientId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// The clients with a regular membership in one of the groups. Scenario memberships and the temporary memberships
+    /// of borrowed days do not count: a borrowed person does not belong to the mail of the receiving group.
+    /// </summary>
+    /// <param name="groupIds">Groups whose members are read, matched exactly</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     Task<List<Guid>> GetClientIdsByGroupIdsAsync(HashSet<Guid> groupIds, CancellationToken cancellationToken = default);
 
     Task<List<string>> GetEmailAddressesByClientIdsAsync(List<Guid> clientIds, CancellationToken cancellationToken = default);

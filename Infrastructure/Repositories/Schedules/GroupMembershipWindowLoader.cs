@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Loads the membership windows of employees in a set of groups: a real-plan, non-deleted GroupItem of the client
-/// for exactly that group (no subgroup cascade) intersected with the client's Membership. Shared by the group break
+/// for exactly that group (no subgroup cascade) intersected with the client's Membership. The temporary memberships of
+/// borrowed days are loaded too (RegularMembership.OrTemporary): each is the window of its day. Shared by the group break
 /// attribution (GroupBreakScope) and the day lock (SealedDayRepository) so that "member of the group on that day"
 /// means the same in sealing, exporting and write protection. The day test itself is GroupMembershipWindow.IsActiveOn.
 /// </summary>
@@ -13,6 +14,7 @@
 /// <param name="untilDate">Last day (inclusive) a window must overlap</param>
 
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,12 +41,11 @@ internal static class GroupMembershipWindowLoader
         var clientIdList = clientIds?.ToList();
 
         var query =
-            from groupItem in context.GroupItem
+            from groupItem in context.GroupItem.Where(RegularMembership.OrTemporary)
             join membership in context.Membership on groupItem.ClientId equals membership.ClientId
             where groupItem.ClientId != null
                 && groupIdList.Contains(groupItem.GroupId)
                 && !groupItem.IsDeleted
-                && groupItem.AnalyseToken == null
                 && groupItem.ScenarioSourceGroupItemId == null
                 && !membership.IsDeleted
                 && membership.ValidFrom <= untilUtc

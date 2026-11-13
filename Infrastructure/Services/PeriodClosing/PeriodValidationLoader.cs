@@ -35,6 +35,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services.Schedules;
@@ -92,7 +93,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
     {
         var issueLimit = maxIssues ?? PeriodIssueLimits.MaxValidationIssues;
         var clientIdsInGroup = groupId.HasValue
-            ? await LoadClientIdsForGroupAsync(groupId.Value, cancellationToken)
+            ? await LoadClientIdsForGroupAsync(groupId.Value, from, to, analyseToken, cancellationToken)
             : null;
 
         var ruleFrom = from.AddDays(-ScenarioConstants.BoundaryDays);
@@ -188,15 +189,33 @@ public class PeriodValidationLoader : IPeriodValidationLoader
             .ToList();
     }
 
-    private async Task<HashSet<Guid>> LoadClientIdsForGroupAsync(Guid groupId, CancellationToken cancellationToken)
+    /// <summary>
+    /// The people the group's findings of the period are about: its regular members, the people borrowed on a day of the
+    /// period and, for a scenario load, the people that scenario borrowed.
+    /// </summary>
+    private async Task<HashSet<Guid>> LoadClientIdsForGroupAsync(
+        Guid groupId, DateOnly from, DateOnly to, Guid? analyseToken, CancellationToken cancellationToken)
     {
         var ids = await _context.GroupItem
             .AsNoTracking()
             .Where(gi => !gi.IsDeleted && gi.GroupId == groupId && gi.ClientId != null)
+            .Where(RegularMembership.OrTemporaryWithin(from, to))
             .Select(gi => gi.ClientId!.Value)
             .Distinct()
             .ToListAsync(cancellationToken);
-        return new HashSet<Guid>(ids);
+        var result = new HashSet<Guid>(ids);
+        if (analyseToken is { } token)
+        {
+            var borrowedInScenario = await _context.GroupItem
+                .AsNoTracking()
+                .Where(gi => !gi.IsDeleted && gi.GroupId == groupId && gi.ClientId != null && gi.AnalyseToken == token)
+                .Select(gi => gi.ClientId!.Value)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+            result.UnionWith(borrowedInScenario);
+        }
+
+        return result;
     }
 
     private async Task<List<Work>> LoadWorksAsync(

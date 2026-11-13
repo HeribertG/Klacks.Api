@@ -2,9 +2,11 @@
 
 using System.Linq.Expressions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,8 +14,6 @@ namespace Klacks.Api.Infrastructure.Repositories.Associations;
 
 public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemRepository
 {
-    private const int IdChunkSize = 2000;
-
     private static readonly Expression<Func<GroupItem, bool>> IsRealShiftLink = gi =>
         gi.ShiftId != null
         && gi.AnalyseToken == null
@@ -29,7 +29,8 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
     public async Task<GroupItem?> GetByClientAndGroup(Guid clientId, Guid groupId)
     {
         return await context.GroupItem
-            .Where(gi => gi.ClientId == clientId && gi.GroupId == groupId && gi.AnalyseToken == null)
+            .Where(gi => gi.ClientId == clientId && gi.GroupId == groupId)
+            .Where(RegularMembership.IsRegular)
             .OrderBy(gi => gi.ValidUntil == null ? 0 : 1)
             .ThenByDescending(gi => gi.ValidFrom)
             .ThenBy(gi => gi.Id)
@@ -54,7 +55,7 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
         IReadOnlyDictionary<Guid, DateTime> newStarts, CancellationToken cancellationToken = default)
     {
         var changed = 0;
-        foreach (var chunk in newStarts.Keys.Chunk(IdChunkSize))
+        foreach (var chunk in newStarts.Keys.Chunk(IdListQueryLimits.ChunkSize))
         {
             var items = await context.GroupItem
                 .Where(gi => chunk.Contains(gi.Id) && !gi.IsDeleted)
@@ -79,12 +80,13 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
         IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken = default)
     {
         var result = new List<(Guid ClientId, Guid GroupId, DateTime ValidUntil)>();
-        foreach (var chunk in clientIds.Distinct().Chunk(IdChunkSize))
+        foreach (var chunk in clientIds.Distinct().Chunk(IdListQueryLimits.ChunkSize))
         {
             var rows = await context.GroupItem
                 .AsNoTracking()
                 .Where(gi => gi.ClientId != null && chunk.Contains(gi.ClientId.Value)
-                    && gi.ShiftId == null && gi.AnalyseToken == null && gi.ValidUntil != null && !gi.IsDeleted)
+                    && gi.ShiftId == null && gi.ValidUntil != null && !gi.IsDeleted)
+                .Where(RegularMembership.IsRegular)
                 .Select(gi => new { ClientId = gi.ClientId!.Value, gi.GroupId, ValidUntil = gi.ValidUntil!.Value })
                 .ToListAsync(cancellationToken);
 
@@ -98,7 +100,7 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
         IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
     {
         var result = new Dictionary<Guid, DateTime?>();
-        foreach (var chunk in ids.Chunk(IdChunkSize))
+        foreach (var chunk in ids.Chunk(IdListQueryLimits.ChunkSize))
         {
             var rows = await context.GroupItem
                 .AsNoTracking()
@@ -151,7 +153,8 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
     {
         var groupIdList = groupIds.ToList();
         return await context.GroupItem
-            .Where(gi => groupIdList.Contains(gi.GroupId) && gi.ClientId != null && gi.AnalyseToken == null)
+            .Where(gi => groupIdList.Contains(gi.GroupId) && gi.ClientId != null)
+            .Where(RegularMembership.IsRegular)
             .GroupBy(gi => gi.GroupId)
             .Select(g => new { GroupId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);
@@ -168,6 +171,41 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
         IReadOnlyCollection<Guid> groupIds,
         CancellationToken cancellationToken = default)
         => GroupPeriodRangeQuery.LoadAsync(context, clientIds, groupIds, cancellationToken);
+
+    public async Task<HashSet<Guid>> GetBorrowedOnlyClientIdsAsync(
+        IReadOnlyCollection<Guid> clientIds,
+        IReadOnlyCollection<Guid> groupIds,
+        CancellationToken cancellationToken = default)
+    {
+        var result = new HashSet<Guid>();
+        if (groupIds.Count == 0)
+        {
+            return result;
+        }
+
+        var groupIdList = groupIds.ToList();
+        foreach (var chunk in clientIds.Distinct().Chunk(IdListQueryLimits.ChunkSize))
+        {
+            var regular = context.GroupItem
+                .Where(gi => gi.ClientId != null && chunk.Contains(gi.ClientId.Value) && groupIdList.Contains(gi.GroupId))
+                .Where(RegularMembership.IsRegular)
+                .Select(gi => gi.ClientId!.Value);
+
+            var borrowedOnly = await context.GroupItem
+                .AsNoTracking()
+                .Where(gi => gi.ClientId != null && chunk.Contains(gi.ClientId.Value) && groupIdList.Contains(gi.GroupId)
+                    && gi.IsTemporary)
+                .Where(RegularMembership.OrTemporary)
+                .Select(gi => gi.ClientId!.Value)
+                .Where(clientId => !regular.Contains(clientId))
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+            result.UnionWith(borrowedOnly);
+        }
+
+        return result;
+    }
 
     public async Task<List<Guid>> GetGroupIdsByShiftId(Guid shiftId, CancellationToken cancellationToken = default)
     {
@@ -201,6 +239,7 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
     {
         return await context.GroupItem
             .Where(gi => gi.ClientId.HasValue && gi.Client != null && gi.Client.Type == EntityTypeEnum.Customer)
+            .Where(RegularMembership.IsRegular)
             .GroupBy(gi => gi.GroupId)
             .Select(g => new { GroupId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);
@@ -210,6 +249,7 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
     {
         return await context.GroupItem
             .Where(gi => gi.ClientId.HasValue && gi.Client != null && gi.Client.Type == EntityTypeEnum.Employee)
+            .Where(RegularMembership.IsRegular)
             .GroupBy(gi => gi.GroupId)
             .Select(g => new { GroupId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);
@@ -219,6 +259,7 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
     {
         return await context.GroupItem
             .Where(gi => gi.ClientId.HasValue && gi.Client != null && gi.Client.Type == EntityTypeEnum.ExternEmp)
+            .Where(RegularMembership.IsRegular)
             .GroupBy(gi => gi.GroupId)
             .Select(g => new { GroupId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.GroupId, x => x.Count, cancellationToken);

@@ -4,8 +4,9 @@
 /// Promote step of an accept: moves the scenario's works of the period (with their work changes and expenses) onto the
 /// real shifts, discards boundary works, the uncovered works of the scenario's new absences (a service that does not
 /// happen, the open place shows the gap) and the works the day-lock plan keeps out, stamps the applied replacement
-/// requests, promotes breaks and notes, discards the scenario shifts and their shift-scoped rows, turns temporary
-/// memberships into real ones and drops the scenario's planning constraints. The variants (keys) the scenario carries are
+/// requests, promotes breaks and notes, discards the scenario shifts and their shift-scoped rows, turns the temporary
+/// memberships into temporary memberships of the real plan (one per borrowed day, a day the real plan already covers is
+/// left out) and drops the scenario's planning constraints. The variants (keys) the scenario carries are
 /// promoted last, so the works that moved onto their shifts land on rows that turn real in the same commit. Everything is
 /// staged on the shared context; the accept handler commits, and the commit of an accept with keys moves the keys to
 /// Accepted (ScenarioVariantPromoter.TryCommitAcceptAsync). Returns and logs what the day lock kept out.
@@ -15,7 +16,7 @@
 /// <param name="replacementRequestBook">Stamps the replacement requests whose change is promoted</param>
 /// <param name="lockSkipCounter">Counts the discarded rows the real plan does not keep</param>
 /// <param name="dayRowPromoter">Promotes the scenario breaks and schedule notes</param>
-/// <param name="ownedRowStager">Drops the scenario's planning constraints</param>
+/// <param name="ownedRowStager">Promotes the temporary memberships and drops the scenario's planning constraints</param>
 /// <param name="variantPromoter">Turns the keys the scenario carries into real shifts</param>
 /// <param name="openSlotFinder">Finds the uncovered works of the scenario's new absences</param>
 /// <param name="logger">Logs what the day lock kept out of the accept</param>
@@ -93,7 +94,7 @@ public sealed class ScenarioPromoter
         var skippedNotes = await _dayRowPromoter.PromoteScenarioNotesAsync(token, fromDate, untilDate, plan, now, ct);
 
         await DiscardScenarioShiftRowsAsync(token, now, ct);
-        await PromoteScenarioMembershipsAsync(token, now, ct);
+        await _ownedRowStager.PromoteScenarioMembershipsAsync(token, now, ct);
 
         await _ownedRowStager.SoftDeleteScenarioPlanningConstraintsAsync(token, now, ct);
 
@@ -230,28 +231,6 @@ public sealed class ScenarioPromoter
         var cloneShiftExpenses = await _context.Set<ShiftExpenses>().IgnoreQueryFilters()
             .Where(e => e.AnalyseToken == token && !e.IsDeleted).ToListAsync(ct);
         foreach (var e in cloneShiftExpenses) { e.IsDeleted = true; e.DeletedTime = now; }
-    }
-
-    /// <summary>
-    /// Promotes the temporary cross-group client memberships to real (time-bounded) ones, and drops the cloned-shift
-    /// memberships along with their (discarded) cloned shifts.
-    /// </summary>
-    private async Task PromoteScenarioMembershipsAsync(Guid token, DateTime now, CancellationToken ct)
-    {
-        var scenarioMemberships = await _context.Set<GroupItem>().IgnoreQueryFilters()
-            .Where(gi => gi.AnalyseToken == token && !gi.IsDeleted).ToListAsync(ct);
-        foreach (var gi in scenarioMemberships)
-        {
-            if (gi.ShiftId != null)
-            {
-                gi.IsDeleted = true;
-                gi.DeletedTime = now;
-            }
-            else
-            {
-                gi.AnalyseToken = null;
-            }
-        }
     }
 
     private void LogLockSkips(Guid token, ScenarioAcceptLockSkips skips)

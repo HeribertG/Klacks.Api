@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Places the same absence (e.g. a training day / "Schulung") on every member of a named group for a
-/// single date in one server-side round trip. With apply=false (default) it returns a read-only preview;
+/// single date in one server-side round trip. Members are the people with a regular membership in the group or one
+/// of its subgroups; a person who was only borrowed for single days is left out. With apply=false (default) it returns a read-only preview;
 /// with apply=true it creates one Break per member that does not already have that absence on that date,
 /// then re-reads the database (recount) to confirm how many were actually persisted. The break-creation
 /// path runs through BulkAddBreaksCommand, whose writes are not rolled back on a partial result, so verification is by recount, not by
@@ -108,7 +109,7 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
         var absence = typeMatches[0];
         var typeLabel = Label(absence.Name);
 
-        var members = await _memberService.GetAllClientIdsFromGroupAndSubgroups(group.Id);
+        var members = await _memberService.GetRealClientIdsFromGroupAndSubgroups(group.Id, cancellationToken);
         if (members.Count == 0)
         {
             return SkillResult.SuccessResult(

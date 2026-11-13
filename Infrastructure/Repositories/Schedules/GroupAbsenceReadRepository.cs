@@ -14,6 +14,7 @@
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Domain.ValueObjects;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -39,12 +40,11 @@ public class GroupAbsenceReadRepository : IGroupAbsenceReadRepository
         var untilUtc = until.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
         var rows = await (
-                from groupItem in _context.GroupItem
+                from groupItem in _context.GroupItem.Where(RegularMembership.OrTemporary)
                 join subtreeGroup in _context.Group on groupItem.GroupId equals subtreeGroup.Id
                 join membership in _context.Membership on groupItem.ClientId equals membership.ClientId
                 where groupItem.ClientId != null
                     && !groupItem.IsDeleted
-                    && groupItem.AnalyseToken == null
                     && groupItem.ScenarioSourceGroupItemId == null
                     && !subtreeGroup.IsDeleted
                     && !membership.IsDeleted

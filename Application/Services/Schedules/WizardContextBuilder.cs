@@ -16,10 +16,14 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// <see cref="CoreWizardContext"/> for the GA to consume. The scheduling-policy fallbacks
 /// (<see cref="CoreWizardContext.SchedulingMinPauseHours"/> etc.) are loaded from the global
 /// settings table so agents without contract overrides still get the system-wide defaults.
+/// A seat that a person outside the run already holds with a fixed work (locked, corrected, replacement, moved) is not
+/// offered: the apply keeps that work, so the run must not staff the seat a second time. Warm-start assignments survive
+/// only on offered slots (<see cref="OfferedSlots"/>).
 /// </summary>
 /// <param name="agentBuilder">Builder that produces CoreAgent and CoreContractDay snapshots</param>
 /// <param name="shiftBuilder">Builder that expands shift definitions to per-day slots</param>
-/// <param name="hardConstraintBuilder">Builder that loads commands, preferences, breaks and locked works</param>
+/// <param name="hardConstraintBuilder">Builder that loads commands, preferences, breaks and locked works, and the seats
+/// fixed works of persons outside the run hold</param>
 /// <param name="periodHoursService">Provider for the hours already worked in the active period</param>
 /// <param name="contractProvider">Source of effective contract data; supplies system-wide defaults via empty client lookup</param>
 /// <param name="warmStartBuilder">Builder that maps the previous accepted plan onto the current period for the GA warm-start</param>
@@ -72,8 +76,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         var agentSnapshot = await _agentBuilder.BuildAsync(
             request.AgentIds, request.PeriodFrom, request.PeriodUntil, targetFrom, targetUntil, currentHours, request.GroupId, ct);
 
-        var shifts = await _shiftBuilder.BuildAsync(
-            request.ShiftIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+        var shifts = await BuildOfferedSlotsAsync(request, ct);
 
         // Precompute which (agent, shift, date) assignments are blocked by missing mandatory
         // qualifications so the optimizer only needs an O(1) lookup during the GA.
@@ -133,17 +136,14 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
 
         var defaults = await _contractProvider.GetEffectiveContractDataAsync(Guid.Empty, request.PeriodFrom);
 
-        var warmStartAssignments = await _warmStartBuilder.BuildAsync(
-            request.AgentIds, request.PeriodFrom, request.PeriodUntil, ct);
+        var warmStartAssignments = OfferedSlots.KeepWarmStartsOnOfferedSlots(
+            await _warmStartBuilder.BuildAsync(request.AgentIds, request.PeriodFrom, request.PeriodUntil, ct),
+            shifts);
 
         // K16 restricted time windows: resolved once per run from the active rule set and the period's
         // EXPANDED shift ids (group-tag scope is token-independent master data). Uses the expanded shift
         // set, not request.ShiftIds, so a run that plans all shifts (ShiftIds == null) is still scoped.
-        var periodShiftIds = shifts
-            .Select(s => Guid.TryParse(s.Id, out var shiftId) ? shiftId : Guid.Empty)
-            .Where(shiftId => shiftId != Guid.Empty)
-            .Distinct()
-            .ToList();
+        var periodShiftIds = ShiftIdsOf(shifts);
         var restrictedTimeWindows = await _restrictedWindowBuilder.BuildAsync(
             periodShiftIds, request.PeriodFrom, request.PeriodUntil, ct);
 
@@ -197,6 +197,28 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
 
         return RosterPriorityOrder.Apply(marked, agentOrderIsUserDefined, rankHours, a => Guid.Parse(a.Id), a => a.IsStandIn);
     }
+
+    /// <summary>
+    /// Expands the run's shifts to single seats and takes out the seats that fixed works of persons outside the run
+    /// already hold (<see cref="ForeignFixedSeats"/>), before any other structure is derived from the slots. The agents'
+    /// own fixed works stay in the demand: they become locked tokens that occupy their seat in the optimizer.
+    /// </summary>
+    private async Task<IReadOnlyList<CoreShift>> BuildOfferedSlotsAsync(WizardContextRequest request, CancellationToken ct)
+    {
+        var shifts = await _shiftBuilder.BuildAsync(
+            request.ShiftIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+        var heldSeats = await _hardConstraintBuilder.LoadForeignFixedSeatsAsync(
+            request.AgentIds, ShiftIdsOf(shifts), request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+
+        return ForeignFixedSeats.Remove(shifts, heldSeats);
+    }
+
+    private static List<Guid> ShiftIdsOf(IReadOnlyList<CoreShift> shifts)
+        => shifts
+            .Select(s => Guid.TryParse(s.Id, out var shiftId) ? shiftId : Guid.Empty)
+            .Where(shiftId => shiftId != Guid.Empty)
+            .Distinct()
+            .ToList();
 
     private static IReadOnlyList<AvailabilityShiftSlot> AvailabilitySlotsFromShifts(IReadOnlyList<CoreShift> shifts)
     {

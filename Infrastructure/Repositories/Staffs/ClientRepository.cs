@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Clients;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services;
@@ -121,7 +122,7 @@ public class ClientRepository : IClientRepository
                                       .Include(cu => cu.BreakPlaceholders)
                                       .Include(cu => cu.ClientContracts)
                                           .ThenInclude(cc => cc.Contract)
-                                      .Include(cu => cu.GroupItems)
+                                      .Include(RegularMembership.OfClient)
                                           .ThenInclude(gi => gi.Group)
                                       .Include(cu => cu.Qualifications)
                                       .Include(cu => cu.ClientImage)
@@ -207,7 +208,7 @@ public class ClientRepository : IClientRepository
             .Include(c => c.BreakPlaceholders)
             .Include(c => c.ClientContracts)
                 .ThenInclude(cc => cc.Contract)
-            .Include(c => c.GroupItems)
+            .Include(RegularMembership.OfClient)
                 .ThenInclude(gi => gi.Group)
             .Include(c => c.Qualifications)
             .Include(c => c.ClientImage)
@@ -322,7 +323,9 @@ public class ClientRepository : IClientRepository
 
         // GroupItems are matched by GroupId (their resource carries no Id), and an empty
         // incoming collection is treated as "no change" rather than "remove all" — a partial
-        // client save must never silently wipe the client's group memberships.
+        // client save must never silently wipe the client's group memberships. Only regular
+        // memberships take part: a scenario membership or the temporary membership of a borrowed
+        // day that the context tracks next to them is neither matched, changed nor removed.
         if (updatedClient.GroupItems.Count > 0)
         {
             _collectionUpdateService.UpdateCollection(
@@ -330,7 +333,8 @@ public class ClientRepository : IClientRepository
                 updatedClient.GroupItems,
                 existingClient.Id,
                 (groupItem, clientId) => groupItem.ClientId = clientId,
-                groupItem => groupItem.GroupId);
+                groupItem => groupItem.GroupId,
+                RegularMembership.Holds);
         }
 
         _collectionUpdateService.UpdateCollection(
@@ -445,7 +449,7 @@ public class ClientRepository : IClientRepository
     {
         return await context.Client
             .Include(c => c.Addresses)
-            .Include(c => c.GroupItems)
+            .Include(RegularMembership.OfClient)
             .Where(c => !c.IsDeleted && c.Type == type)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
@@ -464,7 +468,7 @@ public class ClientRepository : IClientRepository
     {
         return await context.Client
             .Include(c => c.Qualifications)
-            .Include(c => c.GroupItems)
+            .Include(RegularMembership.OfClient)
             .Where(c => !c.IsDeleted && c.Type == type)
             .AsSplitQuery()
             .AsNoTracking()

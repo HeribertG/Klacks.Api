@@ -8,6 +8,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Email;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -86,6 +87,7 @@ public class EmailQueryRepository : IEmailQueryRepository
     {
         return await _context.GroupItem
             .Where(gi => !gi.IsDeleted && gi.ClientId.HasValue && groupIds.Contains(gi.GroupId))
+            .Where(RegularMembership.IsRegular)
             .Select(gi => gi.ClientId!.Value)
             .Distinct()
             .ToListAsync(cancellationToken);

@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Clients;
+using Klacks.Api.Domain.Services.Groups;
 
 namespace Klacks.Api.Infrastructure.Services.Clients;
 
@@ -18,7 +19,10 @@ namespace Klacks.Api.Infrastructure.Services.Clients;
 /// visible (consistent with the schedule view). When <paramref name="withoutGroup"/> is set the
 /// result is restricted to clients that carry no active (non-scenario) group membership at all, so
 /// employees not assigned to any group can be listed. Background services run without a user, so
-/// there is nobody whose visibility could apply and the query stays unrestricted for them.
+/// there is nobody whose visibility could apply and the query stays unrestricted for them. The group filter of the
+/// employee list (FilterClientsByGroupId) also lists the people who were only borrowed into the group;
+/// FilterRegularMembersOfGroup is the same selection for the agents of the planning skills, which plan regular members
+/// only; the agents a run started from the user interface sends lose the borrowed people at the start (IBorrowedAgentFilter).
 /// </summary>
 /// <param name="groupClient">Resolves group hierarchies to flat ID lists</param>
 /// <param name="groupVisibility">Determines admin status and visible root groups</param>
@@ -58,20 +62,7 @@ public class ClientGroupFilterService : IClientGroupFilterService
 
         if (selectedGroupId.HasValue)
         {
-            var groupIds = await _groupClient.GetAllGroupIdsIncludingSubgroups(selectedGroupId.Value);
-
-            if (!scope.IsUnrestricted)
-            {
-                var visibleIds = scope.VisibleGroupIds.ToHashSet();
-                groupIds = groupIds.Where(visibleIds.Contains).ToHashSet();
-            }
-
-            if (groupIds.Count == 0)
-            {
-                _logger.LogWarning(
-                    "Selected group {GroupId} resolved to no group the caller may see - returning an empty result",
-                    selectedGroupId.Value);
-            }
+            var groupIds = await ResolveSelectedGroupIdsAsync(selectedGroupId.Value, scope);
 
             return from client in query
                    where client.GroupItems.Any(gi => groupIds.Contains(gi.GroupId) && gi.AnalyseToken == null)
@@ -84,6 +75,37 @@ public class ClientGroupFilterService : IClientGroupFilterService
         }
 
         return query.Where(ClientGroupVisibilityFilter.VisibleTo(scope.VisibleGroupIds.ToList()));
+    }
+
+    public async Task<IQueryable<Client>> FilterRegularMembersOfGroup(Guid selectedGroupId, IQueryable<Client> query)
+    {
+        var scope = await ResolveVisibilityScopeAsync();
+        var groupIds = await ResolveSelectedGroupIdsAsync(selectedGroupId, scope);
+
+        return query.Where(RegularMembership.ClientHasOne(item => groupIds.Contains(item.GroupId)));
+    }
+
+    /// <summary>
+    /// The selected group with its subgroups, cut down to what the caller may see; empty (and logged) when nothing is left.
+    /// </summary>
+    private async Task<HashSet<Guid>> ResolveSelectedGroupIdsAsync(Guid selectedGroupId, GroupVisibilityScope scope)
+    {
+        var groupIds = await _groupClient.GetAllGroupIdsIncludingSubgroups(selectedGroupId);
+
+        if (!scope.IsUnrestricted)
+        {
+            var visibleIds = scope.VisibleGroupIds.ToHashSet();
+            groupIds = groupIds.Where(visibleIds.Contains).ToHashSet();
+        }
+
+        if (groupIds.Count == 0)
+        {
+            _logger.LogWarning(
+                "Selected group {GroupId} resolved to no group the caller may see - returning an empty result",
+                selectedGroupId);
+        }
+
+        return groupIds;
     }
 
     public async Task<bool> IsCallerUnrestrictedAsync()

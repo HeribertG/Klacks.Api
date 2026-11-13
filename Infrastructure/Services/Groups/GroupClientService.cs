@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -39,7 +40,8 @@ public class GroupClientService : IGetAllClientIdsFromGroupAndSubgroups
         var groupIds = await GetAllSubGroupIds(new List<Guid> { groupId });
         return await _context.GroupItem
             .AsNoTracking()
-            .Where(gi => gi.ClientId.HasValue && gi.AnalyseToken == null && groupIds.Contains(gi.GroupId))
+            .Where(gi => gi.ClientId.HasValue && groupIds.Contains(gi.GroupId))
+            .Where(RegularMembership.IsRegular)
             .Select(gi => gi.ClientId!.Value)
             .Distinct()
             .ToListAsync(cancellationToken);

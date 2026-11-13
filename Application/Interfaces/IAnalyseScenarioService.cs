@@ -84,16 +84,17 @@ public interface IAnalyseScenarioService
     Task<IReadOnlySet<Guid>> GetScenarioShiftIdsWithRootsAsync(Guid token, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Materialises a temporary cross-group membership under the scenario token: the client joins the
-    /// receiving group for the [validFrom, validUntil] window. Promote makes it real; Reject discards it.
-    /// A membership the client already has in that group under the token is widened to the window, not doubled:
-    /// there is one row per client, group and token, so two separate days span the days between them as well.
+    /// Stages a temporary cross-group membership under the scenario token: the client joins the receiving group on each
+    /// day of the [validFrom, validUntil] window, one row per day. A day the client already has in that group under the
+    /// token is not doubled, so two separate days stay two memberships and the days between them stay free. Accept
+    /// turns the days into temporary memberships of the real plan; Reject discards them.
     /// </summary>
     Task AddScenarioMembershipAsync(Guid token, Guid clientId, Guid groupId, DateOnly validFrom, DateOnly validUntil, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Soft-deletes (staged) the temporary memberships of a client under the scenario token whose window contains the
-    /// date: the client no longer stands in on that day, so promoting them would leave a foreign membership behind.
+    /// Stages the removal of the temporary memberships of a client on that day under the scenario token, in every group:
+    /// the client no longer stands in on that day, so promoting them would leave a foreign membership behind. The
+    /// client's memberships of other days stay.
     /// </summary>
     Task RemoveScenarioMembershipsAsync(Guid token, Guid clientId, DateOnly date, CancellationToken cancellationToken);
 

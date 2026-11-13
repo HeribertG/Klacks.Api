@@ -8,11 +8,11 @@ namespace Klacks.Api.Domain.Interfaces.Associations;
 public interface IGroupItemRepository : IBaseRepository<GroupItem>
 {
     /// <summary>
-    /// Returns the real (non-scenario) membership of a client in a group, or <c>null</c> when there is
-    /// none. Scenario memberships (AnalyseToken set) are never returned: they may coexist with the real
-    /// one for the same client and group, and callers of this method always read or change the real
-    /// membership. The filtered unique index on (client, group) for real, non-deleted rows guarantees
-    /// that at most one row can match.
+    /// Returns the regular membership of a client in a group (RegularMembership: real plan, not temporary), or
+    /// <c>null</c> when there is none. Scenario memberships (AnalyseToken set) and the temporary memberships of
+    /// borrowed days are never returned: they may coexist with the regular one for the same client and group, and
+    /// callers of this method always read or change the regular membership. The filtered unique index on
+    /// (client, group) for regular, non-deleted rows guarantees that at most one row can match.
     /// </summary>
     Task<GroupItem?> GetByClientAndGroup(Guid clientId, Guid groupId);
 
@@ -30,8 +30,9 @@ public interface IGroupItemRepository : IBaseRepository<GroupItem>
     Task<int> PullForwardValidFromAsync(IReadOnlyDictionary<Guid, DateTime> newStarts, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Reads the ended real memberships (ValidUntil set, no scenario, no shift item, not deleted) of many clients in a few
-    /// queries (ids in chunks), so a pull-forward can keep a start behind the end of an earlier group membership.
+    /// Reads the ended regular memberships (ValidUntil set, no scenario, not temporary, no shift item, not deleted) of
+    /// many clients in a few queries (ids in chunks), so a pull-forward can keep a start behind the end of an earlier
+    /// group membership. A borrowed day is no earlier membership and does not hold a start back.
     /// </summary>
     /// <param name="clientIds">Clients whose ended memberships are read</param>
     /// <param name="cancellationToken">Cancellation token</param>
@@ -62,8 +63,9 @@ public interface IGroupItemRepository : IBaseRepository<GroupItem>
         IReadOnlyCollection<Guid> groupIds, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Per group, the number of its real client rows: items with a client, without a scenario token and not deleted;
-    /// their validity is not checked, so ended memberships count too. Groups without such a row are missing.
+    /// Per group, the number of its regular client rows (RegularMembership): items with a client, without a scenario
+    /// token, not temporary and not deleted; their validity is not checked, so ended memberships count too. Groups
+    /// without such a row are missing.
     /// </summary>
     /// <param name="groupIds">Groups whose client rows are counted</param>
     /// <param name="cancellationToken">Cancels the query</param>
@@ -92,12 +94,32 @@ public interface IGroupItemRepository : IBaseRepository<GroupItem>
         IReadOnlyCollection<Guid> groupIds,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// The clients among the given ones that are only borrowed into the groups: they hold a temporary membership of the
+    /// real plan (RegularMembership.OrTemporary, IsTemporary) in one of the groups and no regular membership
+    /// (RegularMembership.IsRegular) in any of them. Validity is not checked on either side, like the clone scope of a
+    /// scenario (ScenarioGroupScopeReader.LoadRealGroupClientIdsAsync); a scenario membership counts on neither side.
+    /// Clients without any membership in the groups are not returned. Reads the client ids in chunks.
+    /// </summary>
+    /// <param name="clientIds">Clients to check</param>
+    /// <param name="groupIds">Groups the memberships must belong to, matched exactly (the caller resolves the subtree)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<HashSet<Guid>> GetBorrowedOnlyClientIdsAsync(
+        IReadOnlyCollection<Guid> clientIds,
+        IReadOnlyCollection<Guid> groupIds,
+        CancellationToken cancellationToken = default);
+
     Task<List<Guid>> GetGroupIdsByShiftId(Guid shiftId, CancellationToken cancellationToken = default);
 
     Task<List<Guid>> GetShiftIdsByGroupIds(List<Guid> groupIds, CancellationToken cancellationToken = default);
 
     Task<Dictionary<Guid, int>> GetShiftCountsPerGroupAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Per group, the number of regular memberships (RegularMembership) of customers; the employee and external
+    /// employee counts below read the same way. Scenario memberships and temporary memberships of borrowed days do
+    /// not count.
+    /// </summary>
     Task<Dictionary<Guid, int>> GetCustomerCountsPerGroupAsync(CancellationToken cancellationToken = default);
 
     Task<Dictionary<Guid, int>> GetEmployeeCountsPerGroupAsync(CancellationToken cancellationToken = default);

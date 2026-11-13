@@ -3,6 +3,7 @@
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Groups;
 
 namespace Klacks.Api.Domain.Services.Clients;
 
@@ -68,6 +69,7 @@ public class ClientValidator : IClientValidator
     public void EnsureUniqueGroupItems(ICollection<GroupItem> groupItems)
     {
         var duplicateGroups = groupItems
+            .Where(RegularMembership.Holds)
             .GroupBy(gi => gi.GroupId)
             .Where(g => g.Count() > 1)
             .ToList();

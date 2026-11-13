@@ -45,6 +45,15 @@ public interface IWorkRepository : IBaseRepository<Work>
     /// <param name="cancellationToken">Cancellation token</param>
     Task<bool> HoldsMovedWorkInScenarioAsync(Guid analyseToken, Guid clientId, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Whether this person owns a work a cover moved in this scenario whose workday is the given day.
+    /// </summary>
+    /// <param name="analyseToken">Token of the scenario</param>
+    /// <param name="clientId">The person</param>
+    /// <param name="date">Workday</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<bool> HoldsMovedWorkInScenarioOnDayAsync(Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken);
+
     Task<List<Work>> GetByIdsAsync(IEnumerable<Guid> ids);
     Task<(List<Client> Clients, int TotalCount)> WorkList(WorkFilter filter, CancellationToken cancellationToken = default);
     Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate, Guid? analyseToken = null, CancellationToken cancellationToken = default);

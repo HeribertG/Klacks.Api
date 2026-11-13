@@ -6,7 +6,9 @@ using Klacks.Api.Domain.Models.Staffs;
 namespace Klacks.Api.Domain.Interfaces.Associations;
 
 /// <summary>
-/// Domain service for managing group-client relationships and membership operations
+/// Domain service for managing group-client relationships and membership operations. A member is a client with a
+/// regular membership (RegularMembership): scenario memberships and the temporary memberships of borrowed days are
+/// neither read nor changed through this service.
 /// </summary>
 public interface IGroupMembershipService
 {

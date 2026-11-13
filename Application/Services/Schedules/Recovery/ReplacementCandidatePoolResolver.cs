@@ -4,12 +4,13 @@
 /// Resolves who can stand in for a group, for the automatic absence cover and for the list of alternatives alike: the
 /// active people under the root of the group who can take over a replacement (ReplacementPersonRule), split into the
 /// members of the group's own subtree and everybody else under the root. The client repository filters on the group
-/// root, so the root is resolved first and the root-wide result is then split. Membership means a membership of the
-/// real plan: a temporary membership of a scenario does not turn a borrowed person into a member.
+/// root, so the root is resolved first and the root-wide result is then split. Membership means a regular membership
+/// of the real plan: a temporary membership, in a scenario or left in the real plan by a taken-over cover, does not turn
+/// a borrowed person into a member.
 /// </summary>
 /// <param name="clientRepository">Reads the active clients under the root</param>
 /// <param name="groupRepository">Resolves the root of the group</param>
-/// <param name="groupClientService">Reads the real members of the group's subtree</param>
+/// <param name="groupClientService">Reads the regular members of the group's subtree</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Services.Schedules;

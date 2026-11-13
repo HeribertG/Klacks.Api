@@ -46,14 +46,20 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         _contractDataProvider = contractDataProvider;
     }
 
-    public async Task<bool> HoldsMovedWorkInScenarioAsync(Guid analyseToken, Guid clientId, CancellationToken cancellationToken)
-    {
-        return await context.Work
+    public Task<bool> HoldsMovedWorkInScenarioAsync(Guid analyseToken, Guid clientId, CancellationToken cancellationToken)
+        => QueryMovedWorksHeldBy(analyseToken, clientId).AnyAsync(cancellationToken);
+
+    public Task<bool> HoldsMovedWorkInScenarioOnDayAsync(
+        Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken)
+        => QueryMovedWorksHeldOnDay(analyseToken, clientId, date).AnyAsync(cancellationToken);
+
+    internal IQueryable<Work> QueryMovedWorksHeldOnDay(Guid analyseToken, Guid clientId, DateOnly date)
+        => QueryMovedWorksHeldBy(analyseToken, clientId).Where(work => work.CurrentDate == date);
+
+    private IQueryable<Work> QueryMovedWorksHeldBy(Guid analyseToken, Guid clientId)
+        => context.Work
             .AsNoTracking()
-            .AnyAsync(
-                work => work.AnalyseToken == analyseToken && work.ClientId == clientId && work.MovedFromClientId != null,
-                cancellationToken);
-    }
+            .Where(work => work.AnalyseToken == analyseToken && work.ClientId == clientId && work.MovedFromClientId != null);
 
     public Task<List<Work>> ListMovedByScenarioAsync(
         Guid analyseToken, Guid movedFromClientId, DateOnly date, CancellationToken cancellationToken)

@@ -27,6 +27,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Common;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -248,10 +249,10 @@ public class PayrollCompletenessGate : IPayrollCompletenessGate
         var groupIds = await _context.GroupItem
             .AsNoTracking()
             .Where(gi => !gi.IsDeleted
-                && gi.AnalyseToken == null
                 && gi.ScenarioSourceGroupItemId == null
                 && gi.ClientId != null
                 && personIds.Contains(gi.ClientId.Value))
+            .Where(RegularMembership.OrTemporary)
             .Select(gi => gi.GroupId)
             .Distinct()
             .ToListAsync(cancellationToken);

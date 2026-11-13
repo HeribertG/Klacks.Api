@@ -152,17 +152,25 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
         return covers.Any(cover => cover.SubstituteClientId == clientId && cover.StartAt < slotEnd && slotStart < cover.EndAt);
     }
 
-    public async Task<bool> IsReplacementInScenarioAsync(
+    public Task<bool> IsReplacementInScenarioAsync(
         Guid analyseToken, Guid clientId, CancellationToken cancellationToken = default)
+        => QueryStandInsOf(analyseToken, clientId).AnyAsync(cancellationToken);
+
+    public Task<bool> IsReplacementInScenarioOnDayAsync(
+        Guid analyseToken, Guid clientId, DateOnly date, CancellationToken cancellationToken)
+        => QueryStandInsOnDay(analyseToken, clientId, date).AnyAsync(cancellationToken);
+
+    internal IQueryable<WorkChange> QueryStandInsOnDay(Guid analyseToken, Guid clientId, DateOnly date)
+        => QueryStandInsOf(analyseToken, clientId).Where(wc => wc.Work!.CurrentDate == date);
+
+    private IQueryable<WorkChange> QueryStandInsOf(Guid analyseToken, Guid clientId)
     {
         var replacementTypes = ReplacementWorkChangeTypes.All.ToList();
 
-        return await _context.WorkChange
+        return _context.WorkChange
             .AsNoTracking()
-            .AnyAsync(
-                wc => wc.Work!.AnalyseToken == analyseToken
-                    && wc.ReplaceClientId == clientId
-                    && replacementTypes.Contains(wc.Type),
-                cancellationToken);
+            .Where(wc => wc.Work!.AnalyseToken == analyseToken
+                && wc.ReplaceClientId == clientId
+                && replacementTypes.Contains(wc.Type));
     }
 }

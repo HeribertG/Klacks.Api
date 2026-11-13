@@ -19,6 +19,7 @@ using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -100,7 +101,8 @@ public sealed class GroupingFeasibilityDataSource : IGroupingFeasibilityDataSour
 
     internal IQueryable<GroupingMembershipRecord> MembershipsQuery() =>
         _context.GroupItem.AsNoTracking()
-            .Where(item => item.AnalyseToken == null && (item.ClientId != null || item.ShiftId != null))
+            .Where(item => item.ClientId != null || item.ShiftId != null)
+            .Where(RegularMembership.IsRegular)
             .Select(item => new GroupingMembershipRecord(item.Id, item.GroupId, item.ClientId, item.ShiftId));
 
     internal IQueryable<GroupingClientRecord> ClientsQuery(DateTime fromUtc, DateTime untilUtc) =>

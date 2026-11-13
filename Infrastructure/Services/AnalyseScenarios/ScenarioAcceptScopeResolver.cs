@@ -2,8 +2,9 @@
 
 /// <summary>
 /// The real shifts whose works and the real clients whose breaks and notes an accept replaces. Shared by the accept delete
-/// and the staleness check, so both always look at exactly the same rows. With a group it is the group hierarchy's real
-/// members; without one it is the scenario's own footprint.
+/// and the staleness check, so both always look at exactly the same rows. With a group it is the group hierarchy's
+/// regular members, read through the same reader as the clone (ScenarioGroupScopeReader), so a person who was only
+/// borrowed for single days is in neither; without a group it is the scenario's own footprint.
 /// </summary>
 /// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
 /// <param name="groupScopeReader">Resolves the group hierarchy of the scenario's group</param>
@@ -42,12 +43,7 @@ public sealed class ScenarioAcceptScopeResolver
             .Distinct()
             .ToListAsync(ct);
 
-        var clientIds = await _context.Set<GroupItem>()
-            .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
-                && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
-            .Select(gi => gi.ClientId!.Value)
-            .Distinct()
-            .ToListAsync(ct);
+        var clientIds = await _groupScopeReader.LoadRealGroupClientIdsAsync(groupIds, ct);
 
         return (shiftIds, clientIds);
     }

@@ -25,12 +25,19 @@ public class GroupItemConfiguration : IEntityTypeConfiguration<GroupItem>
             .IsUnique()
             .HasFilter("\"shift_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NULL");
 
+        // Regular-membership uniqueness: one regular real membership per (client, group). A temporary membership
+        // (is_temporary) is left out, so the days a person is borrowed for can stand next to it and next to each other.
         builder.HasIndex(p => new { p.ClientId, p.GroupId })
             .IsUnique()
-            .HasFilter("\"client_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NULL");
+            .HasFilter("\"client_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NULL AND \"is_temporary\" = false");
 
-        // Scenario-membership uniqueness: at most one temporary client membership per (client, group, token).
-        builder.HasIndex(p => new { p.ClientId, p.GroupId, p.AnalyseToken })
+        // Temporary real memberships: at most one per (client, group, first day).
+        builder.HasIndex(p => new { p.ClientId, p.GroupId, p.ValidFrom })
+            .IsUnique()
+            .HasFilter("\"client_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NULL AND \"is_temporary\" = true");
+
+        // Scenario-membership uniqueness: at most one client membership per (client, group, token, first day).
+        builder.HasIndex(p => new { p.ClientId, p.GroupId, p.AnalyseToken, p.ValidFrom })
             .IsUnique()
             .HasFilter("\"client_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NOT NULL");
 

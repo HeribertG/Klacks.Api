@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Services.Clients;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 /// <summary>
 /// Resolves a group's schedulable employees from <c>GroupItem</c> (the client→group membership),
-/// restricted to memberships whose validity window overlaps the planning period. The soft-delete
+/// restricted to regular memberships (RegularMembership: no scenario membership, no temporary membership of a
+/// borrowed day) whose validity window overlaps the planning period. The soft-delete
 /// query filter on GroupItem is honoured (no IgnoreQueryFilters), so retired memberships are excluded.
 /// Only plannable clients are returned (ClientTypeRules.PlannableTypes: employees, external employees and stand-ins): a
 /// group may mix staff and customers, and a customer must never end up as a plannable bitmap row.
@@ -39,6 +41,7 @@ public sealed class Wizard4AgentResolver : IWizard4AgentResolver
                 && (gi.ValidFrom == null || gi.ValidFrom <= untilDt)
                 && (gi.ValidUntil == null || gi.ValidUntil >= fromDt)
                 && _context.Client.Any(c => c.Id == gi.ClientId && plannableTypes.Contains(c.Type)))
+            .Where(RegularMembership.IsRegular)
             .Select(gi => gi.ClientId!.Value)
             .Distinct()
             .ToListAsync(ct);

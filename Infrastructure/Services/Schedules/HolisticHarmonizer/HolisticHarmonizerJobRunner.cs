@@ -69,6 +69,10 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
         ArgumentNullException.ThrowIfNull(input);
 
         await _scopeFactory.EnsureScenarioTokenVisibleAsync(input.AnalyseToken, chainCt);
+        input = input with
+        {
+            AgentIds = await _scopeFactory.RemoveBorrowedAgentsAsync(input.AgentIds, input.GroupId, input.AnalyseToken, chainCt),
+        };
 
         _startGuard.EnsureWithinLimits(
             AutofillFamily.HolisticHarmonizer, input.AgentIds.Count, 0, input.PeriodFrom, input.PeriodUntil);

@@ -2,10 +2,11 @@
 
 /// <summary>
 /// Clones the employee-day rows of a scenario run: breaks (absences and work pauses), schedule notes and schedule
-/// commands of the window, limited to the employees of the group. Pauses follow their cloned parent work.
+/// commands of the window, limited to the employees of the group. Pauses follow their cloned parent work. The employee
+/// scope is handed in by the coordinator, which reads it once through the reader the accept uses for its scope.
 /// </summary>
 /// <param name="context">Database context shared with the other scenario collaborators of the scope</param>
-/// <param name="groupScopeReader">Resolves the employees of the group hierarchy in the world the clone copies from</param>
+/// <param name="clientScope">Employees of the group hierarchy (regular members, and with a source scenario its borrowed employees); null without a group</param>
 
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -16,19 +17,17 @@ namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 public sealed class ScenarioDayRowCloner
 {
     private readonly DataBaseContext _context;
-    private readonly ScenarioGroupScopeReader _groupScopeReader;
 
-    public ScenarioDayRowCloner(DataBaseContext context, ScenarioGroupScopeReader groupScopeReader)
+    public ScenarioDayRowCloner(DataBaseContext context)
     {
         _context = context;
-        _groupScopeReader = groupScopeReader;
     }
 
-    internal async Task CloneBreaks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> workIdMap, ScenarioCloneSource source, CancellationToken ct)
+    internal async Task CloneBreaks((List<Guid> Real, List<Guid> WithSource)? clientScope, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> workIdMap, ScenarioCloneSource source, CancellationToken ct)
     {
         var breaks = source.Token is null
-            ? await LoadRealPlanBreaksAsync(groupIds, fromDate, untilDate, workIdMap, ct)
-            : await LoadSourcedBreaksAsync(groupIds, fromDate, untilDate, workIdMap, source, ct);
+            ? await LoadRealPlanBreaksAsync(clientScope, fromDate, untilDate, workIdMap, ct)
+            : await LoadSourcedBreaksAsync(clientScope, fromDate, untilDate, workIdMap, source, ct);
 
         foreach (var brk in breaks)
         {
@@ -57,16 +56,16 @@ public sealed class ScenarioDayRowCloner
         }
     }
 
-    internal async Task CloneScheduleNotes(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, ScenarioCloneSource source, CancellationToken ct)
+    internal async Task CloneScheduleNotes((List<Guid> Real, List<Guid> WithSource)? clientScope, DateOnly fromDate, DateOnly untilDate, Guid token, ScenarioCloneSource source, CancellationToken ct)
     {
         IQueryable<ScheduleNote> noteQuery = ScenarioSourceFilters.WhereFromSource(_context.ScheduleNotes
             .Where(sn => !sn.IsDeleted
                 && sn.CurrentDate >= fromDate
                 && sn.CurrentDate <= untilDate), source);
 
-        if (groupIds != null)
+        if (clientScope is { } noteScope)
         {
-            noteQuery = ScenarioSourceFilters.WhereClientInScope(noteQuery, await _groupScopeReader.LoadGroupClientScopeAsync(groupIds, source, ct), source);
+            noteQuery = ScenarioSourceFilters.WhereClientInScope(noteQuery, noteScope, source);
         }
 
         var notes = await noteQuery.AsNoTracking().ToListAsync(ct);
@@ -86,16 +85,16 @@ public sealed class ScenarioDayRowCloner
         }
     }
 
-    internal async Task CloneScheduleCommands(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, ScenarioCloneSource source, CancellationToken ct)
+    internal async Task CloneScheduleCommands((List<Guid> Real, List<Guid> WithSource)? clientScope, DateOnly fromDate, DateOnly untilDate, Guid token, ScenarioCloneSource source, CancellationToken ct)
     {
         IQueryable<ScheduleCommand> commandQuery = ScenarioSourceFilters.WhereFromSource(_context.ScheduleCommands
             .Where(sc => !sc.IsDeleted
                 && sc.CurrentDate >= fromDate
                 && sc.CurrentDate <= untilDate), source);
 
-        if (groupIds != null)
+        if (clientScope is { } commandScope)
         {
-            commandQuery = ScenarioSourceFilters.WhereClientInScope(commandQuery, await _groupScopeReader.LoadGroupClientScopeAsync(groupIds, source, ct), source);
+            commandQuery = ScenarioSourceFilters.WhereClientInScope(commandQuery, commandScope, source);
         }
 
         var commands = await commandQuery.AsNoTracking().ToListAsync(ct);
@@ -115,7 +114,7 @@ public sealed class ScenarioDayRowCloner
         }
     }
 
-    private async Task<List<Break>> LoadRealPlanBreaksAsync(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Dictionary<Guid, Guid> workIdMap, CancellationToken ct)
+    private async Task<List<Break>> LoadRealPlanBreaksAsync((List<Guid> Real, List<Guid> WithSource)? clientScope, DateOnly fromDate, DateOnly untilDate, Dictionary<Guid, Guid> workIdMap, CancellationToken ct)
     {
         IQueryable<Break> breakQuery = _context.Break
             .Where(b => !b.IsDeleted
@@ -123,9 +122,9 @@ public sealed class ScenarioDayRowCloner
                 && b.CurrentDate >= fromDate
                 && b.CurrentDate <= untilDate);
 
-        if (groupIds != null)
+        if (clientScope is { } scope)
         {
-            var clientIds = (await _groupScopeReader.LoadGroupClientScopeAsync(groupIds, ScenarioCloneSource.RealPlan, ct)).Real;
+            var clientIds = scope.Real;
 
             var parentWorkIds = workIdMap.Keys.ToList();
             breakQuery = breakQuery.Where(b =>
@@ -142,7 +141,7 @@ public sealed class ScenarioDayRowCloner
     /// the source range's edge keeps the pause that falls on the next day.
     /// </summary>
     private async Task<List<Break>> LoadSourcedBreaksAsync(
-        List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Dictionary<Guid, Guid> workIdMap,
+        (List<Guid> Real, List<Guid> WithSource)? clientScope, DateOnly fromDate, DateOnly untilDate, Dictionary<Guid, Guid> workIdMap,
         ScenarioCloneSource source, CancellationToken ct)
     {
         var standaloneQuery = ScenarioSourceFilters.WhereFromSource(_context.Break
@@ -151,9 +150,9 @@ public sealed class ScenarioDayRowCloner
                 && b.CurrentDate >= fromDate
                 && b.CurrentDate <= untilDate), source);
 
-        if (groupIds != null)
+        if (clientScope is { } standaloneScope)
         {
-            standaloneQuery = ScenarioSourceFilters.WhereClientInScope(standaloneQuery, await _groupScopeReader.LoadGroupClientScopeAsync(groupIds, source, ct), source);
+            standaloneQuery = ScenarioSourceFilters.WhereClientInScope(standaloneQuery, standaloneScope, source);
         }
 
         var breaks = await standaloneQuery.AsNoTracking().ToListAsync(ct);

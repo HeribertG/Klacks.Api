@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -144,7 +145,7 @@ public class GroupHierarchyService : IGroupHierarchyService
 
             var treeNodes = await _context.Group
                 .Where(g => g.Root == rootId || g.Id == rootId)
-                .Include(g => g.GroupItems.Where(gi => !gi.ShiftId.HasValue && gi.ClientId.HasValue))
+                .Include(RegularMembership.MembersOfGroup)
                 .ThenInclude(gi => gi.Client)
                 .ToListAsync();
 
@@ -169,7 +170,7 @@ public class GroupHierarchyService : IGroupHierarchyService
             }
 
             var allNodes = await query
-                .Include(g => g.GroupItems.Where(gi => !gi.ShiftId.HasValue && gi.ClientId.HasValue))
+                .Include(RegularMembership.MembersOfGroup)
                 .ThenInclude(gi => gi.Client)
                 .ToListAsync();
 
