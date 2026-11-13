@@ -186,8 +186,8 @@ internal static class KnowledgeIndexServiceCollectionExtensions
         // Singleton, because the single-flight gate and the coalescing flag only mean something
         // process-wide. It resolves the scoped synchronizer from a fresh scope per run.
         services.AddSingleton<IKnowledgeIndexSyncScheduler, KnowledgeIndexSyncScheduler>();
-        // Read once at startup: whether skill passes are reranked (Always, the default, Adaptive or Never) and the
-        // Adaptive margin threshold. An unknown mode falls back to Always.
+        // Read once at startup: whether skill passes are reranked (Always, Adaptive or Never, the default) and the
+        // Adaptive margin threshold. A missing mode is Never; an unknown mode falls back to Always.
         // The threshold itself is live state, one per process: the tuner sharpens it from real turns and restores the
         // persisted value after a restart, every skill pass reads it.
         services.AddSingleton(SkillRerankOptions.FromConfiguration(

@@ -185,7 +185,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         var pendingTurnIntent = _guaranteeResolver.StartTurnIntent(userMessage, language, pinnedSkillNames, cancellationToken);
 
         var (retrievedSkills, hasDomainSkillContext, retrievalScores, skillRerank) = await RetrieveSkillCandidatesAsync(
-            permittedSkills, userRights, isAdmin, userMessage, conversationId, currentRoute, userId, cancellationToken);
+            permittedSkills, userRights, isAdmin, userMessage, conversationId, currentRoute, userId,
+            forceSkillRerank: excludedSkillNames != null, cancellationToken);
 
         // Every deterministic skill guarantee for this turn - see ISkillToolsetGuaranteeResolver for the
         // full list. Extracted from this method because computing the guarantees and doing something
@@ -449,11 +450,14 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     /// score cutoff - including always-on domain skills (create_employee, list_contracts, …) that
     /// retrievedSkills itself drops via the !AlwaysOn filter, and stays true on a retrieval failure so
     /// the world model is never lost on an error path.
+    /// forceSkillRerank is set on correction turns - the only callers that pass excluded skill names - because
+    /// CorrectionOutcomeComposer reads the score gap of its candidates on the cross-encoder's scale.
     /// </summary>
     private async Task<(List<AgentSkill> RetrievedSkills, bool HasDomainSkillContext, Dictionary<string, double> RetrievalScores, SkillRerankObservation? SkillRerank)>
         RetrieveSkillCandidatesAsync(
             List<AgentSkill> permittedSkills, List<string> userRights, bool isAdmin, string userMessage,
-            string? conversationId, string? currentRoute, string userId, CancellationToken cancellationToken)
+            string? conversationId, string? currentRoute, string userId, bool forceSkillRerank,
+            CancellationToken cancellationToken)
     {
         var retrievalScores = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
 
@@ -471,7 +475,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             // one-directional.
             var retrieval = await _knowledgeRetrieval.RetrieveAsync(
                 retrievalQuery, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, currentRoute,
-                cancellationToken, KnowledgeEntryKind.Skill);
+                cancellationToken, KnowledgeEntryKind.Skill, forceSkillRerank: forceSkillRerank);
 
             if (retrieval.IsEmpty)
             {

@@ -22,6 +22,9 @@ public interface IKnowledgeRetrievalService
     /// pass and BEFORE the cross-encoder, so excluded entries cost no rerank time; an empty collection returns nothing
     /// without embedding the query. Null applies no filter. The cross-encoder scores every pair on its own, so the
     /// scores of the entries that remain are the same as without the filter.</param>
+    /// <param name="forceSkillRerank">A skill pass runs the cross-encoder whatever SkillRerankOptions says. Set by
+    /// correction turns: the correction clarification compares score gaps that were calibrated on cross-encoder
+    /// scores and reads almost every cosine pair as a tie.</param>
     Task<RetrievalResult> RetrieveAsync(
         string userQuery,
         IReadOnlyCollection<string> userPermissions,
@@ -30,5 +33,6 @@ public interface IKnowledgeRetrievalService
         string? currentRoute,
         CancellationToken cancellationToken,
         KnowledgeEntryKind? kindFilter = null,
-        IReadOnlyCollection<string>? sourceIdFilter = null);
+        IReadOnlyCollection<string>? sourceIdFilter = null,
+        bool forceSkillRerank = false);
 }

@@ -64,7 +64,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     private readonly SkillRerankOptions _skillRerank;
     private readonly ISkillRerankThreshold _threshold;
 
-    /// <param name="skillRerank">Whether skill passes are reranked; null keeps the shipped default (Always).</param>
+    /// <param name="skillRerank">Whether skill passes are reranked; null reranks every pass (hand-built services).</param>
     /// <param name="threshold">The live Adaptive threshold shared with the tuner; null starts one from skillRerank.</param>
     public KnowledgeRetrievalService(
         IEmbeddingProvider embeddingProvider,
@@ -80,7 +80,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         _repository = repository;
         _logger = logger ?? NullLogger<KnowledgeRetrievalService>.Instance;
         _callCounter = callCounter;
-        _skillRerank = skillRerank ?? SkillRerankOptions.Default;
+        _skillRerank = skillRerank ?? SkillRerankOptions.AlwaysRerank;
         _threshold = threshold ?? new SkillRerankThresholdState(_skillRerank);
     }
 
@@ -92,7 +92,8 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         string? currentRoute,
         CancellationToken cancellationToken,
         KnowledgeEntryKind? kindFilter = null,
-        IReadOnlyCollection<string>? sourceIdFilter = null)
+        IReadOnlyCollection<string>? sourceIdFilter = null,
+        bool forceSkillRerank = false)
     {
         if (string.IsNullOrWhiteSpace(userQuery) || sourceIdFilter is { Count: 0 })
             return new RetrievalResult([]);
@@ -149,7 +150,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         // candidates is logged on every skill pass, reranked or not, so live traffic keeps calibrating the
         // Adaptive threshold: the starting value is a middle value meant to be sharpened from these lines.
         var decision = kindFilter == KnowledgeEntryKind.Skill
-            ? DecideVectorOrder(call, queryVec, filtered)
+            ? DecideVectorOrder(call, queryVec, filtered, forceSkillRerank)
             : ((double[]? VectorScores, SkillRerankDecision? Decision)?)null;
         var vectorScores = decision?.VectorScores;
 
@@ -220,21 +221,23 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     /// <param name="call">Pass ordinal for the log line</param>
     /// <param name="queryVector">The embedded query</param>
     /// <param name="candidates">The KNN candidates, nearest first</param>
+    /// <param name="forced">The caller demands the cross-encoder (a correction turn); never explored</param>
     private (double[]? VectorScores, SkillRerankDecision Decision) DecideVectorOrder(
-        int call, float[] queryVector, IReadOnlyList<KnowledgeEntry> candidates)
+        int call, float[] queryVector, IReadOnlyList<KnowledgeEntry> candidates, bool forced)
     {
         var cosines = CosineScores(queryVector, candidates);
         var margin = cosines.Length > 1 ? cosines[0] - cosines[1] : 1.0;
         var threshold = _threshold.Current;
 
-        var keepVectorOrder = _skillRerank.Mode switch
+        var keepVectorOrder = !forced && _skillRerank.Mode switch
         {
             SkillRerankMode.Never => true,
             SkillRerankMode.Adaptive => margin >= threshold,
             _ => false
         };
 
-        var explored = _skillRerank.Mode == SkillRerankMode.Adaptive
+        var explored = !forced
+                       && _skillRerank.Mode == SkillRerankMode.Adaptive
                        && _threshold.ExplorationRate > 0
                        && Random.Shared.NextDouble() < _threshold.ExplorationRate;
         if (explored)
@@ -243,8 +246,8 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         }
 
         _logger.LogInformation(
-            "[retrieval] turn={Turn} call={Call} kind=Skill rerankMode={Mode} margin={Margin:F4} threshold={Threshold:F4} reranked={Reranked} explored={Explored}",
-            TurnCorrelation.CurrentOrNone, call, _skillRerank.Mode, margin, threshold, !keepVectorOrder, explored);
+            "[retrieval] turn={Turn} call={Call} kind=Skill rerankMode={Mode} margin={Margin:F4} threshold={Threshold:F4} reranked={Reranked} explored={Explored} forced={Forced}",
+            TurnCorrelation.CurrentOrNone, call, _skillRerank.Mode, margin, threshold, !keepVectorOrder, explored, forced);
 
         return (keepVectorOrder ? cosines : null, new SkillRerankDecision(margin, !keepVectorOrder, explored));
     }

@@ -75,7 +75,7 @@ public static class KnowledgeIndexConstants
 
     // Skill rerank switch, see SkillRerankOptions. The margin default is a placeholder until
     // KnowledgeIndexPhraseFacetDiagnosticsTests.AdaptiveReranking_MarginThresholdSweep has been run on today's
-    // catalogue; it only matters in Adaptive mode, and the shipped mode is Always.
+    // catalogue; it only matters in Adaptive mode, and the shipped mode is Never (SkillRerankOptions.ShippedMode).
     public const string SkillRerankModeConfigKey = "KnowledgeIndex:SkillRerankMode";
     public const string SkillRerankMarginConfigKey = "KnowledgeIndex:SkillRerankMarginThreshold";
     public const double DefaultSkillRerankMarginThreshold = 0.03;
