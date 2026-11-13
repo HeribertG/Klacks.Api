@@ -204,31 +204,16 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                         && (w.AnalyseToken == analyseToken || (w.AnalyseToken == null && analyseToken == null)))
             .ToListAsync(ct);
 
-        // Scenario mode: cloned works only cover the cloned (group-scoped) shifts. An in-scope agent
-        // may also hold an unlocked Work on an out-of-group shift that was never cloned — invisible to
-        // the overlap / min-pause checks, which would let the wizard double-book that agent against a
-        // real DB work (and after Accept produce two overlapping REAL works). Load those real
-        // (token=null) works VETO-only and de-dup by (agent, date, start, end) against the clones.
-        // CloneWorks is intentionally NOT widened to the client axis — that would corrupt the promote
-        // round-trip; these entries are read-only blockers the engine never plans, scores or mutates.
-        if (analyseToken != null)
+        // Scenario mode: cloned works only cover the cloned (group-scoped) shifts. An in-scope agent may also hold a
+        // real work (locked or not) on a shift the scenario does not carry, e.g. in another group: invisible to the
+        // overlap / min-pause checks, it would let the wizard double-book that agent and, after Accept, produce two
+        // overlapping REAL works. Those works come in VETO-only through OutsideScenarioWorkQuery, the read the harmonizer
+        // context uses as well. CloneWorks is intentionally NOT widened to the client axis - that would corrupt the
+        // promote round-trip; these entries are read-only blockers the engine never plans, scores or mutates.
+        if (analyseToken is { } token)
         {
-            var realWorks = await _context.Work
-                .AsNoTracking()
-                .Where(w => agentIds.Contains(w.ClientId)
-                            && w.CurrentDate >= from
-                            && w.CurrentDate <= until
-                            && w.LockLevel == WorkLockLevel.None
-                            && (replanFrom == null || w.CurrentDate >= replanFrom)
-                            && w.AnalyseToken == null)
-                .ToListAsync(ct);
-
-            var clonedKeys = rawWorks
-                .Select(w => (w.ClientId, w.CurrentDate, w.StartTime, w.EndTime))
-                .ToHashSet();
-
-            rawWorks.AddRange(realWorks.Where(w =>
-                !clonedKeys.Contains((w.ClientId, w.CurrentDate, w.StartTime, w.EndTime))));
+            var outsideScenarioWorks = await OutsideScenarioWorkQuery.LoadAsync(_context, token, agentIds, from, until, ct);
+            rawWorks.AddRange(outsideScenarioWorks.Where(w => replanFrom == null || w.CurrentDate >= replanFrom));
         }
 
         // The substitute of a replacement works the replaced span: an occupancy the wizard must not double-book.

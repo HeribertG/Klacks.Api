@@ -75,6 +75,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var keywordMap = ScheduleCommandKeywordMapper.BuildMap(await _keywordProvider.GetAsync(ct));
 
         var works = await LoadWorksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+        var outsideScenarioWorks = await LoadOutsideScenarioWorksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
         var clients = await LoadClientsAsync(agentIds, ct);
         var firstDayContracts = await _contractProvider.GetEffectiveContractDataForClientsAsync(agentIds, request.PeriodFrom);
         // A preference set on an order or a cut piece also holds for the pieces cut from it (K16), same source as Wizard 1.
@@ -109,7 +110,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var covers = await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
         var correctedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
         var onCallAbsenceIds = await OnCallAbsenceQuery.LoadIdsAsync(_context, ct);
-        var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays, correctedWorkHours, onCallAbsenceIds);
+        var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays, correctedWorkHours, onCallAbsenceIds, outsideScenarioWorks);
         var hints = BuildSofteningHints(softenings);
 
         var ineligible = await BuildIneligibleAsync(agentIds, assignments, works, breakDates, ct);
@@ -221,8 +222,17 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             .Where(c => c.Date < request.PeriodFrom || c.Date > request.PeriodUntil)
             .ToList();
         var boundaryCorrectedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct);
+        var boundaryOutsideScenarioWorks = (await LoadOutsideScenarioWorksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
+            .Where(w => w.CurrentDate < request.PeriodFrom || w.CurrentDate > request.PeriodUntil)
+            .ToList();
         var boundaryAssignments = BuildAssignments(
-            boundaryWorks, boundaryBreaks, boundaryCovers, agentIdSet, correctedWorkHours: boundaryCorrectedWorkHours, onCallAbsenceIds: onCallAbsenceIds);
+            boundaryWorks,
+            boundaryBreaks,
+            boundaryCovers,
+            agentIdSet,
+            correctedWorkHours: boundaryCorrectedWorkHours,
+            onCallAbsenceIds: onCallAbsenceIds,
+            outsideScenarioWorks: boundaryOutsideScenarioWorks);
         return (boundaryAssignments, boundaryWorks);
     }
 
@@ -373,6 +383,20 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                         && (w.AnalyseToken == analyseToken || (w.AnalyseToken == null && analyseToken == null)))
             .ToListAsync(ct);
     }
+
+    /// <summary>
+    /// A scenario carries only the works on the shifts it cloned; the agents' real works elsewhere (another group) stay in
+    /// the plan and occupy their days. The real plan already holds every work, so a run without token reads none.
+    /// </summary>
+    private async Task<List<Work>> LoadOutsideScenarioWorksAsync(
+        List<Guid> agentIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken,
+        CancellationToken ct)
+        => analyseToken is { } token
+            ? await OutsideScenarioWorkQuery.LoadAsync(_context, token, agentIds, from, until, ct)
+            : [];
 
     private async Task<Dictionary<Guid, Client>> LoadClientsAsync(List<Guid> agentIds, CancellationToken ct)
     {
@@ -650,7 +674,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     /// handed-over hours (no work ids, so apply never re-points it). Without this the wizards would move or delete the
     /// cover, count its hours twice and see the substitute as free that day. A day sealed for an agent (sealedDays) is a
     /// locked zero-hour cell; it is appended last so BitmapBuilder.Merge keeps the lock over an incoming Free cell, and
-    /// works on that day are locked too. A corrected work (correctedWorkHours) is locked like a sealed work and adds its
+    /// works on that day are locked too. A real work outside the scenario (outsideScenarioWorks, another group's shift) is a
+    /// locked occupied cell of its agent with its own hours and no work ids, like the substitute's span. A corrected work (correctedWorkHours) is locked like a sealed work and adds its
     /// correction hours, so the time recorded for its employee is never moved to someone else. A break stays a locked
     /// Break cell and carries the hours BreakOwnHours counts: an on-call absence (onCallAbsenceIds) occupies the day with
     /// zero hours toward the target, so only a call-out on that day counts.
@@ -662,7 +687,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         IReadOnlySet<Guid> agentIds,
         IReadOnlySet<(Guid ClientId, DateOnly Date)>? sealedDays = null,
         IReadOnlyDictionary<Guid, decimal>? correctedWorkHours = null,
-        IReadOnlySet<Guid>? onCallAbsenceIds = null)
+        IReadOnlySet<Guid>? onCallAbsenceIds = null,
+        IReadOnlyList<Work>? outsideScenarioWorks = null)
     {
         sealedDays ??= new HashSet<(Guid ClientId, DateOnly Date)>();
         correctedWorkHours ??= new Dictionary<Guid, decimal>();
@@ -712,6 +738,21 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 EndAt: c.EndAt,
                 Hours: c.Hours));
 
+        var outsideScenarioAssignments = (outsideScenarioWorks ?? []).Select(w =>
+        {
+            var (startAt, endAt) = Span(w.CurrentDate, w.StartTime, w.EndTime);
+            return new BitmapAssignment(
+                AgentId: w.ClientId.ToString(),
+                Date: w.CurrentDate,
+                Symbol: SymbolOfSpan(w.StartTime, w.EndTime),
+                ShiftRefId: w.ShiftId,
+                WorkIds: [],
+                IsLocked: true,
+                StartAt: startAt,
+                EndAt: endAt,
+                Hours: w.WorkTime);
+        });
+
         var sealedDayAssignments = sealedDays
             .Where(d => agentIds.Contains(d.ClientId))
             .Select(d => new BitmapAssignment(
@@ -725,7 +766,12 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 EndAt: default,
                 Hours: 0m));
 
-        return workAssignments.Concat(breakAssignments).Concat(substituteAssignments).Concat(sealedDayAssignments).ToList();
+        return workAssignments
+            .Concat(breakAssignments)
+            .Concat(substituteAssignments)
+            .Concat(outsideScenarioAssignments)
+            .Concat(sealedDayAssignments)
+            .ToList();
     }
 
     private static (DateTime StartAt, DateTime EndAt) Span(DateOnly date, TimeOnly start, TimeOnly end) =>
