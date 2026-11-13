@@ -47,11 +47,11 @@ moved by an absence cover) counts as staffed, also when that person is not one o
 a colleague from a sister group who took the duty over. Stage one does not staff that place a second time: with two
 places on the shift and one held that way, it fills only the other one. Only fixed duties are counted this way.
 
-A duty a person already has in another group (a group outside the run, for example a night duty in a second group
-the person belongs to) stays in the plan and is respected by every stage, locked or not. Stage one does not give the
-person a duty that overlaps it or breaks the rest before or after it, and it counts its hours towards the weekly limit.
-Stage three, and stage two when an administrator runs it alone, treat that day of the person as taken: no swap puts
-a second duty on it, and its hours count towards the person's hours.
+Autofill plans a group in a scenario of that group. A duty a person already has in another group (for example a night
+duty in a second group the person belongs to) is not part of that scenario, stays in the plan and is respected, locked
+or not. Stage one does not give the person a duty that overlaps it or breaks the rest before or after it, and it counts
+its hours towards the weekly limit. Stage three, and stage two when it runs on a scenario, treat that day of the person
+as taken: no swap puts a second duty on it, and its hours count towards the person's hours.
 
 For qualifications the hard part is a missing mandatory qualification and a level below the minimum
 where that level is binding; a level below a non-binding minimum is allowed but penalised by the size of
