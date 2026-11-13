@@ -1262,6 +1262,11 @@
     "transformă un angajat fictiv în angajat",
     "încă lipsesc oameni pentru ture"
   ],
+  "explain_autofill_staircase_start": [
+    "de ce planul arată ca o scară",
+    "ce este un înlocuitor în plan",
+    "ciclul de ture"
+  ],
   "explain_absence_type_flags": [
     "ce face efectiv comutatorul sâmbătă se calculează?",
     "comutatorul de sărbători are vreun efect?",

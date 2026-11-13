@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "Explicar a cobertura de uma ausência",
   "explain_scenario_variant_keys": "Explicar os turnos provisórios",
   "explain_placeholder_employees": "Explicar os colaboradores fictícios",
+  "explain_autofill_staircase_start": "Explicar o início em escada",
   "explain_absence_type_flags": "Explicar os sinalizadores de um tipo de ausência",
   "explain_absence_value_vs_hours": "Explicar valor de ausência versus horas de ausência",
   "explain_active_industries": "Explicação dos setores ativos",

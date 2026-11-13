@@ -668,6 +668,10 @@
       "version": 5,
       "hash": "C78FD0B4D3E592A7200C37FCE47D1D91204E03A33D80298492AE93B4E9D407BA"
     },
+    "explain_autofill_staircase_start": {
+      "version": 1,
+      "hash": "D508BAF1F73C4E768EB83055809A4A33B243EABBDC499CB17E389BE81F737D8F"
+    },
     "explain_calendar_model": {
       "version": 7,
       "hash": "BF5CE98D64EA584A4760A786B87730EB9C2CE3112144BF94C3045E65EC92D213"

@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "欠勤のカバーを説明",
   "explain_scenario_variant_keys": "暫定シフトを説明",
   "explain_placeholder_employees": "仮従業員の説明",
+  "explain_autofill_staircase_start": "階段型スタートを説明",
   "explain_absence_type_flags": "欠勤種別のフラグを説明",
   "explain_absence_value_vs_hours": "欠勤値と欠勤時間の違いを説明",
   "explain_active_industries": "有効な業種の説明",

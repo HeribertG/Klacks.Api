@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "Vysvětlit pokrytí absence",
   "explain_scenario_variant_keys": "Vysvětlit předběžné služby",
   "explain_placeholder_employees": "Vysvětlit fiktivní zaměstnance",
+  "explain_autofill_staircase_start": "Vysvětlit start ve tvaru schodů",
   "explain_absence_type_flags": "Vysvětlení přepínače typu nepřítomnosti",
   "explain_absence_value_vs_hours": "Vysvětlit rozdíl mezi počtem absencí a počtem hodin absence",
   "explain_active_industries": "Přehled aktivních odvětví",

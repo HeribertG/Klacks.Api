@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "解释缺勤顶替",
   "explain_scenario_variant_keys": "解释暂定班次",
   "explain_placeholder_employees": "解释占位员工",
+  "explain_autofill_staircase_start": "解释阶梯式起始",
   "explain_absence_type_flags": "解释缺勤类型的各项开关",
   "explain_absence_value_vs_hours": "解释缺勤数值与缺勤小时的区别",
   "explain_active_industries": "说明已启用的行业",

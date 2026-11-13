@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "說明缺勤頂替",
   "explain_scenario_variant_keys": "說明暫定班次",
   "explain_placeholder_employees": "解釋佔位員工",
+  "explain_autofill_staircase_start": "說明階梯式起始",
   "explain_absence_type_flags": "說明請假類型的設定旗標",
   "explain_absence_value_vs_hours": "說明請假數值與請假時數的差異",
   "explain_active_industries": "說明啟用中的產業",

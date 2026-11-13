@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "Jelaskan penggantian saat absen",
   "explain_scenario_variant_keys": "Jelaskan shift sementara",
   "explain_placeholder_employees": "Jelaskan karyawan virtual",
+  "explain_autofill_staircase_start": "Jelaskan awal pola tangga",
   "explain_absence_type_flags": "Jelaskan penanda jenis absen",
   "explain_absence_value_vs_hours": "Jelaskan nilai absen versus jam absen",
   "explain_active_industries": "Jelaskan industri aktif",

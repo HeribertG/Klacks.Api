@@ -147,7 +147,8 @@ previous month counts those days too.
 
 The rank settles conflicts: where two people compete for the same duty, the one higher in the order is served
 first. The rotation of early, late and night duties is aimed at for everybody in the plan. Weekend duties are not
-yet evened out in the first stage.
+yet evened out in the first stage. Where a shift cycle fits the team, the first stage also tries a staircase plan as a second
+run and keeps the better plan by this order (see `explain_autofill_staircase_start`).
 
 ## Running one stage alone
 

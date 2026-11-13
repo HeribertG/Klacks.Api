@@ -1256,6 +1256,11 @@
     "gjør en plassholder om til ansatt",
     "folk til vaktene mangler fortsatt"
   ],
+  "explain_autofill_staircase_start": [
+    "hvorfor ser planen ut som en trapp",
+    "hva er en springer i planen",
+    "vaktsyklus"
+  ],
   "explain_absence_type_flags": [
     "hva gjør bryteren 'lørdag beregnes'?",
     "har helligdag-bryteren noen effekt?",

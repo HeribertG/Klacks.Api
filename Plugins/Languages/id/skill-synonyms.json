@@ -1261,6 +1261,11 @@
     "ubah karyawan virtual menjadi karyawan",
     "orang untuk shift masih kurang"
   ],
+  "explain_autofill_staircase_start": [
+    "mengapa rencana terlihat seperti tangga",
+    "apa itu pengganti dalam rencana",
+    "siklus shift"
+  ],
   "explain_absence_type_flags": [
     "apa yang dilakukan saklar sabtu dihitung?",
     "apakah saklar liburan punya efek?",

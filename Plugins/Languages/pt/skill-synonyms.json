@@ -1283,6 +1283,11 @@
     "converter um colaborador fictício em colaborador",
     "ainda faltam pessoas para os turnos"
   ],
+  "explain_autofill_staircase_start": [
+    "por que o plano parece uma escada",
+    "o que é um substituto no plano",
+    "ciclo de turnos"
+  ],
   "explain_absence_type_flags": [
     "o que realmente faz 'sábado é calculado'?",
     "o interruptor de feriado tem algum efeito?",

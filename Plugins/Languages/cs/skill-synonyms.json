@@ -1285,6 +1285,11 @@
     "převést fiktivního zaměstnance na zaměstnance",
     "lidé na směny ještě chybí"
   ],
+  "explain_autofill_staircase_start": [
+    "proč plán vypadá jako schody",
+    "co je záskok v plánu",
+    "cyklus směn"
+  ],
   "explain_absence_type_flags": [
     "co dělá přepínač sobota se počítá",
     "má přepínač svátek nějaký účinek",

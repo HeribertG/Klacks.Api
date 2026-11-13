@@ -1,5 +1,5 @@
 {
-  "version": 27,
+  "version": 28,
   "skills": [
     {
       "name": "get_current_time",
@@ -50362,6 +50362,81 @@
         "en": "Explain placeholders",
         "fr": "Expliquer les employés fictifs",
         "it": "Spiega i segnaposto"
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_autofill_staircase_start",
+      "area": "wizard",
+      "description": "Explains the staircase start of autofill stage one: a second run that starts from a shift cycle (rows shifted against each other, one week per shift kind, work days from the settings), rows for the top ranks and fillers below, continuation of the previous 14 days, restart with early shifts after a long absence, and why the judge may keep the first run. Use this when people ask why a plan looks like a staircase, why weekends are uneven after autofill or what a filler is.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "handlerConfig": {
+        "memoryKey": "explain_autofill_staircase_start"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "treppenmuster"
+        ],
+        "en": [
+          "staircase",
+          "rotation wheel"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "was ist das treppenmuster im plan",
+          "warum sieht der plan wie eine treppe aus",
+          "warum fünf tage arbeit und zwei frei",
+          "was ist ein springer im plan",
+          "wiedereinstieg nach abwesenheit mit frühdienst",
+          "warum kein freies wochenende nach autofill"
+        ],
+        "en": [
+          "what is the staircase in the plan",
+          "why does the plan look like a staircase",
+          "why five days on and two off",
+          "what is a filler in the plan",
+          "return after absence with early shifts",
+          "why no free weekend after autofill"
+        ],
+        "fr": [
+          "qu'est-ce que l'escalier dans le plan",
+          "pourquoi le plan ressemble à un escalier",
+          "remplaçant dans le plan",
+          "cycle d'équipes"
+        ],
+        "it": [
+          "cos'è la scala nel piano",
+          "perché il piano sembra una scala",
+          "ruota dei turni",
+          "ciclo dei turni"
+        ]
+      },
+      "labels": {
+        "de": "Treppenmuster erklären",
+        "en": "Explain the staircase start",
+        "fr": "Expliquer le démarrage en escalier",
+        "it": "Spiega l'avvio a scala"
       },
       "version": 1
     },

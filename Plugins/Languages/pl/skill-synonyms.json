@@ -1285,6 +1285,11 @@
     "zamień pracownika wirtualnego na pracownika",
     "wciąż brakuje ludzi na zmiany"
   ],
+  "explain_autofill_staircase_start": [
+    "dlaczego plan wygląda jak schody",
+    "kim jest zastępca w planie",
+    "cykl zmian"
+  ],
   "explain_absence_type_flags": [
     "co właściwie robi przełącznik sobota liczona",
     "czy przełącznik święta ma jakikolwiek efekt",

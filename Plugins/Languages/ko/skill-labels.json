@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "결근 대체 설명",
   "explain_scenario_variant_keys": "잠정 근무 설명",
   "explain_placeholder_employees": "가상 직원 설명",
+  "explain_autofill_staircase_start": "계단형 시작 설명",
   "explain_absence_type_flags": "결근 유형 플래그 설명",
   "explain_absence_value_vs_hours": "결근 값과 결근 시간 차이 설명",
   "explain_active_industries": "활성 업종 설명",

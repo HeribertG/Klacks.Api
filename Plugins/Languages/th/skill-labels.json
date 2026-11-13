@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "อธิบายการทดแทนเมื่อขาดงาน",
   "explain_scenario_variant_keys": "อธิบายกะเบื้องต้น",
   "explain_placeholder_employees": "อธิบายพนักงานสมมติ",
+  "explain_autofill_staircase_start": "อธิบายการเริ่มแบบขั้นบันได",
   "explain_absence_type_flags": "อธิบายแฟล็กของประเภทการลา",
   "explain_absence_value_vs_hours": "อธิบายมูลค่าการลาเทียบกับชั่วโมงการลา",
   "explain_active_industries": "อธิบายอุตสาหกรรมที่เปิดใช้งาน",

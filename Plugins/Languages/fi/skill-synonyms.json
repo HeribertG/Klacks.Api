@@ -1257,6 +1257,11 @@
     "muuta paikanvaraaja työntekijäksi",
     "vuoroihin puuttuu vielä ihmisiä"
   ],
+  "explain_autofill_staircase_start": [
+    "miksi suunnitelma näyttää portailta",
+    "mikä on varahenkilö suunnitelmassa",
+    "vuorokierto"
+  ],
   "explain_absence_type_flags": [
     "mitä lauantai lasketaan -kytkin oikeastaan tekee?",
     "onko pyhäkytkimellä vaikutusta?",

@@ -1277,6 +1277,11 @@
     "fictieve medewerker omzetten naar medewerker",
     "er ontbreken nog mensen voor de diensten"
   ],
+  "explain_autofill_staircase_start": [
+    "waarom lijkt het plan op een trap",
+    "wat is een invaller in het plan",
+    "dienstcyclus"
+  ],
   "explain_absence_type_flags": [
     "wat doet zaterdag wordt berekend eigenlijk",
     "heeft de feestdagenschakelaar effect",

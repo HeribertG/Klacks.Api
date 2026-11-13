@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "Wyjaśnij pokrycie nieobecności",
   "explain_scenario_variant_keys": "Wyjaśnij wstępne dyżury",
   "explain_placeholder_employees": "Wyjaśnij pracowników wirtualnych",
+  "explain_autofill_staircase_start": "Wyjaśnij start schodkowy",
   "explain_absence_type_flags": "Wyjaśnij znaczenie flag typu nieobecności",
   "explain_absence_value_vs_hours": "Wyjaśnij wartość nieobecności a jej godziny",
   "explain_active_industries": "Wyjaśnij aktywne branże",

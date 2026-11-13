@@ -1253,6 +1253,11 @@
     "chuyển nhân viên giả định thành nhân viên",
     "vẫn còn thiếu người cho ca làm"
   ],
+  "explain_autofill_staircase_start": [
+    "tại sao lịch trông như bậc thang",
+    "người thay thế trong lịch là gì",
+    "chu kỳ ca làm"
+  ],
   "explain_absence_type_flags": [
     "công tắc 'thứ bảy được tính' có tác dụng gì",
     "công tắc ngày lễ có ảnh hưởng gì không",

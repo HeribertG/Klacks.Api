@@ -1266,6 +1266,11 @@
     "gör om en platshållare till anställd",
     "det saknas fortfarande folk till passen"
   ],
+  "explain_autofill_staircase_start": [
+    "varför ser planen ut som en trappa",
+    "vad är en hoppare i planen",
+    "skiftcykel"
+  ],
   "explain_absence_type_flags": [
     "vad gör lördag räknas",
     "har helgdagsswitschen någon effekt",

@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "Forklar dækning af fravær",
   "explain_scenario_variant_keys": "Forklar foreløbige vagter",
   "explain_placeholder_employees": "Forklar pladsholdere",
+  "explain_autofill_staircase_start": "Forklar trappestarten",
   "explain_absence_type_flags": "Forklaring af en fraværstype",
   "explain_absence_value_vs_hours": "Forklar forskellen mellem fraværsværdi og fraværstimer",
   "explain_active_industries": "Oversigt over de aktive brancher",

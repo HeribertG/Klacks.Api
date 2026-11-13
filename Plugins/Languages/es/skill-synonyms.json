@@ -1281,6 +1281,11 @@
     "convertir un empleado ficticio en empleado",
     "todavía faltan personas para los turnos"
   ],
+  "explain_autofill_staircase_start": [
+    "por qué el plan parece una escalera",
+    "qué es un comodín en el plan",
+    "ciclo de turnos"
+  ],
   "explain_absence_type_flags": [
     "¿qué hace realmente 'sábado se calcula'?",
     "¿tiene algún efecto el interruptor de festivos?",

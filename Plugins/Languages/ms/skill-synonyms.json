@@ -1250,6 +1250,11 @@
     "tukar pekerja maya kepada pekerja",
     "orang untuk syif masih belum cukup"
   ],
+  "explain_autofill_staircase_start": [
+    "kenapa jadual kelihatan seperti tangga",
+    "apa itu pengganti dalam jadual",
+    "kitaran syif"
+  ],
   "explain_absence_type_flags": [
     "apa fungsi suis sabtu dikira?",
     "adakah suis cuti umum ada kesan?",

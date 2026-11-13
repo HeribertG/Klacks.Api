@@ -1270,6 +1270,11 @@
     "omdan en pladsholder til medarbejder",
     "folkene til vagterne mangler endnu"
   ],
+  "explain_autofill_staircase_start": [
+    "hvorfor ligner planen en trappe",
+    "hvad er en springer i planen",
+    "vagtcyklus"
+  ],
   "explain_absence_type_flags": [
     "hvad gør knappen 'lørdag beregnes'?",
     "har ferieknappen nogen effekt?",
