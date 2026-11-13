@@ -60,16 +60,17 @@ public static class LLMLoopConstants
         "that you cannot do it here; never say that it was carried out.";
 
     /// <summary>
-    /// What the chat loop does with a call to a skill outside the turn's toolset. Observe until the logged
-    /// rate of such calls shows that no legitimate call is caught: the guard logs every outside call, and the
-    /// function executor logs its outcome (Success, ResultKind), so the rate of outside calls that succeeded is
-    /// countable. Switching to Enforce is this constant; the rest of the Enforce path is already in place: a
+    /// What the chat loop does with a call to a skill outside the turn's toolset. Enforce since 2026-11-13: 112
+    /// scripted turns on the dev backend (plain-language follow-ups, corrections, topic switches, four languages,
+    /// two injection probes) produced no outside call at all, so the block catches no legitimate call that was
+    /// measured. Observe stays available for a re-count: the guard logs every outside call, and the function
+    /// executor logs its outcome (Success, ResultKind). The Enforce path: a
     /// rejected call is flagged (LLMFunctionCall.IsRejectedWithoutRunning), left out of the functions_called record
     /// (TurnTelemetry.SerializeFunctionsCalled), never counted as a skill failure by the failure consumers, never
     /// offered as the failure to surface (TurnClosingNotices.LastUnrecoveredFailure), and it counts as a failed
     /// write attempt for the nothing-stored notice (TurnClosingNotices.NothingExecuted).
     /// </summary>
-    public const ToolsetMembershipMode DefaultToolsetMembershipMode = ToolsetMembershipMode.Observe;
+    public const ToolsetMembershipMode DefaultToolsetMembershipMode = ToolsetMembershipMode.Enforce;
 
     /// <summary>
     /// Former assistant stand-in for tool-call iterations. No longer written into the running history
