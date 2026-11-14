@@ -54,6 +54,8 @@ its hours towards the weekly limit. Stage three, and stage two when it runs on a
 as taken: no swap puts a second duty on it, and its hours count towards the person's hours. The same holds when the
 person stands in for a colleague on a duty of another group (a replacement entered on that duty), and when stage one
 replans only from a later day: a duty in another group before that day still bounds the rest and the weekly hours.
+The rule check of a scenario (before it is accepted, and in the report after a run) also counts that duty: a scenario
+duty that overlaps it shows as a collision, and the rest and hours around it are checked.
 
 For qualifications the hard part is a missing mandatory qualification and a level below the minimum
 where that level is binding; a level below a non-binding minimum is allowed but penalised by the size of
