@@ -20,6 +20,9 @@ public static partial class SkillAssociationGate
     [GeneratedRegex(@"[.?!;,。？！，、؟،]\s*\S", RegexOptions.NonBacktracking)]
     private static partial Regex PartSeparator();
 
+    /// <summary>
+    /// True when the message, cut to its first 2000 characters, holds a clause or sentence mark followed by more text; a blank message is false.
+    /// </summary>
     /// <param name="userMessage">The user's message of this turn</param>
     public static bool LooksMultiPart(string? userMessage)
     {

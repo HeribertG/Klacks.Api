@@ -10,6 +10,9 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public static class ScenarioSourceRange
 {
+    /// <summary>
+    /// Returns the requested range, moved outward to the source scenario's first and last day where those lie beyond it.
+    /// </summary>
     /// <param name="fromDate">First day the flow itself writes</param>
     /// <param name="untilDate">Last day the flow itself writes</param>
     /// <param name="sourceFromDate">First day of the source scenario; null without a source</param>

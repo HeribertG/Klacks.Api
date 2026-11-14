@@ -1,5 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// The image_url object of an OpenAI-style image content part.
+/// </summary>
 /// <param name="Url">Either a remote https URL or an inline <c>data:image/png;base64,...</c> URI.</param>
 using System.Text.Json.Serialization;
 

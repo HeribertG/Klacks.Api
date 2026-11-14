@@ -144,7 +144,6 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         var date = request.Date;
         var untilDate = request.UntilDate ?? request.Date;
         var groupId = request.GroupId;
-        var absenceId = request.AbsenceId;
 
         if (untilDate < date)
         {

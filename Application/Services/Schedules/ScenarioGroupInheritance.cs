@@ -11,6 +11,9 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// </summary>
 public static class ScenarioGroupInheritance
 {
+    /// <summary>
+    /// Returns the requested group; when none was requested, the group of the source scenario, which may be null.
+    /// </summary>
     /// <param name="requestedGroupId">Group the run was started for; null = none requested</param>
     /// <param name="sourceScenario">Scenario the run planned on; null = the real schedule</param>
     public static Guid? Resolve(Guid? requestedGroupId, AnalyseScenario? sourceScenario)

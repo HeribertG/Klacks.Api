@@ -9,6 +9,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 /// </summary>
 public interface IScenarioNameGenerator
 {
+    /// <summary>
+    /// Returns a localized scenario name for the period that no existing scenario of the group already uses.
+    /// </summary>
     /// <param name="kind">Which server-side process creates the scenario; selects the localized prefix</param>
     /// <param name="from">First calendar day of the scenario period</param>
     /// <param name="until">Last calendar day of the scenario period (inclusive)</param>

@@ -13,6 +13,10 @@ namespace Klacks.Api.Domain.Services.Schedules;
 
 public static class AbsenceWorkCoverage
 {
+    /// <summary>
+    /// True when the absence covers the work: always for a whole-day absence, otherwise only when the work does not run over
+    /// midnight and lies inside the absence.
+    /// </summary>
     /// <param name="absenceStart">Start of the absence on the work's day</param>
     /// <param name="absenceEnd">End of the absence</param>
     /// <param name="workStart">Start of the work</param>

@@ -45,6 +45,9 @@ public static class CoverMoveDecision
     private static DateTime StartUtc(CoverMoveFacts facts, TimeZoneInfo companyTimeZone)
         => CompanyWallClockToUtcConverter.ConvertToUtc(facts.CurrentDate.ToDateTime(facts.StartTime), companyTimeZone);
 
+    /// <summary>
+    /// True when the work belongs to the given person, nothing holds it in place and its start and end equal the covered span.
+    /// </summary>
     /// <param name="facts">The work as it stands in the scenario</param>
     /// <param name="fromClientId">Person the cover takes the work from</param>
     /// <param name="coverStart">Start of the covered span</param>

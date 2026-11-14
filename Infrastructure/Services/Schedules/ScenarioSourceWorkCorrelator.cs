@@ -35,6 +35,10 @@ public sealed class ScenarioSourceWorkCorrelator
         _scenarioService = scenarioService;
     }
 
+    /// <summary>
+    /// Maps each bitmap work to the clone that copies it: directly through the clone's work id map, otherwise through the
+    /// ClonedFromWorkId chain, otherwise through a unique key match. Works whose real origin moved are reported as superseded.
+    /// </summary>
     /// <param name="bitmapWorkIds">Every work id the bitmap references</param>
     /// <param name="bitmapWorks">The bitmap's works as loaded before the apply (their pre-harmonizing assignment)</param>
     /// <param name="workIdMap">Source work id -> clone work id, as returned by the scenario clone</param>

@@ -11,6 +11,9 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// </summary>
 public static class AppliedScenarioBuilder
 {
+    /// <summary>
+    /// Creates an AnalyseScenario carrying the given name, group, range, token, run group and source token.
+    /// </summary>
     /// <param name="name">Localized, per-group unique scenario name</param>
     /// <param name="groupId">Group the scenario belongs to; null = none</param>
     /// <param name="fromDate">First day of the scenario range</param>

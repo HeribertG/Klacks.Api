@@ -12,6 +12,9 @@ namespace Klacks.Api.Application.Interfaces;
 /// </summary>
 public interface IScenarioTokenAccessGuard
 {
+    /// <summary>
+    /// True when the caller may work in the scenario the token selects; the main plan (null token) is always allowed.
+    /// </summary>
     /// <param name="analyseToken">Scenario isolation token; null selects the main plan</param>
     Task<bool> IsVisibleAsync(Guid? analyseToken, CancellationToken cancellationToken = default);
 
