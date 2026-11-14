@@ -8,7 +8,9 @@ on:
   schedule:
     - cron: "0 6 * * 1"
 
-# CodeQL security + quality scanning for this repo's C# code. This is a public repo, so code
+# CodeQL security scanning (security-extended) for this repo's C# code. Quality is covered by our own
+# guard tests; the security-and-quality suite exceeded GitHub's limit of 25,000 SARIF results per run,
+# so the upload was rejected and no security finding arrived. This is a public repo, so code
 # scanning is free and the SARIF upload works without GitHub Advanced Security. Buildless mode
 # (build-mode: none) avoids needing a restore or the sibling dependency repos.
 jobs:
@@ -29,7 +31,7 @@ jobs:
         with:
           languages: csharp
           build-mode: none
-          queries: security-and-quality
+          queries: security-extended
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
