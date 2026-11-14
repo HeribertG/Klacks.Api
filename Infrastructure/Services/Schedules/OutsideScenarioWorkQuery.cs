@@ -42,6 +42,19 @@ public static class OutsideScenarioWorkQuery
                         && w.CurrentDate <= until)
             .Where(WorkOwnHours.Counts);
 
+    /// <summary>Top-level works (no container child) of the given people in the range, as the scenario's rule check reads them.</summary>
+    internal static IQueryable<Work> TopLevelQuery(
+        DataBaseContext context,
+        Guid analyseToken,
+        IReadOnlyCollection<Guid> clientIds,
+        DateOnly from,
+        DateOnly until)
+        => RealWorks(context, analyseToken)
+            .Where(w => clientIds.Contains(w.ClientId)
+                        && w.CurrentDate >= from
+                        && w.CurrentDate <= until
+                        && w.ParentWorkId == null);
+
     /// <summary>All works of the real plan on a real shift the scenario does not carry, of any person and date.</summary>
     internal static IQueryable<Work> RealWorks(DataBaseContext context, Guid analyseToken)
     {

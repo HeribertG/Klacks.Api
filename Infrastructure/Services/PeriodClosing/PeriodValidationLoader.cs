@@ -99,6 +99,11 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         var ruleFrom = from.AddDays(-ScenarioConstants.BoundaryDays);
         var ruleTo = to.AddDays(ScenarioConstants.BoundaryDays);
         var ruleWorks = await LoadWorksAsync(ruleFrom, ruleTo, clientIdsInGroup, analyseToken, cancellationToken);
+        if (analyseToken is { } token)
+        {
+            ruleWorks.AddRange(await LoadOutsideScenarioWorksAsync(
+                ruleFrom, ruleTo, clientIdsInGroup ?? ruleWorks.Select(w => w.ClientId).ToHashSet(), token, cancellationToken));
+        }
         var works = ruleWorks.Where(w => w.CurrentDate >= from && w.CurrentDate <= to).ToList();
         if (works.Count == 0)
         {
@@ -241,6 +246,20 @@ public class PeriodValidationLoader : IPeriodValidationLoader
 
         return await query.ToListAsync(cancellationToken);
     }
+
+    /// <summary>
+    /// A scenario carries only the works on the shifts it cloned; the people's real works elsewhere (another group) stay in
+    /// the plan after an accept, so the scenario's rules and collisions are checked against them too.
+    /// </summary>
+    private async Task<List<Work>> LoadOutsideScenarioWorksAsync(
+        DateOnly from,
+        DateOnly to,
+        HashSet<Guid> clientIds,
+        Guid analyseToken,
+        CancellationToken cancellationToken)
+        => await OutsideScenarioWorkQuery.TopLevelQuery(_context, analyseToken, clientIds, from, to)
+            .Include(w => w.Client)
+            .ToListAsync(cancellationToken);
 
     private async Task<List<WorkChange>> LoadWorkChangesAsync(
         List<Guid> workIds,
