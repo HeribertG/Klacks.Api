@@ -66,6 +66,12 @@ public static class KnowledgeIndexConstants
     // otherwise the reranker can never surface enough candidates to fill topK.
     public const int MaxRerankerCandidates = 25;
 
+    // KNN depth of a skill pass that keeps the vector order: the candidates beyond MaxRerankerCandidates are scored by
+    // cosine only and handed out as RetrievalResult.AssociationPool, never reranked or returned as topK candidates.
+    // Simulated 2026-11-14 on the multi-tool goldset: a pool of 25 left the graph step almost nothing (57/100), 40
+    // reached the plateau (62/100, same as 60 and an unbounded pool).
+    public const int SkillAssociationPoolSize = 40;
+
     // Token budget of the QUERY half of a cross-encoder pair. The pair (query + separator + candidate) is
     // capped at 512 tokens from the tail, so a long history-anchored query used to push the candidate text
     // out of the window entirely and every candidate was scored on the query alone. Half the window leaves

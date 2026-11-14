@@ -24,7 +24,8 @@ public enum ToolsetSkillSource
     /// <summary>A recipe forcing spine guaranteed the skill as a step of the active recipe.</summary>
     RecipeStep = 5,
 
-    /// <summary>The co-required neighbour expansion pulled the skill into free budget.</summary>
+    /// <summary>The skill-graph association put the skill into one of the last retrieval places without retrieval
+    /// having returned it.</summary>
     Expansion = 6,
 
     /// <summary>Any other deterministic hint (page explain, concept keyword, workflow pair,

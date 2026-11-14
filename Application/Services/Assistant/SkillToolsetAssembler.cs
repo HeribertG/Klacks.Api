@@ -3,8 +3,8 @@
 /// <summary>
 /// Assembles the per-turn LLM toolset shared by the streaming (LLMStreamingOrchestrator) and
 /// non-streaming (ProcessLLMMessageCommandHandler) chat paths: permission filtering, always-on
-/// skills, knowledge retrieval, deterministic skill guarantees, co-required expansion into free
-/// budget and provider-cap truncation. Single owner of this logic so the two paths cannot drift.
+/// skills, knowledge retrieval, skill-graph association into the last retrieval places, deterministic
+/// skill guarantees and provider-cap truncation. Single owner of this logic so the two paths cannot drift.
 /// </summary>
 /// <param name="agent">Agent whose enabled skills form the candidate set; null yields an empty toolset.</param>
 /// <param name="userRights">Permissions used for skill access control and retrieval scoping.</param>
@@ -39,6 +39,7 @@
 
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces.Assistant;
+using Klacks.Api.Application.Services.Assistant.SkillGraph;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -184,9 +185,15 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         var pendingTurnIntent = _guaranteeResolver.StartTurnIntent(userMessage, language, pinnedSkillNames, cancellationToken);
 
-        var (retrievedSkills, hasDomainSkillContext, retrievalScores, skillRerank) = await RetrieveSkillCandidatesAsync(
-            permittedSkills, userRights, isAdmin, userMessage, conversationId, currentRoute, userId,
-            forceSkillRerank: excludedSkillNames != null, cancellationToken);
+        var (retrievedSkills, hasDomainSkillContext, retrievalScores, skillRerank, associationPool) =
+            await RetrieveSkillCandidatesAsync(
+                permittedSkills, userRights, isAdmin, userMessage, conversationId, currentRoute, userId,
+                forceSkillRerank: excludedSkillNames != null, cancellationToken);
+
+        var expansionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        retrievedSkills = await AssociateIntoLastPlacesAsync(
+            agent.Id, userMessage, retrievedSkills, retrievalScores, associationPool, permittedSkills, expansionNames,
+            cancellationToken);
 
         // Every deterministic skill guarantee for this turn - see ISkillToolsetGuaranteeResolver for the
         // full list. Extracted from this method because computing the guarantees and doing something
@@ -210,10 +217,6 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         }
 
         var selectedSkills = alwaysOnSkills.Concat(retrievedSkills).DistinctBy(s => s.Name).ToList();
-        var expansionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        selectedSkills = await ExpandIntoFreeBudgetAsync(
-            agent.Id, selectedSkills, permittedSkills, maxToolsForProvider, expansionNames, cancellationToken);
 
         (selectedSkills, var postExclusionRetrieved) = ApplyCorrectionExclusion(
             selectedSkills, retrievedSkills, excludedSkillNames, guaranteeResult.ExcludedSkillNames, guaranteedSources);
@@ -225,12 +228,12 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
     /// <summary>
     /// Drops the skills a correction turn must not offer again and counts the retrieved skills that survive the
-    /// exclusion. Applied once, after the expansion rather than before the selection: the keyword guarantee, the
-    /// learned-phrase guarantee and the co-required expansion can each put the corrected turn's skill back, and a
-    /// filter that ran earlier would be undone by any of them. Accepted noise: a co-required partner the expansion
-    /// pulled in for an excluded skill is not itself excluded and survives in the tool set.
+    /// exclusion. Applied once, on the final selection rather than before it: the keyword guarantee and the
+    /// learned-phrase guarantee can each put the corrected turn's skill back, and a filter that ran earlier would be
+    /// undone by either of them. The graph association does not run on a correction turn: that pass is reranked, and a
+    /// reranked pass hands out no association pool.
     /// </summary>
-    /// <param name="selectedSkills">The selection after expansion</param>
+    /// <param name="selectedSkills">The selection after the guarantees joined</param>
     /// <param name="retrievedSkills">The retrieved candidates including the prepended guarantees</param>
     /// <param name="excludedSkillNames">The correction turn's excluded skill names; null outside a correction</param>
     /// <param name="draftLoopExcludedSkillNames">The skills an open draft loop keeps out (DraftLoopToolsetPolicy)</param>
@@ -260,7 +263,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     /// <param name="postExclusionRetrieved">Retrieved skills left after the exclusion, for the budget log and the trace</param>
     /// <param name="guaranteeResult">This turn's guarantees, their sources and the veto</param>
     /// <param name="retrievalScores">The retrieval score per surfaced skill name</param>
-    /// <param name="expansionNames">Names the co-required expansion added</param>
+    /// <param name="expansionNames">Names the graph association added that retrieval had not returned</param>
     /// <param name="skillRerank">The retrieval's skill-rerank decision for this turn, if any</param>
     /// <param name="maxToolsForProvider">The provider cap</param>
     /// <param name="assemblyWatch">Started when the assembly began; read last for the assembly time</param>
@@ -360,48 +363,66 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     }
 
     /// <summary>
-    /// Silent expansion: pulls in high-confidence co-required neighbours of the selected skills into FREE budget only
-    /// (never evict). Best-effort — a failure must never break skill selection. The free budget is computed
-    /// pre-exclusion; the exclusion filter and the truncation both run after this, so nothing is cut prematurely — a
-    /// correction turn only ever sees a SMALLER expansion fill, because the skills it excluded still count against the
-    /// selection here.
+    /// Association: graph neighbours of the retrieved skills compete for the last AssociationSlots retrieval places.
+    /// The best-scored retrieved skills keep their places and seed the graph; the expander ranks their neighbours from
+    /// the retrieval's association pool, and every place it leaves unused goes back to the next retrieved skill, so a
+    /// turn without graph evidence keeps exactly its retrieved skills. Runs only on a message with several parts
+    /// (SkillAssociationGate) and on vector-order passes (the pool is empty on reranked ones), and never fails the
+    /// turn. A neighbour the retrieval had not returned carries no retrieval score and is labelled Expansion, so the
+    /// provider cap drops it before every scored skill. The place-keeping itself is SkillAssociationPlacement.
     /// </summary>
-    /// <param name="agentId">Agent whose skill relations drive the expansion</param>
-    /// <param name="selectedSkills">The always-on and retrieved selection</param>
-    /// <param name="permittedSkills">Skills the user may use; the expansion only picks among them</param>
-    /// <param name="maxToolsForProvider">The provider cap the free budget is measured against</param>
-    /// <param name="expansionNames">Receives the names of the skills the expansion added</param>
-    /// <returns>The selection with the expansion appended, or the unchanged selection</returns>
-    private async Task<List<AgentSkill>> ExpandIntoFreeBudgetAsync(
+    /// <param name="agentId">Agent whose skill relations form the graph</param>
+    /// <param name="userMessage">The user's message, read by the multi-part gate</param>
+    /// <param name="retrievedSkills">The retrieved, permitted, non-always-on skills</param>
+    /// <param name="retrievalScores">The retrieval score per returned skill name</param>
+    /// <param name="associationPool">The cosine-scored deep candidates of the pass</param>
+    /// <param name="permittedSkills">Skills the user may use; the association only picks among them</param>
+    /// <param name="expansionNames">Receives the names of the associated skills the retrieval had not returned</param>
+    /// <returns>The retrieved skills with the last places possibly taken by associated skills</returns>
+    private async Task<List<AgentSkill>> AssociateIntoLastPlacesAsync(
         Guid agentId,
-        List<AgentSkill> selectedSkills,
+        string userMessage,
+        List<AgentSkill> retrievedSkills,
+        IReadOnlyDictionary<string, double> retrievalScores,
+        IReadOnlyList<RetrievalCandidate> associationPool,
         List<AgentSkill> permittedSkills,
-        int maxToolsForProvider,
         HashSet<string> expansionNames,
         CancellationToken cancellationToken)
     {
-        var freeBudget = maxToolsForProvider - selectedSkills.Count;
-        if (freeBudget > 0)
+        var slots = _expander.AssociationSlots;
+        if (slots <= 0 || associationPool.Count == 0 || retrievedSkills.Count <= slots
+            || !SkillAssociationGate.LooksMultiPart(userMessage))
         {
-            try
-            {
-                var expansion = await _expander.ExpandAsync(agentId, selectedSkills, permittedSkills, freeBudget, cancellationToken);
-                if (expansion.Count > 0)
-                {
-                    selectedSkills = selectedSkills.Concat(expansion).DistinctBy(s => s.Name).ToList();
-                    foreach (var expandedSkill in expansion)
-                    {
-                        expansionNames.Add(expandedSkill.Name);
-                    }
-                }
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                _logger.LogError(ex, "Skill retrieval expansion failed; continuing without expansion.");
-            }
+            return retrievedSkills;
         }
 
-        return selectedSkills;
+        var (ranked, seeds, seedScores) = SkillAssociationPlacement.SplitSeeds(retrievedSkills, retrievalScores, slots);
+        var eligible = SkillAssociationPlacement.EligibleSkills(permittedSkills, seeds);
+        var poolScores = SkillAssociationPlacement.PoolScores(associationPool, eligible);
+
+        IReadOnlyList<string> associated;
+        try
+        {
+            associated = await _expander.AssociateAsync(agentId, seedScores, poolScores, slots, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Skill association failed; the turn keeps its retrieved skills.");
+            return retrievedSkills;
+        }
+
+        var picks = associated.Where(eligible.ContainsKey).Select(name => eligible[name]).Take(slots).ToList();
+        if (picks.Count == 0)
+        {
+            return retrievedSkills;
+        }
+
+        foreach (var pick in picks.Where(p => !retrievalScores.ContainsKey(p.Name)))
+        {
+            expansionNames.Add(pick.Name);
+        }
+
+        return SkillAssociationPlacement.Merge(ranked, seeds, picks);
     }
 
     /// <summary>
@@ -453,7 +474,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     /// forceSkillRerank is set on correction turns - the only callers that pass excluded skill names - because
     /// CorrectionOutcomeComposer reads the score gap of its candidates on the cross-encoder's scale.
     /// </summary>
-    private async Task<(List<AgentSkill> RetrievedSkills, bool HasDomainSkillContext, Dictionary<string, double> RetrievalScores, SkillRerankObservation? SkillRerank)>
+    private async Task<(List<AgentSkill> RetrievedSkills, bool HasDomainSkillContext, Dictionary<string, double> RetrievalScores, SkillRerankObservation? SkillRerank, IReadOnlyList<RetrievalCandidate> AssociationPool)>
         RetrieveSkillCandidatesAsync(
             List<AgentSkill> permittedSkills, List<string> userRights, bool isAdmin, string userMessage,
             string? conversationId, string? currentRoute, string userId, bool forceSkillRerank,
@@ -479,7 +500,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
             if (retrieval.IsEmpty)
             {
-                return ([], false, retrievalScores, ToObservation(retrieval.SkillRerank));
+                return ([], false, retrievalScores, ToObservation(retrieval.SkillRerank), []);
             }
 
             foreach (var candidate in retrieval.Candidates)
@@ -495,12 +516,12 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
                 .Where(s => !s.AlwaysOn && retrievedNames.Contains(s.Name))
                 .ToList();
 
-            return (retrievedSkills, true, retrievalScores, ToObservation(retrieval.SkillRerank));
+            return (retrievedSkills, true, retrievalScores, ToObservation(retrieval.SkillRerank), retrieval.AssociationPool);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Skill retrieval failed; falling back to always-on skills only");
-            return ([], true, retrievalScores, null);
+            return ([], true, retrievalScores, null, []);
         }
     }
 

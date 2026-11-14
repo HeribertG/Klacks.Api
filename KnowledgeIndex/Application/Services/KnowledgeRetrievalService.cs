@@ -119,10 +119,15 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         // database round-trip per turn for no measured benefit.
         // Before re-enabling, re-measure — and note the calls must stay SEQUENTIAL: the repository holds
         // a single scoped NpgsqlConnection, which does not support concurrent commands.
+        // A skill pass reads deeper than the reranker's input so the association pool can be scored; everything below
+        // works on the first MaxRerankerCandidates exactly as before, the rest only feeds AssociationPool.
         var knnWatch = Stopwatch.StartNew();
-        var candidates = await _repository.FindNearestAsync(
-            queryVec, userPermissions, isAdmin, KnowledgeIndexConstants.MaxRerankerCandidates, cancellationToken,
-            kindFilter);
+        var knnDepth = kindFilter == KnowledgeEntryKind.Skill
+            ? Math.Max(KnowledgeIndexConstants.SkillAssociationPoolSize, KnowledgeIndexConstants.MaxRerankerCandidates)
+            : KnowledgeIndexConstants.MaxRerankerCandidates;
+        var deepCandidates = await _repository.FindNearestAsync(
+            queryVec, userPermissions, isAdmin, knnDepth, cancellationToken, kindFilter);
+        var candidates = deepCandidates.Take(KnowledgeIndexConstants.MaxRerankerCandidates).ToList();
         var knnMs = knnWatch.ElapsedMilliseconds;
 
         if (candidates.Count == 0)
@@ -206,7 +211,32 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
 
         LogPass(call, userQuery, userPermissions, kindFilter, embedMs, knnMs, rerankMs, texts, topK, ranked.Count);
 
-        return new RetrievalResult(ranked) { SkillRerank = decision?.Decision };
+        return new RetrievalResult(ranked)
+        {
+            SkillRerank = decision?.Decision,
+            AssociationPool = vectorScores != null ? BuildAssociationPool(queryVec, deepCandidates, allowedSourceIds) : []
+        };
+    }
+
+    /// <summary>
+    /// The cosine-scored skill candidates of the deep KNN read, best first, for the skill-graph association step. Same
+    /// source-id filter as the ranked candidates; no score cutoff, because the association step blends these scores
+    /// with graph evidence instead of using them as a gate.
+    /// </summary>
+    /// <param name="queryVector">The embedded query</param>
+    /// <param name="deepCandidates">The KNN candidates down to SkillAssociationPoolSize, nearest first</param>
+    /// <param name="allowedSourceIds">The caller's source-id filter, null for none</param>
+    private static List<RetrievalCandidate> BuildAssociationPool(
+        float[] queryVector, IReadOnlyList<KnowledgeEntry> deepCandidates, HashSet<string>? allowedSourceIds)
+    {
+        var entries = deepCandidates
+            .Where(c => c.Kind == KnowledgeEntryKind.Skill)
+            .Where(c => allowedSourceIds == null || allowedSourceIds.Contains(c.SourceId))
+            .ToList();
+        return entries
+            .Zip(CosineScores(queryVector, entries), (entry, score) => new RetrievalCandidate(entry, score))
+            .OrderByDescending(c => c.Score)
+            .ToList();
     }
 
     /// <summary>
