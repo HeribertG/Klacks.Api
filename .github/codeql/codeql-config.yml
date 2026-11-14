@@ -1,0 +1,17 @@
+name: "Klacks.Api CodeQL config"
+
+# Full security-and-quality suite. Every exclusion below needs a written reason in
+# docs/knowledge/codeql-quality-cleanup-2026-11-14.md (super repo); exclude a rule only when it has
+# demonstrably no value for this code base, never to reduce the result count.
+queries:
+  - uses: security-and-quality
+
+query-filters:
+  # Contradicts the project's own rules (backend-architecture.md writing checklist): per-item failure
+  # isolation in loops, a catch per BackgroundService iteration and best-effort post-commit dispatch
+  # require catch (Exception). Verified 2026-11-14 with a Roslyn scan: of 729 catch-all blocks 664
+  # rethrow, log or return the error; the silent ones that hid failures were fixed (Api 9c0ec9ae1),
+  # the rest are deliberate best-effort or try-pattern fallbacks. Empty catches stay covered by
+  # cs/empty-catch-block.
+  - exclude:
+      id: cs/catch-of-all-exceptions
