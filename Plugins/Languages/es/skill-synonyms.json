@@ -1269,6 +1269,12 @@
     "por qué se borró el turno al registrar la ausencia",
     "el turno pasa al sustituto"
   ],
+  "explain_oauth_connections": [
+    "cómo conecto Claude con Klacks",
+    "por qué se rechaza mi herramienta de IA al conectarse",
+    "cómo autorizo mi propia herramienta de IA",
+    "solo lectura o lectura y cambios al conectar una herramienta"
+  ],
   "explain_scenario_variant_keys": [
     "qué es una clave en el escenario",
     "planificar turnos no vinculantes",

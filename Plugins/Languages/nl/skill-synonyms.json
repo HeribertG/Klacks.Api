@@ -1265,6 +1265,12 @@
     "waarom is de dienst verwijderd na de afwezigheid",
     "de dienst gaat naar de vervanger"
   ],
+  "explain_oauth_connections": [
+    "hoe koppel ik Claude aan Klacks",
+    "waarom wordt mijn AI-hulpmiddel geweigerd bij het koppelen",
+    "hoe sta ik mijn eigen AI-hulpmiddel toe",
+    "alleen lezen of lezen en wijzigen bij het koppelen van een hulpmiddel"
+  ],
   "explain_scenario_variant_keys": [
     "wat is een sleutel in een scenario",
     "niet-bindende diensten plannen",

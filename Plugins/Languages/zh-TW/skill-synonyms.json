@@ -1233,6 +1233,12 @@
     "登記缺勤後班次為什麼被刪除",
     "班次轉給頂替人員"
   ],
+  "explain_oauth_connections": [
+    "如何將 Claude 連線到 Klacks",
+    "為什麼我的 AI 工具在連線時被拒絕",
+    "如何允許我自己的 AI 工具",
+    "連線工具時唯讀還是讀取與變更"
+  ],
   "explain_scenario_variant_keys": [
     "情境中的鍵是什麼",
     "規劃非約束性班次",

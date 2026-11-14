@@ -22,4 +22,10 @@ public class PersonalAccessToken : BaseEntity
     public DateTime? LastUsedAt { get; set; }
 
     public PersonalAccessTokenAccessMode AccessMode { get; set; } = PersonalAccessTokenAccessMode.Read;
+
+    public bool IsOAuthIssued { get; set; }
+
+    public string? OAuthToolName { get; set; }
+
+    public string? OAuthRedirectHost { get; set; }
 }

@@ -792,6 +792,10 @@
       "version": 4,
       "hash": "92D6511A0298DB81AE980F9A6E43BD720997E26096CE45E2613E374E8253CA96"
     },
+    "explain_oauth_connections": {
+      "version": 1,
+      "hash": "987F7464BA23F4AFE17F693A6FE404B3A1B21FD6AF419F1FE2DBA76649A97465"
+    },
     "explain_overtime_model": {
       "version": 8,
       "hash": "C699445B2267968CC3EA115D3612F726448961860869A69E4519B0F812EB6FBB"
@@ -857,8 +861,8 @@
       "hash": "B4C609511CF35EF6BF25E1FC6988806CD920F67A331A642E2A660E54B25CD857"
     },
     "explain_personal_access_tokens": {
-      "version": 4,
-      "hash": "6A52D235795707E3315AB02FFE57E471C1DF5EF6E863D31D6B8B3F368FD0312E"
+      "version": 5,
+      "hash": "A4D0621C5981CCD6CA1F2ECCA747F7B1A37C270BB57342F70DA8A6F3C04F04E1"
     },
     "explain_placeholder_employees": {
       "version": 1,

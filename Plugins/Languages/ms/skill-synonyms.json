@@ -1238,6 +1238,12 @@
     "kenapa syif dipadam selepas ketidakhadiran direkod",
     "syif berpindah kepada pengganti"
   ],
+  "explain_oauth_connections": [
+    "bagaimana menyambungkan Claude ke Klacks",
+    "mengapa alat AI saya ditolak semasa menyambung",
+    "bagaimana membenarkan alat AI saya sendiri",
+    "baca sahaja atau baca dan ubah semasa menyambung alat"
+  ],
   "explain_scenario_variant_keys": [
     "apa itu kunci dalam senario",
     "merancang syif yang tidak mengikat",

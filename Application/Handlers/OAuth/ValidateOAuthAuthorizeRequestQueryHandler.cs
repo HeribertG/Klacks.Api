@@ -2,14 +2,15 @@
 
 /// <summary>
 /// Handler validating an OAuth authorization request: client existence, exact redirect URI
-/// match against the registration, response type and PKCE S256 requirements. Distinguishes
-/// errors that must never be redirected (unknown client, unregistered redirect URI) from
-/// errors that are reported via redirect to the validated redirect URI.
+/// match against the registration, trust of the effective redirect URI (the same check as at code issue),
+/// response type and PKCE S256 requirements. Distinguishes errors that must never be redirected (unknown
+/// client, unregistered or untrusted redirect URI) from errors that are reported via redirect to the
+/// validated redirect URI. The result carries the trusted-list entry the page shows instead of any client name.
 /// </summary>
 /// <param name="request">Contains client id, redirect URI, response type and PKCE challenge parameters</param>
 
-using System.Text.Json;
 using Klacks.Api.Application.DTOs.OAuth;
+using Klacks.Api.Application.Interfaces.OAuth;
 using Klacks.Api.Application.Queries.OAuth;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Authentification;
@@ -20,10 +21,12 @@ namespace Klacks.Api.Application.Handlers.OAuth;
 public class ValidateOAuthAuthorizeRequestQueryHandler : IRequestHandler<ValidateOAuthAuthorizeRequestQuery, OAuthAuthorizeValidationResult>
 {
     private readonly IOAuthClientRepository _repository;
+    private readonly IOAuthRedirectTrustPolicy _trustPolicy;
 
-    public ValidateOAuthAuthorizeRequestQueryHandler(IOAuthClientRepository repository)
+    public ValidateOAuthAuthorizeRequestQueryHandler(IOAuthClientRepository repository, IOAuthRedirectTrustPolicy trustPolicy)
     {
         _repository = repository;
+        _trustPolicy = trustPolicy;
     }
 
     public async Task<OAuthAuthorizeValidationResult> Handle(ValidateOAuthAuthorizeRequestQuery request, CancellationToken cancellationToken)
@@ -43,31 +46,13 @@ public class ValidateOAuthAuthorizeRequestQueryHandler : IRequestHandler<Validat
                 "Unknown client.");
         }
 
-        var registeredUris = JsonSerializer.Deserialize<List<string>>(client.RedirectUrisJson) ?? [];
-
-        string effectiveRedirectUri;
-        if (string.IsNullOrEmpty(request.RedirectUri))
+        var resolution = await _trustPolicy.ResolveAsync(client, request.RedirectUri, cancellationToken);
+        if (!resolution.IsResolved)
         {
-            if (registeredUris.Count != 1)
-            {
-                return OAuthAuthorizeValidationResult.RejectedWithoutRedirect(
-                    OAuthConstants.ErrorInvalidRequest,
-                    "The redirect_uri parameter is required.");
-            }
-
-            effectiveRedirectUri = registeredUris[0];
+            return OAuthAuthorizeValidationResult.RejectedWithoutRedirect(resolution.Error!, resolution.ErrorDescription!);
         }
-        else
-        {
-            if (!registeredUris.Contains(request.RedirectUri, StringComparer.Ordinal))
-            {
-                return OAuthAuthorizeValidationResult.RejectedWithoutRedirect(
-                    OAuthConstants.ErrorInvalidRequest,
-                    "The redirect_uri is not registered for this client.");
-            }
 
-            effectiveRedirectUri = request.RedirectUri;
-        }
+        var effectiveRedirectUri = resolution.RedirectUri!;
 
         if (request.ResponseType != OAuthConstants.ResponseTypeCode)
         {
@@ -93,6 +78,6 @@ public class ValidateOAuthAuthorizeRequestQueryHandler : IRequestHandler<Validat
                 effectiveRedirectUri);
         }
 
-        return OAuthAuthorizeValidationResult.Success(client.ClientName, effectiveRedirectUri);
+        return OAuthAuthorizeValidationResult.Success(resolution.Match!, resolution.Settings.AllowWrite, _trustPolicy.AccessTokenLifetime, effectiveRedirectUri);
     }
 }

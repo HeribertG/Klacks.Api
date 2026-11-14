@@ -1238,6 +1238,12 @@
     "登记缺勤后班次为什么被删除",
     "班次转给顶替人员"
   ],
+  "explain_oauth_connections": [
+    "如何将 Claude 连接到 Klacks",
+    "为什么我的 AI 工具在连接时被拒绝",
+    "如何允许我自己的 AI 工具",
+    "连接工具时只读还是读取和修改"
+  ],
   "explain_scenario_variant_keys": [
     "场景中的键是什么",
     "规划非约束性班次",

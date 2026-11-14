@@ -1,11 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.Constants;
 
 /// <summary>
 /// Setting keys that must not be written on the public Playground: the DeepL key, every STT and TTS provider key and
 /// the STT engine / TTS provider choice, plus the update channel and the pinned update version (the demo admin must not
-/// steer which release an updater would install). Voice, output mode, thresholds, transcription model and all other settings
+/// steer which release an updater would install), and the four OAuth connection settings (the demo admin must not change the trusted redirect list). Voice, output mode, thresholds, transcription model and all other settings
 /// are deliberately not listed because the UI and the app write them in normal operation.
 /// </summary>
 public static class PlaygroundBlockedSettingKeys
@@ -24,6 +26,10 @@ public static class PlaygroundBlockedSettingKeys
         Settings.ASSISTANT_TTS_API_KEY_GOOGLE,
         Settings.UPDATE_PINNED_VERSION,
         Settings.UPDATE_CHANNEL,
+        SettingKeys.OAuthConnectionsMode,
+        SettingKeys.OAuthAllowLoopback,
+        SettingKeys.OAuthAllowWrite,
+        SettingKeys.OAuthCustomRedirectTargets,
     };
 
     public static bool IsBlocked(string? settingKey) => !string.IsNullOrEmpty(settingKey) && Keys.Contains(settingKey);

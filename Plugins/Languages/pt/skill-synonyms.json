@@ -1271,6 +1271,12 @@
     "porque é que o turno foi apagado depois da ausência",
     "o turno passa para o substituto"
   ],
+  "explain_oauth_connections": [
+    "como ligo o Claude ao Klacks",
+    "por que a minha ferramenta de IA é recusada ao ligar",
+    "como autorizo a minha própria ferramenta de IA",
+    "só de leitura ou leitura e alteração ao ligar uma ferramenta"
+  ],
   "explain_scenario_variant_keys": [
     "o que é uma chave no cenário",
     "planear turnos não vinculativos",

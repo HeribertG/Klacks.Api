@@ -148,6 +148,35 @@ public sealed class LocalizedTextCatalogue
     }
 
     /// <summary>
+    /// The language code that claims a tag: the full tag when a core table or a configured pack owns it, else its base
+    /// language, else null. Unlike TryGetText this never falls back to English, so a caller can try the next candidate
+    /// of an Accept-Language list.
+    /// </summary>
+    /// <param name="language">Language tag, possibly regional (de-CH), or null</param>
+    public string? ResolveClaimedLanguage(string? language)
+    {
+        if (string.IsNullOrWhiteSpace(language))
+        {
+            return null;
+        }
+
+        var trimmed = language.Trim();
+        if (Claims(trimmed))
+        {
+            return trimmed;
+        }
+
+        var baseLanguage = LanguageTag.BaseLanguage(trimmed);
+        return !string.IsNullOrWhiteSpace(baseLanguage) && Claims(baseLanguage) ? baseLanguage : null;
+    }
+
+    private bool Claims(string language)
+    {
+        return _pluginTexts.ContainsKey(language)
+               || _coreTexts.Values.Any(byLanguage => byLanguage.ContainsKey(language));
+    }
+
+    /// <summary>
     /// Every text one key currently resolves to in any language: the core table plus every configured pack.
     /// </summary>
     /// <param name="key">Catalogue key whose texts are wanted</param>

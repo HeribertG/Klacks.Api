@@ -148,6 +148,7 @@
   "explain_absence_model": "Giải thích mô hình dữ liệu vắng mặt",
   "explain_absence_overlap_not_blocked": "Giải thích chồng chéo vắng mặt chưa kiểm tra",
   "explain_absence_cover_move": "Giải thích việc thay thế khi vắng mặt",
+  "explain_oauth_connections": "Kết nối công cụ AI bằng OAuth",
   "explain_scenario_variant_keys": "Giải thích ca tạm thời",
   "explain_placeholder_employees": "Giải thích nhân viên giả định",
   "explain_autofill_staircase_start": "Giải thích khởi đầu dạng bậc thang",

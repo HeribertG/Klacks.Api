@@ -148,6 +148,7 @@
   "explain_absence_model": "Explicar o modelo de dados de ausências",
   "explain_absence_overlap_not_blocked": "Explicar sobreposições de ausências não verificadas",
   "explain_absence_cover_move": "Explicar a cobertura de uma ausência",
+  "explain_oauth_connections": "Ligar uma ferramenta de IA via OAuth",
   "explain_scenario_variant_keys": "Explicar os turnos provisórios",
   "explain_placeholder_employees": "Explicar os colaboradores fictícios",
   "explain_autofill_staircase_start": "Explicar o início em escada",

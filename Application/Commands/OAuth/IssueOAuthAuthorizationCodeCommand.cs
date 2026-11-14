@@ -3,6 +3,7 @@
 /// <summary>
 /// Sign-in on the OAuth authorize page that issues an authorization code for an external client.
 /// </summary>
+/// <param name="RequestedAccessMode">access_mode field of the consent form; only the exact value write asks for write access, anything else is read</param>
 /// <param name="IsLocalRequest">The request comes straight from the machine itself, without a proxy</param>
 
 using Klacks.Api.Application.DTOs.OAuth;
@@ -16,5 +17,5 @@ public record IssueOAuthAuthorizationCodeCommand(
     string ClientId,
     string RedirectUri,
     string CodeChallenge,
-    string? Scope,
+    string? RequestedAccessMode,
     bool IsLocalRequest) : IRequest<OAuthAuthorizationCodeResult>;

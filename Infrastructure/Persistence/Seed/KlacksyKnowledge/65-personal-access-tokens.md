@@ -2,8 +2,8 @@
 name: explain_personal_access_tokens
 description: |
   Explains what a personal access token is for and how it differs from signing in directly: it
-  carries exactly the same rights as the account that created it, with no reduced scope. One
-  exception is deliberate — a token can never be used to mint a further token for itself, only an
+  carries the rights of the account that created it, but in one of two modes: read only (default
+  for a manually created token) or read and change. One exception is deliberate — a token can never be used to mint a further token for itself, only an
   actual sign-in can do that, so a leaked token cannot multiply itself. Also covers the default and
   allowed length of its validity. Use this when asked what a token can do or how long it lasts.
 category: Query
@@ -25,19 +25,22 @@ synonyms:
   it: [il token ha gli stessi diritti del login, durata massima di validità di un token]
 ---
 
-# Personal access tokens — same rights, one exception
+# Personal access tokens — the owner's rights, read only or read and change
 
 ## Core idea (one sentence)
 
-A personal access token acts exactly like the person who created it whenever it is used, with a
-single deliberate carve-out: it cannot be used to create a further token for itself.
+A personal access token acts like the person who created it, in one of two modes, with a
+deliberate carve-out: it cannot be used to create a further token for itself.
 
-## Full rights, no reduced scope
+## Two modes: read only or read and change
 
-When a request arrives carrying a token instead of a normal sign-in, the system rebuilds the same
-set of rights the token's owner would have from a fresh login — same roles, same permissions. A
-token is not a limited, read-only or partial stand-in; anything the owner's account may do, the
-token may do too, for as long as it is valid.
+When a request arrives carrying a token instead of a normal sign-in, the system rebuilds the roles
+and permissions the token's owner would have from a fresh login. The mode then limits what the token
+may do. **Read only** (the default for a token created by hand) lets a tool look things up but not
+change anything. **Read and change** allows tool use that changes data, within the rights of the
+owner. Tokens that an AI tool received by connecting through the sign-in page (OAuth, see
+`explain_oauth_connections`) are valid for 30 days, are read only unless the user chose read and
+change on the consent page, and are named after the connected tool.
 
 ## The one thing a token cannot do
 
@@ -62,11 +65,12 @@ length must fall between 1 and 730 days. There is no option for a token that nev
 
 - `create_personal_access_token` — issue a new token, choosing its validity within the allowed range
   (always requires an actual sign-in)
+- `explain_oauth_connections` — how an AI tool connects by itself and which tools are trusted
 - `list_personal_access_tokens` / `revoke_personal_access_token` — manage existing tokens
 
 ## Trigger phrases
 
 - "Kann ich mit einem Token einen weiteren Token erstellen?"
 - "Wie lange ist mein Zugriffstoken gültig?"
-- "Does a personal access token have the same rights as logging in?"
+- "Can a personal access token only read, or also change data?"
 - "Can I use a token to create another token?"

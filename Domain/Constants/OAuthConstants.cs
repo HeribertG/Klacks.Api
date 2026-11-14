@@ -36,6 +36,21 @@ public static class OAuthConstants
 
     public const string McpToolsScope = "mcp:tools";
 
+    public const string McpToolsReadScope = "mcp:tools:read";
+
+    public const string ParameterAccessMode = "access_mode";
+
+    public const string AccessModeWrite = "write";
+
+    public const string AccessModeRead = "read";
+
+    public const int MaxAcceptLanguageEntries = 10;
+
+    public const string InvalidCredentialsDescription = "Invalid email or password.";
+
+    public const string AccountNotAllowedDescription =
+        "This account may not connect external applications. A supervisor or administrator account is required.";
+
     public const string ParameterClientId = "client_id";
 
     public const string ParameterRedirectUri = "redirect_uri";
@@ -93,9 +108,9 @@ public static class OAuthConstants
 
     public const int AccessTokenExpiresInDays = 30;
 
-    public const string AccessTokenNamePrefix = "oauth:";
+    public const int PlaygroundAccessTokenExpiresInHours = 24;
 
-    public const string LoopbackHostLocalhost = "localhost";
+    public const string AccessTokenNamePrefix = "oauth:";
 
     public static readonly TimeSpan AuthorizationCodeLifetime = TimeSpan.FromMinutes(5);
 }

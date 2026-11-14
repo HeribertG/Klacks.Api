@@ -6,6 +6,7 @@
 /// the row, and a concurrent second exchange finds nothing left to delete.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -21,10 +22,9 @@ public class OAuthAuthorizationCodeRowConfiguration : IEntityTypeConfiguration<O
         builder.Property(p => p.Code).HasMaxLength(256);
         builder.Property(p => p.UserId).HasMaxLength(256);
         builder.Property(p => p.ClientId).HasMaxLength(256);
-        builder.Property(p => p.ClientName).HasMaxLength(256);
         builder.Property(p => p.RedirectUri).HasMaxLength(2048);
         builder.Property(p => p.CodeChallenge).HasMaxLength(256);
-        builder.Property(p => p.Scope).HasMaxLength(1024);
+        builder.Property(p => p.AccessMode).HasDefaultValue(PatConstants.DefaultAccessMode);
         builder.HasIndex(p => p.Code).IsUnique();
         builder.HasIndex(p => p.ExpiresAtUtc);
     }

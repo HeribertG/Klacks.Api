@@ -1250,6 +1250,12 @@
     "de ce a fost ștearsă tura după absență",
     "tura trece la înlocuitor"
   ],
+  "explain_oauth_connections": [
+    "cum conectez Claude la Klacks",
+    "de ce este respins instrumentul meu AI la conectare",
+    "cum permit propriul meu instrument AI",
+    "doar citire sau citire și modificare la conectarea unui instrument"
+  ],
   "explain_scenario_variant_keys": [
     "ce este o cheie în scenariu",
     "planificarea turelor neobligatorii",

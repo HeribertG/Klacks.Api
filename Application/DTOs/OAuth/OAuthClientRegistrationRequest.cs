@@ -5,7 +5,6 @@ using System.Text.Json.Serialization;
 namespace Klacks.Api.Application.DTOs.OAuth;
 
 public record OAuthClientRegistrationRequest(
-    [property: JsonPropertyName("client_name")] string? ClientName,
     [property: JsonPropertyName("redirect_uris")] List<string>? RedirectUris,
     [property: JsonPropertyName("grant_types")] List<string>? GrantTypes,
     [property: JsonPropertyName("response_types")] List<string>? ResponseTypes,

@@ -148,6 +148,7 @@
   "explain_absence_model": "欠勤データモデルを説明",
   "explain_absence_overlap_not_blocked": "未確認の欠勤重複を説明",
   "explain_absence_cover_move": "欠勤のカバーを説明",
+  "explain_oauth_connections": "AIツールをOAuthで接続",
   "explain_scenario_variant_keys": "暫定シフトを説明",
   "explain_placeholder_employees": "仮従業員の説明",
   "explain_autofill_staircase_start": "階段型スタートを説明",

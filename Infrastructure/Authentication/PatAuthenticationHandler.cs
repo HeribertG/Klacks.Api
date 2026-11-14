@@ -6,15 +6,19 @@
 /// and throttles last-used tracking; all other tokens fall through to the JWT handler. The principal
 /// also carries the token id and its access mode (Read/Write), which the MCP surface enforces. A token only
 /// works while its owner holds CanManageAccessTokens, so tokens of planner accounts (manual, OAuth or older
-/// ones) are refused like an invalid token.
+/// ones) are refused like an invalid token. A token issued through the OAuth server is refused as well while the
+/// OAuth connection mode is off.
 /// </summary>
 /// <param name="tokenRepository">Repository used for hash lookup and last-used updates</param>
 /// <param name="userManager">Identity user manager used to load the token owner and roles</param>
+/// <param name="oauthPolicy">Tells whether OAuth connections are switched off, which also stops OAuth-issued tokens</param>
 
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using Klacks.Api.Application.Interfaces.OAuth;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Security;
@@ -32,17 +36,20 @@ public class PatAuthenticationHandler : AuthenticationHandler<AuthenticationSche
 
     private readonly IPersonalAccessTokenRepository _tokenRepository;
     private readonly UserManager<AppUser> _userManager;
+    private readonly IOAuthRedirectTrustPolicy _oauthPolicy;
 
     public PatAuthenticationHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
         IPersonalAccessTokenRepository tokenRepository,
-        UserManager<AppUser> userManager)
+        UserManager<AppUser> userManager,
+        IOAuthRedirectTrustPolicy oauthPolicy)
         : base(options, logger, encoder)
     {
         _tokenRepository = tokenRepository;
         _userManager = userManager;
+        _oauthPolicy = oauthPolicy;
     }
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -57,6 +64,12 @@ public class PatAuthenticationHandler : AuthenticationHandler<AuthenticationSche
         var token = await _tokenRepository.GetByHashAsync(tokenHash, Context.RequestAborted);
         if (token == null || token.IsDeleted)
         {
+            return AuthenticateResult.Fail(InvalidTokenMessage);
+        }
+
+        if (token.IsOAuthIssued && (await _oauthPolicy.GetSettingsAsync(Context.RequestAborted)).Mode == OAuthConnectionMode.Off)
+        {
+            Logger.LogInformation("Refused an OAuth-issued access token because OAuth connections are switched off");
             return AuthenticateResult.Fail(InvalidTokenMessage);
         }
 
