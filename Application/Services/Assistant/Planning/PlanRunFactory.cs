@@ -32,6 +32,9 @@ internal sealed class PlanRunFactory
         _identityResolver = identityResolver;
     }
 
+    /// <summary>
+    /// Creates the run state for a plan that is about to run.
+    /// </summary>
     /// <param name="plan">The plan about to run</param>
     /// <param name="skillContext">Context supplied by the caller</param>
     /// <param name="autoApproveCurrentStep">True on ApproveAndContinueAsync</param>

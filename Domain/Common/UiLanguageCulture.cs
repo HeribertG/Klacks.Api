@@ -17,6 +17,9 @@ namespace Klacks.Api.Domain.Common;
 
 public static class UiLanguageCulture
 {
+    /// <summary>
+    /// Resolves the culture for a UI language code, falling back to the invariant culture.
+    /// </summary>
     /// <param name="language">UI language code such as "de", "en", "th" or "zh-TW"; null, blank or
     /// unknown resolves to <see cref="CultureInfo.InvariantCulture"/>.</param>
     public static CultureInfo Resolve(string? language)
@@ -41,6 +44,9 @@ public static class UiLanguageCulture
         return CultureInfo.InvariantCulture;
     }
 
+    /// <summary>
+    /// Returns the name of a weekday in the given UI language.
+    /// </summary>
     /// <param name="language">UI language code of the user the name is rendered for</param>
     /// <param name="dayOfWeek">Weekday to name</param>
     public static string DayName(string? language, DayOfWeek dayOfWeek) =>

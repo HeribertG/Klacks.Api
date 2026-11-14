@@ -12,6 +12,9 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IFeatureAvailabilityService
 {
+    /// <summary>
+    /// Tells whether a feature is available; an unknown feature name is not available.
+    /// </summary>
     /// <param name="feature">Feature name from the page-key manifest (plugin name, or the inbox key)</param>
     /// <param name="cancellationToken">Cancels the settings lookup the inbox check performs</param>
     Task<bool> IsAvailableAsync(string feature, CancellationToken cancellationToken = default);

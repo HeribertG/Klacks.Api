@@ -23,6 +23,9 @@ public sealed class WeeklyTourPlacementVerifier
         _mediator = mediator;
     }
 
+    /// <summary>
+    /// Compares the stored templates of the written weekly tours with the plan and the reported outcome and lists the mismatches.
+    /// </summary>
     /// <param name="plan">The planned tours</param>
     /// <param name="outcomes">The written tours</param>
     /// <param name="cancellationToken">Cancels the reads</param>

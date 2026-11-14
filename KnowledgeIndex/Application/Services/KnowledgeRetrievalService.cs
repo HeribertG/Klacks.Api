@@ -64,6 +64,9 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     private readonly SkillRerankOptions _skillRerank;
     private readonly ISkillRerankThreshold _threshold;
 
+    /// <summary>
+    /// Creates the knowledge retrieval service with its embedding, reranker and threshold dependencies.
+    /// </summary>
     /// <param name="skillRerank">Whether skill passes are reranked; null reranks every pass (hand-built services).</param>
     /// <param name="threshold">The live Adaptive threshold shared with the tuner; null starts one from skillRerank.</param>
     public KnowledgeRetrievalService(

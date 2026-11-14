@@ -18,6 +18,9 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public static class ShiftCutPartResourceFactory
 {
+    /// <summary>
+    /// Creates the resource for one part of a cut shift, copying the source shift.
+    /// </summary>
     /// <param name="source">The plannable shift the part is cut from</param>
     /// <param name="partId">Id of the part; the source's own id for the part that reuses the plannable shift</param>
     /// <param name="sealedOrderId">The sealed order the part descends from</param>

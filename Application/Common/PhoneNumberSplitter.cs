@@ -17,6 +17,9 @@ public static class PhoneNumberSplitter
     private const char TrunkZero = '0';
     private const char PlusSign = '+';
 
+    /// <summary>
+    /// Splits a phone number into its country prefix and the national number.
+    /// </summary>
     /// <param name="phone">The phone number as typed, with any separators</param>
     /// <param name="countryPrefix">The country calling code of the owner's country, e.g. "+41"; empty when unknown</param>
     public static (string Prefix, string Number) Split(string? phone, string? countryPrefix)

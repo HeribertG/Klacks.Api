@@ -96,6 +96,9 @@ public class RecipeEngineService
         _logger = logger;
     }
 
+    /// <summary>
+    /// Resolves the recipe execution plan for a message; null when no recipe matches.
+    /// </summary>
     /// <param name="excludedRecipeName">
     /// Recipe to skip while matching, used after a correction aborted the pending one. Last parameter on
     /// purpose rather than before cancellationToken: every existing caller - both chat loops, the
@@ -546,6 +549,9 @@ public class RecipeEngineService
         GuaranteedSkillNamesAsync(
             userId, conversationId, message, language, userRights, allowSemanticFallback: true, cancellationToken);
 
+    /// <summary>
+    /// Returns the step skill names of the recipe the message resolves to (the paused or corrected recipe of the conversation first); empty when none.
+    /// </summary>
     /// <param name="allowSemanticFallback">
     /// False restricts matching to the deterministic trigger walk. The G5 probe passes false: it asks
     /// whether a message routes BY ITSELF, which a similarity score does not answer, and the embedding

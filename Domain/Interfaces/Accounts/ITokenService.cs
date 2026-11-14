@@ -6,6 +6,9 @@ namespace Klacks.Api.Domain.Interfaces;
 
 public interface ITokenService
 {
+    /// <summary>
+    /// Creates a token for the given account with an absolute expiry.
+    /// </summary>
     /// <param name="user">The account the token identifies</param>
     /// <param name="expires">Absolute expiry</param>
     /// <param name="roles">Role claims to embed; null reads the user's current roles. Pass an explicit

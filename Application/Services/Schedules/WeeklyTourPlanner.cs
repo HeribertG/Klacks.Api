@@ -59,6 +59,9 @@ public sealed class WeeklyTourPlanner
         _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
+    /// <summary>
+    /// Plans the weekly tours for a group and returns the plan or an error.
+    /// </summary>
     /// <param name="request">Group, tour count and optional time budget and validity</param>
     /// <param name="cancellationToken">Cancels the reads</param>
     public async Task<(WeeklyTourPlan? Plan, string? Error)> PlanAsync(WeeklyTourRequest request, CancellationToken cancellationToken)

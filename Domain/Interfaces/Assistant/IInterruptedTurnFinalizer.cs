@@ -16,6 +16,9 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 /// </summary>
 public interface IInterruptedTurnFinalizer
 {
+    /// <summary>
+    /// Persists a turn that was left mid-way or ended in error after a write action; returns the write-action summary only when this call persisted it as stopped, otherwise null.
+    /// </summary>
     /// <param name="userId">The user the turn ran for; known to the caller even when the turn never got as far as its own context</param>
     /// <param name="turnId">The turn's id; known to the caller for the same reason</param>
     /// <param name="endedInError">True when the caller ended the turn on an unhandled failure: that turn is never "interrupted by the user"; it is persisted only if a write action had run in it</param>

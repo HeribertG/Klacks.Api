@@ -25,6 +25,9 @@ public static class SkillCalendarStringParser
     private const DateTimeStyles CalendarParseStyles =
         DateTimeStyles.AssumeUniversal | DateTimeStyles.AllowWhiteSpaces;
 
+    /// <summary>
+    /// Tries to parse a date and time written by the LLM in the user's language.
+    /// </summary>
     /// <param name="raw">Value as the LLM wrote it</param>
     /// <param name="language">UI language of the user the value came from; null keeps the default cultures</param>
     /// <param name="value">Parsed value with Kind=Utc and the written day and wall clock unchanged</param>
@@ -40,6 +43,9 @@ public static class SkillCalendarStringParser
         return false;
     }
 
+    /// <summary>
+    /// Tries to parse a calendar day written by the LLM in the user's language.
+    /// </summary>
     /// <param name="raw">Value as the LLM wrote it</param>
     /// <param name="language">UI language of the user the value came from; null keeps the default cultures</param>
     /// <param name="value">Parsed calendar day, identical to the day of <see cref="TryParseDateTime"/></param>
@@ -55,6 +61,9 @@ public static class SkillCalendarStringParser
         return false;
     }
 
+    /// <summary>
+    /// Tries to parse a clock time written by the LLM in the user's language.
+    /// </summary>
     /// <param name="raw">Value as the LLM wrote it</param>
     /// <param name="language">UI language of the user the value came from; null keeps the default cultures</param>
     /// <param name="value">Parsed wall-clock time</param>

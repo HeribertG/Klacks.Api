@@ -11,8 +11,11 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// </summary>
 public static class RosterPriorityOrder
 {
+    /// <summary>
+    /// Applies the planning priority order to the agent list: a hand-arranged order is kept among the real people, otherwise they are ranked by guaranteed then full-time hours; stand-ins always come last.
+    /// </summary>
     /// <param name="baseOrder">Employees in the incoming list order</param>
-    /// <param name="userDefined">True when the planner arranged the order by hand; it is then kept verbatim</param>
+    /// <param name="userDefined">True when the planner arranged the order by hand; it is then kept among the real people while stand-ins still go last</param>
     /// <param name="rankHours">Sort keys of the automatic order, scaled to the planning range</param>
     /// <param name="agentId">Id of an employee, the key into <paramref name="rankHours"/></param>
     /// <param name="isStandIn">True for a stand-in (placeholder); stand-ins are ranked last</param>
@@ -30,7 +33,7 @@ public static class RosterPriorityOrder
             isStandIn);
 
     /// <param name="baseOrder">Employees in the incoming list order</param>
-    /// <param name="userDefined">True when the planner arranged the order by hand; it is then kept verbatim</param>
+    /// <param name="userDefined">True when the planner arranged the order by hand; it is then kept among the real people while stand-ins still go last</param>
     /// <param name="guaranteedHours">Guaranteed hours of an employee (first sort key)</param>
     /// <param name="fullTime">Full-time hours of an employee (second sort key)</param>
     /// <param name="isStandIn">True for a stand-in (placeholder); stand-ins are ranked last</param>

@@ -2,6 +2,9 @@
 
 namespace Klacks.Api.Application.Services.Schedules;
 
+/// <summary>
+/// Shift slot a person is available for on a date.
+/// </summary>
 /// <param name="ShiftId">The shift definition reference</param>
 /// <param name="Date">The calendar date the shift occupies</param>
 /// <param name="Start">Shift start time of day</param>

@@ -27,6 +27,9 @@ public static class GeographicClusterer
 
     private readonly record struct Center(double Latitude, double Longitude);
 
+    /// <summary>
+    /// Groups the located points into the requested number of geographic clusters; throws when the count is out of range or point ids repeat.
+    /// </summary>
     /// <param name="points">The located items; ids must be unique and there must be at least clusterCount of them</param>
     /// <param name="clusterCount">Number of clusters, at least 1</param>
     public static IReadOnlyList<GeographicCluster> Cluster(IReadOnlyList<GeographicClusterPoint> points, int clusterCount)

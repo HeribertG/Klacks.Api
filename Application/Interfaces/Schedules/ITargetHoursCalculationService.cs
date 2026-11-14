@@ -10,6 +10,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 /// </summary>
 public interface ITargetHoursCalculationService
 {
+    /// <summary>
+    /// Calculates the target hours of an employee for the pay period of a day.
+    /// </summary>
     /// <param name="clientId">Employee</param>
     /// <param name="dayInPeriod">Any day of the pay period (the first of a month for a monthly period)</param>
     /// <param name="viewInterval">Payment interval of the schedule view to flag filtered contracts against; null takes the company setting</param>

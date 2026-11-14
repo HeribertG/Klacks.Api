@@ -28,6 +28,9 @@ public static class SseEventNames
     /// </summary>
     public const string Unknown = "unknown";
 
+    /// <summary>
+    /// Returns the SSE event name for a chunk type; an unmapped type gets the unknown name.
+    /// </summary>
     /// <param name="type">Chunk type to translate into its SSE event name</param>
     public static string For(SseChunkType type) => type switch
     {

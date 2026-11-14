@@ -10,6 +10,9 @@ namespace Klacks.Api.Domain.Services.Schedules;
 /// </summary>
 public static class WorkChangeContent
 {
+    /// <summary>
+    /// Tells whether a stored and a requested work change have the same content.
+    /// </summary>
     /// <param name="stored">The work change as stored</param>
     /// <param name="requested">The work change rebuilt from a request</param>
     public static bool AreSame(WorkChange stored, WorkChange requested)

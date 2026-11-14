@@ -15,6 +15,9 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IRecipeCandidateRetriever
 {
+    /// <summary>
+    /// Retrieves the recipe candidates that best match a message.
+    /// </summary>
     /// <param name="message">Text the recipes are scored against</param>
     /// <param name="topK">How many recipes are returned at most</param>
     /// <param name="cancellationToken">Cancellation token</param>

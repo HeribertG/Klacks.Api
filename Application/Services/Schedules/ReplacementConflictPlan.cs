@@ -22,6 +22,9 @@ public sealed record ReplacementConflictPlan(
     IReadOnlyList<PlannedWorkRow> Added,
     IReadOnlyList<PlannedRemovalRow> Removed)
 {
+    /// <summary>
+    /// Builds the conflict plan for a replacement write: the whole window is added for a new change or one that goes beyond the stored window (which is then removed), nothing for an update inside it.
+    /// </summary>
     /// <param name="workChange">The change about to be written; names the substitute</param>
     /// <param name="storedWorkChange">The change as stored before an update; null on create</param>
     /// <param name="parentWork">The Work the change is attached to</param>

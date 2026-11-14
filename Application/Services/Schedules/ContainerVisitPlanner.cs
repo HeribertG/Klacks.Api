@@ -19,6 +19,9 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public static class ContainerVisitPlanner
 {
+    /// <summary>
+    /// Plans the visits of a container route; throws SkillVerificationException when the route is refused.
+    /// </summary>
     /// <param name="skillName">Skill that asked, carried on a refusal</param>
     /// <param name="location">Base address the route starts and ends at</param>
     /// <param name="fromTime">Start of the day's time budget</param>
@@ -31,6 +34,9 @@ public static class ContainerVisitPlanner
         return visits ?? throw new SkillVerificationException(skillName, refusal!);
     }
 
+    /// <summary>
+    /// Plans the visits of a container route and returns either the placed visits or the reason the route is refused.
+    /// </summary>
     /// <param name="location">Base address the route starts and ends at</param>
     /// <param name="fromTime">Start of the day's time budget</param>
     /// <param name="autofillResult">Visible autofill selection with its route</param>

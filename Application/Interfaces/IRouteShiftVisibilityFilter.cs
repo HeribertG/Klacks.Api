@@ -11,6 +11,9 @@ namespace Klacks.Api.Application.Interfaces;
 /// </summary>
 public interface IRouteShiftVisibilityFilter
 {
+    /// <summary>
+    /// Filters the given shift ids down to those the caller may read.
+    /// </summary>
     /// <param name="shiftIds">Shift ids of the request</param>
     /// <returns>The distinct ids the caller may read, in request order; a missing id is dropped later by the shift read</returns>
     Task<List<Guid>> FilterAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);

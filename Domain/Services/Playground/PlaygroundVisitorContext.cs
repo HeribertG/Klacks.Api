@@ -18,6 +18,9 @@ public static class PlaygroundVisitorContext
 
     public static PlaygroundVisitor? Current => CurrentVisitor.Value;
 
+    /// <summary>
+    /// Publishes the visitor for the rest of the current async flow.
+    /// </summary>
     /// <param name="visitor">The visitor to publish for the rest of the current async flow</param>
     public static void Set(PlaygroundVisitor visitor) => CurrentVisitor.Value = visitor;
 

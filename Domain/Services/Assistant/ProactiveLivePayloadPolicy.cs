@@ -16,6 +16,9 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class ProactiveLivePayloadPolicy
 {
+    /// <summary>
+    /// Tells whether a live payload may be merged into an existing proactive dispatch row: for an admin always, otherwise only for a kind that is not a client aggregate.
+    /// </summary>
     /// <param name="triggerKind">The dispatch row's trigger kind.</param>
     /// <param name="recipientIsAdmin">Whether the row's recipient currently holds the Admin role.</param>
     public static bool MayMergeLivePayload(string triggerKind, bool recipientIsAdmin) =>

@@ -21,6 +21,9 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public static class CorrectedWorkQuery
 {
+    /// <summary>
+    /// Loads the extra hours that corrections add to each corrected work; moved works are included with 0 hours.
+    /// </summary>
     /// <returns>Corrected or moved work id -> hours its corrections add to the work (as the period hours count them)</returns>
     public static async Task<Dictionary<Guid, decimal>> LoadAsync(
         DataBaseContext context,

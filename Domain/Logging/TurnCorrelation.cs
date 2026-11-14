@@ -26,9 +26,15 @@ public static class TurnCorrelation
 
     public static string CurrentOrNone => CurrentId.Value ?? None;
 
+    /// <summary>
+    /// Publishes the turn id for the rest of the current async flow.
+    /// </summary>
     /// <param name="turnId">Turn id every consumer of this turn already shares (LLMContext.TurnId)</param>
     public static void Set(Guid turnId) => CurrentId.Value = Format(turnId);
 
+    /// <summary>
+    /// Shortens a turn id for log output.
+    /// </summary>
     /// <param name="turnId">Turn id to shorten for log output</param>
     public static string Format(Guid turnId) => turnId.ToString("N")[..ShortIdLength];
 }

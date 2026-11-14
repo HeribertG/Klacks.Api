@@ -13,6 +13,9 @@ namespace Klacks.Api.Application.Services.Groups;
 
 public static class GroupMemberVisibilityCheck
 {
+    /// <summary>
+    /// Ensures the caller may see all clients that are added as new group members; throws KeyNotFoundException for a hidden one.
+    /// </summary>
     /// <param name="clientVisibilityGuard">Answers which of the added clients the caller may see</param>
     /// <param name="addedClientIds">Client ids that become new members of the group</param>
     /// <param name="cancellationToken">Cancels the visibility query</param>

@@ -20,10 +20,16 @@ namespace Klacks.Api.Application.Services.Schedules;
 public readonly record struct WeekdayFlags(
     bool Monday, bool Tuesday, bool Wednesday, bool Thursday, bool Friday, bool Saturday, bool Sunday)
 {
+    /// <summary>
+    /// Reads the weekday flags of a shift.
+    /// </summary>
     /// <param name="shift">The shift whose flags are read</param>
     public static WeekdayFlags Of(Shift shift) => new(
         shift.IsMonday, shift.IsTuesday, shift.IsWednesday, shift.IsThursday, shift.IsFriday, shift.IsSaturday, shift.IsSunday);
 
+    /// <summary>
+    /// Creates weekday flags from ISO weekday numbers.
+    /// </summary>
     /// <param name="isoWeekdays">ISO weekdays 1..7 that are set</param>
     public static WeekdayFlags OfDays(IEnumerable<int> isoWeekdays)
     {

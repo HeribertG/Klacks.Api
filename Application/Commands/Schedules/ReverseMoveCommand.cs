@@ -5,5 +5,8 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Schedules;
 
+/// <summary>
+/// Command that takes an applied move back.
+/// </summary>
 /// <param name="RequestId">The applied Move row to take back</param>
 public record ReverseMoveCommand(Guid RequestId) : IRequest<ReassignWorkClientResponse?>;

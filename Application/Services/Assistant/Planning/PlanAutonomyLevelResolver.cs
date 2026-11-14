@@ -32,6 +32,9 @@ internal sealed class PlanAutonomyLevelResolver
         _logger = logger;
     }
 
+    /// <summary>
+    /// Resolves the autonomy level a plan runs with: the user's own level, or FullyAutonomous for a SelfReflection plan with an approved goal candidate.
+    /// </summary>
     /// <param name="plan">The plan about to run</param>
     /// <param name="goalCandidate">The candidate looked up for a SelfReflection plan, null otherwise</param>
     /// <param name="userId">The caller's user id, whose level is the fallback</param>

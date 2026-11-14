@@ -11,6 +11,9 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public static class ContainerTemplateSelection
 {
+    /// <summary>
+    /// Selects the template stored for the given weekday, preferring a non-holiday one; null when there is none.
+    /// </summary>
     /// <param name="storageWeekday">Stored weekday 0=Sunday..6=Saturday</param>
     public static ContainerTemplateResource? ForWeekday(IEnumerable<ContainerTemplateResource> templates, int storageWeekday)
     {

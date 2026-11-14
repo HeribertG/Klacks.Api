@@ -19,6 +19,9 @@ internal static class DbUpdateExceptionTranslator
     private const string ForeignKeyViolationSqlState = "23503";
     private const string ConcurrencyMessage = "The record was modified by another user. Please refresh and try again.";
 
+    /// <summary>
+    /// Translates an EF Core save failure into a ConcurrencyException or a DatabaseUpdateException flagged for duplicate and foreign-key violations.
+    /// </summary>
     /// <param name="exception">The failure EF Core raised while saving</param>
     public static Exception Translate(DbUpdateException exception)
     {
@@ -38,6 +41,9 @@ internal static class DbUpdateExceptionTranslator
             constraintName: postgresException?.ConstraintName);
     }
 
+    /// <summary>
+    /// Converts an EF Core concurrency failure into a ConcurrencyException.
+    /// </summary>
     /// <param name="exception">The concurrency failure EF Core raised while saving</param>
     public static ConcurrencyException ToConcurrencyException(DbUpdateConcurrencyException exception) =>
         new(ConcurrencyMessage, exception);

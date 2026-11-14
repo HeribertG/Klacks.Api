@@ -11,6 +11,9 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 /// </summary>
 internal static class ShiftBaseQueries
 {
+    /// <summary>
+    /// Orders the shifts by original id, from date and start time, without tracking.
+    /// </summary>
     /// <param name="shifts">The shift set to read from (the context's Shift DbSet)</param>
     public static IQueryable<Shift> Ordered(IQueryable<Shift> shifts) =>
         shifts
@@ -19,6 +22,9 @@ internal static class ShiftBaseQueries
             .ThenBy(x => x.StartShift)
             .AsNoTracking();
 
+    /// <summary>
+    /// Orders the shifts and includes their client with its addresses.
+    /// </summary>
     /// <param name="shifts">The shift set to read from (the context's Shift DbSet)</param>
     public static IQueryable<Shift> OrderedWithClient(IQueryable<Shift> shifts) =>
         Ordered(shifts

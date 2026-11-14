@@ -16,6 +16,9 @@ namespace Klacks.Api.Infrastructure.Extensions;
 
 public static class RateLimitPartitionKeys
 {
+    /// <summary>
+    /// Returns the rate-limit partition key: the playground visitor in playground mode, otherwise the user name, falling back to the remote address.
+    /// </summary>
     /// <param name="context">The request being limited</param>
     public static string ForUserOrVisitor(HttpContext context)
     {

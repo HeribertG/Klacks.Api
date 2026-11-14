@@ -10,6 +10,9 @@ namespace Klacks.Api.Application.Interfaces;
 /// </summary>
 public interface IOrderGroupPlacementResolver
 {
+    /// <summary>
+    /// Resolves the group an open order without a group would be placed in, or the reason none can be derived.
+    /// </summary>
     /// <param name="orderId">Id of the open order (status OriginalOrder).</param>
     /// <param name="cancellationToken">Token cancelling the reads.</param>
     Task<OrderGroupPlacement> ResolveAsync(Guid orderId, CancellationToken cancellationToken = default);

@@ -12,6 +12,9 @@ namespace Klacks.Api.KnowledgeIndex.Application.Services;
 /// </summary>
 public static class KnowledgeIndexRankFuser
 {
+    /// <summary>
+    /// Fuses the semantic and lexical rankings by reciprocal rank into one list capped at the maximum number of candidates.
+    /// </summary>
     /// <param name="semanticRanked">Semantic candidates, best match first.</param>
     /// <param name="lexicalRanked">Lexical candidates, best match first.</param>
     /// <param name="rrfK">Reciprocal Rank Fusion damping constant (see KnowledgeIndexConstants.ReciprocalRankFusionK).</param>

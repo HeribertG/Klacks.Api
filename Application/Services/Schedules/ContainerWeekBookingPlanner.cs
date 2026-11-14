@@ -54,6 +54,9 @@ public sealed class ContainerWeekBookingPlanner
         _conflictChecker = conflictChecker;
     }
 
+    /// <summary>
+    /// Plans the container works for one employee over a date range, listing the skipped days with their reason, plus warnings.
+    /// </summary>
     /// <param name="container">The plannable container shift the works are booked on</param>
     /// <param name="templates">The templates of that container</param>
     /// <param name="clientId">The employee to book</param>

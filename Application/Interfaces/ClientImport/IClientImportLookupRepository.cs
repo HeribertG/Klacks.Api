@@ -16,6 +16,9 @@ public interface IClientImportLookupRepository
 
     Task<List<ClientImportNamedEntity>> GetGroupsAsync(CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Finds existing clients that may be duplicates of the imported rows.
+    /// </summary>
     /// <param name="lowerCaseLastNames">Last names of the import, already lower-cased</param>
     /// <param name="lowerCaseEmails">E-mail addresses of the import, already lower-cased</param>
     /// <param name="lowerCaseCompanies">Companies of the legal-entity rows of the import, trimmed and lower-cased</param>

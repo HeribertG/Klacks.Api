@@ -13,6 +13,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 
 public interface IReplacementContactValidator
 {
+    /// <summary>
+    /// Validates a replacement contact attempt; throws KeyNotFoundException for a missing or hidden entity and InvalidRequestException for an implausible value.
+    /// </summary>
     /// <param name="request">The contact attempt as posted</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task ValidateAsync(RecordReplacementContactRequest request, CancellationToken cancellationToken = default);

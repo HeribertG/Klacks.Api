@@ -26,6 +26,9 @@ public interface IGroupVisibilityGuard
     /// </summary>
     Task<GroupVisibilityScope> GetScopeAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Tells whether the caller may see the group.
+    /// </summary>
     /// <param name="groupId">The group a command reads or writes</param>
     Task<bool> IsGroupVisibleAsync(Guid groupId, CancellationToken cancellationToken = default);
 

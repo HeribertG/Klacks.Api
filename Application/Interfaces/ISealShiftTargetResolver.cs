@@ -10,6 +10,9 @@ namespace Klacks.Api.Application.Interfaces;
 /// </summary>
 public interface ISealShiftTargetResolver
 {
+    /// <summary>
+    /// Resolves the order a seal would run on, deriving a missing group from the customer's address, or returns the refusal reason.
+    /// </summary>
     /// <param name="orderId">Id of the order (status OriginalOrder) to seal.</param>
     /// <param name="cancellationToken">Token cancelling the reads.</param>
     Task<SealShiftTarget> ResolveAsync(Guid orderId, CancellationToken cancellationToken = default);

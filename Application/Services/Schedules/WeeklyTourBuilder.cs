@@ -62,6 +62,9 @@ public sealed class WeeklyTourBuilder
         _templateWriter = templateWriter;
     }
 
+    /// <summary>
+    /// Writes one planned weekly tour and returns the outcome; throws SkillVerificationException when the container cannot be locked or no service is placed.
+    /// </summary>
     /// <param name="settings">What every tour of the run shares</param>
     /// <param name="tour">The tour to write</param>
     /// <param name="cancellationToken">Cancels the writes</param>

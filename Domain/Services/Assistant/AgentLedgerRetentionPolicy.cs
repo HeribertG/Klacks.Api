@@ -26,6 +26,9 @@ public static class AgentLedgerRetentionPolicy
     public static DateTime DispatchCutoff(DateTime nowUtc) =>
         nowUtc.AddDays(-AgentLedgerRetentionDefaults.DispatchDays);
 
+    /// <summary>
+    /// Builds the filter for conditions eligible for retention cleanup: resolved or rejected ones past the short cutoff, executed or escalated ones past the long cutoff.
+    /// </summary>
     /// <param name="shortLivedCutoffUtc">Rows of status Resolved/Rejected finished before this are eligible.</param>
     /// <param name="longLivedCutoffUtc">Rows of status Executed/Escalated finished before this are eligible.</param>
     public static Expression<Func<AgentCondition, bool>> ConditionEligible(
@@ -39,6 +42,9 @@ public static class AgentLedgerRetentionPolicy
             || (c.Status == AgentConditionStatus.Escalated
                 && (c.EscalatedAtUtc ?? c.LastSeenAtUtc) < longLivedCutoffUtc);
 
+    /// <summary>
+    /// Builds the filter for dispatch rows that are eligible for retention cleanup.
+    /// </summary>
     /// <param name="cutoffUtc">Rows whose creation, last read and last reaction all precede this are eligible.</param>
     public static Expression<Func<ProactiveTriggerDispatchRow, bool>> DispatchEligible(DateTime cutoffUtc) =>
         d => d.CreateTime < cutoffUtc

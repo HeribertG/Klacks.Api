@@ -14,6 +14,9 @@ namespace Klacks.Api.Application.Services.FileHandling;
 
 public static class ImageFileNamePolicy
 {
+    /// <summary>
+    /// Resolves the target of an image upload from the file name the client sent; null when the name is not accepted.
+    /// </summary>
     /// <param name="fileName">The file name the client sent with the multipart upload</param>
     public static ImageFileTarget? ResolveUpload(string? fileName)
     {
@@ -46,6 +49,9 @@ public static class ImageFileNamePolicy
         return BuildProfileTarget(ownerUserId.Value, canonicalName, profileExtension.Format);
     }
 
+    /// <summary>
+    /// Resolves a stored image file name sent to the download or delete endpoint to its target; null when the name is not accepted.
+    /// </summary>
     /// <param name="name">The name the client sent to the download or delete endpoint</param>
     public static ImageFileTarget? ResolveStored(string? name)
     {

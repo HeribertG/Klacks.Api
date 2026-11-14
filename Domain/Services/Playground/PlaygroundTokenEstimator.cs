@@ -14,6 +14,9 @@ namespace Klacks.Api.Domain.Services.Playground;
 
 public static class PlaygroundTokenEstimator
 {
+    /// <summary>
+    /// Estimates the token budget to reserve for a provider request from its prompt, tool definitions and maximum output, capped at the maximum reservation.
+    /// </summary>
     /// <param name="request">The request about to be sent to the provider</param>
     public static long EstimateReservation(LLMProviderRequest request)
     {

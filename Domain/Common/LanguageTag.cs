@@ -14,6 +14,9 @@ public static class LanguageTag
 {
     private const char RegionSeparator = '-';
 
+    /// <summary>
+    /// Returns the base language of a language tag (the part before the region separator); null for a blank tag.
+    /// </summary>
     /// <param name="tag">BCP-47 language tag such as "de", "en-GB" or "zh-CN"; null or blank yields
     /// null, a tag without a region is returned trimmed and unchanged.</param>
     public static string? BaseLanguage(string? tag)

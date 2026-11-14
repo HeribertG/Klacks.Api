@@ -60,6 +60,9 @@ public class TurnCompletionRecorder
         _stoppedTurnCleanup = stoppedTurnCleanup;
     }
 
+    /// <summary>
+    /// Records a completed assistant turn once; a turn that already has an outcome is not persisted again.
+    /// </summary>
     /// <param name="turn">The finished turn to persist</param>
     /// <param name="cancellationToken">Cancels the default-agent lookup</param>
     public async Task RecordCompletedAsync(TurnCompletion turn, CancellationToken cancellationToken)

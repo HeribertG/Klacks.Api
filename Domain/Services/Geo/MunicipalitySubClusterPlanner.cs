@@ -24,6 +24,9 @@ public static class MunicipalitySubClusterPlanner
     private const int PercentBase = 100;
     private const string ShareOutOfRangeMessageTemplate = "Share must be between {0} and {1}.";
 
+    /// <summary>
+    /// Plans the sub-clusters of a city cluster by municipality; throws ArgumentOutOfRangeException when the share percent is out of range.
+    /// </summary>
     /// <param name="centreCity">Name of the city cluster's centre city</param>
     /// <param name="centreLatitude">Latitude of the city cluster's centre; null when unknown</param>
     /// <param name="centreLongitude">Longitude of the city cluster's centre; null when unknown</param>

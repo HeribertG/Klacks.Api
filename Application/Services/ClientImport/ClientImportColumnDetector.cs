@@ -46,6 +46,9 @@ public class ClientImportColumnDetector
         _catalog = catalog;
     }
 
+    /// <summary>
+    /// Detects the column mapping of a client import from headers and data.
+    /// </summary>
     /// <param name="headers">Header text per column</param>
     /// <param name="rows">Data rows (without header) used for content detection</param>
     /// <param name="currentYear">Company's current year, separates birth dates from entry dates</param>
@@ -72,6 +75,9 @@ public class ClientImportColumnDetector
         return result;
     }
 
+    /// <summary>
+    /// Detects whether the imported names are ordered first name first or last name first; first name first when there is no full-name column.
+    /// </summary>
     /// <param name="headers">Header text per column</param>
     /// <param name="mapping">Detected or user-chosen mapping</param>
     /// <param name="rows">Data rows (without header)</param>

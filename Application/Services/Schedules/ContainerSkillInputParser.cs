@@ -14,6 +14,9 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public static class ContainerSkillInputParser
 {
+    /// <summary>
+    /// Parses the daily time budget the user gave for a container; returns an error text for an unreadable time or an end that is not after the start.
+    /// </summary>
     /// <param name="fromTimeStr">Start of the day's time budget as the user said it (HH:mm)</param>
     /// <param name="untilTimeStr">End of the day's time budget as the user said it (HH:mm)</param>
     /// <param name="language">Language of the user, used to read the clock times</param>
@@ -38,6 +41,9 @@ public static class ContainerSkillInputParser
         return (fromTime, untilTime, null);
     }
 
+    /// <summary>
+    /// Parses the validity dates the user gave for a container; returns an error text for an unreadable date or an end before the start.
+    /// </summary>
     /// <param name="fromDateStr">First day of validity as the user said it (YYYY-MM-DD)</param>
     /// <param name="untilDateStr">Optional last day of validity; null or blank = open-ended</param>
     /// <param name="language">Language of the user, used to read the dates</param>

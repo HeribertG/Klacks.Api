@@ -31,6 +31,9 @@ public static class AddressClusterPlanner
     private const int PercentBase = 100;
     private const string ShareOutOfRangeMessageTemplate = "Share must be between {0} and {1}.";
 
+    /// <summary>
+    /// Plans the address clusters per state and city; throws ArgumentOutOfRangeException when the share percent is out of range.
+    /// </summary>
     /// <param name="addresses">One entry per client with the address fields the caller resolved</param>
     /// <param name="sharePercent">Minimum share (1-100) of a state's addresses a city needs to be a center</param>
     public static AddressClusterPlan Plan(IReadOnlyList<ClusterAddress> addresses, int sharePercent)

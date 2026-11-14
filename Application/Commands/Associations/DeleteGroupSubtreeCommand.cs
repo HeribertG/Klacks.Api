@@ -5,5 +5,8 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Associations;
 
+/// <summary>
+/// Command that deletes a group and its subtree.
+/// </summary>
 /// <param name="Id">The group whose subtree is removed</param>
 public record DeleteGroupSubtreeCommand(Guid Id) : IRequest<DeleteGroupSubtreeResponse>;

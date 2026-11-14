@@ -10,6 +10,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 /// </summary>
 public interface IEmployeeContractFactsLoader
 {
+    /// <summary>
+    /// Summarises the employee's active contracts on the date, flagging the used one and those the view interval filters out; empty when the employee is unknown.
+    /// </summary>
     /// <param name="contractUsedId">Id of the contract the resolver picked, flagged as used</param>
     /// <param name="viewInterval">Payment interval of the view; null flags nothing as filtered</param>
     Task<IReadOnlyList<AbsenceHoursContractSummary>> SummariseContractsAsync(

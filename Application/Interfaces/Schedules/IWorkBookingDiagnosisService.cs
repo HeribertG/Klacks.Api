@@ -10,6 +10,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 /// </summary>
 public interface IWorkBookingDiagnosisService
 {
+    /// <summary>
+    /// Diagnoses why a work cell cannot be booked.
+    /// </summary>
     /// <param name="request">The cell to check</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task<WorkBookingDiagnosis> DiagnoseAsync(WorkBookingDiagnosisRequest request, CancellationToken cancellationToken);

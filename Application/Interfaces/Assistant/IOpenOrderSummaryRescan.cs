@@ -11,6 +11,9 @@ namespace Klacks.Api.Application.Interfaces.Assistant;
 /// </summary>
 public interface IOpenOrderSummaryRescan
 {
+    /// <summary>
+    /// Runs the open-order summary detector once, outside the hourly tick.
+    /// </summary>
     /// <param name="cancellationToken">Cancels the rescan.</param>
     Task RunAsync(CancellationToken cancellationToken = default);
 }

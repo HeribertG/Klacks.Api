@@ -28,6 +28,9 @@ public sealed class RosterRankHours
         _fullTime = fullTime;
     }
 
+    /// <summary>
+    /// Computes the ranking hours per agent over the planning range.
+    /// </summary>
     /// <param name="agentIds">Agents to rank</param>
     /// <param name="from">First day of the planning range, inclusive</param>
     /// <param name="until">Last day of the planning range, inclusive</param>

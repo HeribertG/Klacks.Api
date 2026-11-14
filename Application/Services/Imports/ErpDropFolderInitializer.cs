@@ -35,6 +35,9 @@ public class ErpDropFolderInitializer
         _logger = logger;
     }
 
+    /// <summary>
+    /// Ensures the ERP drop folders exist in object storage and reports the health result.
+    /// </summary>
     /// <param name="cancellationToken">Cancels the folder check</param>
     public async Task<ObjectStorageHealthResult> EnsureFoldersAsync(CancellationToken cancellationToken = default)
     {

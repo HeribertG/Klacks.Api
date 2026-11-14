@@ -14,6 +14,9 @@ namespace Klacks.Api.Application.Services.FileHandling;
 
 public static class ImageUploadContentValidator
 {
+    /// <summary>
+    /// Checks whether an uploaded image matches its target, its declared content type and its file signature.
+    /// </summary>
     /// <param name="target">The validated server-side target of the upload</param>
     /// <param name="contentType">The content type the client declared</param>
     /// <param name="header">The first bytes of the uploaded file (at least SignatureHeaderLength when available)</param>
@@ -44,6 +47,9 @@ public static class ImageUploadContentValidator
         return allowedFormats.Contains(detected.Value);
     }
 
+    /// <summary>
+    /// Detects the image format from the leading bytes of a file; null when no known signature matches.
+    /// </summary>
     /// <param name="header">The first bytes of a file</param>
     public static ImageFileFormat? DetectFormat(ReadOnlySpan<byte> header)
     {

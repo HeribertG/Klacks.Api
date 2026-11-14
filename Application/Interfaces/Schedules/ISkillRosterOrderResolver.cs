@@ -11,6 +11,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 
 public interface ISkillRosterOrderResolver
 {
+    /// <summary>
+    /// Resolves the employee order a skill call plans with and whether the planner set it by hand.
+    /// </summary>
     /// <param name="context">The skill call; tells who triggered it (chat user, external agent, self-reflection plan)</param>
     /// <param name="groupId">Group whose saved order applies</param>
     /// <param name="agentIds">Employees of the run in their incoming order</param>

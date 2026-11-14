@@ -33,6 +33,9 @@ public class PlaygroundModelOptions
         TranscriptionApiModelId = NonBlank(section[nameof(TranscriptionApiModelId)], PlaygroundHardeningConstants.DefaultTranscriptionApiModelId);
     }
 
+    /// <summary>
+    /// Returns the configured value, or the fallback when it is blank.
+    /// </summary>
     /// <param name="value">The configured value, null or blank when unset</param>
     /// <param name="fallback">Default used when the value is blank</param>
     public static string NonBlank(string? value, string fallback) =>

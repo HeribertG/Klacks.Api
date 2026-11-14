@@ -72,6 +72,9 @@ public class ContextAssemblyPipeline
         _logger = logger;
     }
 
+    /// <summary>
+    /// Assembles the soul and memory prompt for an agent and a user message.
+    /// </summary>
     /// <remarks>
     /// Every repository used here resolves from the request scope and therefore shares one DbContext,
     /// which permits exactly one in-flight operation. Starting a retrieval task early and awaiting it

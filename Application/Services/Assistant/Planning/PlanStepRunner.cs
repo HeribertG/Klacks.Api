@@ -51,6 +51,9 @@ internal sealed class PlanStepRunner
         _logger = logger;
     }
 
+    /// <summary>
+    /// Runs one step of a plan run and reports whether the loop continues.
+    /// </summary>
     /// <param name="run">State of the current run</param>
     /// <param name="index">Zero-based index of the step in the run</param>
     /// <param name="step">The step at that index</param>

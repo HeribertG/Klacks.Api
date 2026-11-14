@@ -11,10 +11,16 @@ namespace Klacks.Api.Application.Interfaces;
 /// </summary>
 public interface IScheduleRowAccessGuard
 {
+    /// <summary>
+    /// Tells whether the caller may see the row of the given owning client.
+    /// </summary>
     /// <param name="clientId">Owning client of the row</param>
     /// <param name="analyseToken">Scenario token of the stored row (or its parent Work); null for the main plan</param>
     Task<bool> IsVisibleAsync(Guid clientId, Guid? analyseToken, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Tells whether the caller may see all rows of the given owning clients.
+    /// </summary>
     /// <param name="clientIds">Owning client ids of the rows a command touches (old and new owner)</param>
     /// <param name="analyseToken">Scenario token of the stored row (or its parent Work); null for the main plan</param>
     Task<bool> AreAllVisibleAsync(

@@ -12,6 +12,9 @@ namespace Klacks.Api.Domain.Services.Geo;
 
 public readonly record struct PlacePosition(double Latitude, double Longitude, int LocatedAddressCount)
 {
+    /// <summary>
+    /// Computes the mean position of the located addresses of a place; null when none has coordinates.
+    /// </summary>
     /// <param name="addresses">Addresses of one place; addresses without coordinates are ignored</param>
     /// <returns>The mean position, or null when no address of the place has coordinates</returns>
     public static PlacePosition? Of(IReadOnlyCollection<ClusterAddress> addresses)

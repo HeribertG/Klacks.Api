@@ -40,6 +40,9 @@ public class UpdatePolicySeedService
         _logger = logger;
     }
 
+    /// <summary>
+    /// Seeds the missing update policy settings and returns how many were written (0 when another instance wrote them first).
+    /// </summary>
     /// <returns>Number of settings written; 0 when nothing is configured or every setting already exists</returns>
     public async Task<int> SeedAsync()
     {

@@ -12,6 +12,9 @@ namespace Klacks.Api.Presentation.Extensions;
 
 public static class FilterCollectionExtensions
 {
+    /// <summary>
+    /// Adds the Klacks global MVC filters to the filter collection.
+    /// </summary>
     /// <param name="filters">The global filter collection AddControllers hands to its configuration callback</param>
     public static FilterCollection AddKlacksGlobalFilters(this FilterCollection filters)
     {

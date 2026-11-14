@@ -17,6 +17,9 @@ internal static class WorkChangeInvoiceRule
         "toInvoice=false is refused: a WorkChange stays billable when it is created or changed through the assistant. " +
         "Only a planner, supervisor or admin may switch it off, in the schedule dialog of the correction, travel, briefing or replacement.";
 
+    /// <summary>
+    /// Returns a refusal when a skill call tries to disable the invoice rule, otherwise null.
+    /// </summary>
     /// <param name="parameters">Raw skill arguments; a boolean or a text such as "false" is read like any other boolean parameter</param>
     public static SkillResult? RefuseDisabling(Dictionary<string, object> parameters)
     {

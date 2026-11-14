@@ -14,6 +14,9 @@ namespace Klacks.Api.Infrastructure.Services.Clients;
 /// </summary>
 public interface IClientBaseQueryService : IClientPageReader
 {
+    /// <summary>
+    /// Builds the base client query for the given filter.
+    /// </summary>
     /// <param name="filter">Common filter with time period, search, group and sorting</param>
     Task<IQueryable<Client>> BuildBaseQuery(ClientBaseFilter filter);
 }

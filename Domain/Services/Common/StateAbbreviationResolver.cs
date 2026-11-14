@@ -29,6 +29,9 @@ public class StateAbbreviationResolver
         _stateRepository = stateRepository;
     }
 
+    /// <summary>
+    /// Resolves the state abbreviation from the geocoder's answer by exact, then partial name match; null when none matches.
+    /// </summary>
     /// <param name="countryCode">Country code of the address (alpha-2 or alpha-3); blank searches every country</param>
     /// <param name="nominatimState">The geocoder's "state" value</param>
     /// <param name="nominatimCounty">The geocoder's "county" value; the source for countries listed in CountriesUsingCountyAsState</param>

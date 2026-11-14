@@ -4,6 +4,9 @@ using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
+/// <summary>
+/// Result of a notification attempt in an escalation chain.
+/// </summary>
 /// <param name="Outcome">The messenger attempt's verdict; the loud A1 channel decides delivery success.</param>
 /// <param name="DispatchRowId">The inbox row this attempt produced, for EscalationStage.DispatchRowId.</param>
 /// <param name="Channel">Messenger channel that was addressed, if any.</param>

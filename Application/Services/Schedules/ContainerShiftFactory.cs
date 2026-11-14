@@ -18,6 +18,9 @@ public static class ContainerShiftFactory
     private const int DefaultSumEmployees = 1;
     private const int DefaultQuantity = 1;
 
+    /// <summary>
+    /// Builds the container shift from its specification.
+    /// </summary>
     /// <param name="spec">Name, time frame, validity, weekdays and groups of the container</param>
     public static Shift Build(ContainerShiftSpec spec)
     {

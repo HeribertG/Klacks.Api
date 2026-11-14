@@ -4,6 +4,9 @@ using Klacks.Api.Domain.Models.Assistant.Escalation;
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
+/// <summary>
+/// Result of the exhaust step of an escalation chain, telling whether this call exhausted it.
+/// </summary>
 /// <param name="Exhausted">Whether THIS call won the chain's Running to Exhausted compare-and-swap.</param>
 /// <param name="CancelledNotifiedStages">The stages this same call moved from Notified to Cancelled, read
 /// back inside the exhaust transaction so the caller can close their open inbox rows. Empty whenever the

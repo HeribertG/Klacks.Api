@@ -14,6 +14,9 @@ public class PohodaAbsenceMapping
 
     public string WageType { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Returns the Kod code of the absence, falling back to its wage type; empty when neither is set.
+    /// </summary>
     /// <returns>The trimmed Kod if set, otherwise the trimmed WageType; empty when neither is set</returns>
     public string ResolveCode()
     {

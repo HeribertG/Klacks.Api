@@ -19,6 +19,9 @@ namespace Klacks.Api.Domain.Common;
 
 public static class SkillLabelResolver
 {
+    /// <summary>
+    /// Resolves the label of a skill for the language: the exact tag first, then its base language; null when neither has a label.
+    /// </summary>
     /// <param name="labels">Authored labels of one skill, keyed by language tag; null when the skill has none</param>
     /// <param name="language">Active language tag of the turn, such as "de", "de-CH" or "zh-TW"</param>
     public static string? Resolve(IReadOnlyDictionary<string, string>? labels, string? language)

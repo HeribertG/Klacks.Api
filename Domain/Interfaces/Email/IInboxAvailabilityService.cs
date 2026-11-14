@@ -10,6 +10,9 @@ namespace Klacks.Api.Domain.Interfaces.Email;
 
 public interface IInboxAvailabilityService
 {
+    /// <summary>
+    /// Tells whether the inbox is available.
+    /// </summary>
     /// <param name="cancellationToken">Cancels the settings lookup</param>
     Task<bool> IsAvailableAsync(CancellationToken cancellationToken = default);
 }

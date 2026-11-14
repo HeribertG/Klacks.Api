@@ -29,6 +29,9 @@ public sealed class IdempotentRequestStore : IDisposable
 
     private readonly Lock _gate = new();
 
+    /// <summary>
+    /// Decides whether the caller must run the action, wait for an earlier run, or run it without idempotency when no entry can be kept (Entry null).
+    /// </summary>
     /// <param name="userId">Authenticated user the request belongs to</param>
     /// <param name="key">User, route, Idempotency-Key and body hash of the request</param>
     /// <returns>

@@ -2,6 +2,9 @@
 
 namespace Klacks.Api.Application.DTOs.Assistant;
 
+/// <summary>
+/// Readiness check result of one model for the Klacksy picker.
+/// </summary>
 /// <param name="ModelId">Internal model id used as picker value.</param>
 /// <param name="DisplayName">Human-readable label.</param>
 /// <param name="ProviderId">Owning provider id (Anthropic, Google, OpenAI, ...).</param>

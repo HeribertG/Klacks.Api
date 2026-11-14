@@ -16,6 +16,9 @@ namespace Klacks.Api.Presentation.Extensions;
 
 public static class AuthorizationOptionsExtensions
 {
+    /// <summary>
+    /// Adds the Klacks authorization policies to the options.
+    /// </summary>
     /// <param name="options">The options instance AddAuthorization hands to its configuration callback</param>
     public static AuthorizationOptions AddKlacksPolicies(this AuthorizationOptions options)
     {

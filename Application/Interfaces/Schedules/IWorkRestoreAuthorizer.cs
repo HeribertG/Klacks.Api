@@ -12,6 +12,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 /// </summary>
 public interface IWorkRestoreAuthorizer
 {
+    /// <summary>
+    /// Resolves the caller's access to a soft-deleted work as Admin, Owner or Hidden.
+    /// </summary>
     /// <param name="work">The soft-deleted Work with its CurrentUserDeleted stamp</param>
     WorkRestoreAccess Resolve(Work work);
 }

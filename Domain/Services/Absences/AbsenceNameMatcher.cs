@@ -14,6 +14,9 @@ public static class AbsenceNameMatcher
 {
     private const string NameSeparator = ", ";
 
+    /// <summary>
+    /// Tells whether the typed name equals, ignoring case, a name or an abbreviation of the absence in any language.
+    /// </summary>
     /// <param name="wanted">Trimmed name the user typed</param>
     public static bool Matches(Absence absence, string wanted)
     {

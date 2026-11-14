@@ -13,6 +13,9 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 /// </summary>
 public interface IAgentTriggerDetectorRunner
 {
+    /// <summary>
+    /// Runs a trigger detector once and returns the outcome.
+    /// </summary>
     /// <param name="detector">The detector to run once.</param>
     /// <param name="cancellationToken">Cancels the run between steps.</param>
     Task<AgentTriggerDetectorRunOutcome> RunAsync(IAgentTriggerDetector detector, CancellationToken cancellationToken = default);

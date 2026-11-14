@@ -80,6 +80,9 @@ public static class RegularMembership
         return Expression.Lambda<Func<Client, bool>>(Expression.Call(any, OfClient.Body, condition), OfClient.Parameters);
     }
 
+    /// <summary>
+    /// Tells whether a loaded group item is a regular membership.
+    /// </summary>
     /// <param name="item">A loaded group item</param>
     /// <returns>True when the item is a regular membership</returns>
     public static bool Holds(GroupItem item) => Matches(item);

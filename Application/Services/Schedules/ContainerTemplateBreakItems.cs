@@ -16,6 +16,9 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public static class ContainerTemplateBreakItems
 {
+    /// <summary>
+    /// Builds a break item for a container template: fixed at the given start time, otherwise movable.
+    /// </summary>
     /// <param name="absenceId">Absence type the break is booked with</param>
     /// <param name="startTime">Start of a fixed break; null for a movable break</param>
     /// <param name="durationMinutes">Length of the break in minutes</param>
@@ -42,6 +45,9 @@ public static class ContainerTemplateBreakItems
         return item;
     }
 
+    /// <summary>
+    /// Inserts a break item into the route items of a template.
+    /// </summary>
     /// <param name="items">Items of the template in route order</param>
     /// <param name="breakItem">The break to add: a fixed break goes before the first item that starts later, a movable one is appended</param>
     public static List<ContainerTemplateItemResource> Insert(
@@ -52,11 +58,17 @@ public static class ContainerTemplateBreakItems
             : [.. items, breakItem];
     }
 
+    /// <summary>
+    /// Counts the items of a template that equal the expected break item.
+    /// </summary>
     /// <param name="items">Items of a template</param>
     /// <param name="expected">The break item that was built for the write</param>
     public static int CountEqual(IEnumerable<ContainerTemplateItemResource> items, ContainerTemplateItemResource expected) =>
         items.Count(stored => IsEqual(stored, expected));
 
+    /// <summary>
+    /// Returns the latest end time of the visits of the template, or null when it has none.
+    /// </summary>
     /// <param name="template">Template whose visits are read</param>
     public static TimeOnly? LastVisitEnd(ContainerTemplateResource template)
     {

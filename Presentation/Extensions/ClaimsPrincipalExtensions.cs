@@ -14,6 +14,9 @@ namespace Klacks.Api.Presentation.Extensions;
 
 public static class ClaimsPrincipalExtensions
 {
+    /// <summary>
+    /// Returns the permissions the role claims of the caller expand to.
+    /// </summary>
     /// <param name="user">The authenticated caller</param>
     public static List<string> GetUserRights(this ClaimsPrincipal user)
     {

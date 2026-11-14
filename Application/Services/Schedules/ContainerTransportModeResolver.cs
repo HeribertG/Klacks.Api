@@ -38,6 +38,9 @@ public sealed class ContainerTransportModeResolver
         _encryptionService = encryptionService;
     }
 
+    /// <summary>
+    /// Parses the transport mode text the model passed into a mode or an error.
+    /// </summary>
     /// <param name="value">Transport mode as the model passed it (case-insensitive)</param>
     public static (ContainerTransportMode? Mode, string? Error) Parse(string value)
     {
@@ -51,6 +54,9 @@ public sealed class ContainerTransportModeResolver
         };
     }
 
+    /// <summary>
+    /// Returns a refusal when the transport mode cannot be used (any mode but car needs OpenRouteService enabled and an API key), otherwise null.
+    /// </summary>
     /// <param name="transportMode">The parsed mode</param>
     /// <param name="transportModeText">The mode as the model passed it, named in the refusal</param>
     /// <returns>The refusal text, or null when the mode can be used</returns>

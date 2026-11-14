@@ -4,6 +4,9 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Associations;
 
+/// <summary>
+/// Command that sets the location of a group.
+/// </summary>
 /// <param name="Id">The group being located</param>
 /// <param name="Latitude">Latitude in decimal degrees</param>
 /// <param name="Longitude">Longitude in decimal degrees</param>

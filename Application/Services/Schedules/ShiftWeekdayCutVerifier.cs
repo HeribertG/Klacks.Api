@@ -24,6 +24,9 @@ public sealed class ShiftWeekdayCutVerifier
         _shiftReader = shiftReader;
     }
 
+    /// <summary>
+    /// Checks the stored weekday cut parts against the plans and the original group links and lists the mismatches, including a source shift that is still plannable.
+    /// </summary>
     /// <param name="plans">The cuts that were processed</param>
     /// <param name="sourceLinks">The group links of the plannable shifts before the cut, keyed by shift id</param>
     /// <param name="cancellationToken">Cancels the reads</param>

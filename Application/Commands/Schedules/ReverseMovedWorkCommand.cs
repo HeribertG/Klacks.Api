@@ -5,5 +5,8 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Schedules;
 
+/// <summary>
+/// Command that gives a moved work back to the person it came from.
+/// </summary>
 /// <param name="WorkId">The moved work to give back to the person it came from</param>
 public record ReverseMovedWorkCommand(Guid WorkId) : IRequest<ReassignWorkClientResponse?>;

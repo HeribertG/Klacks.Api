@@ -22,12 +22,18 @@ namespace Klacks.Api.Presentation.Extensions;
 
 public static class AuthorizationPolicyBuilderExtensions
 {
+    /// <summary>
+    /// Adds a requirement that the caller has assistant access.
+    /// </summary>
     /// <param name="policy">The policy under construction</param>
     public static AuthorizationPolicyBuilder RequireAssistantAccess(this AuthorizationPolicyBuilder policy)
     {
         return policy.RequirePermission(Permissions.CanUseAssistant);
     }
 
+    /// <summary>
+    /// Adds a requirement that the authenticated caller holds the given permission.
+    /// </summary>
     /// <param name="policy">The policy under construction</param>
     /// <param name="permission">A constant from <see cref="Permissions"/> the authenticated caller must hold</param>
     public static AuthorizationPolicyBuilder RequirePermission(this AuthorizationPolicyBuilder policy, string permission)

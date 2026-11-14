@@ -17,6 +17,9 @@ public static class ContainerBreakAbsenceResolver
 {
     private const string NoneText = "none";
 
+    /// <summary>
+    /// Resolves the container-break absence type by name, or the seeded unpaid break when none is given; returns an error text when none or several match.
+    /// </summary>
     /// <param name="absences">All absence types; the ones not applying to containers are ignored</param>
     /// <param name="absenceName">Name or abbreviation the user gave; null or blank selects the seeded unpaid break</param>
     public static (Absence? Absence, string? Error) Resolve(IEnumerable<Absence> absences, string? absenceName)

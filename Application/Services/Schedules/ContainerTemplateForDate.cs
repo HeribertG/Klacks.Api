@@ -13,6 +13,9 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public static class ContainerTemplateForDate
 {
+    /// <summary>
+    /// Picks the template of the date's weekday, preferring a non-holiday one; null when there is none.
+    /// </summary>
     /// <param name="templates">The templates of one container</param>
     /// <param name="date">The calendar date the container is booked on</param>
     public static ContainerTemplate? Pick(IEnumerable<ContainerTemplate> templates, DateOnly date)

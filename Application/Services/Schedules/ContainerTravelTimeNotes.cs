@@ -19,6 +19,9 @@ public static class ContainerTravelTimeNotes
     private const string NarrowWithGroupNote =
         " With groupName the candidates can be narrowed to one group, so the routing service can compute real travel times.";
 
+    /// <summary>
+    /// Builds the note that the travel times are estimates; empty when they are not.
+    /// </summary>
     /// <param name="isEstimated">True when the autofill used straight-line travel time estimates</param>
     /// <param name="candidateCount">Number of candidate services the routing request covered</param>
     /// <param name="groupFilterApplied">True when the candidates were already narrowed to a group</param>

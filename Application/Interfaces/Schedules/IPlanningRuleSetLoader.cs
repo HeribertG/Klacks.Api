@@ -14,6 +14,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 
 public interface IPlanningRuleSetLoader
 {
+    /// <summary>
+    /// Loads the planning rules for the given agents and period.
+    /// </summary>
     /// <param name="agentIds">Client ids of the agents being planned or checked</param>
     /// <param name="from">First day of the period (inclusive)</param>
     /// <param name="until">Last day of the period (inclusive)</param>

@@ -26,6 +26,9 @@ public sealed class ErpCronTimeZoneDriftNotifier
 
     private readonly ConcurrentDictionary<(string Configured, string Company), byte> _reportedPairs = new();
 
+    /// <summary>
+    /// Logs the drift warning once per distinct (configured, company) zone pair.
+    /// </summary>
     /// <param name="logger">Logger of the component that resolved the zone</param>
     /// <param name="configuredIanaId">IANA id the ERP_IMPORT_CRON_TIMEZONE setting resolves to</param>
     /// <param name="companyIanaId">IANA id of the installation's own configured company zone</param>

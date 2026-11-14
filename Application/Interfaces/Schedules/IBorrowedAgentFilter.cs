@@ -8,6 +8,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 /// </summary>
 public interface IBorrowedAgentFilter
 {
+    /// <summary>
+    /// Removes the agents that are only borrowed into the planning group from the agents of a planning run, keeping the given order.
+    /// </summary>
     /// <param name="agentIds">Agents of the run in their planning order</param>
     /// <param name="groupId">Group the run plans for; null = none</param>
     /// <param name="analyseToken">Source scenario of the run; its group stands in when the run names none</param>

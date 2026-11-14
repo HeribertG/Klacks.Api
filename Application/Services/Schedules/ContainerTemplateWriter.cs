@@ -38,6 +38,9 @@ public sealed class ContainerTemplateWriter
         _shiftRepository = shiftRepository;
     }
 
+    /// <summary>
+    /// Loads the picked task shifts in their selection order; throws SkillVerificationException when one cannot be read.
+    /// </summary>
     /// <param name="skillName">Skill that asked, carried on a refusal</param>
     /// <param name="selectedShiftIds">Ids of the picked task shifts</param>
     public async Task<List<Shift>> LoadTaskShiftsAsync(string skillName, IEnumerable<Guid> selectedShiftIds)
@@ -59,6 +62,9 @@ public sealed class ContainerTemplateWriter
         return taskShifts;
     }
 
+    /// <summary>
+    /// Builds the template of a container for one weekday from the planned visits.
+    /// </summary>
     /// <param name="containerId">Container the template belongs to</param>
     /// <param name="storageWeekday">Stored weekday 0=Sunday..6=Saturday</param>
     /// <param name="fromTime">Start of the day's time budget</param>
@@ -89,6 +95,9 @@ public sealed class ContainerTemplateWriter
             RouteInfo = _scheduleMapper.ToRouteInfoResource(planned.RouteInfo)
         };
 
+    /// <summary>
+    /// Writes the container templates and confirms by re-reading that their visit times were stored.
+    /// </summary>
     /// <param name="skillName">Skill that asked, carried on a refusal</param>
     /// <param name="containerId">Container the templates belong to; its template lock is held by the caller</param>
     /// <param name="templates">The templates to post, at most one per weekday</param>

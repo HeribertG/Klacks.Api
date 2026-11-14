@@ -121,6 +121,9 @@ public class ClientImportSynonymCatalog
         return best;
     }
 
+    /// <summary>
+    /// Finds the first-name and last-name parts of a column header.
+    /// </summary>
     /// <param name="header">Header text of one column</param>
     /// <param name="minimumWordLength">First- and last-name words shorter than this are ignored (generic words always count)</param>
     public ClientImportNameHeaderParts FindNameParts(string? header, int minimumWordLength)

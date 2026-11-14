@@ -35,6 +35,9 @@ public class PlaygroundTokenLimitOptions
         PerDeviceDailyTokens = ReadPositive(section[nameof(PerDeviceDailyTokens)], PlaygroundTokenLimitConstants.DefaultPerDeviceDailyTokens);
     }
 
+    /// <summary>
+    /// Returns the configured limit when it is a positive integer, otherwise the fallback.
+    /// </summary>
     /// <param name="value">The configured value, null or empty when unset</param>
     /// <param name="fallback">Default used when the value is absent or not a positive integer</param>
     public static int ReadPositive(string? value, int fallback) =>
@@ -42,6 +45,9 @@ public class PlaygroundTokenLimitOptions
             ? parsed
             : fallback;
 
+    /// <summary>
+    /// Returns the value when it is positive, otherwise the fallback.
+    /// </summary>
     /// <param name="value">A limit as held by the options, possibly overwritten programmatically</param>
     /// <param name="fallback">Default used when the value is not positive</param>
     public static int Positive(int value, int fallback) => value > 0 ? value : fallback;

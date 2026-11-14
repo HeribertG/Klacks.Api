@@ -24,6 +24,9 @@ internal static class SealOpenOrdersPreviewText
         "without any group are not included, so never conclude from it that a place has no orders - search_shifts " +
         "with city or state finds orders by address, assign_orders_to_groups links them. ";
 
+    /// <summary>
+    /// Describes the dry-run result of sealing open orders as text.
+    /// </summary>
     /// <param name="result">The dry-run result</param>
     /// <param name="scope">The scope the run was resolved with</param>
     /// <param name="groupNote">The note naming the resolved group, empty when none was named</param>

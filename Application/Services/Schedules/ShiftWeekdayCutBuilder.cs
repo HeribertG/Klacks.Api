@@ -17,9 +17,15 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public static class ShiftWeekdayCutBuilder
 {
+    /// <summary>
+    /// Returns the ISO weekdays on which the shift is active.
+    /// </summary>
     /// <param name="shift">The plannable shift</param>
     public static IReadOnlyList<int> ActiveIsoWeekdays(Shift shift) => WeekdayFlags.Of(shift).IsoDays();
 
+    /// <summary>
+    /// Builds the cut plan that splits a plannable shift into one part per weekday; the first part converts the source shift, the others are created.
+    /// </summary>
     /// <param name="source">The plannable shift to cut; it must run on at least two weekdays</param>
     /// <param name="sealedOrderId">The sealed order the parts descend from</param>
     /// <param name="groups">The groups of the plannable shift with their validity, carried by every part</param>

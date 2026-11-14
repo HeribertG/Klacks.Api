@@ -14,6 +14,9 @@ namespace Klacks.Api.Presentation.Filters;
 
 public static class PlaygroundProblemResultFactory
 {
+    /// <summary>
+    /// Creates a problem result for the playground with the given status, detail and error code.
+    /// </summary>
     /// <param name="status">HTTP status code of the answer</param>
     /// <param name="detail">Human-readable explanation</param>
     /// <param name="errorCode">Machine-readable code the client reacts to</param>

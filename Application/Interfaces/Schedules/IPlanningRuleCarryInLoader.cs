@@ -13,6 +13,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 
 public interface IPlanningRuleCarryInLoader
 {
+    /// <summary>
+    /// Loads the worked segments the rules read outside the period, minus the days the caller's boundary already covers.
+    /// </summary>
     /// <param name="agentIds">Agents to load segments for</param>
     /// <param name="from">First day of the period (inclusive)</param>
     /// <param name="until">Last day of the period (inclusive)</param>

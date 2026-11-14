@@ -2,6 +2,9 @@
 
 namespace Klacks.Api.Application.Services.Assistant;
 
+/// <summary>
+/// Result of the Klacksy readiness check for one model.
+/// </summary>
 /// <param name="ModelId">The Klacks-internal model id (picker value).</param>
 /// <param name="DisplayName">Human-readable label.</param>
 /// <param name="ProviderId">Owning provider.</param>

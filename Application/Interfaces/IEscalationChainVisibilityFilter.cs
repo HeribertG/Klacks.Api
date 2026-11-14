@@ -13,6 +13,9 @@ namespace Klacks.Api.Application.Interfaces;
 /// </summary>
 public interface IEscalationChainVisibilityFilter
 {
+    /// <summary>
+    /// Filters the chains down to those visible to the user.
+    /// </summary>
     /// <param name="chains">Candidate chains, loaded with their stages</param>
     /// <param name="userId">Id of the calling user</param>
     Task<List<EscalationChain>> FilterVisibleAsync(
@@ -25,6 +28,9 @@ public interface IEscalationChainVisibilityFilter
     Task<List<EscalationChain>> FilterVisibleEndedAsync(
         IReadOnlyCollection<EscalationChain> chains, string userId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Tells whether a chain is visible to the user.
+    /// </summary>
     /// <param name="chain">Chain to check, loaded with its stages</param>
     /// <param name="userId">Id of the calling user</param>
     Task<bool> IsVisibleAsync(EscalationChain chain, string userId, CancellationToken cancellationToken = default);

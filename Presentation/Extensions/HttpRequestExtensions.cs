@@ -12,6 +12,9 @@ namespace Klacks.Api.Presentation.Extensions;
 
 public static class HttpRequestExtensions
 {
+    /// <summary>
+    /// Reads the bearer token from the Authorization header of the request; null when the header holds none.
+    /// </summary>
     /// <param name="request">The incoming HTTP request</param>
     public static BearerToken? GetBearerToken(this HttpRequest request) =>
         BearerToken.FromAuthorizationHeader(request.Headers.Authorization.ToString());

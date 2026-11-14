@@ -13,6 +13,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 
 public interface IBulkWorkDeletionPlanner
 {
+    /// <summary>
+    /// Resolves the skill parameters into the exact works a bulk delete would remove, or into a refusal.
+    /// </summary>
     /// <param name="parameters">The skill call's parameters as the model supplied them</param>
     /// <param name="userLanguage">UI language of the caller, used to read written dates and day words</param>
     /// <param name="cancellationToken">Cancellation token</param>

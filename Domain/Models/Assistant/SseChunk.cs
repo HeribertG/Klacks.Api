@@ -51,6 +51,9 @@ public class SseChunk
     [JsonIgnore]
     public IReadOnlyList<LLMFunctionCall>? ExecutedCalls { get; set; }
 
+    /// <summary>
+    /// Creates the chunk that starts the SSE stream of a turn.
+    /// </summary>
     /// <param name="conversationId">The conversation the turn belongs to</param>
     /// <param name="turnId">Id the client sends to the cancel endpoint to stop this turn; omitted when the turn has none</param>
     public static SseChunk StreamStart(string conversationId, Guid? turnId = null) => new()
@@ -118,6 +121,9 @@ public class SseChunk
         ExecutedCount = executedCount
     };
 
+    /// <summary>
+    /// Creates an error chunk for the SSE stream with an English message and an optional machine-readable code.
+    /// </summary>
     /// <param name="message">English summary of the failure; never an exception message</param>
     /// <param name="errorCode">Machine-readable code the client translates (AssistantChatErrorCodes); null for a generic failure</param>
     public static SseChunk Error(string message, string? errorCode = null) => new()

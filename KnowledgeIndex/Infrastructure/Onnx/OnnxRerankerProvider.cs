@@ -39,6 +39,9 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IUnloadableInferen
     private readonly string _tokenizerUrl;
     private readonly string _tokenizerSha256;
 
+    /// <summary>
+    /// Creates the reranker provider over the model directory.
+    /// </summary>
     /// <param name="modelUrl">Download source; defaults to the configured reranker. Pass an empty
     /// string together with an empty hash to use a model file already present in the directory, which
     /// is how alternative rerankers are benchmarked without touching production configuration.</param>

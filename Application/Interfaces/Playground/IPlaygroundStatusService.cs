@@ -11,6 +11,9 @@ namespace Klacks.Api.Application.Interfaces.Playground;
 /// </summary>
 public interface IPlaygroundStatusService
 {
+    /// <summary>
+    /// Returns the playground status, with a new device token when the visitor has no valid one.
+    /// </summary>
     /// <param name="visitor">The visitor the middleware built for this request; null when the mode is off</param>
     PlaygroundStatusResource GetStatus(PlaygroundVisitor? visitor);
 }

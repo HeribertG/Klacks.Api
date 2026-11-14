@@ -2,6 +2,9 @@
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
+/// <summary>
+/// Time budget of an escalation chain.
+/// </summary>
 /// <param name="MinStageMinutes">Floor for one stage's turn (ESCALATION_STAGE_MIN_MINUTES).</param>
 /// <param name="MaxStageMinutes">Ceiling for one stage's turn (ESCALATION_STAGE_MAX_MINUTES).</param>
 /// <param name="PrepBufferHours">Fixed buffer subtracted from shift start to get the chain deadline (ESCALATION_PREP_BUFFER_HOURS).</param>

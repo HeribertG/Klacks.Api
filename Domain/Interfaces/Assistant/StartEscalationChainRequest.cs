@@ -2,6 +2,9 @@
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
+/// <summary>
+/// Request to start an escalation chain for a shift outage.
+/// </summary>
 /// <param name="WorkId">The shift the outage affects.</param>
 /// <param name="GroupId">Group the shift belongs to; resolved to its Nested Set root for the roster lookup.</param>
 /// <param name="AbsentClientId">The employee who fell out.</param>

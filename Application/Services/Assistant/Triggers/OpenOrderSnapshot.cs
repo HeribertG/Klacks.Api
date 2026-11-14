@@ -2,6 +2,9 @@
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
+/// <summary>
+/// Snapshot of an open order used by the trigger detection.
+/// </summary>
 /// <param name="ShiftId">The open order (a shift in status OriginalOrder)</param>
 /// <param name="FromDate">First day of the order; decides whether it starts within the soon window</param>
 /// <param name="GroupIds">Every group the order belongs to; empty when it belongs to none (Admins only)</param>

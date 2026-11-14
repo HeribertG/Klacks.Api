@@ -13,6 +13,9 @@ namespace Klacks.Api.Application.Services.Groups;
 
 public static class GroupMemberReadScope
 {
+    /// <summary>
+    /// Clears the member items of every group the caller may not see.
+    /// </summary>
     /// <param name="groupVisibilityGuard">Supplies the caller's visibility scope, resolved once per call</param>
     /// <param name="groups">Mapped groups whose member items are cleared when the group is hidden</param>
     /// <param name="cancellationToken">Cancels the scope resolution</param>

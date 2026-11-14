@@ -14,6 +14,9 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills;
 
 public static class SkillParameterReader
 {
+    /// <summary>
+    /// Reads a typed skill parameter from the raw invocation arguments; returns the default when it is missing, null or cannot be converted.
+    /// </summary>
     /// <param name="parameters">Raw invocation arguments; values are JsonElement or already CLR values</param>
     /// <param name="name">Argument name as declared by the skill</param>
     /// <param name="defaultValue">Returned when the argument is absent, null, or not convertible</param>

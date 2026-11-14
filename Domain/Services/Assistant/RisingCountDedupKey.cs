@@ -14,9 +14,15 @@ public static class RisingCountDedupKey
 {
     public const string Separator = "#";
 
+    /// <summary>
+    /// Builds the dedup key prefix shared by all rising counts of an event.
+    /// </summary>
     /// <param name="dedupKey">The event's DedupKey (for the open-order summary: the company day).</param>
     public static string PrefixFor(string dedupKey) => dedupKey + Separator;
 
+    /// <summary>
+    /// Builds the dedup key for a rising count.
+    /// </summary>
     /// <param name="dedupKey">The event's DedupKey.</param>
     /// <param name="count">The count delivered to the recipient.</param>
     public static string For(string dedupKey, int count) =>

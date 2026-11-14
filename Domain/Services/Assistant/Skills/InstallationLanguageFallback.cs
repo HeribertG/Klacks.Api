@@ -16,6 +16,9 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills;
 
 internal static class InstallationLanguageFallback
 {
+    /// <summary>
+    /// Applies the installation language as fallback to a skill execution context.
+    /// </summary>
     /// <param name="context">Execution context as built by the calling path</param>
     /// <param name="serviceProvider">Scope the executor runs in; the resolver is scoped</param>
     /// <param name="cancellationToken">Cancels the settings read</param>

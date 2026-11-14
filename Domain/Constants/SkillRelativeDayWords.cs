@@ -215,12 +215,18 @@ public static class SkillRelativeDayWords
     public static IReadOnlyCollection<string> LanguagesWithOwnWords { get; } =
         OffsetByWordByLanguage.Keys.ToArray();
 
+    /// <summary>
+    /// Tells whether a value is a relative day word such as today, tomorrow or yesterday.
+    /// </summary>
     /// <param name="value">Raw parameter value as the user or the model wrote it</param>
     /// <param name="language">UI language of the calling user; null or a language Klacks ships no words
     /// for widens the lookup to every language, which is what the batch and scheduler paths need.</param>
     public static bool IsRelativeDayWord(string? value, string? language) =>
         TryResolveDayOffset(value, language, out _);
 
+    /// <summary>
+    /// Tries to resolve a relative day word to a day offset of 0, +1 or -1.
+    /// </summary>
     /// <param name="value">Raw parameter value as the user or the model wrote it</param>
     /// <param name="language">UI language of the calling user; the word is looked up in that language
     /// and in English only. Null or an unknown language falls back to all languages together.</param>

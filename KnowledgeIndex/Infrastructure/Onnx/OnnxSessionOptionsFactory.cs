@@ -60,6 +60,9 @@ public static class OnnxSessionOptionsFactory
     public static SessionOptions CreateEmbedding() =>
         CreateEmbedding(KnowledgeIndexConstants.DefaultOnnxAllowIntraOpSpinning);
 
+    /// <summary>
+    /// Creates the ONNX session options for the embedding model.
+    /// </summary>
     /// <param name="allowIntraOpSpinning">True lets intra-op workers busy-wait between nodes</param>
     public static SessionOptions CreateEmbedding(bool allowIntraOpSpinning)
     {
@@ -111,6 +114,9 @@ public static class OnnxSessionOptionsFactory
     public static SessionOptions CreateThroughput() =>
         CreateThroughput(KnowledgeIndexConstants.DefaultOnnxAllowIntraOpSpinning);
 
+    /// <summary>
+    /// Creates the ONNX session options tuned for throughput.
+    /// </summary>
     /// <param name="allowIntraOpSpinning">True lets intra-op workers busy-wait between nodes</param>
     public static SessionOptions CreateThroughput(bool allowIntraOpSpinning)
     {

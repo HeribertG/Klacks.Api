@@ -38,6 +38,9 @@ public sealed class BundleGroupFilterResolver
         _groupItemRepository = groupItemRepository;
     }
 
+    /// <summary>
+    /// Resolves the groups a bundle filter names (by ids and/or name) and refuses when none of them has services linked directly.
+    /// </summary>
     /// <param name="groupIdsRaw">Comma-separated group GUIDs, or null</param>
     /// <param name="groupName">Group name as the user said it, or null</param>
     public async Task<(List<Group>? Groups, string? Error)> ResolveAsync(

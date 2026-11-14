@@ -20,6 +20,9 @@ public static class SkillUtcDateTimeParser
 {
     public static bool TryParse(string? raw, out DateTime value) => TryParse(raw, null, out value);
 
+    /// <summary>
+    /// Tries to parse a date and time written by the user or the LLM as a UTC value.
+    /// </summary>
     /// <param name="raw">Value as the user or the LLM wrote it</param>
     /// <param name="language">UI language of the user the value came from; null keeps the default cultures</param>
     /// <param name="value">Parsed value with Kind=Utc and the written day and wall clock unchanged</param>

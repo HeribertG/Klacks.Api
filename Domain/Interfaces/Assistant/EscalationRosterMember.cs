@@ -2,6 +2,9 @@
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
+/// <summary>
+/// Member of the escalation roster with its absence state.
+/// </summary>
 /// <param name="UserId">AppUser.Id (text, no FK - see EscalationStage).</param>
 /// <param name="DisplayName">Resolved at read time.</param>
 /// <param name="IsCurrentlyAbsent">True when a UserAbsencePeriod covers today - shown unfiltered here

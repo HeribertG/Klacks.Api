@@ -6,6 +6,9 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IInternalTokenIssuer
 {
+    /// <summary>
+    /// Issues an internal token for the owner of background work.
+    /// </summary>
     /// <param name="ownerUserId">The account the background work runs under</param>
     /// <param name="capToRole">Optional ceiling: the token is issued with at most this role. Never
     /// raises a caller above their real roles.</param>
