@@ -51,6 +51,12 @@ public class FindToolsSkill : BaseSkillImplementation
             return SkillResult.Error("Describe at least one missing capability in 'needs', e.g. \"assign a contract\".");
         }
 
+        if (!_toolsetExtension.TryStartSearch(context.TurnId))
+        {
+            return SkillResult.Error(
+                "You already searched for tools in this answer. Do not search again; continue with the tools you have.");
+        }
+
         var agent = await _skillCacheService.GetDefaultAgentAsync(cancellationToken);
         if (agent == null)
         {

@@ -11712,7 +11712,7 @@
     {
       "name": "find_tools",
       "area": "klacksy",
-      "description": "Searches the tool catalogue for tools you are missing in this turn. Use it when part of the user's request needs an action none of your current tools can do, instead of leaving that part out or saying it is done. Pass short descriptions of the missing actions, e.g. \"assign a contract; add an employee to a group\". The found tools become available from your next step on, not in the same step.",
+      "description": "Only for a step none of your current tools can do: first check your tools; if one fits, use it and do not call this. Then pass short descriptions of the missing actions in one call, e.g. \"assign a contract; add an employee to a group\", instead of leaving that step out or saying it is done. The found tools become available from your next step on. At most two searches per answer.",
       "category": "System",
       "executionType": "Skill",
       "requiredPermissions": [],

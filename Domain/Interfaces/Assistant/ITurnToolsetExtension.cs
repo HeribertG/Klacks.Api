@@ -12,6 +12,13 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 public interface ITurnToolsetExtension
 {
     /// <summary>
+    /// Counts a search for the turn; false once the turn already ran ToolSearchConstants.MaxSearchesPerTurn searches.
+    /// A search for a new turn forgets the previous one.
+    /// </summary>
+    /// <param name="turnId">The turn the search runs in</param>
+    bool TryStartSearch(Guid? turnId);
+
+    /// <summary>
     /// Remembers the functions for the turn and returns the ones accepted: each name once per turn, and no more than
     /// ToolSearchConstants.MaxAddedToolsPerTurn names per turn. Offering for a new turn forgets the previous one.
     /// </summary>

@@ -19,18 +19,28 @@ public sealed class TurnToolsetExtension : ITurnToolsetExtension
     private readonly HashSet<string> _offeredNames = new(StringComparer.OrdinalIgnoreCase);
     private Guid? _turnId;
     private int _takenCount;
+    private int _searchCount;
+
+    public bool TryStartSearch(Guid? turnId)
+    {
+        lock (_gate)
+        {
+            StartOverForNewTurn(turnId);
+            if (_searchCount >= ToolSearchConstants.MaxSearchesPerTurn)
+            {
+                return false;
+            }
+
+            _searchCount++;
+            return true;
+        }
+    }
 
     public IReadOnlyList<LLMFunction> Offer(Guid? turnId, IReadOnlyList<LLMFunction> functions)
     {
         lock (_gate)
         {
-            if (_turnId != turnId)
-            {
-                _turnId = turnId;
-                _offered.Clear();
-                _offeredNames.Clear();
-                _takenCount = 0;
-            }
+            StartOverForNewTurn(turnId);
 
             var accepted = new List<LLMFunction>();
             foreach (var function in functions)
@@ -64,5 +74,19 @@ public sealed class TurnToolsetExtension : ITurnToolsetExtension
             _takenCount = _offered.Count;
             return pending;
         }
+    }
+
+    private void StartOverForNewTurn(Guid? turnId)
+    {
+        if (_turnId == turnId)
+        {
+            return;
+        }
+
+        _turnId = turnId;
+        _offered.Clear();
+        _offeredNames.Clear();
+        _takenCount = 0;
+        _searchCount = 0;
     }
 }
