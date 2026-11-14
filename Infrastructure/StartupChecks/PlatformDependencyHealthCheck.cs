@@ -58,9 +58,7 @@ public sealed class PlatformDependencyHealthCheck(IServiceScopeFactory scopeFact
         // assembly-context overload mirrors exactly how the application itself P/Invokes these libraries.
         results["onnx_runtime"] = TryLoadFromAssembly(OnnxNativeLibrary, typeof(InferenceSession).Assembly);
         results["tokenizers"] = TryLoadFromAssembly(TokenizersNativeLibrary, typeof(Tokenizer).Assembly);
-        results["ldap"] = IsLinux
-            ? TryLoadAndFree(string.Format(LdapLibraryPattern, "ldap"))
-            : true;
+        results["ldap"] = !IsLinux || TryLoadAndFree(string.Format(LdapLibraryPattern, "ldap"));
 
         return results;
     }

@@ -16,7 +16,7 @@ public class CalendarRuleFilterService : ICalendarRuleFilterService
 
     public IQueryable<CalendarRule> ApplyStateCountryFilter(IQueryable<CalendarRule> query, List<StateCountryToken> stateCountryTokens)
     {
-        var selectedTokens = stateCountryTokens.Where(x => x.Select == true).ToList();
+        var selectedTokens = stateCountryTokens.Where(x => x.Select).ToList();
 
         if (!selectedTokens.Any())
         {

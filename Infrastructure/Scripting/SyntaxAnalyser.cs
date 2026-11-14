@@ -7,7 +7,7 @@ namespace Klacks.Api.Infrastructure.Scripting
         private bool allowExternal;
         private Code? code;
         private InterpreterError? errorObject;
-        private LexicalAnalyser lex = new LexicalAnalyser();
+        private readonly LexicalAnalyser lex = new LexicalAnalyser();
         private bool optionExplicit;
         private Symbol sym = new();
         private Scopes? symboltable;

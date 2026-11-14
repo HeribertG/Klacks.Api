@@ -14,5 +14,5 @@ namespace Klacks.Api.Domain.Services.Shifts;
 public static class ShiftListViews
 {
     public static bool IsUnsealedDraftView(ShiftFilter filter)
-        => filter.FilterType == ShiftFilterType.Original && filter.IsSealedOrder == false;
+        => filter.FilterType == ShiftFilterType.Original && !filter.IsSealedOrder;
 }

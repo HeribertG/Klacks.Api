@@ -24,10 +24,10 @@ public static class GroupValidFromPropagation
         {
             Guid? node = groupId;
             var guard = byId.Count + 1;
-            while (node is { } id && byId.ContainsKey(id) && guard-- > 0)
+            while (node is { } id && byId.TryGetValue(id, out var current) && guard-- > 0)
             {
                 lowest[id] = lowest.TryGetValue(id, out var known) && known <= start ? known : start;
-                node = byId[id].Parent;
+                node = current.Parent;
             }
         }
 

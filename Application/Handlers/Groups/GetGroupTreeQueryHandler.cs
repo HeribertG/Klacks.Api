@@ -75,13 +75,12 @@ namespace Klacks.Api.Application.Handlers.Groups
                         node.ExternEmpsCount = externEmpCount;
                     }
 
-                    if (node.Parent == null || !nodeDict.ContainsKey(node.Parent.Value))
+                    if (node.Parent is not { } parentId || !nodeDict.TryGetValue(parentId, out var parent))
                     {
                         rootNodes.Add(node);
                     }
                     else
                     {
-                        var parent = nodeDict[node.Parent.Value];
                         parent.Children.Add(node);
                     }
                 }

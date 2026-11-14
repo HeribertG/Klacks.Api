@@ -176,7 +176,7 @@ public class ListExpiringContractsSkill : BaseSkillImplementation
             .ToDictionary(q => q.Id);
 
         return expiringLinks
-            .Where(q => clientsById.ContainsKey(q.ClientId) && IsRelevantEntityType(clientsById[q.ClientId].Type))
+            .Where(q => clientsById.TryGetValue(q.ClientId, out var relevantClient) && IsRelevantEntityType(relevantClient.Type))
             .Select(q =>
             {
                 var client = clientsById[q.ClientId];

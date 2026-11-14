@@ -119,13 +119,12 @@ namespace Klacks.Api.Infrastructure.Services.Groups
         {
             var filteredUserIds = list.Select(x => x.AppUserId).Distinct();
 
-            var userRoles = new Dictionary<string, IList<string>>();
             foreach (var userId in filteredUserIds)
             {
-                var user = await userManager.FindByIdAsync(userId);
-                if (user != null)
+                var appUser = await userManager.FindByIdAsync(userId);
+                if (appUser != null)
                 {
-                    var roles = await userManager.GetRolesAsync(user);
+                    var roles = await userManager.GetRolesAsync(appUser);
                     if (roles.Contains(Roles.Admin))
                     {
                         list = RemoveCurrentUserIfAdmin(userId, list);
@@ -143,11 +142,11 @@ namespace Klacks.Api.Infrastructure.Services.Groups
             var users = await context.AppUser.ToListAsync();
             var usersInAdminRole = await userManager.GetUsersInRoleAsync(Roles.Admin);
 
-            foreach (var user in users)
+            foreach (var appUser in users)
             {
-                if (usersInAdminRole.Contains(user))
+                if (usersInAdminRole.Contains(appUser))
                 {
-                    list.Add(user.Id);
+                    list.Add(appUser.Id);
                 }
             }
 

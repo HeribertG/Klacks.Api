@@ -13,7 +13,7 @@ namespace Klacks.Api.Domain.Common;
 [JsonConverter(typeof(MultiLanguageSystemTextJsonConverter))]
 public class MultiLanguage
 {
-    private Dictionary<string, string?> _values = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string?> _values = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// The languages Klacks ships itself, i.e. the ones no language plugin supplies. The single source

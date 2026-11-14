@@ -37,7 +37,7 @@ public sealed record PlanPausedForApprovalTriggerEvent(
         ["skill"] = SkillName
     };
 
-    public string DedupKey => PlanId.ToString() + ":" + StepIndex.ToString(CultureInfo.InvariantCulture);
+    public string DedupKey => PlanId + ":" + StepIndex.ToString(CultureInfo.InvariantCulture);
 
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {

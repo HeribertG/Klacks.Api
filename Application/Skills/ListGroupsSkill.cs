@@ -61,7 +61,7 @@ public class ListGroupsSkill : BaseSkillImplementation
         var futureDateRangeParam = GetParameter<bool?>(parameters, "futureDateRange");
 
         var validitySpecified = activeDateRangeParam.HasValue || formerDateRangeParam.HasValue || futureDateRangeParam.HasValue;
-        var activeDateRange = validitySpecified ? activeDateRangeParam ?? false : true;
+        var activeDateRange = !validitySpecified || (activeDateRangeParam ?? false);
         var formerDateRange = validitySpecified && (formerDateRangeParam ?? false);
         var futureDateRange = validitySpecified && (futureDateRangeParam ?? false);
         var includeAllValidity = activeDateRange && formerDateRange && futureDateRange;

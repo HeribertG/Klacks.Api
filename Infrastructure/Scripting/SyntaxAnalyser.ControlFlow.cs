@@ -203,7 +203,7 @@ namespace Klacks.Api.Infrastructure.Scripting
         {
             if (sym.Token == Symbol.Tokens.tokWhile || sym.Token == Symbol.Tokens.tokUntil)
             {
-                if (doWhile == true)
+                if (doWhile)
                     errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.DoStatement", "No 'WHILE'/'UNTIL' allowed after 'LOOP' in DO-WHILE-statement", sym.Line, sym.Col, sym.Index));
 
                 bool loopWhile = sym.Token == Symbol.Tokens.tokWhile;
@@ -212,7 +212,7 @@ namespace Klacks.Api.Infrastructure.Scripting
 
                 Condition();
 
-                code!.Add(loopWhile == true ? Opcodes.JumpTrue : Opcodes.JumpFalse, doPC);
+                code!.Add(loopWhile ? Opcodes.JumpTrue : Opcodes.JumpFalse, doPC);
 
                 code.Add(Opcodes.Pop);
 
@@ -221,7 +221,7 @@ namespace Klacks.Api.Infrastructure.Scripting
             }
 
             code!.Add(Opcodes.Jump, doPC);
-            if (doWhile == true)
+            if (doWhile)
                 code.FixUp(conditionPC - 1, code.EndOfCodePc);
 
             code.Add(Opcodes.Pop);

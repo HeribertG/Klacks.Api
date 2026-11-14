@@ -161,11 +161,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
                 {
                     var (start, end) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
-                    if (!clientPeriods.ContainsKey(work.ClientId))
-                    {
-                        clientPeriods[work.ClientId] = (start, end);
-                    }
-                    else
+                    if (!clientPeriods.TryAdd(work.ClientId, (start, end)))
                     {
                         var existing = clientPeriods[work.ClientId];
                         clientPeriods[work.ClientId] = (

@@ -246,11 +246,11 @@ public class LanguagePluginContentInstaller
                 if (!synonymMap.ContainsKey(skill.Name))
                     continue;
 
-                if (skill.Synonyms == null || !skill.Synonyms.ContainsKey(code))
+                if (skill.Synonyms == null || !skill.Synonyms.TryGetValue(code, out var synonymPack))
                     continue;
 
                 LanguagePackPhraseMirror.SetOrRemove(skill.Synonyms, code, await LanguagePackPhraseMirror.MergePackIntoMirrorAsync(
-                    phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, skill.Synonyms[code], []));
+                    phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, synonymPack, []));
                 await skillRepo.UpdateAsync(skill);
                 await LanguagePackPhraseMirror.ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, []);
                 count++;
@@ -330,11 +330,11 @@ public class LanguagePluginContentInstaller
                 if (!synonymMap.ContainsKey(recipe.Name))
                     continue;
 
-                if (recipe.Synonyms == null || !recipe.Synonyms.ContainsKey(code))
+                if (recipe.Synonyms == null || !recipe.Synonyms.TryGetValue(code, out var synonymPack))
                     continue;
 
                 LanguagePackPhraseMirror.SetOrRemove(recipe.Synonyms, code, await LanguagePackPhraseMirror.MergePackIntoMirrorAsync(
-                    phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, recipe.Synonyms[code], []));
+                    phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, synonymPack, []));
                 await recipeRepo.UpdateAsync(recipe);
                 await LanguagePackPhraseMirror.ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, []);
                 count++;

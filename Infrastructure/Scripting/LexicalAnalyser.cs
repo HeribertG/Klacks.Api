@@ -442,7 +442,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                     returnNumberSymbol = true;
                     break;
                 }
-            } while (source.Eof == false);
+            } while (!source.Eof);
 
             return new Tuple<bool, string>(returnNumberSymbol, symbolText);
         }
@@ -505,9 +505,9 @@ namespace Klacks.Api.Infrastructure.Scripting
                     default:
                         source.GoBack();
                         breakLoop = true;
-                        if (predefinedIdentifiers.ContainsKey(symbolText.ToUpper()))
+                        if (predefinedIdentifiers.TryGetValue(symbolText.ToUpper(), out var predefinedToken))
                         {
-                            nextSymbol.Init((Symbol.Tokens)predefinedIdentifiers[symbolText.ToUpper()], symbolText);
+                            nextSymbol.Init((Symbol.Tokens)predefinedToken, symbolText);
                         }
                         else
                         {

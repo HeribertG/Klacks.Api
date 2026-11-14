@@ -18,8 +18,8 @@ public class AntColonyOptimizer
     private const double MIN_IMPROVEMENT = 0.001;
     private const double MIN_VISIBILITY_DISTANCE = 0.001;
 
-    private double[,] _pheromones;
-    private int _cityCount;
+    private readonly double[,] _pheromones;
+    private readonly int _cityCount;
 
     public AntColonyOptimizer(DistanceMatrix distanceMatrix, ILogger logger)
     {
