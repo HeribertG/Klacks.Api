@@ -81,10 +81,14 @@ requires each ability to have been seen several times, and re-examines things ev
 
 ## Stage 3 — What the pairs change
 
-**Offering a companion ability.** When the assistant has picked what it needs for your request and
-has room left over, it may quietly add a companion from a settled "needed together" pair. It never
-displaces anything it had already chosen, adds at most a few, and now and then skips this on purpose
-so that what it learns next is not merely an echo of what it did before.
+**Offering related abilities.** When your message has several parts — two sentences, or one sentence
+with a comma or a similar mark — the last few places on the assistant's list of abilities are open to
+related ones: abilities linked to its best matches as needed together, one after the other, explaining
+or advising each other, or as see-also cross-references. A linked ability takes such a place only if it
+also fits your words; your words weigh most, the link tips the balance. A short single question keeps
+exactly the abilities that match its words. Now and then the assistant skips this on purpose, so that
+what it learns next is not merely an echo of what it did before. An administrator can set how many
+places are open, or switch it off with 0 (setting Assistant:SkillGraph:AssociationSlots, default 3).
 
 **Proposing the next step.** After an ability has been used successfully, a settled "one after the
 other" pair lets the assistant offer the usual follow-up. That proposal goes through the same

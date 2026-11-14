@@ -379,7 +379,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(provider => new Application.Services.Assistant.SkillGraph.SkillGraphExpansionOptions(
             provider.GetRequiredService<IConfiguration>().GetValue(
                 Application.Services.Assistant.SkillGraph.SkillGraphConstants.ExpansionExplorationEpsilonConfigKey,
-                Application.Services.Assistant.SkillGraph.SkillGraphConstants.ExpansionExplorationEpsilon)));
+                Application.Services.Assistant.SkillGraph.SkillGraphConstants.ExpansionExplorationEpsilon),
+            provider.GetRequiredService<IConfiguration>().GetValue(
+                Application.Services.Assistant.SkillGraph.SkillGraphConstants.AssociationSlotsConfigKey,
+                Application.Services.Assistant.SkillGraph.SkillGraphConstants.AssociationSlots)));
         services.AddScoped<ISkillRetrievalExpander, Application.Services.Assistant.SkillGraph.SkillRetrievalExpander>();
         services.AddScoped<ISkillSequenceSuggester, Application.Services.Assistant.SkillGraph.SkillSequenceSuggester>();
         services.AddScoped<ISkillSequenceProactiveNotifier, Application.Services.Assistant.SkillGraph.SkillSequenceProactiveNotifier>();

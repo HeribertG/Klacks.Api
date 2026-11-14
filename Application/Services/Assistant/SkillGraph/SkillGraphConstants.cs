@@ -36,8 +36,15 @@ public static class SkillGraphConstants
     public const double UserAcceptConfidenceBoost = 0.2;
     public const double UserDismissConfidencePenalty = 0.3;
 
-    // Phase 4 — acting (silent retrieval expansion)
-    public const int MaxExpansionSlots = 3;
+    // Phase 4 — acting (association): graph neighbours of the retrieved skills compete for the last AssociationSlots
+    // retrieval places, ranked by AssociationGraphWeight * (seed score * edge confidence) + (1 - weight) * own cosine.
+    // Simulated 2026-11-14 (multi-tool goldset, dense top-20 = 54/100): 3 slots 62, 2 slots 60, 5 slots 60, 10 slots 58;
+    // weight 0.2 beat 0.35 and 0.5. Both chosen on the same 25 tasks. IT harness, budget 30, behind SkillAssociationGate:
+    // multi-tool completeness 62 -> 66 of 100 (2 slots 65), every single-target set unchanged; without the gate 3 slots
+    // cost the plain holdout set 3 hits, because the cosines of retrieval ranks 18-40 lie within a hundredth.
+    public const int AssociationSlots = 3;
+    public const double AssociationGraphWeight = 0.2;
+    public const string AssociationSlotsConfigKey = "Assistant:SkillGraph:AssociationSlots";
     public const double ExpansionExplorationEpsilon = 0.1;
 
     // Overrides ExpansionExplorationEpsilon per installation. 0 switches the random skip off, which an evaluation or
