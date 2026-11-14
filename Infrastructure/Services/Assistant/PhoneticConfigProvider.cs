@@ -3,8 +3,10 @@
 /// <summary>
 /// Loads per-language phonetic configuration. Core languages (de/en/fr/it) come from
 /// the single Application/Klacksy/phonetics-core.json; plugin languages come from their
-/// own Plugins/Languages/{locale}/phonetics.json. Missing config falls back to a safe
-/// default. Mirrors the UtteranceNormalizer pack-loading pattern; results are cached.
+/// own Plugins/Languages/{locale}/phonetics.json. Missing config or a locale that is not a valid
+/// pack code falls back to a safe default; only configs read from an existing pack file are cached, and a
+/// config that failed to load is not remembered, so the next call retries.
+/// Mirrors the UtteranceNormalizer pack-loading pattern.
 /// </summary>
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
@@ -26,7 +28,7 @@ public sealed class PhoneticConfigProvider : IPhoneticConfigProvider
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     private readonly Dictionary<string, PhoneticConfig> _core;
-    private readonly ConcurrentDictionary<string, PhoneticConfig> _pluginCache = new();
+    private readonly ConcurrentDictionary<string, PhoneticConfig> _pluginCache = new(StringComparer.OrdinalIgnoreCase);
     private readonly string _pluginDirectory;
     private readonly ILogger<PhoneticConfigProvider> _logger;
 
@@ -45,51 +47,35 @@ public sealed class PhoneticConfigProvider : IPhoneticConfigProvider
             return _core.TryGetValue(lang, out var config) ? config : new PhoneticConfig();
         }
 
-        return _pluginCache.GetOrAdd(lang, LoadPlugin);
+        if (!LanguagePluginCode.IsValid(lang))
+        {
+            _logger.LogDebug("Skipping phonetic config for an invalid locale: {Locale}", LogSanitizer.ForLog(lang));
+            return new PhoneticConfig();
+        }
+
+        if (_pluginCache.TryGetValue(lang, out var cached))
+            return cached;
+
+        var path = Path.Combine(_pluginDirectory, lang, LanguagePluginConstants.PhoneticsFileName);
+        if (!File.Exists(path))
+            return new PhoneticConfig();
+
+        var loaded = LoadPlugin(path, lang);
+        return loaded == null ? new PhoneticConfig() : _pluginCache.GetOrAdd(lang, loaded);
     }
 
-    private PhoneticConfig LoadPlugin(string lang)
+    private PhoneticConfig? LoadPlugin(string path, string lang)
     {
         try
         {
-            if (!TryResolvePluginDirectory(lang, out var languageDirectory))
-            {
-                _logger.LogWarning("Skipping phonetic config for locale outside the plugin directory: {Locale}", LogSanitizer.ForLog(lang));
-                return new PhoneticConfig();
-            }
-
-            var path = Path.Combine(languageDirectory, LanguagePluginConstants.PhoneticsFileName);
-            if (!File.Exists(path))
-                return new PhoneticConfig();
-
             var json = File.ReadAllText(path);
             return JsonSerializer.Deserialize<PhoneticConfig>(json, JsonOptions) ?? new PhoneticConfig();
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Loading the phonetic config for locale {Locale} failed, using the default", LogSanitizer.ForLog(lang));
-            return new PhoneticConfig();
+            return null;
         }
-    }
-
-    private bool TryResolvePluginDirectory(string lang, out string languageDirectory)
-    {
-        languageDirectory = string.Empty;
-
-        if (string.IsNullOrEmpty(lang) || !string.Equals(Path.GetFileName(lang), lang, StringComparison.Ordinal))
-            return false;
-
-        var basePath = Path.GetFullPath(_pluginDirectory);
-        var baseWithSeparator = basePath.EndsWith(Path.DirectorySeparatorChar)
-            ? basePath
-            : basePath + Path.DirectorySeparatorChar;
-
-        var candidate = Path.GetFullPath(Path.Combine(basePath, lang));
-        if (!candidate.StartsWith(baseWithSeparator, StringComparison.Ordinal))
-            return false;
-
-        languageDirectory = candidate;
-        return true;
     }
 
     private static string Normalize(string? locale)

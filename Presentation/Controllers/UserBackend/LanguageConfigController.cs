@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.Constants;
@@ -24,9 +23,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
 [Route("api/config")]
 public class LanguageConfigController : ControllerBase
 {
-    private const string PluginCodePattern = "^[A-Za-z0-9_-]+$";
-
-    private static readonly Regex PluginCodeRegex = new(PluginCodePattern, RegexOptions.Compiled);
+    private const string ManifestCodeProperty = "code";
 
     private readonly IConfiguration _configuration;
     private readonly ILanguagePluginService _languagePluginService;
@@ -261,14 +258,28 @@ public class LanguageConfigController : ControllerBase
         }
 
         using var bundleDocument = jsonDoc;
-        Directory.CreateDirectory(packageDir);
-
         var root = bundleDocument.RootElement;
+        JsonElement manifest = default;
+        string? manifestCode = null;
+
+        var hasManifest = root.ValueKind == JsonValueKind.Object
+            && root.TryGetProperty(LanguagePluginConstants.StoreBundleManifestProperty, out manifest);
+        if (root.ValueKind != JsonValueKind.Object
+            || (hasManifest && !TryReadMatchingManifestCode(manifest, code, out manifestCode)))
+        {
+            _logger.LogWarning("Marketplace language package '{Code}' carries a manifest for a different code", code.ForLog());
+            return BadRequest("Language package manifest does not match the requested code");
+        }
+
+        if (hasManifest && !TryResolvePackageDir(manifestCode!, out packageDir))
+            return BadRequest("Invalid language code");
+
+        Directory.CreateDirectory(packageDir);
 
         var jsonWriteOptions = new JsonWriterOptions { Indented = true };
 
-        if (root.TryGetProperty("manifest", out var manifest))
-            await WriteJsonFileAsync(Path.Combine(packageDir, "manifest.json"), manifest, jsonWriteOptions);
+        if (hasManifest)
+            await WriteJsonFileAsync(Path.Combine(packageDir, LanguagePluginConstants.ManifestFileName), manifest, jsonWriteOptions);
 
         if (root.TryGetProperty("translations", out var translations))
             await WriteJsonFileAsync(Path.Combine(packageDir, "translations.json"), translations, jsonWriteOptions);
@@ -290,7 +301,7 @@ public class LanguageConfigController : ControllerBase
             foreach (var docProperty in docs.EnumerateObject())
             {
                 var docName = Path.GetFileName(docProperty.Name);
-                if (!PluginCodeRegex.IsMatch(docName))
+                if (!LanguagePluginCode.IsValid(docName))
                     continue;
 
                 var filePath = Path.Combine(docsDir, $"{docName}.html");
@@ -325,7 +336,7 @@ public class LanguageConfigController : ControllerBase
         if (!Directory.Exists(packageDir))
             return NotFound($"Plugin directory for '{code}' not found");
 
-        var manifestPath = Path.Combine(packageDir, "manifest.json");
+        var manifestPath = Path.Combine(packageDir, LanguagePluginConstants.ManifestFileName);
         if (!System.IO.File.Exists(manifestPath))
             return BadRequest("manifest.json not found in plugin directory");
 
@@ -378,15 +389,38 @@ public class LanguageConfigController : ControllerBase
         return Ok();
     }
 
+    private static bool TryReadMatchingManifestCode(JsonElement manifest, string requestedCode, out string? manifestCode)
+    {
+        manifestCode = null;
+        if (manifest.ValueKind != JsonValueKind.Object)
+            return false;
+
+        foreach (var property in manifest.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, ManifestCodeProperty, StringComparison.OrdinalIgnoreCase)
+                || property.Value.ValueKind != JsonValueKind.String)
+                continue;
+
+            var value = property.Value.GetString();
+            if (!string.Equals(value, requestedCode, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            manifestCode = value;
+            return true;
+        }
+
+        return false;
+    }
+
     private bool TryResolvePackageDir(string code, out string packageDir)
     {
         packageDir = string.Empty;
 
-        if (string.IsNullOrWhiteSpace(code) || !PluginCodeRegex.IsMatch(code))
+        if (!LanguagePluginCode.IsValid(code))
             return false;
 
         var safeCode = Path.GetFileName(code);
-        if (string.IsNullOrEmpty(safeCode) || !PluginCodeRegex.IsMatch(safeCode))
+        if (!LanguagePluginCode.IsValid(safeCode))
             return false;
 
         var pluginDir = LanguagePluginDirectoryResolver.Resolve(

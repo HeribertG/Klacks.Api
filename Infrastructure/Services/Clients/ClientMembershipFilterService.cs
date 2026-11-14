@@ -35,7 +35,7 @@ public class ClientMembershipFilterService : IClientMembershipFilterService
             return query.Where(co =>
                             co.Membership!.ValidFrom.Date <= nowDate &&
                             (!co.Membership.ValidUntil.HasValue ||
-                            (co.Membership.ValidUntil.HasValue && co.Membership.ValidUntil.Value.Date >= nowDate)
+                            co.Membership.ValidUntil.Value.Date >= nowDate
                             ));
         }
 

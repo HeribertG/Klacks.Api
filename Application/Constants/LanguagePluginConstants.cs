@@ -42,6 +42,7 @@ public static class LanguagePluginConstants
     public const string PhoneticsCoreFileName = "phonetics-core.json";
     public const string SettingPrefix = "INSTALLED_LANGUAGE_";
     public const string StoreBundleFilesProperty = "files";
+    public const string StoreBundleManifestProperty = "manifest";
 
     /// <summary>
     /// Pack files the store bundle carries under "files" (besides manifest, translations, docs, countries, states and

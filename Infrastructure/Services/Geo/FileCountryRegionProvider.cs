@@ -4,7 +4,8 @@
 /// File-backed <see cref="ICountryRegionProvider"/>: reads GeoData/Regions/{COUNTRY}.json (ISO alpha-2 name;
 /// alpha-3 input such as "USA" is normalised first) once per country and caches the state-code-to-region
 /// map for the process lifetime. Every region carries a stable key and its display name per language. A
-/// missing file means the country has no region level (two-level tree); a malformed file is a shipping
+/// country that is not two ASCII letters after normalisation is treated as unknown, so free text never reaches a
+/// file path. A missing file means the country has no region level (two-level tree); a malformed file is a shipping
 /// defect and fails loudly with the file name: invalid JSON, a region without key, a duplicate key, a
 /// region missing a core language name, a region without states, or a state listed in two regions.
 /// </summary>
@@ -20,6 +21,7 @@ namespace Klacks.Api.Infrastructure.Services.Geo;
 
 public sealed class FileCountryRegionProvider : ICountryRegionProvider
 {
+    private const int Alpha2Length = 2;
     private const string InvalidJsonMessageTemplate = "Country region file '{0}' is not valid JSON.";
     private const string NullDocumentMessageTemplate = "Country region file '{0}' is empty or contains no JSON object.";
     private const string RegionWithoutKeyMessageTemplate = "Country region file '{0}' contains a region without a key.";
@@ -53,8 +55,16 @@ public sealed class FileCountryRegionProvider : ICountryRegionProvider
         }
 
         var code = CountryCodeNormalizer.ToAlpha2(countryCode)!.ToUpperInvariant();
+        if (!IsAlpha2(code))
+        {
+            return Task.FromResult(Empty);
+        }
+
         return Task.FromResult(_cache.GetOrAdd(code, Load));
     }
+
+    private static bool IsAlpha2(string code) =>
+        code.Length == Alpha2Length && code.All(char.IsAsciiLetterUpper);
 
     private IReadOnlyDictionary<string, CountryRegion> Load(string countryCode)
     {

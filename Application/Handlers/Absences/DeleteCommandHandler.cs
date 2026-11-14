@@ -46,7 +46,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<A
             if (usages.Count > 0)
             {
                 throw new InvalidOperationException(
-                    $"Absence '{absence.Name}' is in use by: {string.Join(", ", usages)}. Remove these references first.");
+                    $"Absence '{absence.Name.GetValueOrFirstAvailable(null)}' is in use by: {string.Join(", ", usages)}. Remove these references first.");
             }
 
             var absenceResource = _settingsMapper.ToAbsenceResource(absence);

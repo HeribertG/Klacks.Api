@@ -21,6 +21,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Application.Services.Assistant;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
@@ -481,7 +482,10 @@ public class LanguagePluginService : ILanguagePluginService
         if (LanguagePluginConstants.CoreLanguages.Contains(code))
             return false;
 
-        code = ToManifestCode(code);
+        if (!_manifests.TryGetValue(code, out var manifest))
+            return false;
+
+        code = manifest.Code;
         var settingKey = LanguagePluginConstants.SettingPrefix + code.ToUpperInvariant();
 
         using var scope = _scopeFactory.CreateScope();
@@ -669,14 +673,28 @@ public class LanguagePluginService : ILanguagePluginService
                 if (manifest == null || string.IsNullOrWhiteSpace(manifest.Code))
                     continue;
 
+                if (!LanguagePluginCode.IsValid(manifest.Code))
+                {
+                    _logger.LogWarning("Language plugin manifest '{Path}' has an invalid code '{Code}', skipping", manifestPath.ForLog(), manifest.Code.ForLog());
+                    continue;
+                }
+
+                if (!string.Equals(Path.GetFileName(dir), manifest.Code, StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogWarning(
+                        "Language plugin manifest '{Path}' declares code '{Code}', which differs from its directory name, skipping",
+                        manifestPath.ForLog(), manifest.Code.ForLog());
+                    continue;
+                }
+
                 if (LanguagePluginConstants.CoreLanguages.Contains(manifest.Code))
                 {
-                    _logger.LogWarning("Language plugin '{Code}' conflicts with core language, skipping", manifest.Code);
+                    _logger.LogWarning("Language plugin '{Code}' conflicts with core language, skipping", manifest.Code.ForLog());
                     continue;
                 }
 
                 _manifests[manifest.Code] = manifest;
-                _logger.LogDebug("Discovered language plugin: {Code} ({DisplayName})", manifest.Code, manifest.DisplayName);
+                _logger.LogDebug("Discovered language plugin: {Code} ({DisplayName})", manifest.Code.ForLog(), manifest.DisplayName.ForLog());
             }
             catch (Exception ex)
             {

@@ -9,7 +9,6 @@
 
 using System.Collections.Concurrent;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Plugins;
 using Klacks.Api.Application.Interfaces;
@@ -17,6 +16,7 @@ using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Application.Services.Assistant;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
@@ -39,10 +39,7 @@ public class FeaturePluginService : IFeaturePluginService
     private readonly object _enabledLock = new();
     private bool _initialized;
 
-    private const string LanguageCodePattern = "^[A-Za-z0-9_-]+$";
     private const string NavigateToSkillName = Domain.Constants.SkillNames.NavigateTo;
-
-    private static readonly Regex LanguageCodeRegex = new(LanguageCodePattern, RegexOptions.Compiled);
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -356,11 +353,11 @@ public class FeaturePluginService : IFeaturePluginService
 
     public Dictionary<string, string>? GetTranslations(string lang)
     {
-        if (string.IsNullOrWhiteSpace(lang) || !LanguageCodeRegex.IsMatch(lang))
+        if (!LanguagePluginCode.IsValid(lang))
             return null;
 
         var safeLang = Path.GetFileName(lang);
-        if (string.IsNullOrEmpty(safeLang) || !LanguageCodeRegex.IsMatch(safeLang))
+        if (!LanguagePluginCode.IsValid(safeLang))
             return null;
 
         var merged = new Dictionary<string, string>();

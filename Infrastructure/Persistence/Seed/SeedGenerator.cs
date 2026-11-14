@@ -263,7 +263,7 @@ namespace Klacks.Api.Data.Seed
             var communications = new List<Communication>();
             var commCount = Random.Shared.Next(1, 4); // 1-3 communications per client
 
-            var subjects = SeedNamesAndDescriptions.CommunicationDescriptions;
+            var descriptions = SeedNamesAndDescriptions.CommunicationDescriptions;
 
             for (int i = 0; i < commCount; i++)
             {
@@ -275,7 +275,7 @@ namespace Klacks.Api.Data.Seed
                         Type = (CommunicationTypeEnum)Random.Shared.Next(0, 3),
                         Value = GenerateRandomNumber(),
                         Prefix = "+41",
-                        Description = "SomeDescription",
+                        Description = descriptions[Random.Shared.Next(descriptions.Count)],
                         IsDeleted = false,
                         CreateTime = DateTime.UtcNow,
                         CurrentUserCreated = user
@@ -289,7 +289,7 @@ namespace Klacks.Api.Data.Seed
                         ClientId = clientId,
                         Type = (CommunicationTypeEnum)Random.Shared.Next(4, 5),
                         Value = GenerateRandomEmail(),
-                        Description = "SomeDescription",
+                        Description = descriptions[Random.Shared.Next(descriptions.Count)],
                         IsDeleted = false,
                         CreateTime = DateTime.UtcNow,
                         CurrentUserCreated = user

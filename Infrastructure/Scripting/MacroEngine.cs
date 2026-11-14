@@ -9,7 +9,7 @@ public class MacroEngine : IDisposable, IMacroEngine
 {
     private CompiledScript? compiledScript;
     private ScriptExecutionContext? context;
-    private List<string> importList = new();
+    private readonly List<string> importList = new();
     private readonly List<ResultMessage> result = new();
     private readonly ILogger<MacroEngine> _logger;
 

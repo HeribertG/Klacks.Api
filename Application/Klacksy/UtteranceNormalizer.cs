@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Klacks.Api.Application.Klacksy.Models;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Common;
 
 /// <summary>
 /// Normalizes user utterances before matching: lowercases, strips wake-word salutations,
@@ -29,7 +30,7 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
     private readonly WakeWordConfig _config;
     private readonly IReadOnlyDictionary<string, string[]> _prefixesByLocale;
     private readonly IReadOnlyDictionary<string, string[]> _articlesByLocale;
-    private readonly ConcurrentDictionary<string, PluginLocaleConfig> _pluginCache = new();
+    private readonly ConcurrentDictionary<string, PluginLocaleConfig> _pluginCache = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly string _pluginDirectory;
 
@@ -147,28 +148,46 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
         if (LanguagePluginConstants.CoreLanguages.Contains(locale))
             return PluginLocaleConfig.Empty;
 
-        return _pluginCache.GetOrAdd(locale, loc =>
+        if (!LanguagePluginCode.IsValid(locale))
+            return PluginLocaleConfig.Empty;
+
+        if (_pluginCache.TryGetValue(locale, out var cached))
+            return cached;
+
+        var file = Path.Combine(_pluginDirectory, locale, LanguagePluginConstants.WakeWordsFileName);
+        if (!File.Exists(file))
+            return PluginLocaleConfig.Empty;
+
+        var loaded = LoadPluginLocaleConfig(file);
+        return loaded == null ? PluginLocaleConfig.Empty : _pluginCache.GetOrAdd(locale, loaded);
+    }
+
+    private static PluginLocaleConfig? LoadPluginLocaleConfig(string file)
+    {
+        try
         {
-            var file = Path.Combine(_pluginDirectory, loc, "wake-words.json");
-            if (!File.Exists(file))
+            var json = File.ReadAllText(file);
+            var data = JsonSerializer.Deserialize<PluginWakeWords>(json, JsonOptions);
+            if (data == null)
                 return PluginLocaleConfig.Empty;
-            try
-            {
-                var json = File.ReadAllText(file);
-                var data = JsonSerializer.Deserialize<PluginWakeWords>(json, JsonOptions);
-                if (data == null)
-                    return PluginLocaleConfig.Empty;
-                return new PluginLocaleConfig(
-                    data.Salutations,
-                    data.FillerWords,
-                    data.CommandPrefixes.OrderByDescending(p => p.Length).ToArray(),
-                    data.CommandSuffixes.OrderByDescending(p => p.Length).ToArray());
-            }
-            catch
-            {
-                return PluginLocaleConfig.Empty;
-            }
-        });
+            return new PluginLocaleConfig(
+                data.Salutations ?? [],
+                data.FillerWords ?? [],
+                (data.CommandPrefixes ?? []).OrderByDescending(p => p.Length).ToArray(),
+                (data.CommandSuffixes ?? []).OrderByDescending(p => p.Length).ToArray());
+        }
+        catch (IOException)
+        {
+            return null;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return null;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     private sealed record PluginLocaleConfig(string[] Salutations, string[] FillerWords, string[] CommandPrefixes, string[] CommandSuffixes)
