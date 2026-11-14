@@ -33,10 +33,11 @@ internal sealed class ProviderStreamReader
     internal ProviderStreamReader(ILogger logger)
     {
         _logger = logger;
+        Accumulator = new StreamAccumulator(logger);
     }
 
     /// <summary>Content and tool-call deltas of the finished call.</summary>
-    internal StreamAccumulator Accumulator { get; private set; } = new();
+    internal StreamAccumulator Accumulator { get; private set; }
 
     /// <summary>True when the provider signalled that its tool-call deltas are complete.</summary>
     internal bool HasToolEnd { get; private set; }
@@ -69,7 +70,7 @@ internal sealed class ProviderStreamReader
 
         while (true)
         {
-            Accumulator = new StreamAccumulator();
+            Accumulator = new StreamAccumulator(_logger);
             HasToolEnd = false;
             string? streamErrorMessage = null;
             var contentEmitted = false;

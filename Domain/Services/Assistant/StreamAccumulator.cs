@@ -4,10 +4,12 @@
 /// Accumulates streaming tokens and tool call deltas from LLM provider responses.
 /// @param _contentBuffer - Accumulated text content
 /// @param _toolCalls - Dictionary of tool call index to accumulated name + arguments
+/// @param _logger - Optional logger that reports tool arguments which are not valid JSON
 /// </summary>
 
 using System.Text;
 using System.Text.Json;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
 namespace Klacks.Api.Domain.Services.Assistant;
@@ -17,6 +19,12 @@ public class StreamAccumulator
     private readonly StringBuilder _contentBuffer = new();
     private readonly Dictionary<int, (StringBuilder Name, StringBuilder Arguments)> _toolCalls = new();
     private readonly List<LLMFunctionCall> _finalizedCalls = new();
+    private readonly ILogger? _logger;
+
+    public StreamAccumulator(ILogger? logger = null)
+    {
+        _logger = logger;
+    }
 
     public string AccumulatedContent => _contentBuffer.ToString();
     public IReadOnlyList<LLMFunctionCall> FunctionCalls => _finalizedCalls;
@@ -87,8 +95,11 @@ public class StreamAccumulator
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
                       ?? new Dictionary<string, object>();
             }
-            catch
+            catch (JsonException)
             {
+                _logger?.LogWarning(
+                    "Tool call {FunctionName} carried arguments that are not valid JSON (length {ArgumentsLength}); empty parameters are used",
+                    functionName.ForLog(), argsString.LengthForLog());
                 parameters = new Dictionary<string, object>();
             }
 

@@ -247,8 +247,9 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning("{Provider} API key validation failed with {ExceptionType}", GetType().Name, ex.GetType().Name);
             return false;
         }
     }

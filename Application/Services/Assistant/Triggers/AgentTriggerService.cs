@@ -290,6 +290,10 @@ public class AgentTriggerService : IAgentTriggerService
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            _logger.LogWarning(
+                ex,
+                "Duplicate lookup for trigger {Kind} and user {UserId} failed; the original persistence failure is reported",
+                variantEvent.Kind, userId);
             return false;
         }
     }

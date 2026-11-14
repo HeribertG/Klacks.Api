@@ -12,6 +12,7 @@
 /// <param name="stateResolver">Resolves state abbreviations from geocoding results</param>
 /// <param name="countryResolver">Resolves the country name used for geocoding</param>
 /// <param name="addressRepository">Loads the stored address to detect whether it changed</param>
+/// <param name="logger">Passed to the address geocoding check</param>
 
 using FluentValidation;
 using Klacks.Api.Application.Commands.Clients;
@@ -37,7 +38,8 @@ public class ConvertStandInCommandValidator : AbstractValidator<ConvertStandInCo
         IGeocodingService geocodingService,
         StateAbbreviationResolver stateResolver,
         ICountryResolver countryResolver,
-        IAddressRepository addressRepository)
+        IAddressRepository addressRepository,
+        ILogger<AddressGeocodingValidator> logger)
     {
         RuleFor(x => x.Resource.TargetType)
             .Must(type => ClientTypeRules.CanConvert(EntityTypeEnum.StandIn, (EntityTypeEnum)type))
@@ -75,7 +77,7 @@ public class ConvertStandInCommandValidator : AbstractValidator<ConvertStandInCo
                 .WithMessage(ClientAddressTypeRules.NotAllowedMessage);
 
             RuleFor(x => (ICollection<AddressResource>)new List<AddressResource> { x.Resource.Address! })
-                .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver, countryResolver, addressRepository))
+                .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver, countryResolver, addressRepository, logger))
                 .OverridePropertyName("Resource.Address");
         });
     }

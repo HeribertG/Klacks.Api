@@ -253,7 +253,7 @@ public class AnthropicProvider : ILLMProvider
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         using var reader = new StreamReader(stream);
 
-        var accumulator = new StreamEventAccumulator(options);
+        var accumulator = new StreamEventAccumulator(options, _logger);
 
         while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
         {
@@ -373,8 +373,9 @@ public class AnthropicProvider : ILLMProvider
             var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.PaymentRequired;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning("{Provider} API key validation failed with {ExceptionType}", GetType().Name, ex.GetType().Name);
             return false;
         }
     }
@@ -679,15 +680,18 @@ public class AnthropicProvider : ILLMProvider
     /// first-seen order. Blank and malformed data lines are skipped; the first data line of message_stop ends reading.
     /// </summary>
     /// <param name="options">Serializer options for the events and the emitted tool-call tokens</param>
+    /// <param name="logger">Logger that reports skipped malformed events</param>
     private sealed class StreamEventAccumulator
     {
         private readonly JsonSerializerOptions _options;
+        private readonly ILogger _logger;
         private readonly Dictionary<int, (string Name, StringBuilder Json)> _toolJsonAccumulators = new();
         private string? _currentEventType;
 
-        public StreamEventAccumulator(JsonSerializerOptions options)
+        public StreamEventAccumulator(JsonSerializerOptions options, ILogger logger)
         {
             _options = options;
+            _logger = logger;
         }
 
         public bool HasToolCalls { get; private set; }
@@ -723,8 +727,9 @@ public class AnthropicProvider : ILLMProvider
             {
                 evt = JsonSerializer.Deserialize<AnthropicStreamEvent>(data, _options);
             }
-            catch
+            catch (JsonException)
             {
+                _logger.LogDebug("Anthropic skipped a stream event that is not valid JSON");
                 return (false, null);
             }
 

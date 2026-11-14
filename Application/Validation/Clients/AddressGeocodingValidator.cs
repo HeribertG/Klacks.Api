@@ -11,6 +11,7 @@
 /// <param name="stateResolver">Resolves state abbreviations from geocoding results</param>
 /// <param name="countryResolver">Resolves the country name used for geocoding</param>
 /// <param name="addressRepository">Loads the stored address to detect whether it changed</param>
+/// <param name="logger">Reports a geocoding failure that was let through</param>
 
 using FluentValidation;
 using Klacks.Api.Application.DTOs.Staffs;
@@ -28,17 +29,20 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
     private readonly StateAbbreviationResolver _stateResolver;
     private readonly ICountryResolver _countryResolver;
     private readonly IAddressRepository _addressRepository;
+    private readonly ILogger<AddressGeocodingValidator> _logger;
 
     public AddressGeocodingValidator(
         IGeocodingService geocodingService,
         StateAbbreviationResolver stateResolver,
         ICountryResolver countryResolver,
-        IAddressRepository addressRepository)
+        IAddressRepository addressRepository,
+        ILogger<AddressGeocodingValidator> logger)
     {
         _geocodingService = geocodingService;
         _stateResolver = stateResolver;
         _countryResolver = countryResolver;
         _addressRepository = addressRepository;
+        _logger = logger;
 
         RuleForEach(addresses => addresses)
             .MustAsync(ValidateAndGeocodeAsync)
@@ -98,8 +102,9 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
 
             return false;
         }
-        catch
+        catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
+            _logger.LogWarning(ex, "Address geocoding check failed; the address is accepted without coordinates");
             return true;
         }
     }

@@ -238,8 +238,9 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
             {
                 chunk = JsonSerializer.Deserialize<OpenAIStreamChunk>(rawJson, GetJsonSerializerOptions());
             }
-            catch
+            catch (JsonException)
             {
+                _logger.LogDebug("{Provider} skipped a stream chunk that is not valid JSON", ProviderName);
                 continue;
             }
 
@@ -300,8 +301,9 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
             var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning("{Provider} API key validation failed with {ExceptionType}", GetType().Name, ex.GetType().Name);
             return false;
         }
     }

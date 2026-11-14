@@ -12,12 +12,12 @@ namespace Klacks.Api.Application.Validation.Clients;
 
 public class PostCommandValidator : AbstractValidator<PostCommand<ClientResource>>
 {
-    public PostCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver, IAddressRepository addressRepository, IClientRepository clientRepository)
+    public PostCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver, IAddressRepository addressRepository, IClientRepository clientRepository, ILogger<AddressGeocodingValidator> logger)
     {
         When(x => !x.Resource.SkipAddressValidation, () =>
         {
             RuleFor(x => x.Resource.Addresses)
-                .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver, countryResolver, addressRepository));
+                .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver, countryResolver, addressRepository, logger));
         });
 
         RuleFor(x => x.Resource)

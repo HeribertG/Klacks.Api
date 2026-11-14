@@ -18,6 +18,7 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -31,17 +32,20 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
     private readonly IAgentRepository _agentRepository;
     private readonly ISkillPhraseRepository _skillPhraseRepository;
     private readonly ISkillCatalogRefresher _skillCatalogRefresher;
+    private readonly ILogger<CreateAgentSkillSkill> _logger;
 
     public CreateAgentSkillSkill(
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
         ISkillPhraseRepository skillPhraseRepository,
-        ISkillCatalogRefresher skillCatalogRefresher)
+        ISkillCatalogRefresher skillCatalogRefresher,
+        ILogger<CreateAgentSkillSkill> logger)
     {
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
         _skillPhraseRepository = skillPhraseRepository;
         _skillCatalogRefresher = skillCatalogRefresher;
+        _logger = logger;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -180,15 +184,16 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
         return name.All(c => char.IsLetterOrDigit(c) || c == '_');
     }
 
-    private static string BuildHandlerConfig(string handlerSteps)
+    private string BuildHandlerConfig(string handlerSteps)
     {
         try
         {
             using var doc = JsonDocument.Parse(handlerSteps);
             return JsonSerializer.Serialize(new { steps = doc.RootElement });
         }
-        catch
+        catch (JsonException)
         {
+            _logger.LogWarning("Handler steps are not valid JSON (length {HandlerStepsLength}); they are stored unparsed", handlerSteps.LengthForLog());
             return $"{{\"steps\":{handlerSteps}}}";
         }
     }

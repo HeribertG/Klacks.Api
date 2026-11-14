@@ -65,8 +65,9 @@ public class AzureOpenAIProvider : BaseOpenAICompatibleProvider
             var response = await testClient.GetAsync($"openai/deployments?api-version={_apiVersion}");
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning("{Provider} API key validation failed with {ExceptionType}", GetType().Name, ex.GetType().Name);
             return false;
         }
     }

@@ -1,7 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-using System.Diagnostics;
-
 namespace Klacks.Api.Infrastructure.Scripting;
 
 public class Scopes
@@ -98,21 +96,14 @@ public class Scopes
 
     private Identifier? GetVariable(string name)
     {
-        try
+        for (var i = _scopes.Count - 1; i >= 0; i--)
         {
-            for (var i = _scopes.Count - 1; i >= 0; i--)
+            var s = _scopes[i];
+            var x = s.GetVariable(name);
+            if (x != null)
             {
-                var s = _scopes[i];
-                var x = s.GetVariable(name);
-                if (x != null)
-                {
-                    return x;
-                }
+                return x;
             }
-        }
-        catch (Exception ex)
-        {
-            Debug.Print("Scopes.GetVariable: " + ex.Message);
         }
 
         return null;

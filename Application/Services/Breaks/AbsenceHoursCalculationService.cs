@@ -47,6 +47,7 @@ public sealed class AbsenceHoursCalculationService : IAbsenceHoursCalculationSer
     private readonly IMacroCompilationService _macroCompilationService;
     private readonly IMacroManagementService _macroManagementService;
     private readonly IMonthlyTargetHoursRepository _monthlyTargetHoursRepository;
+    private readonly ILogger<AbsenceHoursCalculationService> _logger;
 
     public AbsenceHoursCalculationService(
         IEmployeeContractFactsLoader facts,
@@ -56,7 +57,8 @@ public sealed class AbsenceHoursCalculationService : IAbsenceHoursCalculationSer
         IMacroDataProvider macroDataProvider,
         IMacroCompilationService macroCompilationService,
         IMacroManagementService macroManagementService,
-        IMonthlyTargetHoursRepository monthlyTargetHoursRepository)
+        IMonthlyTargetHoursRepository monthlyTargetHoursRepository,
+        ILogger<AbsenceHoursCalculationService> logger)
     {
         _facts = facts;
         _absenceRepository = absenceRepository;
@@ -66,6 +68,7 @@ public sealed class AbsenceHoursCalculationService : IAbsenceHoursCalculationSer
         _macroCompilationService = macroCompilationService;
         _macroManagementService = macroManagementService;
         _monthlyTargetHoursRepository = monthlyTargetHoursRepository;
+        _logger = logger;
     }
 
     public async Task<(Absence? Absence, string? Error)> ResolveAbsenceAsync(
@@ -180,6 +183,7 @@ public sealed class AbsenceHoursCalculationService : IAbsenceHoursCalculationSer
         }
         catch (Exception exception) when (exception is InvalidOperationException or KeyNotFoundException)
         {
+            _logger.LogWarning(exception, "Absence hours macro {MacroId} could not be executed; reported as not executed", macroId);
             return null;
         }
     }
@@ -193,6 +197,7 @@ public sealed class AbsenceHoursCalculationService : IAbsenceHoursCalculationSer
         }
         catch (Exception exception) when (exception is InvalidOperationException or KeyNotFoundException)
         {
+            _logger.LogWarning(exception, "Absence hours macro {MacroId} could not be loaded; its name is left out", macroId);
             return null;
         }
     }

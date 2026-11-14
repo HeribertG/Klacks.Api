@@ -18,6 +18,7 @@ namespace Klacks.Api.Application.Validation.Clients;
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the caller can see the client being updated</param>
 /// <param name="groupVisibilityGuard">Decides whether the caller can see the group of a membership</param>
+/// <param name="logger">Passed to the address geocoding check</param>
 public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
 {
     public PutCommandValidator(
@@ -28,12 +29,13 @@ public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
         IShiftRepository shiftRepository,
         IClientRepository clientRepository,
         IClientVisibilityGuard clientVisibilityGuard,
-        IGroupVisibilityGuard groupVisibilityGuard)
+        IGroupVisibilityGuard groupVisibilityGuard,
+        ILogger<AddressGeocodingValidator> logger)
     {
         When(x => !x.Resource.SkipAddressValidation, () =>
         {
             RuleFor(x => x.Resource.Addresses)
-                .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver, countryResolver, addressRepository));
+                .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver, countryResolver, addressRepository, logger));
         });
 
         RuleFor(x => x.Resource)

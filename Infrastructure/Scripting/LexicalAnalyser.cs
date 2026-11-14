@@ -6,7 +6,6 @@
 /// <param name="predefinedIdentifiers">Static dictionary with keywords and their token mappings</param>
 /// </summary>
 
-using System.Diagnostics;
 using static Klacks.Api.Infrastructure.Scripting.InterpreterError;
 
 namespace Klacks.Api.Infrastructure.Scripting
@@ -35,17 +34,10 @@ namespace Klacks.Api.Infrastructure.Scripting
         {
             set
             {
-                try
+                if (source != null)
                 {
-                    if (source != null)
-                    {
-                        errorObject = value;
-                        source.ErrorObject = errorObject;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.Print("LexicalAnalyser.ErrorObject " + ex.Message);
+                    errorObject = value;
+                    source.ErrorObject = errorObject;
                 }
             }
         }
