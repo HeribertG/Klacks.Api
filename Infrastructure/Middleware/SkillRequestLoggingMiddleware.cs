@@ -45,7 +45,7 @@ public sealed class SkillRequestLoggingMiddleware
 
         _logger.LogInformation(
             "Assistant request: {Method} {Path} -> {StatusCode} (skill {SkillName}, conversation {CorrelationId}, user {UserId}, origin {Origin})",
-            context.Request.Method,
+            context.Request.Method.ForLog(),
             context.Request.Path.ToString().ForLog(),
             context.Response.StatusCode,
             skillName.ToString().ForLog(),

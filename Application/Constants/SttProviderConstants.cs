@@ -39,4 +39,7 @@ public static class SttProviderConstants
     public const string ErrorCodeUnsupportedLanguage = SttErrorCodes.UnsupportedLanguage;
     public const string SttErrorProperty = "error";
     public const string SttErrorCodeProperty = "code";
+
+    public const string TestConnectionFailedMessage = "The speech recognition connection test failed. See the server log for details.";
+    public const string TranscriptionFailedMessage = "The speech transcription failed. See the server log for details.";
 }

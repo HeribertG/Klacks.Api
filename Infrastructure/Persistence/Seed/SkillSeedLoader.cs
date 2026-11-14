@@ -21,6 +21,7 @@ using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence.Seed.Models;
@@ -76,7 +77,7 @@ public class SkillSeedLoader
 
         if (!File.Exists(filePath))
         {
-            _logger.LogInformation("Skill seed file not found at {FilePath}. Skipping.", filePath);
+            _logger.LogInformation("Skill seed file not found at {FilePath}. Skipping.", filePath.ForLog());
             return;
         }
 
@@ -89,7 +90,7 @@ public class SkillSeedLoader
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to read or deserialize skill seed file at {FilePath}.", filePath);
+            _logger.LogError(ex, "Failed to read or deserialize skill seed file at {FilePath}.", filePath.ForLog());
             return;
         }
 
@@ -240,7 +241,7 @@ public class SkillSeedLoader
 
         _logger.LogInformation(
             "Plugin '{Plugin}' skills set to enabled={IsEnabled}: {Changed} changed",
-            pluginName, isEnabled, changed);
+            pluginName.ForLog(), isEnabled, changed);
 
         return changed;
     }
@@ -284,11 +285,11 @@ public class SkillSeedLoader
 
             _logger.LogInformation(
                 "Plugin '{Plugin}' skill seed: {Inserted} inserted, {Updated} updated",
-                pluginName, inserted, updated);
+                pluginName.ForLog(), inserted, updated);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to load skill seeds for plugin '{Plugin}'", pluginName);
+            _logger.LogError(ex, "Failed to load skill seeds for plugin '{Plugin}'", pluginName.ForLog());
         }
     }
 
@@ -364,7 +365,7 @@ public class SkillSeedLoader
             "Feature plugin list is empty although {SeedFileCount} plugin skill seed file(s) exist under {PluginRoot}. " +
             "Plugin skill seeds were skipped — feature plugin initialization may not have run before skill seeding.",
             seedFileCount,
-            pluginRoot);
+            pluginRoot.ForLog());
     }
 
     private async Task<Agent> EnsureDefaultAgentAsync(CancellationToken cancellationToken)
@@ -383,7 +384,7 @@ public class SkillSeedLoader
         };
 
         await _agentRepository.AddAsync(agent, cancellationToken);
-        _logger.LogInformation("Created default agent: {AgentName} ({AgentId})", agent.Name, agent.Id);
+        _logger.LogInformation("Created default agent: {AgentName} ({AgentId})", agent.Name.ForLog(), agent.Id);
         return agent;
     }
 

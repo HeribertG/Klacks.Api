@@ -95,7 +95,8 @@ public class SttController : ControllerBase
             }
             catch (Exception ex)
             {
-                return Ok(new SttTestResult(false, ex.Message));
+                LogTestFailure(request.ProviderId, ex);
+                return Ok(new SttTestResult(false, SttProviderConstants.TestConnectionFailedMessage));
             }
         }
 
@@ -115,7 +116,8 @@ public class SttController : ControllerBase
         }
         catch (Exception ex)
         {
-            return Ok(new SttTestResult(false, ex.Message));
+            LogTestFailure(request.ProviderId, ex);
+            return Ok(new SttTestResult(false, SttProviderConstants.TestConnectionFailedMessage));
         }
     }
 
@@ -228,8 +230,11 @@ public class SttController : ControllerBase
             }
             catch (Exception ex) when (ex is NotSupportedException or InvalidOperationException or HttpRequestException)
             {
-                _logger.LogError(ex, "Custom STT transcription failed");
-                return BadRequest(new { error = ex.Message });
+                _logger.LogError(
+                    "Custom STT transcription failed: {ExceptionType}, upstream status {StatusCode}",
+                    ex.GetType().Name,
+                    ResolveUpstreamStatusCode(ex));
+                return BadRequest(new { error = SttProviderConstants.TranscriptionFailedMessage });
             }
         }
 
@@ -265,6 +270,18 @@ public class SttController : ControllerBase
         await Request.Body.CopyToAsync(ms, ct);
         return ms.ToArray();
     }
+
+    private void LogTestFailure(string providerId, Exception ex)
+    {
+        _logger.LogWarning(
+            "STT connection test for provider {ProviderId} failed: {ExceptionType}, upstream status {StatusCode}",
+            providerId.ForLog(),
+            ex.GetType().Name,
+            ResolveUpstreamStatusCode(ex));
+    }
+
+    private static int? ResolveUpstreamStatusCode(Exception ex)
+        => (ex as HttpRequestException)?.StatusCode is { } statusCode ? (int)statusCode : null;
 
     private ObjectResult AudioTooLargeResult()
         => StatusCode(StatusCodes.Status413PayloadTooLarge, new { error = SttUploadConstants.AudioTooLargeMessage });

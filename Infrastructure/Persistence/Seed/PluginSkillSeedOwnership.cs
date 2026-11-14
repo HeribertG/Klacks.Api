@@ -10,6 +10,7 @@
 /// unreadable core seed file lets no plugin definition through.
 /// </summary>
 using System.Text.Json;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Plugins;
 using Klacks.Api.Infrastructure.Persistence.Seed.Models;
 
@@ -46,8 +47,8 @@ public static class PluginSkillSeedOwnership
             {
                 logger.LogWarning(
                     "Plugin '{Plugin}' skill seed '{Skill}' skipped: the name belongs to a core skill",
-                    pluginName,
-                    definition.Name);
+                    pluginName.ForLog(),
+                    definition.Name.ForLog());
                 continue;
             }
 
@@ -55,8 +56,8 @@ public static class PluginSkillSeedOwnership
             {
                 logger.LogWarning(
                     "Plugin '{Plugin}' skill seed '{Skill}' skipped: not listed in the manifest's providedSkills",
-                    pluginName,
-                    definition.Name);
+                    pluginName.ForLog(),
+                    definition.Name.ForLog());
                 continue;
             }
 
@@ -71,7 +72,7 @@ public static class PluginSkillSeedOwnership
     {
         if (!File.Exists(manifestPath))
         {
-            logger.LogWarning("Plugin manifest {ManifestPath} not found; no plugin skill seeds are applied", manifestPath);
+            logger.LogWarning("Plugin manifest {ManifestPath} not found; no plugin skill seeds are applied", manifestPath.ForLog());
             return [];
         }
 
@@ -84,7 +85,7 @@ public static class PluginSkillSeedOwnership
         }
         catch (JsonException ex)
         {
-            logger.LogError(ex, "Plugin manifest {ManifestPath} is unreadable; no plugin skill seeds are applied", manifestPath);
+            logger.LogError(ex, "Plugin manifest {ManifestPath} is unreadable; no plugin skill seeds are applied", manifestPath.ForLog());
             return [];
         }
     }
@@ -94,7 +95,7 @@ public static class PluginSkillSeedOwnership
     {
         if (!File.Exists(coreSeedPath))
         {
-            logger.LogError("Core skill seed file {SeedPath} not found; plugin skill seeds are not applied", coreSeedPath);
+            logger.LogError("Core skill seed file {SeedPath} not found; plugin skill seeds are not applied", coreSeedPath.ForLog());
             return null;
         }
 
@@ -123,7 +124,7 @@ public static class PluginSkillSeedOwnership
         }
         catch (JsonException ex)
         {
-            logger.LogError(ex, "Core skill seed file {SeedPath} is unreadable; plugin skill seeds are not applied", coreSeedPath);
+            logger.LogError(ex, "Core skill seed file {SeedPath} is unreadable; plugin skill seeds are not applied", coreSeedPath.ForLog());
             return null;
         }
     }

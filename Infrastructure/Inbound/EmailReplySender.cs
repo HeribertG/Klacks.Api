@@ -112,7 +112,7 @@ public sealed partial class EmailReplySender : IInboundReplySender
                 return InboundReplyResult.Sent;
             }
 
-            _logger.LogWarning("Clarification email to client {ClientId} failed: {Error}", request.ClientId, result);
+            _logger.LogWarning("Clarification email to client {ClientId} could not be sent (provider error text withheld)", request.ClientId);
             return InboundReplyResult.Failed(result);
         }
         catch (Exception ex)
