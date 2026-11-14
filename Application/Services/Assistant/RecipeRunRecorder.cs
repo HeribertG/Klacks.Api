@@ -13,6 +13,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -77,7 +78,7 @@ public class RecipeRunRecorder : IRecipeRunRecorder
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Recipe-run begin/resume telemetry failed for {Recipe} in conversation {Conversation}",
-                recipeName, conversationId);
+                recipeName.ForLog(), conversationId.ForLog());
             return null;
         }
     }
@@ -144,7 +145,7 @@ public class RecipeRunRecorder : IRecipeRunRecorder
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Recipe-run abort telemetry failed for {Recipe} in conversation {Conversation}",
-                recipeName, conversationId);
+                recipeName.ForLog(), conversationId.ForLog());
         }
     }
 

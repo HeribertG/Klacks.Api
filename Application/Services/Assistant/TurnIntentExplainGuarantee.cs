@@ -20,6 +20,7 @@ using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Assistant.TurnIntent;
 using Klacks.Api.Domain.Services.Assistant;
@@ -95,7 +96,7 @@ public sealed class TurnIntentExplainGuarantee : ITurnIntentExplainGuarantee
             "label={Label} pAsk={AskProbability:F3} pDo={DoProbability:F3} pOther={OtherProbability:F3} confidentAsk={ConfidentAsk} " +
             "detectorMutation={DetectorMutation} detectorQuestion={DetectorQuestion} wouldVetoForcedToolCall={WouldVeto} " +
             "vetoApplied={VetoApplied} explainSkills={ExplainSkills}",
-            TurnIntentDefaults.LogPrefix, _options.Mode, request.ConversationId, request.Language, prediction.Locale,
+            TurnIntentDefaults.LogPrefix, _options.Mode, request.ConversationId.ForLog(), request.Language.ForLog(), prediction.Locale,
             prediction.LocaleEnabled, prediction.Label, prediction.AskProbability, prediction.DoProbability,
             prediction.OtherProbability, prediction.IsConfidentAsk, detectorMutation, detectorQuestion,
             wouldVeto, vetoApplied, string.Join(",", explainSkillNames));

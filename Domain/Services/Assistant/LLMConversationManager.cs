@@ -2,6 +2,7 @@
 
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Playground;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant;
@@ -101,7 +102,7 @@ public class LLMConversationManager
             _logger.LogWarning(
                 "Assistant message for conversation {ConversationId} contained text-emitted tool-call markup " +
                 "(no provider executes text tool calls). Stripping before persist to avoid few-shot contamination.",
-                conversation.ConversationId);
+                conversation.ConversationId.ForLog());
         }
 
         await _repository.SaveMessageAsync(new LLMMessage

@@ -25,6 +25,7 @@ using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Models.Assistant;
@@ -131,7 +132,7 @@ public class LLMFunctionExecutor
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error executing function {FunctionName}", call.FunctionName);
+                _logger.LogError(ex, "Error executing function {FunctionName}", call.FunctionName.ForLog());
                 results.Add($"Error executing {call.FunctionName}: {ex.Message}");
                 call.Success = false;
                 allUiPassthrough = false;
@@ -154,8 +155,8 @@ public class LLMFunctionExecutor
         _logger.LogWarning(
             "Outside-toolset call {FunctionName} finished with Success {Success}, result kind {ResultKind}, "
             + "skill enabled {SkillEnabled} (turn {TurnId}, conversation {ConversationId}, model {ModelId})",
-            call.FunctionName, call.Success, call.ResultKind, skill != null,
-            context.TurnId, context.ConversationId, context.ModelId);
+            call.FunctionName.ForLog(), call.Success, call.ResultKind, skill != null,
+            context.TurnId, context.ConversationId.ForLog(), context.ModelId.ForLog());
     }
 
     private static void MarkSkippedByStop(LLMFunctionCall call)
@@ -214,7 +215,7 @@ public class LLMFunctionExecutor
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Tracking the proposal pairing of {FunctionName} failed", call.FunctionName);
+            _logger.LogWarning(ex, "Tracking the proposal pairing of {FunctionName} failed", call.FunctionName.ForLog());
         }
     }
 
@@ -242,18 +243,18 @@ public class LLMFunctionExecutor
     {
         if (SkillNameAliases.TryResolve(call.FunctionName, out var normalizedName))
         {
-            _logger.LogInformation("Normalizing function name {Original} to {Normalized}", call.FunctionName, normalizedName);
+            _logger.LogInformation("Normalizing function name {Original} to {Normalized}", call.FunctionName.ForLog(), normalizedName);
             call.FunctionName = normalizedName;
         }
 
         _logger.LogInformation("Executing function {FunctionName} with parameters {ParameterNames}",
-            call.FunctionName, string.Join(ParameterNameSeparator, call.Parameters?.Keys ?? Enumerable.Empty<string>()));
+            call.FunctionName.ForLog(), string.Join(ParameterNameSeparator, (call.Parameters?.Keys ?? Enumerable.Empty<string>()).Select(k => k.ForLog())));
 
         var executionType = await GetExecutionTypeAsync(call.FunctionName);
 
         if (executionType == LlmExecutionTypes.FrontendOnly)
         {
-            _logger.LogInformation("Executing {FunctionName} for LLM context (frontend handles UI)", call.FunctionName);
+            _logger.LogInformation("Executing {FunctionName} for LLM context (frontend handles UI)", call.FunctionName.ForLog());
             var skillResult = await ExecuteSkillAsync(context, call, stopToken);
             var firstLine = skillResult.Split('\n')[0];
             call.ResultKind = LLMFunctionResultKind.FrontendOnly;
@@ -263,7 +264,7 @@ public class LLMFunctionExecutor
 
         if (executionType == LlmExecutionTypes.UiPassthrough)
         {
-            _logger.LogInformation("UI passthrough for {FunctionName} - frontend will handle via DOM manipulation", call.FunctionName);
+            _logger.LogInformation("UI passthrough for {FunctionName} - frontend will handle via DOM manipulation", call.FunctionName.ForLog());
             call.ResultKind = LLMFunctionResultKind.UiPassthrough;
             var paramsJson = JsonSerializer.Serialize(call.Parameters);
             return $"Function '{call.FunctionName}' is being executed through the browser UI automatically. " +
@@ -279,7 +280,7 @@ public class LLMFunctionExecutor
     {
         if (_skillBridge == null)
         {
-            _logger.LogWarning("No skill bridge available to execute {FunctionName}", call.FunctionName);
+            _logger.LogWarning("No skill bridge available to execute {FunctionName}", call.FunctionName.ForLog());
             call.ResultKind = LLMFunctionResultKind.Error;
             return $"Function '{call.FunctionName}' is not available.";
         }

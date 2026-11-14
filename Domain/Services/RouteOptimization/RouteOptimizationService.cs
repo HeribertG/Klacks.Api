@@ -421,10 +421,10 @@ public class RouteOptimizationService : IRouteOptimizationService
 
         if (index == -1)
         {
-            _logger.LogWarning("{Label} {BaseAddress} not found in locations. Available addresses: [{Addresses}]",
+            _logger.LogWarning("{Label} {BaseAddress} not found in {LocationCount} locations",
                 label,
                 baseAddress.ForLog(),
-                string.Join(", ", distanceMatrix.Locations.Select(l => l.Address)));
+                distanceMatrix.Locations.Count);
             return null;
         }
 

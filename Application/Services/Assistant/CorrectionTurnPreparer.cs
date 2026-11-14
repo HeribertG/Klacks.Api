@@ -11,6 +11,7 @@
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant;
@@ -119,7 +120,7 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
             _logger.LogError(ex,
                 "Error assembling skill toolset - this turn runs with ZERO tools, so the assistant cannot " +
                 "perform any action and may answer as if it had. User {UserId}, conversation {ConversationId}",
-                userId, conversationId);
+                userId, conversationId.ForLog());
             toolset = new SkillToolsetResult();
         }
 

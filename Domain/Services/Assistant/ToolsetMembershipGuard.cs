@@ -20,6 +20,7 @@
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
@@ -60,7 +61,7 @@ internal static class ToolsetMembershipGuard
             logger.LogWarning(
                 "Model called {FunctionName}, which is not in the turn toolset of {ToolsetSize} functions "
                 + "(mode {Mode}, turn {TurnId}, conversation {ConversationId}, model {ModelId})",
-                call.FunctionName, turnToolset.Count, mode, context.TurnId, context.ConversationId, context.ModelId);
+                call.FunctionName.ForLog(), turnToolset.Count, mode, context.TurnId, context.ConversationId.ForLog(), context.ModelId.ForLog());
 
             if (mode != ToolsetMembershipMode.Enforce)
             {
