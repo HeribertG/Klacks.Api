@@ -10,6 +10,8 @@
 using System.Net.Mime;
 using Klacks.Api.Application.Commands.OAuth;
 using Klacks.Api.Application.DTOs.OAuth;
+using Klacks.Api.Application.Interfaces.OAuth;
+using Klacks.Api.Application.Services.OAuth;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Queries.OAuth;
 using Klacks.Api.Domain.Constants;
@@ -32,15 +34,18 @@ public class OAuthAuthorizationServerController : ControllerBase
 
     private readonly IMediator _mediator;
     private readonly IAntiforgery _antiforgery;
+    private readonly IOAuthConsentTextProvider _consentTexts;
     private readonly ILogger<OAuthAuthorizationServerController> _logger;
 
     public OAuthAuthorizationServerController(
         IMediator mediator,
         IAntiforgery antiforgery,
+        IOAuthConsentTextProvider consentTexts,
         ILogger<OAuthAuthorizationServerController> logger)
     {
         _mediator = mediator;
         _antiforgery = antiforgery;
+        _consentTexts = consentTexts;
         _logger = logger;
     }
 
@@ -51,7 +56,7 @@ public class OAuthAuthorizationServerController : ControllerBase
         var result = await _mediator.Send(new RegisterOAuthClientCommand(request));
         if (result.Error != null)
         {
-            return BadRequest(result.Error);
+            return StatusCode(result.ErrorStatusCode, result.Error);
         }
 
         _logger.LogInformation("OAuth client {ClientId} registered", result.Response!.ClientId);
@@ -66,7 +71,6 @@ public class OAuthAuthorizationServerController : ControllerBase
         [FromQuery(Name = OAuthConstants.ParameterResponseType)] string? responseType,
         [FromQuery(Name = OAuthConstants.ParameterCodeChallenge)] string? codeChallenge,
         [FromQuery(Name = OAuthConstants.ParameterCodeChallengeMethod)] string? codeChallengeMethod,
-        [FromQuery(Name = OAuthConstants.ParameterScope)] string? scope,
         [FromQuery(Name = OAuthConstants.ParameterState)] string? state)
     {
         var validation = await _mediator.Send(new ValidateOAuthAuthorizeRequestQuery(
@@ -77,7 +81,7 @@ public class OAuthAuthorizationServerController : ControllerBase
             return AuthorizeValidationError(validation, state);
         }
 
-        return RenderLoginPage(validation.ClientName!, clientId!, validation.EffectiveRedirectUri!, responseType!, codeChallenge!, codeChallengeMethod!, scope, state, errorMessage: null);
+        return await RenderConsentPageAsync(validation, new ConsentRequest(clientId!, responseType!, codeChallenge!, codeChallengeMethod!, state), errorFor: null);
     }
 
     [HttpPost(OAuthConstants.AuthorizeEndpointName)]
@@ -93,7 +97,7 @@ public class OAuthAuthorizationServerController : ControllerBase
         [FromForm(Name = OAuthConstants.ParameterResponseType)] string? responseType,
         [FromForm(Name = OAuthConstants.ParameterCodeChallenge)] string? codeChallenge,
         [FromForm(Name = OAuthConstants.ParameterCodeChallengeMethod)] string? codeChallengeMethod,
-        [FromForm(Name = OAuthConstants.ParameterScope)] string? scope,
+        [FromForm(Name = OAuthConstants.ParameterAccessMode)] string? accessMode,
         [FromForm(Name = OAuthConstants.ParameterState)] string? state)
     {
         var validation = await _mediator.Send(new ValidateOAuthAuthorizeRequestQuery(
@@ -109,23 +113,25 @@ public class OAuthAuthorizationServerController : ControllerBase
             return RedirectWithError(validation.EffectiveRedirectUri!, OAuthConstants.ErrorAccessDenied, "The user denied the authorization request.", state);
         }
 
+        if (decision != OAuthConstants.DecisionApprove)
+        {
+            return BadRequest(new OAuthErrorResponse(OAuthConstants.ErrorInvalidRequest, "The decision parameter must be 'approve' or 'deny'."));
+        }
+
+        var consentRequest = new ConsentRequest(clientId!, responseType!, codeChallenge!, codeChallengeMethod!, state);
+
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            return RenderLoginPage(validation.ClientName!, clientId!, validation.EffectiveRedirectUri!, responseType!, codeChallenge!, codeChallengeMethod!, scope, state, "Email and password are required.");
+            return await RenderConsentPageAsync(validation, consentRequest, texts => texts.Get(OAuthConsentTexts.ErrorFieldsRequired));
         }
 
         var issueResult = await _mediator.Send(new IssueOAuthAuthorizationCodeCommand(
-            email, password, clientId!, validation.EffectiveRedirectUri!, codeChallenge!, scope,
+            email, password, clientId!, validation.EffectiveRedirectUri!, codeChallenge!, accessMode,
             DirectLoopbackRequest.IsDirectLoopback(HttpContext)));
 
-        if (issueResult.IsSetupRequired)
+        if (issueResult.IsSetupRequired || issueResult.Error == OAuthConstants.ErrorAccessDenied)
         {
-            return RenderLoginPage(validation.ClientName!, clientId!, validation.EffectiveRedirectUri!, responseType!, codeChallenge!, codeChallengeMethod!, scope, state, issueResult.ErrorDescription);
-        }
-
-        if (issueResult.Error == OAuthConstants.ErrorAccessDenied)
-        {
-            return RenderLoginPage(validation.ClientName!, clientId!, validation.EffectiveRedirectUri!, responseType!, codeChallenge!, codeChallengeMethod!, scope, state, issueResult.ErrorDescription);
+            return await RenderConsentPageAsync(validation, consentRequest, texts => LocalizeIssueError(texts, issueResult));
         }
 
         if (issueResult.Error != null)
@@ -139,7 +145,7 @@ public class OAuthAuthorizationServerController : ControllerBase
         };
         AppendState(query, state);
 
-        return Redirect(QueryHelpers.AddQueryString(validation.EffectiveRedirectUri!, query));
+        return RedirectWithPageHeaders(QueryHelpers.AddQueryString(validation.EffectiveRedirectUri!, query));
     }
 
     [HttpPost(OAuthConstants.TokenEndpointName)]
@@ -181,7 +187,13 @@ public class OAuthAuthorizationServerController : ControllerBase
         };
         AppendState(query, state);
 
-        return Redirect(QueryHelpers.AddQueryString(redirectUri, query));
+        return RedirectWithPageHeaders(QueryHelpers.AddQueryString(redirectUri, query));
+    }
+
+    private IActionResult RedirectWithPageHeaders(string url)
+    {
+        OAuthConsentPageHeaders.Apply(Response);
+        return Redirect(url);
     }
 
     private static void AppendState(Dictionary<string, string?> query, string? state)
@@ -192,34 +204,68 @@ public class OAuthAuthorizationServerController : ControllerBase
         }
     }
 
-    private IActionResult RenderLoginPage(
-        string clientName,
-        string clientId,
-        string redirectUri,
-        string responseType,
-        string codeChallenge,
-        string codeChallengeMethod,
-        string? scope,
-        string? state,
-        string? errorMessage)
+    private async Task<IActionResult> RenderConsentPageAsync(
+        OAuthAuthorizeValidationResult validation,
+        ConsentRequest consentRequest,
+        Func<OAuthConsentTextSet, string?>? errorFor)
     {
+        var texts = await _consentTexts.GetAsync(PreferredLanguages(), HttpContext.RequestAborted);
         var antiforgeryTokens = _antiforgery.GetAndStoreTokens(HttpContext);
 
         var hiddenFields = new Dictionary<string, string>
         {
             [antiforgeryTokens.FormFieldName] = antiforgeryTokens.RequestToken ?? string.Empty,
-            [OAuthConstants.ParameterClientId] = clientId,
-            [OAuthConstants.ParameterRedirectUri] = redirectUri,
-            [OAuthConstants.ParameterResponseType] = responseType,
-            [OAuthConstants.ParameterCodeChallenge] = codeChallenge,
-            [OAuthConstants.ParameterCodeChallengeMethod] = codeChallengeMethod,
-            [OAuthConstants.ParameterScope] = scope ?? string.Empty,
-            [OAuthConstants.ParameterState] = state ?? string.Empty
+            [OAuthConstants.ParameterClientId] = consentRequest.ClientId,
+            [OAuthConstants.ParameterRedirectUri] = validation.EffectiveRedirectUri!,
+            [OAuthConstants.ParameterResponseType] = consentRequest.ResponseType,
+            [OAuthConstants.ParameterCodeChallenge] = consentRequest.CodeChallenge,
+            [OAuthConstants.ParameterCodeChallengeMethod] = consentRequest.CodeChallengeMethod,
+            [OAuthConstants.ParameterState] = consentRequest.State ?? string.Empty
         };
 
-        var formAction = $"/{OAuthConstants.RouteBase}/{OAuthConstants.AuthorizeEndpointName}";
-        var html = OAuthLoginPageRenderer.Render(formAction, clientName, hiddenFields, errorMessage);
+        var model = new OAuthConsentPageModel(
+            $"/{OAuthConstants.RouteBase}/{OAuthConstants.AuthorizeEndpointName}",
+            validation.Match!,
+            validation.IsWriteAllowed,
+            validation.AccessTokenLifetime,
+            texts,
+            hiddenFields,
+            errorFor?.Invoke(texts));
 
-        return Content(html, MediaTypeNames.Text.Html);
+        OAuthConsentPageHeaders.Apply(Response);
+
+        return Content(OAuthLoginPageRenderer.Render(model), MediaTypeNames.Text.Html);
     }
+
+    private List<string> PreferredLanguages()
+    {
+        return Request.GetTypedHeaders().AcceptLanguage
+            .Where(value => value.Value.HasValue && (value.Quality ?? 1) > 0)
+            .OrderByDescending(value => value.Quality ?? 1)
+            .Select(value => value.Value.Value!)
+            .Take(OAuthConstants.MaxAcceptLanguageEntries)
+            .ToList();
+    }
+
+    private static string LocalizeIssueError(OAuthConsentTextSet texts, OAuthAuthorizationCodeResult result)
+    {
+        if (result.IsSetupRequired)
+        {
+            return texts.Get(OAuthConsentTexts.ErrorSetupRequired);
+        }
+
+        return result.ErrorDescription switch
+        {
+            OAuthConstants.InvalidCredentialsDescription => texts.Get(OAuthConsentTexts.ErrorInvalidCredentials),
+            OAuthConstants.AccountNotAllowedDescription => texts.Get(OAuthConsentTexts.ErrorAccountNotAllowed),
+            _ => result.ErrorDescription ?? texts.Get(OAuthConsentTexts.ErrorInvalidCredentials)
+        };
+    }
+
+    private sealed record ConsentRequest(
+        string ClientId,
+        string ResponseType,
+        string CodeChallenge,
+        string CodeChallengeMethod,
+        string? State);
 }

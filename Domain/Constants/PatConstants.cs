@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Constants for personal access token generation, display, authentication and access modes.
-/// OAuthAccessMode is Write because the OAuth consent grants the mcp:tools scope, i.e. full tool use.
+/// An OAuth-issued token gets its mode from the consent (read-only unless the user chose write and the installation allows it).
 /// </summary>
 using Klacks.Api.Domain.Enums;
 
@@ -29,8 +29,6 @@ public static class PatConstants
     public const string AccessModeClaimType = "klacks_pat_access_mode";
 
     public const PersonalAccessTokenAccessMode DefaultAccessMode = PersonalAccessTokenAccessMode.Read;
-
-    public const PersonalAccessTokenAccessMode OAuthAccessMode = PersonalAccessTokenAccessMode.Write;
 
     public static readonly TimeSpan LastUsedUpdateInterval = TimeSpan.FromMinutes(5);
 }

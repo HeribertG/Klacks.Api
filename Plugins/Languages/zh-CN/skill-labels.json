@@ -148,6 +148,7 @@
   "explain_absence_model": "解释缺勤数据模型",
   "explain_absence_overlap_not_blocked": "解释未检查的缺勤重叠",
   "explain_absence_cover_move": "解释缺勤顶替",
+  "explain_oauth_connections": "通过 OAuth 连接 AI 工具",
   "explain_scenario_variant_keys": "解释暂定班次",
   "explain_placeholder_employees": "解释占位员工",
   "explain_autofill_staircase_start": "解释阶梯式起始",

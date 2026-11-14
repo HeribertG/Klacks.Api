@@ -1249,6 +1249,12 @@
     "mengapa shift dihapus setelah absen dicatat",
     "shift pindah ke pengganti"
   ],
+  "explain_oauth_connections": [
+    "bagaimana cara menghubungkan Claude ke Klacks",
+    "mengapa alat AI saya ditolak saat menghubungkan",
+    "bagaimana cara mengizinkan alat AI saya sendiri",
+    "hanya baca atau baca dan ubah saat menghubungkan alat"
+  ],
   "explain_scenario_variant_keys": [
     "apa itu kunci dalam skenario",
     "merencanakan shift yang tidak mengikat",

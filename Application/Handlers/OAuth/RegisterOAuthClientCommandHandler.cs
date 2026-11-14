@@ -1,18 +1,23 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Handler for RFC 7591 dynamic client registration. Validates the redirect URIs
-/// (absolute, HTTPS or loopback HTTP only) and the requested grant/response types,
-/// persists the client and returns the public client metadata for a public client
-/// without a client secret.
+/// Handler for RFC 7591 dynamic client registration. Keeps only the redirect URIs the installation trusts (the shipped
+/// list, allowed local programs and administrator targets), drops every other one individually and rejects the
+/// registration with invalid_redirect_uri naming the refused targets when none remains. The client name sent by the
+/// caller is ignored and not stored: the echoed name is the display name of the first trusted entry. Returns the public
+/// client metadata for a public client without a client secret and with only the kept redirect URIs.
 /// </summary>
-/// <param name="request">Contains the registration request with client name and redirect URIs</param>
+/// <param name="request">Contains the registration request with the redirect URIs and the requested grant and response types</param>
 
 using System.Text.Json;
 using Klacks.Api.Application.Commands.OAuth;
 using Klacks.Api.Application.DTOs.OAuth;
+using Klacks.Api.Application.Interfaces.OAuth;
+using Klacks.Api.Application.Services.OAuth;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Authentification;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -20,14 +25,22 @@ namespace Klacks.Api.Application.Handlers.OAuth;
 
 public class RegisterOAuthClientCommandHandler : IRequestHandler<RegisterOAuthClientCommand, OAuthClientRegistrationResult>
 {
-    private const string DefaultClientName = "MCP Client";
-    private const int MaxClientNameLength = 256;
+    private const int MaxRejectedTargetsInMessage = 5;
+
+    private const string RejectedTargetSeparator = "', '";
 
     private readonly IOAuthClientRepository _repository;
+    private readonly IOAuthRedirectTrustPolicy _trustPolicy;
+    private readonly ILogger<RegisterOAuthClientCommandHandler> _logger;
 
-    public RegisterOAuthClientCommandHandler(IOAuthClientRepository repository)
+    public RegisterOAuthClientCommandHandler(
+        IOAuthClientRepository repository,
+        IOAuthRedirectTrustPolicy trustPolicy,
+        ILogger<RegisterOAuthClientCommandHandler> logger)
     {
         _repository = repository;
+        _trustPolicy = trustPolicy;
+        _logger = logger;
     }
 
     public async Task<OAuthClientRegistrationResult> Handle(RegisterOAuthClientCommand request, CancellationToken cancellationToken)
@@ -39,16 +52,6 @@ public class RegisterOAuthClientCommandHandler : IRequestHandler<RegisterOAuthCl
             return OAuthClientRegistrationResult.Rejected(
                 OAuthConstants.ErrorInvalidRedirectUri,
                 "At least one redirect URI is required.");
-        }
-
-        foreach (var redirectUri in registration.RedirectUris)
-        {
-            if (!IsAcceptableRedirectUri(redirectUri))
-            {
-                return OAuthClientRegistrationResult.Rejected(
-                    OAuthConstants.ErrorInvalidRedirectUri,
-                    $"Redirect URI '{redirectUri}' must be an absolute HTTPS URI or a loopback HTTP URI.");
-            }
         }
 
         if (registration.GrantTypes is { Count: > 0 } && !registration.GrantTypes.Contains(OAuthConstants.GrantTypeAuthorizationCode))
@@ -72,17 +75,52 @@ public class RegisterOAuthClientCommandHandler : IRequestHandler<RegisterOAuthCl
                 $"Only the '{OAuthConstants.TokenEndpointAuthMethodNone}' token endpoint auth method is supported.");
         }
 
-        var trimmedClientName = registration.ClientName?.Trim() ?? string.Empty;
-        var clientName = trimmedClientName.Length == 0
-            ? DefaultClientName
-            : trimmedClientName[..Math.Min(trimmedClientName.Length, MaxClientNameLength)];
+        var settings = await _trustPolicy.GetSettingsAsync(cancellationToken);
+        if (settings.Mode == OAuthConnectionMode.Off)
+        {
+            return OAuthClientRegistrationResult.Forbidden(
+                OAuthConstants.ErrorAccessDenied,
+                OAuthTrustMessages.ConnectionsDisabledDescription);
+        }
+
+        var keptUris = new List<string>();
+        var rejected = new List<OAuthTrustDecision>();
+        OAuthRedirectMatch? firstMatch = null;
+
+        foreach (var redirectUri in registration.RedirectUris)
+        {
+            var decision = settings.Evaluate(redirectUri);
+            if (decision.IsTrusted)
+            {
+                if (!keptUris.Contains(redirectUri, StringComparer.Ordinal))
+                {
+                    keptUris.Add(redirectUri);
+                }
+
+                firstMatch ??= decision.Match;
+            }
+            else
+            {
+                rejected.Add(decision);
+                _logger.LogInformation(
+                    "Rejected OAuth redirect target {Target} ({Outcome}) at client registration",
+                    decision.Target.ForLog(),
+                    decision.Outcome);
+            }
+        }
+
+        if (firstMatch == null)
+        {
+            return OAuthClientRegistrationResult.Rejected(
+                OAuthConstants.ErrorInvalidRedirectUri,
+                DescribeRejection(rejected));
+        }
 
         var client = new OAuthClient
         {
             Id = Guid.NewGuid(),
             ClientId = Guid.NewGuid().ToString("N"),
-            ClientName = clientName,
-            RedirectUrisJson = JsonSerializer.Serialize(registration.RedirectUris)
+            RedirectUrisJson = JsonSerializer.Serialize(keptUris)
         };
 
         await _repository.AddAsync(client, cancellationToken);
@@ -90,8 +128,8 @@ public class RegisterOAuthClientCommandHandler : IRequestHandler<RegisterOAuthCl
         var response = new OAuthClientRegistrationResponse(
             ClientId: client.ClientId,
             ClientIdIssuedAt: DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-            ClientName: clientName,
-            RedirectUris: registration.RedirectUris,
+            ClientName: firstMatch.DisplayName,
+            RedirectUris: keptUris,
             GrantTypes: [OAuthConstants.GrantTypeAuthorizationCode],
             ResponseTypes: [OAuthConstants.ResponseTypeCode],
             TokenEndpointAuthMethod: OAuthConstants.TokenEndpointAuthMethodNone);
@@ -99,23 +137,18 @@ public class RegisterOAuthClientCommandHandler : IRequestHandler<RegisterOAuthCl
         return OAuthClientRegistrationResult.Success(response);
     }
 
-    private static bool IsAcceptableRedirectUri(string redirectUri)
+    private static string DescribeRejection(IReadOnlyList<OAuthTrustDecision> rejected)
     {
-        if (!Uri.TryCreate(redirectUri, UriKind.Absolute, out var uri))
+        if (rejected.All(decision => decision.Outcome == OAuthTrustOutcome.LocalProgramsDisabled))
         {
-            return false;
+            return OAuthTrustMessages.LocalProgramsDisabledDescription;
         }
 
-        if (uri.Scheme == Uri.UriSchemeHttps)
-        {
-            return true;
-        }
+        var targets = rejected
+            .Select(decision => decision.Target)
+            .Distinct(StringComparer.Ordinal)
+            .Take(MaxRejectedTargetsInMessage);
 
-        return uri.Scheme == Uri.UriSchemeHttp && IsLoopbackHost(uri);
-    }
-
-    private static bool IsLoopbackHost(Uri uri)
-    {
-        return uri.IsLoopback || string.Equals(uri.Host, OAuthConstants.LoopbackHostLocalhost, StringComparison.OrdinalIgnoreCase);
+        return OAuthTrustMessages.NotTrustedDescription(string.Join(RejectedTargetSeparator, targets));
     }
 }

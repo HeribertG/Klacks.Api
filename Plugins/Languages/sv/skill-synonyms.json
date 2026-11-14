@@ -1254,6 +1254,12 @@
     "varför raderades passet efter frånvaron",
     "passet flyttas till ersättaren"
   ],
+  "explain_oauth_connections": [
+    "hur ansluter jag Claude till Klacks",
+    "varför avvisas mitt AI-verktyg vid anslutning",
+    "hur tillåter jag mitt eget AI-verktyg",
+    "endast läsning eller läsning och ändring när ett verktyg ansluts"
+  ],
   "explain_scenario_variant_keys": [
     "vad är en nyckel i ett scenario",
     "planera icke-bindande pass",

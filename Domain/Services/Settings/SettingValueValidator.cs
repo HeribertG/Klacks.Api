@@ -8,7 +8,9 @@
 /// SettingKeys.DatevConsultantNumber and SettingKeys.DatevClientNumber accept empty or a whole number inside
 /// the DatevNumberRanges (consultant 1001-9999999, client 1-99999); the scheduling caps SettingKeys.SchedulingMaxDailyHours,
 /// SettingKeys.SchedulingMaxWeeklyHours and SettingKeys.SchedulingMaxConsecutiveDays accept empty or a number of at
-/// least SchedulingCapLimits.MinValue (a cap is never 0). New key-specific
+/// least SchedulingCapLimits.MinValue (a cap is never 0); the OAuth keys accept the modes trusted and off, true or false
+/// for the two switches, and a JSON array of valid https targets (at most OAuthTrustedRedirects.MaxCustomTargets) for the
+/// custom redirect targets. New key-specific
 /// rules are added by extending the dispatch in Validate, not by touching the settings handlers.
 /// </summary>
 
@@ -17,6 +19,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Services.OAuth;
 
 namespace Klacks.Api.Domain.Services.Settings;
 
@@ -64,6 +67,37 @@ public class SettingValueValidator : ISettingValueValidator
         if (SchedulingCapKeys.Contains(key, StringComparer.Ordinal))
         {
             ValidateSchedulingCap(key, value);
+        }
+
+        ValidateOAuthSetting(key, value);
+    }
+
+    private static void ValidateOAuthSetting(string key, string? value)
+    {
+        if (string.Equals(key, SettingKeys.OAuthConnectionsMode, StringComparison.Ordinal))
+        {
+            var mode = (value ?? string.Empty).Trim();
+            if (!string.Equals(mode, OAuthConnectionModes.Trusted, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(mode, OAuthConnectionModes.Off, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidRequestException(
+                    $"Setting '{key}' must be '{OAuthConnectionModes.Trusted}' or '{OAuthConnectionModes.Off}', got '{value}'.");
+            }
+        }
+
+        if (string.Equals(key, SettingKeys.OAuthAllowLoopback, StringComparison.Ordinal)
+            || string.Equals(key, SettingKeys.OAuthAllowWrite, StringComparison.Ordinal))
+        {
+            if (!bool.TryParse((value ?? string.Empty).Trim(), out _))
+            {
+                throw new InvalidRequestException($"Setting '{key}' must be 'true' or 'false', got '{value}'.");
+            }
+        }
+
+        if (string.Equals(key, SettingKeys.OAuthCustomRedirectTargets, StringComparison.Ordinal)
+            && !OAuthCustomTargetParser.TryValidate(value, out var error))
+        {
+            throw new InvalidRequestException($"Setting '{key}' is invalid. {error}");
         }
     }
 

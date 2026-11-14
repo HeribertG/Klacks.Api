@@ -1273,6 +1273,12 @@
     "dlaczego zmiana została usunięta po wpisaniu nieobecności",
     "zmiana przechodzi na zastępcę"
   ],
+  "explain_oauth_connections": [
+    "jak połączyć Claude z Klacks",
+    "dlaczego moje narzędzie AI jest odrzucane przy łączeniu",
+    "jak zezwolić na własne narzędzie AI",
+    "tylko odczyt czy odczyt i zmiany przy łączeniu narzędzia"
+  ],
   "explain_scenario_variant_keys": [
     "czym jest klucz w scenariuszu",
     "planowanie niewiążących zmian",

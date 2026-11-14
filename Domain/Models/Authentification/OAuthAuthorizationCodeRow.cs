@@ -9,6 +9,8 @@
 /// hard-deleted on redemption or expiry, so a redeemed code cannot be replayed from a leftover row.
 /// </summary>
 
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Domain.Models.Authentification;
 
 public sealed class OAuthAuthorizationCodeRow
@@ -21,13 +23,11 @@ public sealed class OAuthAuthorizationCodeRow
 
     public string ClientId { get; set; } = string.Empty;
 
-    public string ClientName { get; set; } = string.Empty;
-
     public string RedirectUri { get; set; } = string.Empty;
 
     public string CodeChallenge { get; set; } = string.Empty;
 
-    public string? Scope { get; set; }
+    public PersonalAccessTokenAccessMode AccessMode { get; set; } = PersonalAccessTokenAccessMode.Read;
 
     public DateTime ExpiresAtUtc { get; set; }
 }

@@ -2,7 +2,9 @@
 
 /// <summary>
 /// Handler that authenticates the resource owner with email and password and issues a
-/// short-lived single-use authorization code bound to client, redirect URI and PKCE challenge.
+/// short-lived single-use authorization code bound to client, redirect URI, PKCE challenge and access mode. The redirect
+/// URI is checked again here against the registration and the trust settings (the same resolution as at authorization),
+/// and the code binds read access unless the user chose write and the installation allows it.
 /// Refuses the seeded admin account while its own-admin setup gate is active, so no MCP token can be
 /// minted for the publicly known seed credentials before setup, and refuses accounts without
 /// CanManageAccessTokens (planners), because the code is exchanged for a personal access token.
@@ -11,10 +13,11 @@
 
 using System.Buffers.Text;
 using System.Security.Cryptography;
-using System.Text.Json;
 using Klacks.Api.Application.Commands.OAuth;
 using Klacks.Api.Application.DTOs.OAuth;
+using Klacks.Api.Application.Interfaces.OAuth;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Mediator;
@@ -23,26 +26,27 @@ namespace Klacks.Api.Application.Handlers.OAuth;
 
 public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOAuthAuthorizationCodeCommand, OAuthAuthorizationCodeResult>
 {
-    private const string InvalidCredentialsDescription = "Invalid email or password.";
-
     private readonly IOAuthClientRepository _clientRepository;
     private readonly IAuthenticationService _authenticationService;
     private readonly IOAuthAuthorizationCodeStore _codeStore;
     private readonly IAdminSetupGateService _adminSetupGateService;
     private readonly IUserManagementService _userManagementService;
+    private readonly IOAuthRedirectTrustPolicy _trustPolicy;
 
     public IssueOAuthAuthorizationCodeCommandHandler(
         IOAuthClientRepository clientRepository,
         IAuthenticationService authenticationService,
         IOAuthAuthorizationCodeStore codeStore,
         IAdminSetupGateService adminSetupGateService,
-        IUserManagementService userManagementService)
+        IUserManagementService userManagementService,
+        IOAuthRedirectTrustPolicy trustPolicy)
     {
         _clientRepository = clientRepository;
         _authenticationService = authenticationService;
         _codeStore = codeStore;
         _adminSetupGateService = adminSetupGateService;
         _userManagementService = userManagementService;
+        _trustPolicy = trustPolicy;
     }
 
     public async Task<OAuthAuthorizationCodeResult> Handle(IssueOAuthAuthorizationCodeCommand request, CancellationToken cancellationToken)
@@ -53,23 +57,21 @@ public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOA
             return OAuthAuthorizationCodeResult.Rejected(OAuthConstants.ErrorInvalidClient, "Unknown client.");
         }
 
-        var registeredUris = JsonSerializer.Deserialize<List<string>>(client.RedirectUrisJson) ?? [];
-        if (!registeredUris.Contains(request.RedirectUri, StringComparer.Ordinal))
+        var resolution = await _trustPolicy.ResolveAsync(client, request.RedirectUri, cancellationToken);
+        if (!resolution.IsResolved)
         {
-            return OAuthAuthorizationCodeResult.Rejected(
-                OAuthConstants.ErrorInvalidRequest,
-                "The redirect_uri is not registered for this client.");
+            return OAuthAuthorizationCodeResult.Rejected(resolution.Error!, resolution.ErrorDescription!);
         }
 
         if (await _adminSetupGateService.IsSeedAdminSignInReservedForSetupCodeAsync(request.Email, request.IsLocalRequest))
         {
-            return OAuthAuthorizationCodeResult.Rejected(OAuthConstants.ErrorAccessDenied, InvalidCredentialsDescription);
+            return OAuthAuthorizationCodeResult.Rejected(OAuthConstants.ErrorAccessDenied, OAuthConstants.InvalidCredentialsDescription);
         }
 
         var (isValid, user) = await _authenticationService.ValidateCredentialsAsync(request.Email, request.Password);
         if (!isValid || user == null)
         {
-            return OAuthAuthorizationCodeResult.Rejected(OAuthConstants.ErrorAccessDenied, InvalidCredentialsDescription);
+            return OAuthAuthorizationCodeResult.Rejected(OAuthConstants.ErrorAccessDenied, OAuthConstants.InvalidCredentialsDescription);
         }
 
         if (user.Id == SystemAccounts.SeedAdminUserId && await _adminSetupGateService.IsGateActiveAsync())
@@ -82,18 +84,22 @@ public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOA
         {
             return OAuthAuthorizationCodeResult.Rejected(
                 OAuthConstants.ErrorAccessDenied,
-                "This account may not connect external applications. A supervisor or administrator account is required.");
+                OAuthConstants.AccountNotAllowedDescription);
         }
 
         var code = Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(OAuthConstants.AuthorizationCodeByteLength));
 
+        var accessMode = string.Equals(request.RequestedAccessMode, OAuthConstants.AccessModeWrite, StringComparison.Ordinal)
+                         && resolution.Settings.AllowWrite
+            ? PersonalAccessTokenAccessMode.Write
+            : PersonalAccessTokenAccessMode.Read;
+
         await _codeStore.StoreAsync(code, new OAuthAuthorizationCodeData(
             UserId: user.Id,
             ClientId: request.ClientId,
-            ClientName: client.ClientName,
-            RedirectUri: request.RedirectUri,
+            RedirectUri: resolution.RedirectUri!,
             CodeChallenge: request.CodeChallenge,
-            Scope: request.Scope), cancellationToken);
+            AccessMode: accessMode), cancellationToken);
 
         return OAuthAuthorizationCodeResult.Success(code);
     }

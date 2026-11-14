@@ -3,15 +3,19 @@
 /// <summary>
 /// Handler for the OAuth token endpoint. Consumes the single-use authorization code,
 /// verifies the PKCE S256 code verifier and the client binding, and issues a Klacks
-/// personal access token as the OAuth access token. The token gets PatConstants.OAuthAccessMode (Write):
-/// the consent grants the mcp:tools scope, which has always meant full tool use, so existing OAuth
-/// connectors keep working; a read-only agent uses a manually created Read token instead.
+/// personal access token as the OAuth access token. The token takes the access mode bound to the code; it is refused
+/// with invalid_grant when the redirect target is no longer trusted or write access was switched off after the code was
+/// issued. Name, tool name and host of the token come from the trusted-list entry, never from the client registration.
+/// The returned scope follows the mode (mcp:tools for write, mcp:tools:read for read). The token lives 30 days, on the
+/// Playground 24 hours (IOAuthRedirectTrustPolicy.AccessTokenLifetime).
 /// </summary>
 /// <param name="request">Contains grant type, authorization code, redirect URI, client id and PKCE verifier</param>
 
 using Klacks.Api.Application.Commands.OAuth;
 using Klacks.Api.Application.DTOs.OAuth;
+using Klacks.Api.Application.Interfaces.OAuth;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Security;
@@ -25,15 +29,18 @@ public class ExchangeOAuthTokenCommandHandler : IRequestHandler<ExchangeOAuthTok
     private readonly IOAuthClientRepository _clientRepository;
     private readonly IOAuthAuthorizationCodeStore _codeStore;
     private readonly IPersonalAccessTokenRepository _tokenRepository;
+    private readonly IOAuthRedirectTrustPolicy _trustPolicy;
 
     public ExchangeOAuthTokenCommandHandler(
         IOAuthClientRepository clientRepository,
         IOAuthAuthorizationCodeStore codeStore,
-        IPersonalAccessTokenRepository tokenRepository)
+        IPersonalAccessTokenRepository tokenRepository,
+        IOAuthRedirectTrustPolicy trustPolicy)
     {
         _clientRepository = clientRepository;
         _codeStore = codeStore;
         _tokenRepository = tokenRepository;
+        _trustPolicy = trustPolicy;
     }
 
     public async Task<OAuthTokenResult> Handle(ExchangeOAuthTokenCommand request, CancellationToken cancellationToken)
@@ -90,18 +97,34 @@ public class ExchangeOAuthTokenCommandHandler : IRequestHandler<ExchangeOAuthTok
             return OAuthTokenResult.Rejected(OAuthConstants.ErrorInvalidGrant, "Code verifier does not match the challenge.");
         }
 
+        var settings = await _trustPolicy.GetSettingsAsync(cancellationToken);
+        var decision = settings.Evaluate(codeData.RedirectUri);
+        if (!decision.IsTrusted)
+        {
+            return OAuthTokenResult.Rejected(OAuthConstants.ErrorInvalidGrant, "The redirect target of this authorization code is no longer trusted.");
+        }
+
+        if (codeData.AccessMode == PersonalAccessTokenAccessMode.Write && !settings.AllowWrite)
+        {
+            return OAuthTokenResult.Rejected(OAuthConstants.ErrorInvalidGrant, "Write access through OAuth is no longer allowed on this installation.");
+        }
+
+        var match = decision.Match!;
         var (plaintext, tokenHash, tokenPrefix) = PatTokenGenerator.Generate();
-        var lifetime = TimeSpan.FromDays(OAuthConstants.AccessTokenExpiresInDays);
+        var lifetime = _trustPolicy.AccessTokenLifetime;
 
         var token = new PersonalAccessToken
         {
             Id = Guid.NewGuid(),
             UserId = codeData.UserId,
-            Name = OAuthConstants.AccessTokenNamePrefix + codeData.ClientName,
+            Name = OAuthConstants.AccessTokenNamePrefix + match.DisplayName,
             TokenHash = tokenHash,
             TokenPrefix = tokenPrefix,
             ExpiresAt = DateTime.UtcNow.Add(lifetime),
-            AccessMode = PatConstants.OAuthAccessMode
+            AccessMode = codeData.AccessMode,
+            IsOAuthIssued = true,
+            OAuthToolName = match.DisplayName,
+            OAuthRedirectHost = match.Host
         };
 
         await _tokenRepository.AddAsync(token, cancellationToken);
@@ -110,7 +133,7 @@ public class ExchangeOAuthTokenCommandHandler : IRequestHandler<ExchangeOAuthTok
             AccessToken: plaintext,
             TokenType: OAuthConstants.TokenTypeBearer,
             ExpiresIn: (int)lifetime.TotalSeconds,
-            Scope: codeData.Scope);
+            Scope: codeData.AccessMode == PersonalAccessTokenAccessMode.Write ? OAuthConstants.McpToolsScope : OAuthConstants.McpToolsReadScope);
 
         return OAuthTokenResult.Success(response);
     }

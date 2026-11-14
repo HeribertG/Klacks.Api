@@ -263,6 +263,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAccountRegistrationService, AccountRegistrationService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Authentification.IAdminSetupGateService,
             Klacks.Api.Application.Services.Authentication.AdminSetupGateService>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.OAuth.IOAuthRedirectTrustPolicy,
+            Klacks.Api.Application.Services.OAuth.OAuthRedirectTrustPolicy>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.OAuth.IOAuthConsentTextProvider,
+            Klacks.Api.Application.Services.OAuth.OAuthConsentTextProvider>();
         services.AddScoped<IAccountManagementService, AccountManagementService>();
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
         services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();

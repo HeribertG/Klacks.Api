@@ -37,7 +37,7 @@ public class GetAuthorizationServerMetadataQueryHandler : IRequestHandler<GetAut
             GrantTypesSupported: [OAuthConstants.GrantTypeAuthorizationCode],
             CodeChallengeMethodsSupported: [OAuthConstants.CodeChallengeMethodS256],
             TokenEndpointAuthMethodsSupported: [OAuthConstants.TokenEndpointAuthMethodNone],
-            ScopesSupported: [OAuthConstants.McpToolsScope]);
+            ScopesSupported: [OAuthConstants.McpToolsScope, OAuthConstants.McpToolsReadScope]);
 
         return Task.FromResult(metadata);
     }

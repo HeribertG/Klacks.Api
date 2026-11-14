@@ -148,6 +148,7 @@
   "explain_absence_model": "Jelaskan model data ketidakhadiran",
   "explain_absence_overlap_not_blocked": "Jelaskan tumpang tindih absen yang tidak diperiksa",
   "explain_absence_cover_move": "Jelaskan penggantian saat absen",
+  "explain_oauth_connections": "Menghubungkan alat AI dengan OAuth",
   "explain_scenario_variant_keys": "Jelaskan shift sementara",
   "explain_placeholder_employees": "Jelaskan karyawan virtual",
   "explain_autofill_staircase_start": "Jelaskan awal pola tangga",

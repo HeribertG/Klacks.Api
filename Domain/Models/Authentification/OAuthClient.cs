@@ -8,7 +8,5 @@ public class OAuthClient : BaseEntity
 {
     public string ClientId { get; set; } = string.Empty;
 
-    public string ClientName { get; set; } = string.Empty;
-
     public string RedirectUrisJson { get; set; } = string.Empty;
 }

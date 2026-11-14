@@ -1245,6 +1245,12 @@
     "miksi vuoro poistettiin poissaolon jälkeen",
     "vuoro siirtyy sijaiselle"
   ],
+  "explain_oauth_connections": [
+    "miten yhdistän Clauden Klacksiin",
+    "miksi tekoälytyökaluni hylätään yhdistettäessä",
+    "miten sallin oman tekoälytyökaluni",
+    "vain luku vai luku ja muutokset työkalua yhdistettäessä"
+  ],
   "explain_scenario_variant_keys": [
     "mikä on avain skenaariossa",
     "suunnittele ei-sitovia vuoroja",

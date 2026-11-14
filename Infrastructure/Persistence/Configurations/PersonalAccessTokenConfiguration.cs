@@ -27,6 +27,10 @@ public class PersonalAccessTokenConfiguration : IEntityTypeConfiguration<Persona
         builder.Property(p => p.AccessMode)
             .HasDefaultValue(PatConstants.DefaultAccessMode);
 
+        builder.Property(p => p.OAuthToolName).HasMaxLength(256);
+
+        builder.Property(p => p.OAuthRedirectHost).HasMaxLength(256);
+
         builder.HasOne(p => p.User)
             .WithMany()
             .HasForeignKey(p => p.UserId)

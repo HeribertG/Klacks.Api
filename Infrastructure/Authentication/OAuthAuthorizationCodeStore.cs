@@ -47,10 +47,9 @@ public class OAuthAuthorizationCodeStore : IOAuthAuthorizationCodeStore
                 Code = code,
                 UserId = data.UserId,
                 ClientId = data.ClientId,
-                ClientName = data.ClientName,
                 RedirectUri = data.RedirectUri,
                 CodeChallenge = data.CodeChallenge,
-                Scope = data.Scope,
+                AccessMode = data.AccessMode,
                 ExpiresAtUtc = utcNow.Add(OAuthConstants.AuthorizationCodeLifetime)
             },
             cancellationToken);
@@ -83,9 +82,8 @@ public class OAuthAuthorizationCodeStore : IOAuthAuthorizationCodeStore
         return new OAuthAuthorizationCodeData(
             row.UserId,
             row.ClientId,
-            row.ClientName,
             row.RedirectUri,
             row.CodeChallenge,
-            row.Scope);
+            row.AccessMode);
     }
 }

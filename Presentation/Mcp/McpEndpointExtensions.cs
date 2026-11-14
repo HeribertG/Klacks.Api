@@ -50,7 +50,7 @@ public static class McpEndpointExtensions
                 {
                     Resource = baseUrl + McpServerConstants.RoutePattern,
                     AuthorizationServers = { baseUrl },
-                    ScopesSupported = { OAuthConstants.McpToolsScope }
+                    ScopesSupported = { OAuthConstants.McpToolsScope, OAuthConstants.McpToolsReadScope }
                 };
             });
 

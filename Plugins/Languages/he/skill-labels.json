@@ -148,6 +148,7 @@
   "explain_absence_model": "הסבר על מודל הנתונים של היעדרויות",
   "explain_absence_overlap_not_blocked": "הסבר על חפיפות היעדרויות שלא נבדקו",
   "explain_absence_cover_move": "הסבר כיסוי היעדרות",
+  "explain_oauth_connections": "חיבור כלי בינה מלאכותית באמצעות OAuth",
   "explain_scenario_variant_keys": "הסבר על משמרות זמניות",
   "explain_placeholder_employees": "הסבר על עובדים וירטואליים",
   "explain_autofill_staircase_start": "הסבר על התחלה בצורת מדרגות",

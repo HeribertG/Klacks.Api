@@ -1241,6 +1241,12 @@
     "tại sao ca làm bị xóa sau khi ghi vắng mặt",
     "ca làm chuyển sang người thay thế"
   ],
+  "explain_oauth_connections": [
+    "làm thế nào để kết nối Claude với Klacks",
+    "tại sao công cụ AI của tôi bị từ chối khi kết nối",
+    "làm thế nào để cho phép công cụ AI của riêng tôi",
+    "chỉ đọc hay đọc và thay đổi khi kết nối công cụ"
+  ],
   "explain_scenario_variant_keys": [
     "khóa trong kịch bản là gì",
     "lập kế hoạch ca làm chưa ràng buộc",

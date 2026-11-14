@@ -6477,17 +6477,17 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<int>("AccessMode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("access_mode");
+
                     b.Property<string>("ClientId")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)")
                         .HasColumnName("client_id");
-
-                    b.Property<string>("ClientName")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("client_name");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -6510,11 +6510,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("character varying(2048)")
                         .HasColumnName("redirect_uri");
-
-                    b.Property<string>("Scope")
-                        .HasMaxLength(1024)
-                        .HasColumnType("character varying(1024)")
-                        .HasColumnName("scope");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -6546,11 +6541,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("client_id");
-
-                    b.Property<string>("ClientName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("client_name");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
@@ -6637,6 +6627,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<bool>("IsOAuthIssued")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_o_auth_issued");
+
                     b.Property<DateTime?>("LastUsedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_used_at");
@@ -6645,6 +6639,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<string>("OAuthRedirectHost")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("o_auth_redirect_host");
+
+                    b.Property<string>("OAuthToolName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("o_auth_tool_name");
 
                     b.Property<string>("TokenHash")
                         .IsRequired()

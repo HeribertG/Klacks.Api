@@ -148,6 +148,7 @@
   "explain_absence_model": "Absenz-tietomallin selittäminen",
   "explain_absence_overlap_not_blocked": "Selitä tarkistamattomat poissaolojen päällekkäisyydet",
   "explain_absence_cover_move": "Selitä poissaolon kattaminen",
+  "explain_oauth_connections": "Tekoälytyökalun yhdistäminen OAuthilla",
   "explain_scenario_variant_keys": "Selitä alustavat vuorot",
   "explain_placeholder_employees": "Selitä paikanvaraajat",
   "explain_autofill_staircase_start": "Selitä porrasaloitus",

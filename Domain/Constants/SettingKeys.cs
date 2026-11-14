@@ -154,6 +154,29 @@ public static class SettingKeys
     /// </summary>
     public const string GeocodingEmployeeAddressesEnabled = "GEOCODING_EMPLOYEE_ADDRESSES_ENABLED";
 
+    /// <summary>
+    /// Whether external AI tools may connect through the built-in OAuth server: "trusted" (only targets of the
+    /// shipped list, the allowed local programs and the custom targets) or "off". Absent or unparseable means "trusted".
+    /// </summary>
+    public const string OAuthConnectionsMode = "OAUTH_CONNECTIONS_MODE";
+
+    /// <summary>
+    /// Allows programs on the same computer (http on localhost, 127.0.0.1, [::1], and the vscode.dev redirect) as OAuth
+    /// targets. Absent means on; an unparseable value means off.
+    /// </summary>
+    public const string OAuthAllowLoopback = "OAUTH_ALLOW_LOOPBACK";
+
+    /// <summary>
+    /// Allows a user to grant an OAuth connection the right to change data. Absent means on; an unparseable value
+    /// means off, which leaves read-only connections.
+    /// </summary>
+    public const string OAuthAllowWrite = "OAUTH_ALLOW_WRITE";
+
+    /// <summary>
+    /// JSON array of https redirect targets an administrator added to the trusted list. Absent means empty.
+    /// </summary>
+    public const string OAuthCustomRedirectTargets = "OAUTH_CUSTOM_REDIRECT_TARGETS";
+
     public const string SurchargeStackingMode = "SURCHARGE_STACKING_MODE";
     public const string OvertimeBasis = "OVERTIME_BASIS";
     public const string OvertimeRateMode = "OVERTIME_RATE_MODE";

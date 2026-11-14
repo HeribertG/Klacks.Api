@@ -1273,6 +1273,12 @@
     "proč byla směna smazána po zadání absence",
     "směna přechází na náhradníka"
   ],
+  "explain_oauth_connections": [
+    "jak propojím Claude s Klacks",
+    "proč je můj nástroj AI při připojení odmítnut",
+    "jak povolím vlastní nástroj AI",
+    "pouze čtení nebo čtení a změny při připojení nástroje"
+  ],
   "explain_scenario_variant_keys": [
     "co je klíč ve scénáři",
     "plánovat nezávazné směny",
