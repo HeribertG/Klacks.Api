@@ -58,7 +58,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
         IReadOnlyList<CoreBreakBlocker> blockers = breakBlockers
             .Concat(sealedDays.Select(d => new CoreBreakBlocker(d.ClientId.ToString(), d.Date, d.Date, SealedDayBlockerReason, 0m)))
             .ToList();
-        var covers = await ReplacementCoverQuery.LoadAsync(_context, analyseToken, from, until, agentIdList, ct);
+        var covers = await ReplacementCoverQuery.LoadForRunAsync(_context, analyseToken, from, until, agentIdList, ct);
         var correctedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, analyseToken, from, until, agentIdList, ct);
         var lockedWorks = await BuildLockedWorksAsync(agentIdList, from, until, analyseToken, replanFrom, covers, correctedWorkHours, ct);
         var existingBlockers = await BuildExistingWorkBlockersAsync(agentIdList, from, until, analyseToken, replanFrom, covers, correctedWorkHours, ct);
@@ -209,11 +209,10 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
         // overlap / min-pause checks, it would let the wizard double-book that agent and, after Accept, produce two
         // overlapping REAL works. Those works come in VETO-only through OutsideScenarioWorkQuery, the read the harmonizer
         // context uses as well. CloneWorks is intentionally NOT widened to the client axis - that would corrupt the
-        // promote round-trip; these entries are read-only blockers the engine never plans, scores or mutates.
+        // promote round-trip; these entries are read-only blockers the engine never plans, scores or mutates, also before replanFrom.
         if (analyseToken is { } token)
         {
-            var outsideScenarioWorks = await OutsideScenarioWorkQuery.LoadAsync(_context, token, agentIds, from, until, ct);
-            rawWorks.AddRange(outsideScenarioWorks.Where(w => replanFrom == null || w.CurrentDate >= replanFrom));
+            rawWorks.AddRange(await OutsideScenarioWorkQuery.LoadAsync(_context, token, agentIds, from, until, ct));
         }
 
         // The substitute of a replacement works the replaced span: an occupancy the wizard must not double-book.

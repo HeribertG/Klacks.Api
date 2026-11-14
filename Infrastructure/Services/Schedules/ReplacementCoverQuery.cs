@@ -4,7 +4,9 @@
 /// Loads replacement covers (works handed to a substitute by a replacement WorkChange) for the planning wizards.
 /// Shared by the wizard context builders, which lock the covered work and mark the substitute as occupied, and by
 /// the apply paths, which must never move or delete a covered work. Keyed on the WorkChange type, not on the
-/// recovery's free-text marker, so manual replacements entered by a planner are protected the same way.
+/// recovery's free-text marker, so manual replacements entered by a planner are protected the same way. LoadForRunAsync is
+/// the read of a wizard run: in a scenario it adds the covers on real works the scenario does not carry
+/// (OutsideScenarioWorkQuery), so a person of the run who substitutes in another group is occupied there as well.
 /// </summary>
 /// <param name="context">Database context of the caller (soft-delete filters apply)</param>
 /// <param name="analyseToken">Scenario token; null reads the real plan</param>
@@ -13,6 +15,7 @@
 /// <param name="agentIds">When set, only covers whose original or substitute is one of these agents</param>
 
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Klacks.Api.Domain.Services.Schedules;
@@ -29,17 +32,48 @@ public static class ReplacementCoverQuery
         IReadOnlyCollection<Guid>? agentIds,
         CancellationToken ct)
     {
+        var works = context.Work.AsNoTracking()
+            .Where(work => work.AnalyseToken == analyseToken || (work.AnalyseToken == null && analyseToken == null));
+        return await LoadAsync(context, works, analyseToken, fromDate, untilDate, agentIds, ct);
+    }
+
+    public static async Task<List<ReplacementCover>> LoadForRunAsync(
+        DataBaseContext context,
+        Guid? analyseToken,
+        DateOnly fromDate,
+        DateOnly untilDate,
+        IReadOnlyCollection<Guid> agentIds,
+        CancellationToken ct)
+    {
+        var covers = await LoadAsync(context, analyseToken, fromDate, untilDate, agentIds, ct);
+        if (analyseToken is { } token)
+        {
+            covers.AddRange(await LoadAsync(
+                context, OutsideScenarioWorkQuery.RealWorks(context, token), changeToken: null, fromDate, untilDate, agentIds, ct));
+        }
+
+        return covers;
+    }
+
+    internal static async Task<List<ReplacementCover>> LoadAsync(
+        DataBaseContext context,
+        IQueryable<Work> works,
+        Guid? changeToken,
+        DateOnly fromDate,
+        DateOnly untilDate,
+        IReadOnlyCollection<Guid>? agentIds,
+        CancellationToken ct)
+    {
         var replacementTypes = ReplacementWorkChangeTypes.All.ToList();
 
         var joined =
             from change in context.WorkChange.AsNoTracking()
-            join work in context.Work.AsNoTracking() on change.WorkId equals work.Id
+            join work in works on change.WorkId equals work.Id
             where replacementTypes.Contains(change.Type)
                   && change.ReplaceClientId != null
                   && work.CurrentDate >= fromDate
                   && work.CurrentDate <= untilDate
-                  && (work.AnalyseToken == analyseToken || (work.AnalyseToken == null && analyseToken == null))
-                  && (change.AnalyseToken == analyseToken || (change.AnalyseToken == null && analyseToken == null))
+                  && (change.AnalyseToken == changeToken || (change.AnalyseToken == null && changeToken == null))
             select new { change, work };
 
         if (agentIds is not null)

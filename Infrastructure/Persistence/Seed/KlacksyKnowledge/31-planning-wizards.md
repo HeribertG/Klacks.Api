@@ -51,7 +51,9 @@ Autofill plans a group in a scenario of that group. A duty a person already has 
 duty in a second group the person belongs to) is not part of that scenario, stays in the plan and is respected, locked
 or not. Stage one does not give the person a duty that overlaps it or breaks the rest before or after it, and it counts
 its hours towards the weekly limit. Stage three, and stage two when it runs on a scenario, treat that day of the person
-as taken: no swap puts a second duty on it, and its hours count towards the person's hours.
+as taken: no swap puts a second duty on it, and its hours count towards the person's hours. The same holds when the
+person stands in for a colleague on a duty of another group (a replacement entered on that duty), and when stage one
+replans only from a later day: a duty in another group before that day still bounds the rest and the weekly hours.
 
 For qualifications the hard part is a missing mandatory qualification and a level below the minimum
 where that level is binding; a level below a non-binding minimum is allowed but penalised by the size of

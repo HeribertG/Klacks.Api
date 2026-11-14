@@ -107,7 +107,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var agents = RosterPriorityOrder.Apply(unorderedAgents, request.AgentOrderIsUserDefined, rankHours, a => Guid.Parse(a.Id), a => a.IsStandIn);
         var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions, keywordDays.Days, contractDataByDate);
         var agentIdSet = agentIds.ToHashSet();
-        var covers = await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
+        var covers = await ReplacementCoverQuery.LoadForRunAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
         var correctedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
         var onCallAbsenceIds = await OnCallAbsenceQuery.LoadIdsAsync(_context, ct);
         var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays, correctedWorkHours, onCallAbsenceIds, outsideScenarioWorks);
@@ -218,7 +218,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var boundaryBreaks = (await LoadBreaksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
             .Where(b => b.CurrentDate < request.PeriodFrom || b.CurrentDate > request.PeriodUntil)
             .ToList();
-        var boundaryCovers = (await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct))
+        var boundaryCovers = (await ReplacementCoverQuery.LoadForRunAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct))
             .Where(c => c.Date < request.PeriodFrom || c.Date > request.PeriodUntil)
             .ToList();
         var boundaryCorrectedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct);

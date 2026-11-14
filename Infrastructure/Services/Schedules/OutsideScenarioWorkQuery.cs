@@ -36,6 +36,14 @@ public static class OutsideScenarioWorkQuery
         List<Guid> agentIds,
         DateOnly from,
         DateOnly until)
+        => RealWorks(context, analyseToken)
+            .Where(w => agentIds.Contains(w.ClientId)
+                        && w.CurrentDate >= from
+                        && w.CurrentDate <= until)
+            .Where(WorkOwnHours.Counts);
+
+    /// <summary>All works of the real plan on a real shift the scenario does not carry, of any person and date.</summary>
+    internal static IQueryable<Work> RealWorks(DataBaseContext context, Guid analyseToken)
     {
         var carriedShiftIds = context.Shift.IgnoreQueryFilters()
             .Where(s => s.AnalyseToken == analyseToken && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
@@ -43,11 +51,6 @@ public static class OutsideScenarioWorkQuery
 
         return context.Work
             .AsNoTracking()
-            .Where(w => agentIds.Contains(w.ClientId)
-                        && w.AnalyseToken == null
-                        && w.CurrentDate >= from
-                        && w.CurrentDate <= until
-                        && !carriedShiftIds.Contains(w.ShiftId))
-            .Where(WorkOwnHours.Counts);
+            .Where(w => w.AnalyseToken == null && !carriedShiftIds.Contains(w.ShiftId));
     }
 }
