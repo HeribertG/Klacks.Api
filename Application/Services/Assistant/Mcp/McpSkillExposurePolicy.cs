@@ -29,10 +29,12 @@ public class McpSkillExposurePolicy : IMcpSkillExposurePolicy
     // confirm_pending_action is withheld for the same kind of reason: it only redeems a token for a call that
     // carries user-confirmation evidence, and an MCP call never does - the client's agent is a model, so the
     // server cannot tell its confirmation from the user's. Exposing it would offer a tool that always refuses.
+    // find_tools only hands found skills to Klacksy's own chat loop; over MCP it would search and unlock nothing.
     private static readonly HashSet<string> ExcludedSkills = new(StringComparer.OrdinalIgnoreCase)
     {
         "list_personal_access_tokens",
-        AutonomyDefaults.ConfirmPendingActionSkillName
+        AutonomyDefaults.ConfirmPendingActionSkillName,
+        ToolSearchConstants.SkillName
     };
 
     private readonly ISkillRiskClassifier _riskClassifier;

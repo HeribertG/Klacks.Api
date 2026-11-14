@@ -4164,5 +4164,9 @@
     "a quién puedo contactar por mensajería",
     "quién falta en la mensajería",
     "a quién no se puede contactar por mensajería"
+  ],
+  "find_tools": [
+    "buscar una herramienta",
+    "buscar una función que falta"
   ]
 }

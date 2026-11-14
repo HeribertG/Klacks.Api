@@ -4097,5 +4097,9 @@
     "siapa yang bisa saya hubungi lewat messenger",
     "siapa yang belum ada di messenger",
     "siapa yang tidak terjangkau lewat messenger"
+  ],
+  "find_tools": [
+    "cari alat",
+    "cari fungsi yang hilang"
   ]
 }

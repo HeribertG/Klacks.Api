@@ -531,5 +531,6 @@
   "evaluate_employee_exit": "従業員の退職がもたらす影響を評価",
   "start_software_update": "ソフトウェアアップデートをインストール",
   "evaluate_software_update": "今アップデートすべきか評価",
-  "evaluate_container_bundling": "コンテナにまとめる価値を評価"
+  "evaluate_container_bundling": "コンテナにまとめる価値を評価",
+  "find_tools": "不足しているツールを探す"
 }

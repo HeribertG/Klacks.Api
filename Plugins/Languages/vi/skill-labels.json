@@ -531,5 +531,6 @@
   "evaluate_employee_exit": "Đánh giá hệ quả khi nhân viên nghỉ việc",
   "start_software_update": "Cài đặt bản cập nhật phần mềm",
   "evaluate_software_update": "Đánh giá có nên cập nhật ngay",
-  "evaluate_container_bundling": "Đánh giá việc gộp vào container"
+  "evaluate_container_bundling": "Đánh giá việc gộp vào container",
+  "find_tools": "Tìm công cụ còn thiếu"
 }

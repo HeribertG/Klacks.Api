@@ -170,8 +170,9 @@ internal sealed class MultiTurnChatLoop
     {
         var recipe = state.Recipe;
 
-        // Same stability rule as the streaming loop: the toolset never changes across iterations
-        // (prompt-prefix cache), repeats of write skills are rejected at execution time instead.
+        // Same stability rule as the streaming loop: the toolset does not shrink across iterations
+        // (prompt-prefix cache), repeats of write skills are rejected at execution time instead. It only grows when
+        // find_tools added skills (tool search), which breaks the cache once for the turn.
         var iterationFunctions = ctx.Context.AvailableFunctions;
 
         var confirmThisIteration = recipe.ForceConfirm && state.AllFunctionCalls.Count == 0;

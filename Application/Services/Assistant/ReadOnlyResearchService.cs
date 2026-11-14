@@ -139,7 +139,8 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
         var permitted = _skillRegistry.GetSkillsForUser(userPermissions);
         var readOnly = _toolsetFilter.Filter(
                 permitted, ReadOnlyResearchConstants.RunAnalysisSkillName, context.ExternalAgentAccessMode)
-            .Where(descriptor => !CappedChannelSkillExclusions.Blocks(descriptor.Name, context))
+            .Where(descriptor => !CappedChannelSkillExclusions.Blocks(descriptor.Name, context)
+                                 && !string.Equals(descriptor.Name, ToolSearchConstants.SkillName, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         var allowedNames = readOnly

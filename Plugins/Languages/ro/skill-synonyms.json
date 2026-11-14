@@ -4140,5 +4140,9 @@
     "pe cine pot contacta prin messenger",
     "cine lipsește din messenger",
     "cine nu poate fi contactat prin messenger"
+  ],
+  "find_tools": [
+    "găsește un instrument",
+    "caută o funcție lipsă"
   ]
 }

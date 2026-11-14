@@ -4109,5 +4109,9 @@
     "siapa yang boleh saya hubungi melalui aplikasi mesej",
     "siapa yang tiada dalam aplikasi mesej",
     "siapa yang tidak dapat dihubungi melalui aplikasi mesej"
+  ],
+  "find_tools": [
+    "cari alat",
+    "cari fungsi yang tiada"
   ]
 }

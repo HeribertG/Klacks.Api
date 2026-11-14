@@ -4158,5 +4158,9 @@
     "quem posso alcançar pelo messenger",
     "quem falta no messenger",
     "quem não consigo alcançar pelo messenger"
+  ],
+  "find_tools": [
+    "procurar uma ferramenta",
+    "procurar uma função em falta"
   ]
 }

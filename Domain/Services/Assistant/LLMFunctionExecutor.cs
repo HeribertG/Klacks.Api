@@ -20,6 +20,9 @@
 /// <param name="agentSkillRepository">Resolves the execution type of called skills</param>
 /// <param name="pendingConfirmationStore">Records and drops the proposal hint of a propose/apply pair</param>
 /// <param name="turnScope">Remembers every token and hint the turn issues; required, because a stop discards exactly what it remembers</param>
+/// <param name="toolsetExtension">Hands over the skills find_tools found; after each tool round they join the turn's toolset
+/// (capped-channel exclusions applied), so they are callable from the next iteration on. Required, because without it the
+/// skill would report tools that never become callable.</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -41,6 +44,7 @@ public class LLMFunctionExecutor
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
     private readonly ICancellableSkillPolicy _cancellableSkillPolicy;
     private readonly ITurnConfirmationScope _turnScope;
+    private readonly ITurnToolsetExtension _toolsetExtension;
 
     private Dictionary<string, AgentSkill>? _skillCache;
 
@@ -51,6 +55,7 @@ public class LLMFunctionExecutor
         IPendingConfirmationStore pendingConfirmationStore,
         ITurnConfirmationScope turnScope,
         ICancellableSkillPolicy cancellableSkillPolicy,
+        ITurnToolsetExtension toolsetExtension,
         ILLMSkillBridge? skillBridge = null)
     {
         _logger = logger;
@@ -60,6 +65,7 @@ public class LLMFunctionExecutor
         _skillBridge = skillBridge;
         _cancellableSkillPolicy = cancellableSkillPolicy;
         _turnScope = turnScope;
+        _toolsetExtension = toolsetExtension;
     }
 
     private async Task<AgentSkill?> GetSkillAsync(string functionName)
@@ -141,7 +147,23 @@ public class LLMFunctionExecutor
 
         HasOnlyUiPassthroughCalls = allUiPassthrough;
         LastBatchWasUiPassthroughOnly = allUiPassthrough && functionCalls.Count > 0;
+        AddOfferedTools(context);
         return string.Join("\n", results);
+    }
+
+    private void AddOfferedTools(LLMContext context)
+    {
+        foreach (var function in _toolsetExtension.TakeOffered(context.TurnId))
+        {
+            var blockedOnChannel = !string.IsNullOrEmpty(context.CappedChannel)
+                && CappedChannelSkillExclusions.Blocks(function.Name, context.CappedChannel, null);
+            var alreadyOffered = context.AvailableFunctions.Any(
+                f => string.Equals(f.Name, function.Name, StringComparison.OrdinalIgnoreCase));
+            if (!blockedOnChannel && !alreadyOffered)
+            {
+                context.AvailableFunctions.Add(function);
+            }
+        }
     }
 
     private async Task LogOutsideToolsetOutcomeAsync(LLMContext context, LLMFunctionCall call)

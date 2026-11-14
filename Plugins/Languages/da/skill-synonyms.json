@@ -4118,5 +4118,9 @@
     "hvem kan jeg nå via messenger",
     "hvem mangler på messengeren",
     "hvem kan ikke nås via messenger"
+  ],
+  "find_tools": [
+    "find et værktøj",
+    "søg efter en manglende funktion"
   ]
 }

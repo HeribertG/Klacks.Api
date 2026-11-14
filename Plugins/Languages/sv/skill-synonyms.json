@@ -4126,5 +4126,9 @@
     "vilka kan jag nå via messenger",
     "vem saknas på messengern",
     "vem går inte att nå via messenger"
+  ],
+  "find_tools": [
+    "hitta ett verktyg",
+    "sök efter en saknad funktion"
   ]
 }

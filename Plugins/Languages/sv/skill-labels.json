@@ -531,5 +531,6 @@
   "evaluate_employee_exit": "Bedöma konsekvenserna av att någon slutar",
   "start_software_update": "Installera programuppdateringen",
   "evaluate_software_update": "Bedöma om det är dags att uppdatera",
-  "evaluate_container_bundling": "Bedöma om besök kan samlas i en container"
+  "evaluate_container_bundling": "Bedöma om besök kan samlas i en container",
+  "find_tools": "Sök saknade verktyg"
 }

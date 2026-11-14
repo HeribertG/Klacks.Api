@@ -531,5 +531,6 @@
   "evaluate_employee_exit": "Αξιολόγηση των συνεπειών μιας αποχώρησης",
   "start_software_update": "Εγκατάσταση της ενημέρωσης λογισμικού",
   "evaluate_software_update": "Αξιολόγηση του χρόνου της ενημέρωσης",
-  "evaluate_container_bundling": "Αξιολόγηση ομαδοποίησης σε κοντέινερ"
+  "evaluate_container_bundling": "Αξιολόγηση ομαδοποίησης σε κοντέινερ",
+  "find_tools": "Αναζήτηση εργαλείων που λείπουν"
 }

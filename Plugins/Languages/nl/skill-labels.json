@@ -531,5 +531,6 @@
   "evaluate_employee_exit": "De gevolgen van een uittreding beoordelen",
   "start_software_update": "De software-update installeren",
   "evaluate_software_update": "Beoordelen of nu updaten verstandig is",
-  "evaluate_container_bundling": "Beoordelen of bezoeken in een container passen"
+  "evaluate_container_bundling": "Beoordelen of bezoeken in een container passen",
+  "find_tools": "Ontbrekende hulpmiddelen zoeken"
 }

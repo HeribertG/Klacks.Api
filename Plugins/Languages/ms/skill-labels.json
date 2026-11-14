@@ -531,5 +531,6 @@
   "evaluate_employee_exit": "Nilai akibat pekerja berhenti",
   "start_software_update": "Pasang kemas kini perisian",
   "evaluate_software_update": "Nilai sama ada perlu mengemas kini sekarang",
-  "evaluate_container_bundling": "Nilai penggabungan ke dalam kontena"
+  "evaluate_container_bundling": "Nilai penggabungan ke dalam kontena",
+  "find_tools": "Cari alat yang tiada"
 }

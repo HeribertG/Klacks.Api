@@ -37,7 +37,6 @@
 /// quality gate the phrase path has into a tautology.
 /// </param>
 
-using System.Text.Json;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Application.Services.Assistant.SkillGraph;
 using Klacks.Api.Domain.Constants;
@@ -52,11 +51,6 @@ namespace Klacks.Api.Application.Services.Assistant;
 
 public class SkillToolsetAssembler : ISkillToolsetAssembler
 {
-    private static readonly JsonSerializerOptions CaseInsensitiveJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-
     private readonly ISkillCacheService _skillCacheService;
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
     private readonly IRetrievalQueryBuilder _retrievalQueryBuilder;
@@ -175,9 +169,12 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         var assemblyWatch = System.Diagnostics.Stopwatch.StartNew();
 
+        // find_tools never competes for a place: retrieval, the guarantees and the association all start from
+        // permittedSkills, and only IToolSearchToolsetAppender adds it, above the cap and only when switched on.
         var skills = await _skillCacheService.GetEnabledSkillsAsync(agent.Id, cancellationToken);
         var permittedSkills = skills
-            .Where(s => Permissions.HasAllRequiredPermissions(userRights, s.RequiredPermission))
+            .Where(s => Permissions.HasAllRequiredPermissions(userRights, s.RequiredPermission)
+                        && !string.Equals(s.Name, ToolSearchConstants.SkillName, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         var alwaysOnSkills = permittedSkills.Where(s => s.AlwaysOn).ToList();
@@ -537,7 +534,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         skills
             .OrderByDescending(s => s.AlwaysOn)
             .ThenBy(s => s.Name, StringComparer.Ordinal)
-            .Select(ConvertToLLMFunction)
+            .Select(s => SkillFunctionConverter.ToFunction(s))
             .ToList();
 
     private static List<LLMFunction> ToStableOrderedFunctionsWithProvenance(
@@ -546,7 +543,9 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         skills
             .OrderByDescending(s => s.AlwaysOn)
             .ThenBy(s => s.Name, StringComparer.Ordinal)
-            .Select(s => ConvertToLLMFunction(s, provenance))
+            .Select(s => provenance.TryGetValue(s.Name, out var p)
+                ? SkillFunctionConverter.ToFunction(s, p.Source, p.RetrievalScore)
+                : SkillFunctionConverter.ToFunction(s))
             .ToList();
 
     /// <summary>
@@ -699,71 +698,5 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
                 "LLM tool budget: alwaysOn={AlwaysOn} retrieved={Retrieved} sent={Sent}",
                 alwaysOnCount, retrievedCount, sentCount);
         }
-    }
-
-    private static LLMFunction ConvertToLLMFunction(AgentSkill skill) =>
-        ConvertToLLMFunction(skill, null);
-
-    private static LLMFunction ConvertToLLMFunction(
-        AgentSkill skill, IReadOnlyDictionary<string, SkillToolsetProvenance>? provenance)
-    {
-        var parameters = new Dictionary<string, object>();
-        var requiredParameters = new List<string>();
-        var paramDefs = JsonSerializer.Deserialize<List<ParameterDefinition>>(
-            skill.ParametersJson, CaseInsensitiveJsonOptions) ?? [];
-
-        foreach (var param in paramDefs)
-        {
-            var paramDict = new Dictionary<string, object>
-            {
-                ["type"] = NormalizeToJsonSchemaType(param.Type),
-                ["description"] = param.Description
-            };
-            if (param.EnumValues is { Count: > 0 }) paramDict[SkillParameterSchemaKeys.Enum] = param.EnumValues;
-            if (param.DefaultValue != null) paramDict["default"] = param.DefaultValue;
-            parameters[param.Name] = paramDict;
-            if (param.Required) requiredParameters.Add(param.Name);
-        }
-
-        var function = new LLMFunction
-        {
-            Name = skill.Name,
-            Description = skill.Description,
-            Parameters = parameters,
-            RequiredParameters = requiredParameters,
-            Labels = skill.Labels,
-            Effect = skill.Effect
-        };
-
-        if (provenance != null && provenance.TryGetValue(skill.Name, out var skillProvenance))
-        {
-            function.ToolsetSource = skillProvenance.Source;
-            function.RetrievalScore = skillProvenance.RetrievalScore;
-        }
-
-        return function;
-    }
-
-    private static string NormalizeToJsonSchemaType(string type) => type.ToLowerInvariant() switch
-    {
-        "string" => "string",
-        "integer" => "integer",
-        "decimal" or "number" => "number",
-        "boolean" => "boolean",
-        "date" or "time" or "datetime" => "string",
-        "array" => "array",
-        "object" => "object",
-        "enum" => "string",
-        _ => "string"
-    };
-
-    private class ParameterDefinition
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Type { get; set; } = "string";
-        public string Description { get; set; } = string.Empty;
-        public bool Required { get; set; }
-        public object? DefaultValue { get; set; }
-        public List<string>? EnumValues { get; set; }
     }
 }

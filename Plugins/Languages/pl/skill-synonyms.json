@@ -4190,5 +4190,9 @@
     "do kogo mogę dotrzeć przez komunikator",
     "kogo brakuje w komunikatorze",
     "kto jest nieosiągalny przez komunikator"
+  ],
+  "find_tools": [
+    "znajdź narzędzie",
+    "szukaj brakującej funkcji"
   ]
 }

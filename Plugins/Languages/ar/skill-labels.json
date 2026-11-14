@@ -531,5 +531,6 @@
   "evaluate_employee_exit": "تقييم تبعات مغادرة موظف",
   "start_software_update": "تثبيت تحديث البرنامج",
   "evaluate_software_update": "تقييم توقيت التحديث",
-  "evaluate_container_bundling": "تقييم جدوى التجميع في حاوية"
+  "evaluate_container_bundling": "تقييم جدوى التجميع في حاوية",
+  "find_tools": "البحث عن الأدوات الناقصة"
 }

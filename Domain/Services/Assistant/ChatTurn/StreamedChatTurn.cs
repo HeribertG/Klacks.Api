@@ -271,7 +271,8 @@ internal sealed class StreamedChatTurn
         // prompt-prefix cache on every follow-up call — for every provider with prefix caching,
         // not just one. The once-per-turn rule for write skills is enforced at execution time
         // instead (RepeatedWriteCallGuard), which is also stricter: a hallucinated repeat call
-        // is now rejected rather than silently executed.
+        // is now rejected rather than silently executed. The list only grows mid-turn when find_tools added
+        // skills (tool search); that breaks the prefix cache once, as a deliberate trade for the found tools.
         var iterationFunctions = context.AvailableFunctions;
 
         var confirmThisIteration = recipe.ForceConfirm && turn.Calls.Count == 0;
