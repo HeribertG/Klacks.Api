@@ -74,18 +74,18 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var agentIds = request.AgentIds.Distinct().ToList();
         var keywordMap = ScheduleCommandKeywordMapper.BuildMap(await _keywordProvider.GetAsync(ct));
 
-        var works = await LoadWorksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
-        var outsideScenarioWorks = await LoadOutsideScenarioWorksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
-        var clients = await LoadClientsAsync(agentIds, ct);
+        var works = await HarmonizerPlanDataLoader.LoadWorksAsync(_context, agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+        var outsideScenarioWorks = await HarmonizerPlanDataLoader.LoadOutsideScenarioWorksAsync(_context, agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+        var clients = await HarmonizerPlanDataLoader.LoadClientsAsync(_context, agentIds, ct);
         var firstDayContracts = await _contractProvider.GetEffectiveContractDataForClientsAsync(agentIds, request.PeriodFrom);
         // A preference set on an order or a cut piece also holds for the pieces cut from it (K16), same source as Wizard 1.
         var preferences = await ShiftPreferenceScopeQuery.LoadAsync(_context, agentIds, request.AnalyseToken, ct);
         var preferredSymbols = await LoadPreferredSymbolsAsync(preferences, ct);
         var blacklistByAgent = BlacklistByAgent(preferences);
-        var keywordDays = await LoadKeywordDaysAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, keywordMap, ct);
+        var keywordDays = await HarmonizerPlanDataLoader.LoadKeywordDaysAsync(_context, agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, keywordMap, ct);
         var freeCommandDates = keywordDays.FreeDates;
         var keywordRestrictions = keywordDays.Restrictions;
-        var breaks = await LoadBreaksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+        var breaks = await HarmonizerPlanDataLoader.LoadBreaksAsync(_context, agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
         var sealedDays = await DayLockAttribution.LoadLockedClientDaysAsync(_context, agentIds, request.PeriodFrom, request.PeriodUntil, ct);
         var breakDates = breaks.Select(b => (b.ClientId, b.CurrentDate)).ToHashSet();
         breakDates.UnionWith(sealedDays);
@@ -96,7 +96,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             ? await GroupPeriodRangeQuery.LoadAsync(_context, agentIds, [groupId], ct)
             : new Dictionary<Guid, (DateTime? ValidFrom, DateTime? ValidUntil)>();
         var contractDays = BuildContractDays(agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, membershipWindows, groupPeriods, ct);
-        var individualPeriods = await LoadIndividualPeriodsAsync(contractDataByDate, ct);
+        var individualPeriods = await HarmonizerPlanDataLoader.LoadIndividualPeriodsAsync(_context, contractDataByDate, ct);
         var periodTargetHours = ComputePeriodTargetHours(
             agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, individualPeriods, membershipWindows);
         var softenings = await _softeningRepository.LoadAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
@@ -212,17 +212,17 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         IReadOnlySet<Guid> onCallAbsenceIds,
         CancellationToken ct)
     {
-        var boundaryWorks = (await LoadWorksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
+        var boundaryWorks = (await HarmonizerPlanDataLoader.LoadWorksAsync(_context, agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
             .Where(w => w.CurrentDate < request.PeriodFrom || w.CurrentDate > request.PeriodUntil)
             .ToList();
-        var boundaryBreaks = (await LoadBreaksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
+        var boundaryBreaks = (await HarmonizerPlanDataLoader.LoadBreaksAsync(_context, agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
             .Where(b => b.CurrentDate < request.PeriodFrom || b.CurrentDate > request.PeriodUntil)
             .ToList();
         var boundaryCovers = (await ReplacementCoverQuery.LoadForRunAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct))
             .Where(c => c.Date < request.PeriodFrom || c.Date > request.PeriodUntil)
             .ToList();
         var boundaryCorrectedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct);
-        var boundaryOutsideScenarioWorks = (await LoadOutsideScenarioWorksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
+        var boundaryOutsideScenarioWorks = (await HarmonizerPlanDataLoader.LoadOutsideScenarioWorksAsync(_context, agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
             .Where(w => w.CurrentDate < request.PeriodFrom || w.CurrentDate > request.PeriodUntil)
             .ToList();
         var boundaryAssignments = BuildAssignments(
@@ -368,45 +368,6 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             .ToList();
     }
 
-    private async Task<List<Work>> LoadWorksAsync(
-        List<Guid> agentIds,
-        DateOnly from,
-        DateOnly until,
-        Guid? analyseToken,
-        CancellationToken ct)
-    {
-        return await _context.Work
-            .AsNoTracking()
-            .Where(w => agentIds.Contains(w.ClientId)
-                        && w.CurrentDate >= from
-                        && w.CurrentDate <= until
-                        && (w.AnalyseToken == analyseToken || (w.AnalyseToken == null && analyseToken == null)))
-            .ToListAsync(ct);
-    }
-
-    /// <summary>
-    /// A scenario carries only the works on the shifts it cloned; the agents' real works elsewhere (another group) stay in
-    /// the plan and occupy their days. The real plan already holds every work, so a run without token reads none.
-    /// </summary>
-    private async Task<List<Work>> LoadOutsideScenarioWorksAsync(
-        List<Guid> agentIds,
-        DateOnly from,
-        DateOnly until,
-        Guid? analyseToken,
-        CancellationToken ct)
-        => analyseToken is { } token
-            ? await OutsideScenarioWorkQuery.LoadAsync(_context, token, agentIds, from, until, ct)
-            : [];
-
-    private async Task<Dictionary<Guid, Client>> LoadClientsAsync(List<Guid> agentIds, CancellationToken ct)
-    {
-        var clients = await _context.Client
-            .AsNoTracking()
-            .Where(c => agentIds.Contains(c.Id))
-            .ToListAsync(ct);
-        return clients.ToDictionary(c => c.Id);
-    }
-
     private async Task<Dictionary<Guid, HashSet<CellSymbol>>> LoadPreferredSymbolsAsync(
         IReadOnlyList<ScopedShiftPreference> preferences,
         CancellationToken ct)
@@ -450,51 +411,6 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             set.Add(entry.ShiftId);
         }
         return result;
-    }
-
-    private async Task<HarmonizerKeywordDays> LoadKeywordDaysAsync(
-        List<Guid> agentIds,
-        DateOnly from,
-        DateOnly until,
-        Guid? analyseToken,
-        IReadOnlyDictionary<string, ScheduleCommandKeyword> keywordMap,
-        CancellationToken ct)
-    {
-        var rawCommands = await _context.ScheduleCommands
-            .AsNoTracking()
-            .Where(c => agentIds.Contains(c.ClientId)
-                        && c.CurrentDate >= from
-                        && c.CurrentDate <= until
-                        && (c.AnalyseToken == analyseToken || (c.AnalyseToken == null && analyseToken == null)))
-            .Select(c => new { c.ClientId, c.CurrentDate, c.CommandKeyword })
-            .ToListAsync(ct);
-
-        var recognized = new List<(Guid AgentId, DateOnly Date, ScheduleCommandKeyword Keyword)>(rawCommands.Count);
-        foreach (var cmd in rawCommands)
-        {
-            if (ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out var keyword))
-            {
-                recognized.Add((cmd.ClientId, cmd.CurrentDate, keyword));
-            }
-        }
-
-        return HarmonizerKeywordDayResolver.Resolve(recognized);
-    }
-
-    private async Task<List<Break>> LoadBreaksAsync(
-        List<Guid> agentIds,
-        DateOnly from,
-        DateOnly until,
-        Guid? analyseToken,
-        CancellationToken ct)
-    {
-        return await _context.Break
-            .AsNoTracking()
-            .Where(b => agentIds.Contains(b.ClientId)
-                        && b.CurrentDate >= from
-                        && b.CurrentDate <= until
-                        && (b.AnalyseToken == analyseToken || (b.AnalyseToken == null && analyseToken == null)))
-            .ToListAsync(ct);
     }
 
     internal static Dictionary<(Guid AgentId, DateOnly Date), bool> BuildContractDays(
@@ -541,34 +457,6 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         IReadOnlyDictionary<Guid, IReadOnlyCollection<Period>> individualPeriodsByContract,
         IReadOnlyDictionary<Guid, MembershipWindow>? membershipWindows = null)
         => PlanningRangeHours.GuaranteedHours(agentIds, from, until, contractDataByDate, individualPeriodsByContract, membershipWindows);
-
-    private async Task<IReadOnlyDictionary<Guid, IReadOnlyCollection<Period>>> LoadIndividualPeriodsAsync(
-        IReadOnlyDictionary<DateOnly, Dictionary<Guid, EffectiveContractData>> contractDataByDate,
-        CancellationToken ct)
-    {
-        var individualContractIds = contractDataByDate.Values
-            .SelectMany(perDay => perDay.Values)
-            .Where(d => (d.GuaranteedHoursBasisInterval ?? d.PaymentInterval) == (int)PaymentInterval.Individual && d.ContractId.HasValue)
-            .Select(d => d.ContractId!.Value)
-            .Distinct()
-            .ToList();
-
-        if (individualContractIds.Count == 0)
-        {
-            return new Dictionary<Guid, IReadOnlyCollection<Period>>();
-        }
-
-        var contracts = await _context.Contract
-            .AsNoTracking()
-            .Where(c => individualContractIds.Contains(c.Id) && c.IndividualPeriod != null)
-            .Include(c => c.IndividualPeriod!)
-                .ThenInclude(i => i.Periods)
-            .ToListAsync(ct);
-
-        return contracts.ToDictionary(
-            c => c.Id,
-            c => (IReadOnlyCollection<Period>)c.IndividualPeriod!.Periods.ToList());
-    }
 
     /// <summary>
     /// The bitmap agents. Consecutive-day, pause and rest-day caps come from the contract data of the first period day; the

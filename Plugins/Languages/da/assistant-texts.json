@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Ingen tog sig af fraværet for {{employee}} den {{date}}; tiden til at reagere er udløbet. Vagten er muligvis stadig ikke dækket - tjek den venligst i vagtplanen.",
   "assistant.escalationHandoff.absenceUnreachedNote": "Ingen på eskaleringslisten kunne nås vedrørende fraværet for {{employee}} den {{date}}. Vagten er muligvis stadig ikke dækket - tag dig venligst direkte af det.",
   "assistant.scenarioName.autoPlan": "Automatisk oprettet plan",
-  "assistant.scenarioName.autoHarmonizer": "Automatisk oprettet harmoniseret plan",
   "assistant.scenarioName.auto": "Automatisk oprettet",
   "assistant.scenarioName.plan": "Plan",
   "assistant.scenarioName.harmonized": "Harmoniseret",

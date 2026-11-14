@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Tiada sesiapa menguruskan ketidakhadiran {{employee}} pada {{date}}; masa untuk bertindak balas telah tamat. Syif itu mungkin masih belum diisi - sila semak dalam jadual tugas.",
   "assistant.escalationHandoff.absenceUnreachedNote": "Tiada sesiapa dalam senarai eskalasi dapat dihubungi berkenaan ketidakhadiran {{employee}} pada {{date}}. Syif itu mungkin masih belum diisi - sila uruskannya secara langsung.",
   "assistant.scenarioName.autoPlan": "Pelan dicipta secara automatik",
-  "assistant.scenarioName.autoHarmonizer": "Pelan diharmonikan dicipta secara automatik",
   "assistant.scenarioName.auto": "Dicipta secara automatik",
   "assistant.scenarioName.plan": "Pelan",
   "assistant.scenarioName.harmonized": "Diharmonikan",

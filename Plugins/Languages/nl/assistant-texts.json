@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Niemand heeft het verzuim van {{employee}} op {{date}} opgepakt; de reactietijd is verstreken. De dienst is mogelijk nog niet bezet - controleer hem in het rooster.",
   "assistant.escalationHandoff.absenceUnreachedNote": "Niemand van de escalatielijst was bereikbaar voor het verzuim van {{employee}} op {{date}}. De dienst is mogelijk nog niet bezet - pak het zelf direct op.",
   "assistant.scenarioName.autoPlan": "Automatisch gemaakt plan",
-  "assistant.scenarioName.autoHarmonizer": "Automatisch gemaakt geharmoniseerd plan",
   "assistant.scenarioName.auto": "Automatisch gemaakt",
   "assistant.scenarioName.plan": "Plan",
   "assistant.scenarioName.harmonized": "Geharmoniseerd",

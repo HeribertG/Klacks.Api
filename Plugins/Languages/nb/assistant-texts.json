@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Ingen tok seg av fraværet til {{employee}} den {{date}}; tiden for å reagere har gått ut. Vakten er kanskje fortsatt ikke dekket - sjekk den i vaktplanen.",
   "assistant.escalationHandoff.absenceUnreachedNote": "Ingen på eskaleringslisten kunne nås angående fraværet til {{employee}} den {{date}}. Vakten er kanskje fortsatt ikke dekket - ta deg av det direkte.",
   "assistant.scenarioName.autoPlan": "Automatisk opprettet plan",
-  "assistant.scenarioName.autoHarmonizer": "Automatisk opprettet harmonisert plan",
   "assistant.scenarioName.auto": "Automatisk opprettet",
   "assistant.scenarioName.plan": "Plan",
   "assistant.scenarioName.harmonized": "Harmonisert",

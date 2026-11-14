@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Κανείς δεν ασχολήθηκε με την απουσία του/της {{employee}} στις {{date}}· ο χρόνος αντίδρασης έληξε. Η βάρδια ίσως είναι ακόμη ακάλυπτη - έλεγξέ τη στο πρόγραμμα βαρδιών.",
   "assistant.escalationHandoff.absenceUnreachedNote": "Κανείς από τη λίστα κλιμάκωσης δεν ήταν διαθέσιμος για την απουσία του/της {{employee}} στις {{date}}. Η βάρδια ίσως είναι ακόμη ακάλυπτη - φρόντισέ το απευθείας.",
   "assistant.scenarioName.autoPlan": "Αυτόματα δημιουργημένο πρόγραμμα",
-  "assistant.scenarioName.autoHarmonizer": "Αυτόματα δημιουργημένο εναρμονισμένο πρόγραμμα",
   "assistant.scenarioName.auto": "Αυτόματη δημιουργία",
   "assistant.scenarioName.plan": "Πρόγραμμα",
   "assistant.scenarioName.harmonized": "Εναρμονισμένο",

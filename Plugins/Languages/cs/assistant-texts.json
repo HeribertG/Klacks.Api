@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Nikdo se nepostaral o nepřítomnost {{employee}} dne {{date}}; čas na reakci vypršel. Směna možná stále není obsazená - zkontroluj ji prosím v rozpisu služeb.",
   "assistant.escalationHandoff.absenceUnreachedNote": "Kvůli nepřítomnosti {{employee}} dne {{date}} nebyl zastižen nikdo z eskalačního seznamu. Směna možná stále není obsazená - postarej se o ni prosím přímo.",
   "assistant.scenarioName.autoPlan": "Automaticky vytvořený plán",
-  "assistant.scenarioName.autoHarmonizer": "Automaticky vytvořený harmonizovaný plán",
   "assistant.scenarioName.auto": "Automaticky vytvořeno",
   "assistant.scenarioName.plan": "Plán",
   "assistant.scenarioName.harmonized": "Harmonizováno",

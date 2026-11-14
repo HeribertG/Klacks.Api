@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Không ai xử lý việc vắng mặt của {{employee}} vào {{date}}; thời gian phản hồi đã hết. Ca làm có thể vẫn chưa có người - vui lòng kiểm tra trong lịch phân ca.",
   "assistant.escalationHandoff.absenceUnreachedNote": "Không liên lạc được với ai trong danh sách leo thang về việc vắng mặt của {{employee}} vào {{date}}. Ca làm có thể vẫn chưa có người - vui lòng xử lý trực tiếp.",
   "assistant.scenarioName.autoPlan": "Kế hoạch tạo tự động",
-  "assistant.scenarioName.autoHarmonizer": "Kế hoạch đã hài hòa tạo tự động",
   "assistant.scenarioName.auto": "Tạo tự động",
   "assistant.scenarioName.plan": "Kế hoạch",
   "assistant.scenarioName.harmonized": "Đã hài hòa",

@@ -5,7 +5,6 @@ namespace Klacks.Api.Domain.Enums;
 public enum ScenarioNameKind
 {
     AutoPlan,
-    AutoHarmonizer,
     Auto,
     Plan,
     Harmonized,

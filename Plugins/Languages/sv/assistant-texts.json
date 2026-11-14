@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Ingen tog hand om frånvaron för {{employee}} den {{date}}; tiden att reagera har gått ut. Passet kan fortfarande vara obemannat - kontrollera det i schemat.",
   "assistant.escalationHandoff.absenceUnreachedNote": "Ingen på eskaleringslistan gick att nå angående frånvaron för {{employee}} den {{date}}. Passet kan fortfarande vara obemannat - ta hand om det direkt.",
   "assistant.scenarioName.autoPlan": "Automatiskt skapad plan",
-  "assistant.scenarioName.autoHarmonizer": "Automatiskt skapad harmoniserad plan",
   "assistant.scenarioName.auto": "Automatiskt skapad",
   "assistant.scenarioName.plan": "Plan",
   "assistant.scenarioName.harmonized": "Harmoniserad",

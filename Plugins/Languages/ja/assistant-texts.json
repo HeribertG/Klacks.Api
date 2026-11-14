@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "{{date}}の{{employee}}さんの欠勤に誰も対応しませんでした。対応期限が過ぎています。シフトがまだ埋まっていない可能性があります。勤務表で確認してください。",
   "assistant.escalationHandoff.absenceUnreachedNote": "{{date}}の{{employee}}さんの欠勤について、エスカレーションリストの誰にも連絡が取れませんでした。シフトがまだ埋まっていない可能性があります。直接対応してください。",
   "assistant.scenarioName.autoPlan": "自動作成プラン",
-  "assistant.scenarioName.autoHarmonizer": "自動作成・調整済みプラン",
   "assistant.scenarioName.auto": "自動作成",
   "assistant.scenarioName.plan": "プラン",
   "assistant.scenarioName.harmonized": "調整済み",

@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "{{date}} {{employee}}님의 결근을 처리한 사람이 없습니다. 응답 시간이 만료되었습니다. 근무가 아직 비어 있을 수 있으니 근무표에서 확인해 주십시오.",
   "assistant.escalationHandoff.absenceUnreachedNote": "{{date}} {{employee}}님의 결근과 관련하여 에스컬레이션 목록의 누구와도 연락이 되지 않았습니다. 근무가 아직 비어 있을 수 있으니 직접 처리해 주십시오.",
   "assistant.scenarioName.autoPlan": "자동 생성 계획",
-  "assistant.scenarioName.autoHarmonizer": "자동 생성 조정 계획",
   "assistant.scenarioName.auto": "자동 생성",
   "assistant.scenarioName.plan": "계획",
   "assistant.scenarioName.harmonized": "조정됨",

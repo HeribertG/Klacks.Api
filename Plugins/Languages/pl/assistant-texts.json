@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Nikt nie zajął się nieobecnością {{employee}} w dniu {{date}}; czas na reakcję upłynął. Zmiana może być nadal nieobsadzona - sprawdź ją w grafiku.",
   "assistant.escalationHandoff.absenceUnreachedNote": "W sprawie nieobecności {{employee}} w dniu {{date}} nie udało się skontaktować z nikim z listy eskalacji. Zmiana może być nadal nieobsadzona - zajmij się tym bezpośrednio.",
   "assistant.scenarioName.autoPlan": "Plan utworzony automatycznie",
-  "assistant.scenarioName.autoHarmonizer": "Zharmonizowany plan utworzony automatycznie",
   "assistant.scenarioName.auto": "Utworzony automatycznie",
   "assistant.scenarioName.plan": "Plan",
   "assistant.scenarioName.harmonized": "Zharmonizowany",

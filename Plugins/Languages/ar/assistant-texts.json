@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "لم يتولَّ أحد معالجة غياب {{employee}} في {{date}}؛ انتهى وقت الاستجابة. قد تكون المناوبة لا تزال بلا تغطية - يُرجى التحقق منها في جدول المناوبات.",
   "assistant.escalationHandoff.absenceUnreachedNote": "لم يكن بالإمكان الوصول إلى أي شخص من قائمة التصعيد بشأن غياب {{employee}} في {{date}}. قد تكون المناوبة لا تزال بلا تغطية - يُرجى التعامل معها مباشرة.",
   "assistant.scenarioName.autoPlan": "خطة منشأة تلقائيًا",
-  "assistant.scenarioName.autoHarmonizer": "خطة متوازنة منشأة تلقائيًا",
   "assistant.scenarioName.auto": "منشأ تلقائيًا",
   "assistant.scenarioName.plan": "خطة",
   "assistant.scenarioName.harmonized": "تمت المواءمة",

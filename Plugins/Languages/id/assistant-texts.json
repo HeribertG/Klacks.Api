@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Tidak ada yang menangani ketidakhadiran {{employee}} pada {{date}}; waktu untuk merespons telah habis. Shift mungkin masih belum terisi - silakan periksa di jadwal kerja.",
   "assistant.escalationHandoff.absenceUnreachedNote": "Tidak ada seorang pun dari daftar eskalasi yang dapat dihubungi terkait ketidakhadiran {{employee}} pada {{date}}. Shift mungkin masih belum terisi - silakan tangani langsung.",
   "assistant.scenarioName.autoPlan": "Rencana dibuat otomatis",
-  "assistant.scenarioName.autoHarmonizer": "Rencana harmonisasi dibuat otomatis",
   "assistant.scenarioName.auto": "Dibuat otomatis",
   "assistant.scenarioName.plan": "Rencana",
   "assistant.scenarioName.harmonized": "Diharmonisasi",

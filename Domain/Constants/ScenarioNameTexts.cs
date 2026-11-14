@@ -25,7 +25,6 @@ public static class ScenarioNameTexts
     private const string Prefix = "assistant.scenarioName.";
 
     public const string AutoPlan = Prefix + "autoPlan";
-    public const string AutoHarmonizer = Prefix + "autoHarmonizer";
     public const string Auto = Prefix + "auto";
     public const string Plan = Prefix + "plan";
     public const string Harmonized = Prefix + "harmonized";
@@ -37,7 +36,7 @@ public static class ScenarioNameTexts
     /// <summary>Every key a language pack has to ship in assistant-texts.json. The catalogue guard reads exactly this list.</summary>
     public static readonly IReadOnlyList<string> RequiredKeys =
     [
-        AutoPlan, AutoHarmonizer, Auto, Plan, Harmonized, Llm, Optimizer, Proposal, AbsenceCover
+        AutoPlan, Auto, Plan, Harmonized, Llm, Optimizer, Proposal, AbsenceCover
     ];
 
     /// <summary>The languages whose texts are authored in code rather than shipped by a pack.</summary>
@@ -52,13 +51,6 @@ public static class ScenarioNameTexts
                 [English] = "Auto-created plan",
                 [French] = "Plan auto-généré",
                 [Italian] = "Piano auto-generato"
-            },
-            [AutoHarmonizer] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                [German] = "Auto-Erstellung Harmonizer",
-                [English] = "Auto-created harmonized plan",
-                [French] = "Plan harmonisé auto-généré",
-                [Italian] = "Piano armonizzato auto-generato"
             },
             [Auto] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
@@ -118,7 +110,6 @@ public static class ScenarioNameTexts
     public static string KeyOf(ScenarioNameKind kind) => kind switch
     {
         ScenarioNameKind.AutoPlan => AutoPlan,
-        ScenarioNameKind.AutoHarmonizer => AutoHarmonizer,
         ScenarioNameKind.Auto => Auto,
         ScenarioNameKind.Plan => Plan,
         ScenarioNameKind.Harmonized => Harmonized,

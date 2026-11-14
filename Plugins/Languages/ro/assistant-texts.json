@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Nimeni nu s-a ocupat de absența lui {{employee}} din {{date}}; timpul de reacție a expirat. Tura poate fi încă neacoperită - verific-o în planificare.",
   "assistant.escalationHandoff.absenceUnreachedNote": "Nimeni de pe lista de escaladare nu a putut fi contactat pentru absența lui {{employee}} din {{date}}. Tura poate fi încă neacoperită - ocupă-te direct de ea.",
   "assistant.scenarioName.autoPlan": "Plan creat automat",
-  "assistant.scenarioName.autoHarmonizer": "Plan armonizat creat automat",
   "assistant.scenarioName.auto": "Creat automat",
   "assistant.scenarioName.plan": "Plan",
   "assistant.scenarioName.harmonized": "Armonizat",

@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "אף אחד לא טיפל בהיעדרות של {{employee}} בתאריך {{date}}; זמן התגובה הסתיים. ייתכן שהמשמרת עדיין לא מאוישת - יש לבדוק אותה בסידור העבודה.",
   "assistant.escalationHandoff.absenceUnreachedNote": "לא ניתן היה להשיג אף אחד מרשימת ההסלמה בנוגע להיעדרות של {{employee}} בתאריך {{date}}. ייתכן שהמשמרת עדיין לא מאוישת - יש לטפל בכך ישירות.",
   "assistant.scenarioName.autoPlan": "תוכנית שנוצרה אוטומטית",
-  "assistant.scenarioName.autoHarmonizer": "תוכנית מתואמת שנוצרה אוטומטית",
   "assistant.scenarioName.auto": "נוצר אוטומטית",
   "assistant.scenarioName.plan": "תוכנית",
   "assistant.scenarioName.harmonized": "מתואם",

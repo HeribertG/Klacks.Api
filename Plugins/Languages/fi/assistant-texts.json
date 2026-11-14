@@ -32,7 +32,6 @@
   "assistant.escalationHandoff.absenceExhaustedNote": "Kukaan ei hoitanut henkilön {{employee}} poissaoloa {{date}}; reagointiaika on päättynyt. Vuoro saattaa olla yhä täyttämättä - tarkista se työvuorolistasta.",
   "assistant.escalationHandoff.absenceUnreachedNote": "Eskalointilistalta ei tavoitettu ketään henkilön {{employee}} poissaolosta {{date}}. Vuoro saattaa olla yhä täyttämättä - hoida asia suoraan.",
   "assistant.scenarioName.autoPlan": "Automaattisesti luotu suunnitelma",
-  "assistant.scenarioName.autoHarmonizer": "Automaattisesti luotu harmonisoitu suunnitelma",
   "assistant.scenarioName.auto": "Automaattisesti luotu",
   "assistant.scenarioName.plan": "Suunnitelma",
   "assistant.scenarioName.harmonized": "Harmonisoitu",
