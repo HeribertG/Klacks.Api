@@ -369,7 +369,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         var jsonContent = JsonSerializer.Serialize(requestBody);
         var httpContent = new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json);
 
-        var request = new HttpRequestMessage(HttpMethod.Post, url);
+        using var request = new HttpRequestMessage(HttpMethod.Post, url);
         request.Content = httpContent;
         request.Headers.TryAddWithoutValidation("Authorization", apiKey);
 

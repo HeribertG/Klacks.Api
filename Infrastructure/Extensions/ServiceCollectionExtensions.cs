@@ -155,7 +155,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Plugin.Contracts.IPluginStateChecker, Klacks.Api.Infrastructure.Plugins.PluginStateCheckerBridge>();
         services.AddScoped<Microsoft.EntityFrameworkCore.DbContext>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Persistence.DataBaseContext>());
 
-        var assemblies = PluginRegistrars.SelectMany(r => r.GetControllerAssemblies()).ToList();
         foreach (var registrar in GetPluginRegistrars())
         {
             registrar.RegisterServices(services, configuration);

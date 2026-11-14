@@ -109,7 +109,6 @@ public class RemoveClientContractSkill : BaseSkillImplementation
 
         var target = candidates[0];
         var contractLabel = target.Contract?.Name ?? "(unnamed)";
-        var targetId = target.Id;
 
         client.ClientContracts.Remove(target);
         client.UpdateTime = DateTime.UtcNow;

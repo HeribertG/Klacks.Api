@@ -3,7 +3,6 @@
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.OAuth2;
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Mediator;
@@ -47,11 +46,6 @@ public class GetOAuth2LogoutUrlQueryHandler : IRequestHandler<GetOAuth2LogoutUrl
         {
             return null;
         }
-
-        var protocol = provider.UseSsl ? "https" : "http";
-        var port = provider.Port.HasValue && provider.Port.Value != OAuthConstants.DefaultHttpsPort && provider.Port.Value != OAuthConstants.DefaultHttpPort
-            ? $":{provider.Port.Value}"
-            : "";
 
         if (provider.Type == IdentityProviderType.OpenIdConnect &&
             (provider.AuthorizationUrl?.Contains("SSOOauth", StringComparison.OrdinalIgnoreCase) == true ||

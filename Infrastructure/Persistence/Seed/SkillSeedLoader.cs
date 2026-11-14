@@ -521,14 +521,14 @@ public class SkillSeedLoader
     /// installed plugin page unreachable until it was installed again.
     /// </summary>
     /// <param name="skill">The skill just written from its seed definition</param>
-    private static void RestorePluginPageKeys(AgentSkill skill)
+    private void RestorePluginPageKeys(AgentSkill skill)
     {
         if (!string.Equals(skill.Name, SkillNames.NavigateTo, StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
 
-        NavigatePageEnumSynchronizer.UnionRegisteredRoutes(skill);
+        NavigatePageEnumSynchronizer.UnionRegisteredRoutes(skill, _logger);
     }
 
     private static SkillEffect ParseEffect(string? effect)

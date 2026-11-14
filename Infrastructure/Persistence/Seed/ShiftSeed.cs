@@ -45,47 +45,6 @@ namespace Klacks.Api.Data.Seed
 
             // 1. Create 10 simple OriginalOrder shifts (Status = 0) → SealedOrder (Status = 1) → OriginalShift (Status = 2)
             // VERDOPPELT: 5 → 10, Root Groups zugewiesen
-            var simpleShiftsAr = new[]
-            {
-                new { Name = "الوردية الصباحية", Abbr = "صب", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "الوردية المسائية", Abbr = "مسا", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, IsTimeRange = false },
-                new { Name = "الوردية الليلية", Abbr = "ليل", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "دوام نهاري", Abbr = "نهر", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "الاستعداد", Abbr = "است", Start = "00:00:00", End = "00:00:00", WorkTime = 8, Employees = 1, IsTimeRange = true },
-            };
-            var simpleShiftsHe = new[]
-            {
-                new { Name = "משמרת בוקר", Abbr = "בק", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "משמרת ערב", Abbr = "ער", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, IsTimeRange = false },
-                new { Name = "משמרת לילה", Abbr = "לי", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "תורנות יום", Abbr = "יום", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "כוננות", Abbr = "כון", Start = "00:00:00", End = "00:00:00", WorkTime = 8, Employees = 1, IsTimeRange = true },
-            };
-            var simpleShiftsJa = new[]
-            {
-                new { Name = "早番", Abbr = "早", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "遅番", Abbr = "遅", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, IsTimeRange = false },
-                new { Name = "夜勤", Abbr = "夜", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "日勤", Abbr = "日", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "待機", Abbr = "待", Start = "00:00:00", End = "00:00:00", WorkTime = 8, Employees = 1, IsTimeRange = true },
-            };
-            var simpleShiftsDe = new[]
-            {
-                new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, IsTimeRange = false },
-                new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 8, Employees = 1, IsTimeRange = true },
-            };
-            var simpleShiftsBase = language switch
-            {
-                "ar" => simpleShiftsAr,
-                "he" => simpleShiftsHe,
-                "ja" => simpleShiftsJa,
-                _ => simpleShiftsDe,
-            };
-            var simpleShifts = simpleShiftsBase.Concat(simpleShiftsBase).ToArray();
-
             script.AppendLine("\n-- 1. Simple Shifts (Workflow: OriginalOrder → SealedOrder → OriginalShift) - VERDOPPELT mit Root Groups");
             foreach (var definition in definitions[DemoOrderCategory.SimpleShift])
             {
@@ -461,7 +420,6 @@ INSERT INTO public.shift (
                 var startShift = FormatShiftTime(definition.StartShift);
                 var endShift = FormatShiftTime(definition.EndShift);
                 var untilDate = FormatUntilDate(definition.UntilDate);
-                var assignedGroups = definition.RootGroups;
                 var workflowGroups = definition.RootGroups;
 
                 // Step 1: Create OriginalOrder (Status = 0)
@@ -600,7 +558,6 @@ INSERT INTO public.shift (
                 var startShift = FormatShiftTime(definition.StartShift);
                 var endShift = FormatShiftTime(definition.EndShift);
                 var untilDate = FormatUntilDate(definition.UntilDate);
-                var assignedGroups = definition.RootGroups;
                 var workflowGroups = definition.RootGroups;
 
                 // Step 1: Create OriginalOrder (Status = 0) - Nachtschicht 22:00-06:00
@@ -902,7 +859,6 @@ INSERT INTO public.shift (
         {
             StringBuilder script = new StringBuilder();
             var containerIds = new List<Guid>();
-            var random = Random.Shared;
             var currentTime = DateTime.UtcNow;
             var baseDate = new DateOnly(2025, 1, 1);
 

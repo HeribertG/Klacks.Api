@@ -50,7 +50,7 @@ public class NestedSetRepairService
         int counter = 1;
         rootNode.Lft = counter++;
         counter = await RebuildSubtreeRecursiveAsync(rootId, counter);
-        rootNode.Rgt = counter++;
+        rootNode.Rgt = counter;
 
         if (rootNode.Root != null)
         {

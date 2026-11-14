@@ -193,7 +193,7 @@ public class PromptTranslationProvider : IPromptTranslationProvider
             using var scope = _scopeFactory.CreateScope();
             var orchestrator = scope.ServiceProvider.GetRequiredService<LLMProviderOrchestrator>();
 
-            var (model, provider, error) = await orchestrator.GetModelAndProviderAsync(null);
+            var (model, provider, _) = await orchestrator.GetModelAndProviderAsync(null);
             if (model == null || provider == null)
             {
                 _logger.LogInformation("No LLM model available for prompt translation");

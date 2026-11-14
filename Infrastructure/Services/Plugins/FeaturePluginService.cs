@@ -613,7 +613,7 @@ public class FeaturePluginService : IFeaturePluginService
             routes[manifest.Name] = manifest.Navigation.Route;
             skill.HandlerConfig = NavigatePageEnumSynchronizer.SerializeRoutes(routes);
 
-            NavigatePageEnumSynchronizer.AddPageKey(skill, manifest.Name);
+            NavigatePageEnumSynchronizer.AddPageKey(skill, manifest.Name, _logger);
 
             if (string.Equals(storedHandlerConfig, skill.HandlerConfig, StringComparison.Ordinal)
                 && string.Equals(storedParameters, skill.ParametersJson, StringComparison.Ordinal))
@@ -651,7 +651,7 @@ public class FeaturePluginService : IFeaturePluginService
             routes.Remove(manifest.Name);
             skill.HandlerConfig = NavigatePageEnumSynchronizer.SerializeRoutes(routes);
 
-            NavigatePageEnumSynchronizer.RemovePageKey(skill, manifest.Name);
+            NavigatePageEnumSynchronizer.RemovePageKey(skill, manifest.Name, _logger);
             await skillRepo.UpdateAsync(skill);
 
             _logger.LogInformation("Unregistered navigation route for plugin '{Name}'", manifest.Name);

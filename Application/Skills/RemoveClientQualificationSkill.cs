@@ -124,7 +124,6 @@ public class RemoveClientQualificationSkill : BaseSkillImplementation
 
         var target = matches[0].Assignment;
         var qualificationLabel = DisplayName(matches[0].Qualification!.Name);
-        var targetId = target.Id;
 
         client.Qualifications.Remove(target);
         client.UpdateTime = DateTime.UtcNow;

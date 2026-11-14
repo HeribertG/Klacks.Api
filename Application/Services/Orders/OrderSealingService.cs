@@ -216,7 +216,6 @@ public sealed class OrderSealingService : IOrderSealingService
     public async Task<Guid> SealWithinTransactionAsync(
         Shift sealableOrder, CancellationToken cancellationToken = default, Guid? groupToAttach = null)
     {
-        var orderId = sealableOrder.Id;
         sealableOrder.Status = ShiftStatus.SealedOrder;
         if (groupToAttach.HasValue)
         {

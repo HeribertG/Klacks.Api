@@ -231,7 +231,6 @@ public class ClientRepository : IClientRepository
     public Task<Client?> Put(Client client, Client existingClient)
     {
         var existingClientImage = existingClient.ClientImage;
-        var existingMembership = existingClient.Membership;
 
         var tempClientImage = client.ClientImage;
         var tempMembership = client.Membership;

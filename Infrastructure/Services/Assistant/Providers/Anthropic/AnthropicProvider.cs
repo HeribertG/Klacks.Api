@@ -158,7 +158,7 @@ public class AnthropicProvider : ILLMProvider
 
             var options = BuildSerializerOptions();
             var json = JsonSerializer.Serialize(anthropicRequest, options);
-            var requestContent = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
+            using var requestContent = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _httpClient.PostAsync("messages", requestContent, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
@@ -311,7 +311,7 @@ public class AnthropicProvider : ILLMProvider
         var json = JsonSerializer.Serialize(anthropicRequest, options);
         _logger.LogInformation("Anthropic stream request: tool_choice={ToolChoice} toolCount={ToolCount}",
             anthropicRequest.ToolChoice == null ? "null" : "any", anthropicRequest.Tools?.Count ?? 0);
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "messages")
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, "messages")
         {
             Content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json)
         };
@@ -363,7 +363,7 @@ public class AnthropicProvider : ILLMProvider
                 max_tokens = 10
             };
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.anthropic.com/v1/messages")
+            using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.anthropic.com/v1/messages")
             {
                 Content = new StringContent(JsonSerializer.Serialize(testRequest), Encoding.UTF8, MediaTypeNames.Application.Json)
             };
@@ -386,7 +386,7 @@ public class AnthropicProvider : ILLMProvider
 
         try
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
+            using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
             var response = await _httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)

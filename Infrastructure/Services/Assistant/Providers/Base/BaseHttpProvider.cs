@@ -153,7 +153,7 @@ public abstract class BaseHttpProvider : ILLMProvider
 
         _logger.LogDebug("{Provider} sending streaming request to {Endpoint}", ProviderName, RedactQuery(endpoint));
 
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint) { Content = content };
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint) { Content = content };
         var response = await _httpClient.SendAsync(
             httpRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
@@ -245,7 +245,7 @@ public abstract class BaseHttpProvider : ILLMProvider
 
         try
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
+            using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
             var response = await _httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
@@ -284,7 +284,7 @@ public abstract class BaseHttpProvider : ILLMProvider
         var loggedModelId = string.IsNullOrWhiteSpace(modelId) ? UnknownModelId : modelId;
 
         var json = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
-        var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
+        using var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
 
         _logger.LogDebug("{Provider} sending request to {Endpoint} ({RequestLength} chars)", ProviderName, RedactQuery(endpoint), json.LengthForLog());
 

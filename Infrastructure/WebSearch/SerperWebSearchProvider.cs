@@ -34,7 +34,7 @@ public class SerperWebSearchProvider : IWebSearchProvider
             using var client = _httpClientFactory.CreateClient();
             client.Timeout = TimeSpan.FromSeconds(TimeoutSeconds);
 
-            var request = new HttpRequestMessage(HttpMethod.Post, ApiUrl);
+            using var request = new HttpRequestMessage(HttpMethod.Post, ApiUrl);
             request.Headers.Add("X-API-KEY", _apiKey);
             request.Content = JsonContent.Create(new { q = query, num = maxResults });
 

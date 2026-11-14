@@ -13,6 +13,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Models.Assistant;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Services.Plugins;
 
@@ -95,16 +96,18 @@ public static partial class NavigatePageEnumSynchronizer
     /// </summary>
     /// <param name="skill">The navigate_to skill whose ParametersJson is rewritten in place</param>
     /// <param name="pageKey">Page key to append, compared case-sensitively</param>
-    public static void AddPageKey(AgentSkill skill, string pageKey) =>
-        MutatePageKeys(skill, pageKeys => Append(pageKeys, pageKey));
+    /// <param name="logger">Receives a warning when the stored parameter JSON cannot be parsed</param>
+    public static void AddPageKey(AgentSkill skill, string pageKey, ILogger? logger = null) =>
+        MutatePageKeys(skill, pageKeys => Append(pageKeys, pageKey), logger);
 
     /// <summary>
     /// Drops one page key from the 'page' enum, leaving every other value in place.
     /// </summary>
     /// <param name="skill">The navigate_to skill whose ParametersJson is rewritten in place</param>
     /// <param name="pageKey">Page key to drop, compared case-sensitively</param>
-    public static void RemovePageKey(AgentSkill skill, string pageKey) =>
-        MutatePageKeys(skill, pageKeys => pageKeys.RemoveAll(key => string.Equals(key, pageKey, StringComparison.Ordinal)));
+    /// <param name="logger">Receives a warning when the stored parameter JSON cannot be parsed</param>
+    public static void RemovePageKey(AgentSkill skill, string pageKey, ILogger? logger = null) =>
+        MutatePageKeys(skill, pageKeys => pageKeys.RemoveAll(key => string.Equals(key, pageKey, StringComparison.Ordinal)), logger);
 
     /// <summary>
     /// Unions the page keys of the routes the skill still holds into its 'page' enum. A skill seed
@@ -113,7 +116,8 @@ public static partial class NavigatePageEnumSynchronizer
     /// in HandlerConfig, and the enum is validated hard before a navigation runs.
     /// </summary>
     /// <param name="skill">The navigate_to skill whose ParametersJson is rewritten in place</param>
-    public static void UnionRegisteredRoutes(AgentSkill skill)
+    /// <param name="logger">Receives a warning when the stored parameter JSON cannot be parsed</param>
+    public static void UnionRegisteredRoutes(AgentSkill skill, ILogger? logger = null)
     {
         var routes = ParseRoutes(skill.HandlerConfig);
         if (routes.Count == 0)
@@ -127,7 +131,7 @@ public static partial class NavigatePageEnumSynchronizer
             {
                 Append(pageKeys, pluginName);
             }
-        });
+        }, logger);
     }
 
     private static void Append(List<string> pageKeys, string pageKey)
@@ -138,7 +142,7 @@ public static partial class NavigatePageEnumSynchronizer
         }
     }
 
-    private static void MutatePageKeys(AgentSkill skill, Action<List<string>> mutate)
+    private static void MutatePageKeys(AgentSkill skill, Action<List<string>> mutate, ILogger? logger)
     {
         if (string.IsNullOrWhiteSpace(skill.ParametersJson))
         {
@@ -169,8 +173,9 @@ public static partial class NavigatePageEnumSynchronizer
 
             skill.ParametersJson = parameters.ToJsonString();
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            logger?.LogWarning(ex, "Page keys of skill {SkillName} were not updated because its parameter JSON is malformed", skill.Name);
         }
     }
 

@@ -78,7 +78,6 @@ namespace Klacks.Api.Data.Seed
             var maxBreaks = int.TryParse(FakeSettings.MaxBreaksPerClientPerYear, out var mb) ? mb : 30;
             var absenceIds = SeedGenerator.AbsenceIds;
             var sb = new System.Text.StringBuilder();
-            var rand = new Random(42);
 
             sb.AppendLine("-- Break placeholders (generated dynamically for dump-seeded clients)");
             sb.AppendLine(@"

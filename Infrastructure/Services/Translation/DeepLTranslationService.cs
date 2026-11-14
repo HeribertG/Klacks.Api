@@ -71,7 +71,7 @@ public class DeepLTranslationService : ITranslationService
             requestBody["tag_handling"] = "html";
         }
 
-        var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)
+        using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)
         {
             Content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, MediaTypeNames.Application.Json)
         };

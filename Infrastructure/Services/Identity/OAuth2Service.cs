@@ -94,7 +94,7 @@ public class OAuth2Service : IOAuth2Service
         {
             _logger.LogDebug("Exchanging authorization code for token at: {TokenUrl}", provider.TokenUrl);
 
-            var response = await _oauth2Client.PostAsync(provider.TokenUrl, new FormUrlEncodedContent(requestBody));
+            using var response = await _oauth2Client.PostAsync(provider.TokenUrl, new FormUrlEncodedContent(requestBody));
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)

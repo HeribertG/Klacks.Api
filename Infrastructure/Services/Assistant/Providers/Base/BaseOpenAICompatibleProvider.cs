@@ -241,7 +241,7 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
     {
         try
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
+            using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_httpClient.BaseAddress!, "models"));
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, apiKey);
 
             var response = await _httpClient.SendAsync(request);

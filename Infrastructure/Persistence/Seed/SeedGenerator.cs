@@ -38,8 +38,6 @@ namespace Klacks.Api.Data.Seed
             var breakPlaceholders = new List<BreakPlaceholder>();
             var rand = new Random();
 
-            var postcodes = GenerateComprehensiveSwissPostcodes();
-
             for (int i = 0; i < count; i++)
             {
                 var isLegalEntity = false;

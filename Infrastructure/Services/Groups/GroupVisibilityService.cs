@@ -34,7 +34,6 @@ namespace Klacks.Api.Infrastructure.Services.Groups
         {
             List<Guid> list = [];
             var isAdmin = await IsAdmin();
-            var userIdString = user.GetIdString();
             if (!isAdmin && !string.IsNullOrEmpty(user.GetIdString()))
             {
                 var userId = user.GetIdString()!;

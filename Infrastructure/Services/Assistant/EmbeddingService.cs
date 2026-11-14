@@ -66,7 +66,7 @@ public class EmbeddingService : IEmbeddingService
             };
 
             var json = JsonSerializer.Serialize(requestBody);
-            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
+            using var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
 
             var response = await client.PostAsync($"{baseUrl}/embeddings", content, cancellationToken);
 

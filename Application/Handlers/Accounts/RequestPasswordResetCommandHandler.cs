@@ -26,7 +26,7 @@ public class RequestPasswordResetCommandHandler : BaseTransactionHandler, IReque
     {
         return await ExecuteWithTransactionAsync(async () =>
         {
-            var success = await _accountPasswordService.GeneratePasswordResetTokenAsync(request.Email);
+            await _accountPasswordService.GeneratePasswordResetTokenAsync(request.Email);
             
             return new HttpResultResource
             {
