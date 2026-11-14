@@ -43,19 +43,22 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
     private readonly IKlacksSelfApiClient _selfApi;
     private readonly ISelfApiRouteResolver _routes;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly ILogger<DeleteContainerTemplateSkill> _logger;
 
     public DeleteContainerTemplateSkill(
         IShiftRepository shiftRepository,
         IContainerTemplateRepository containerTemplateRepository,
         IKlacksSelfApiClient selfApi,
         ISelfApiRouteResolver routes,
-        IShiftVisibilityGuard shiftVisibilityGuard)
+        IShiftVisibilityGuard shiftVisibilityGuard,
+        ILogger<DeleteContainerTemplateSkill> logger)
     {
         _shiftRepository = shiftRepository;
         _containerTemplateRepository = containerTemplateRepository;
         _selfApi = selfApi;
         _routes = routes;
         _shiftVisibilityGuard = shiftVisibilityGuard;
+        _logger = logger;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -247,8 +250,9 @@ public class DeleteContainerTemplateSkill : BaseSkillImplementation
                 SkillName,
                 CancellationToken.None);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Releasing the container template lock {LockId} failed", lockId);
         }
     }
 }

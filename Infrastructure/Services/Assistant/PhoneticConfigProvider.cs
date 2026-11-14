@@ -14,7 +14,10 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 public sealed class PhoneticConfigProvider : IPhoneticConfigProvider
 {
@@ -25,9 +28,11 @@ public sealed class PhoneticConfigProvider : IPhoneticConfigProvider
     private readonly Dictionary<string, PhoneticConfig> _core;
     private readonly ConcurrentDictionary<string, PhoneticConfig> _pluginCache = new();
     private readonly string _pluginDirectory;
+    private readonly ILogger<PhoneticConfigProvider> _logger;
 
-    public PhoneticConfigProvider(string? configuredPluginDirectory = null)
+    public PhoneticConfigProvider(string? configuredPluginDirectory = null, ILogger<PhoneticConfigProvider>? logger = null)
     {
+        _logger = logger ?? NullLogger<PhoneticConfigProvider>.Instance;
         _pluginDirectory = LanguagePluginDirectoryResolver.Resolve(AppContext.BaseDirectory, configuredPluginDirectory);
         _core = LoadCore();
     }
@@ -47,17 +52,44 @@ public sealed class PhoneticConfigProvider : IPhoneticConfigProvider
     {
         try
         {
-            var path = Path.Combine(_pluginDirectory, lang, LanguagePluginConstants.PhoneticsFileName);
+            if (!TryResolvePluginDirectory(lang, out var languageDirectory))
+            {
+                _logger.LogWarning("Skipping phonetic config for locale outside the plugin directory: {Locale}", LogSanitizer.ForLog(lang));
+                return new PhoneticConfig();
+            }
+
+            var path = Path.Combine(languageDirectory, LanguagePluginConstants.PhoneticsFileName);
             if (!File.Exists(path))
                 return new PhoneticConfig();
 
             var json = File.ReadAllText(path);
             return JsonSerializer.Deserialize<PhoneticConfig>(json, JsonOptions) ?? new PhoneticConfig();
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Loading the phonetic config for locale {Locale} failed, using the default", LogSanitizer.ForLog(lang));
             return new PhoneticConfig();
         }
+    }
+
+    private bool TryResolvePluginDirectory(string lang, out string languageDirectory)
+    {
+        languageDirectory = string.Empty;
+
+        if (string.IsNullOrEmpty(lang) || !string.Equals(Path.GetFileName(lang), lang, StringComparison.Ordinal))
+            return false;
+
+        var basePath = Path.GetFullPath(_pluginDirectory);
+        var baseWithSeparator = basePath.EndsWith(Path.DirectorySeparatorChar)
+            ? basePath
+            : basePath + Path.DirectorySeparatorChar;
+
+        var candidate = Path.GetFullPath(Path.Combine(basePath, lang));
+        if (!candidate.StartsWith(baseWithSeparator, StringComparison.Ordinal))
+            return false;
+
+        languageDirectory = candidate;
+        return true;
     }
 
     private static string Normalize(string? locale)

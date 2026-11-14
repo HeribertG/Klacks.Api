@@ -50,19 +50,22 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
     private readonly IKlacksSelfApiClient _selfApi;
     private readonly ISelfApiRouteResolver _routes;
     private readonly IShiftVisibilityGuard _shiftVisibilityGuard;
+    private readonly ILogger<CreateContainerTemplateSkill> _logger;
 
     public CreateContainerTemplateSkill(
         IShiftRepository shiftRepository,
         IContainerTemplateRepository containerTemplateRepository,
         IKlacksSelfApiClient selfApi,
         ISelfApiRouteResolver routes,
-        IShiftVisibilityGuard shiftVisibilityGuard)
+        IShiftVisibilityGuard shiftVisibilityGuard,
+        ILogger<CreateContainerTemplateSkill> logger)
     {
         _shiftRepository = shiftRepository;
         _containerTemplateRepository = containerTemplateRepository;
         _selfApi = selfApi;
         _routes = routes;
         _shiftVisibilityGuard = shiftVisibilityGuard;
+        _logger = logger;
     }
 
     private sealed record TemplateRequest(
@@ -368,8 +371,9 @@ public class CreateContainerTemplateSkill : BaseSkillImplementation
                 SkillName,
                 CancellationToken.None);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Releasing the container template lock {LockId} failed", lockId);
         }
     }
 }

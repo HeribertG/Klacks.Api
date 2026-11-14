@@ -8,6 +8,7 @@ using Klacks.Api.Application.DTOs;
 using Klacks.Api.Application.Validation.Accounts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 namespace Klacks.Api.Application.Services.Authentication;
@@ -182,8 +183,9 @@ public class AuthenticationService : IAuthenticationService
 
             return (result.Succeeded, result);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Password change failed unexpectedly for user {UserId}", user.Id);
             return (false, null);
         }
     }
@@ -206,8 +208,13 @@ public class AuthenticationService : IAuthenticationService
 
             return await _userManager.FindByIdAsync(userIdClaim.Value);
         }
-        catch
+        catch (SecurityTokenException)
         {
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Resolving the user from the access token failed unexpectedly");
             return null;
         }
     }
@@ -242,8 +249,9 @@ public class AuthenticationService : IAuthenticationService
             var result = await _userManager.UpdateAsync(user);
             return (result.Succeeded, result);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Password reset failed unexpectedly for user {UserId}", user.Id);
             return (false, null);
         }
     }

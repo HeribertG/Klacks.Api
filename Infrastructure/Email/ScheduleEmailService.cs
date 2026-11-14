@@ -25,18 +25,18 @@ public class ScheduleEmailService : IScheduleEmailService
     public async Task<bool> SendScheduleEmailAsync(string recipientEmail, string clientName,
         string startDate, string endDate, byte[] pdfAttachment, string fileName)
     {
-        var msgEmail = new MsgEMail(_context, _logger, _encryptionService);
-
         var settings = _context.Settings?.ToList();
         var appName = settings?.FirstOrDefault(x => x.Type == Settings.APP_NAME)?.Value ?? "Klacks";
 
         var subject = BuildSubject(settings, clientName, startDate, endDate, appName);
         var body = BuildBody(settings, clientName, startDate, endDate, appName);
 
-        string? tempFile = null;
+        string? tempDirectory = null;
         try
         {
-            tempFile = Path.Combine(Path.GetTempPath(), Path.GetFileName(fileName));
+            tempDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(tempDirectory);
+            var tempFile = Path.Combine(tempDirectory, Path.GetFileName(fileName));
             await File.WriteAllBytesAsync(tempFile, pdfAttachment);
 
             var email = InitEmailWrapper(settings);
@@ -56,10 +56,10 @@ public class ScheduleEmailService : IScheduleEmailService
         }
         finally
         {
-            if (tempFile != null && File.Exists(tempFile))
+            if (tempDirectory != null && Directory.Exists(tempDirectory))
             {
-                try { File.Delete(tempFile); }
-                catch (Exception ex) { _logger.LogWarning(ex, "Failed to delete temp file {TempFile}", tempFile); }
+                try { Directory.Delete(tempDirectory, recursive: true); }
+                catch (Exception ex) { _logger.LogWarning(ex, "Failed to delete temp directory {TempDirectory}", tempDirectory); }
             }
         }
     }

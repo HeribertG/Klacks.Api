@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Interfaces;
 
 namespace Klacks.Api.Infrastructure.Scripting;
@@ -10,6 +11,12 @@ public class MacroEngine : IDisposable, IMacroEngine
     private ScriptExecutionContext? context;
     private List<string> importList = new();
     private readonly List<ResultMessage> result = new();
+    private readonly ILogger<MacroEngine> _logger;
+
+    public MacroEngine(ILogger<MacroEngine> logger)
+    {
+        _logger = logger;
+    }
 
     public dynamic? Imports { get; set; }
     public bool IsIde { get; set; }
@@ -219,8 +226,9 @@ public class MacroEngine : IDisposable, IMacroEngine
                     script.SetExternalValue(key, 0);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Importing macro value {ImportKey} failed, using 0", key.ForLog());
                 script.SetExternalValue(key, 0);
             }
         }

@@ -407,7 +407,10 @@ public class LLMFunctionExecutor
             if (doc.RootElement.TryGetProperty("Target", out var targetProp))
                 scrollTarget = targetProp.GetString();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Navigation result data of function {FunctionName} could not be parsed", call.FunctionName.ForLog());
+        }
 
         if (route != null)
         {

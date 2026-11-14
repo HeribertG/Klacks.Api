@@ -52,7 +52,7 @@ public class MultiLanguageJsonConverter : ValueConverter<MultiLanguage?, string?
             }
             return ml;
         }
-        catch
+        catch (JsonException)
         {
             return null;
         }
