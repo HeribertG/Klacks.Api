@@ -165,7 +165,8 @@ Verträge, Gruppen, Qualifikationen, Notizen und Bild.
   (`filter-active-membership`, de: "Aktive", en: "Active", fr: "Actifs", it: "Attivi"),
   **Ehemalige** (`filter-former-membership`, de: "Ehemalige", en: "Alumni", fr: "Anciens
   élèves", it: "Ex-allievi"), **Zukünftige** (`filter-future-membership`, de: "Zukünftige",
-  en: "Future", fr: "Futurs", it: "Futuri").
+  en: "Future", fr: "Futurs", it: "Futuri"). Das Austrittsdatum ist der letzte Arbeitstag und zählt mit: Wer heute
+  austritt, erscheint heute noch unter Aktive und erst ab dem Folgetag unter Ehemalige.
 - Dropdown **Nationen auswählen** (`dropdownForm-2`, de: "Nationen  auswählen", en:
   "Select Countries", fr: "Choisir les pays", it: "Seleziona Paesi") — Länderliste mit
   Alle-selektieren/-deselektieren (`filter-select-all-countries` /

@@ -40,6 +40,8 @@ only ever one such pair: if somebody leaves and later comes back, the same entry
 entry date replaces the old one. Example: Anna joins on 1 March 2023, leaves on 30 June 2024 and rejoins
 on 1 September 2025. Afterwards her entry date reads 1 September 2025; the March 2023 date is gone. So
 if the exact first period matters later, write it down somewhere else before the person returns.
+The exit date is the last working day and counts inclusively: a person whose exit date is today still
+appears under "Active" today and only under "Former" from the next day.
 
 <!-- level:elements -->
 

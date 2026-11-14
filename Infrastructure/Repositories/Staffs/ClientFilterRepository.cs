@@ -257,7 +257,7 @@ public class ClientFilterRepository : IClientFilterRepository
 
                 query = _clientFilterService.ApplyStateOrCountryFilter(query, filter.FilteredStateToken, filter.Countries);
 
-                query = _membershipFilterService.ApplyMembershipFilter(query,
+                query = await _membershipFilterService.ApplyMembershipFilter(query,
                                               filter.ActiveMembership.HasValue && filter.ActiveMembership.Value,
                                               filter.FormerMembership.HasValue && filter.FormerMembership.Value,
                                               filter.FutureMembership.HasValue && filter.FutureMembership.Value);
