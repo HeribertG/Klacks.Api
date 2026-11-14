@@ -18,6 +18,10 @@ The top of the employee order works one shared cycle, each row shifted against t
 
 Only when every person on a row can work every needed shift kind, each kind is needed every day, there are at least two rows, a row fits the contract hours and the period is at least one cycle long. The judge decides in its usual order (`explain_planning_wizards`). With a time limit the second run only starts if the first used at most half of it; otherwise stage one takes about twice as long. When the staircase wins, packages are more regular, but lower ranks can get fewer hours and weekends can be spread less evenly, because each stage is exactly one week and keeps a row's free days on the same weekdays.
 
+## Rank check
+
+The staircase plan is only kept if it respects the employee order. Each person counts by the share of their guaranteed hours the plan credits: planned work with surcharges, absence hours such as holidays, and hours before the period, against the unchanged guarantee. So a part-time person or someone on holiday is not seen as behind. A lower rank may be at most one typical shift (the median shift length of the period), in the higher rank's hours, ahead of a higher rank, unless the first plan is already as inverted. Placeholders and people without guaranteed hours or shift work are not counted.
+
 ## Trigger phrases
 
 - "Why does the plan look like a staircase?"
