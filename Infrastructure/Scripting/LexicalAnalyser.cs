@@ -6,6 +6,7 @@
 /// <param name="predefinedIdentifiers">Static dictionary with keywords and their token mappings</param>
 /// </summary>
 
+using System.Text;
 using static Klacks.Api.Infrastructure.Scripting.InterpreterError;
 
 namespace Klacks.Api.Infrastructure.Scripting
@@ -238,7 +239,7 @@ namespace Klacks.Api.Infrastructure.Scripting
 
         private void LexString(Symbol nextSymbol)
         {
-            var symbolText = "";
+            var symbolText = new StringBuilder();
             var endOfString = false;
             do
             {
@@ -249,13 +250,14 @@ namespace Klacks.Api.Infrastructure.Scripting
                         c = source.GetNextChar();
                         if (c == "\"")
                         {
-                            symbolText += "\"";
+                            symbolText.Append('"');
                         }
                         else
                         {
                             endOfString = true;
                             source.GoBack();
-                            nextSymbol.Init(Symbol.Tokens.tokString, symbolText, symbolText);
+                            var stringValue = symbolText.ToString();
+                            nextSymbol.Init(Symbol.Tokens.tokString, stringValue, stringValue);
                         }
                         break;
                     case "\n":
@@ -273,7 +275,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                         endOfString = true;
                         break;
                     default:
-                        symbolText = (symbolText + c);
+                        symbolText.Append(c);
                         break;
                 }
             }
@@ -395,7 +397,7 @@ namespace Klacks.Api.Infrastructure.Scripting
 
         private Tuple<bool, string> Numbers(Symbol nextSymbol, string c)
         {
-            var symbolText = c;
+            var symbolText = new StringBuilder(c);
             var returnNumberSymbol = false;
 
             do
@@ -403,11 +405,11 @@ namespace Klacks.Api.Infrastructure.Scripting
                 c = source!.GetNextChar();
                 if (Helper.IsNumericInt(c) && ((int.Parse(c) >= 0) && (int.Parse(c) <= 9)))
                 {
-                    symbolText = (symbolText + c);
+                    symbolText.Append(c);
                 }
                 else if ((c == "."))
                 {
-                    symbolText = (symbolText + ".");
+                    symbolText.Append('.');
                     for (
                       ; true;
                     )
@@ -415,7 +417,7 @@ namespace Klacks.Api.Infrastructure.Scripting
                         c = source.GetNextChar();
                         if (Helper.IsNumericInt(c) && ((int.Parse(c) >= 0) && (int.Parse(c) <= 9)))
                         {
-                            symbolText = (symbolText + c);
+                            symbolText.Append(c);
                         }
                         else
                         {
@@ -436,13 +438,13 @@ namespace Klacks.Api.Infrastructure.Scripting
                 }
             } while (!source.Eof);
 
-            return new Tuple<bool, string>(returnNumberSymbol, symbolText);
+            return new Tuple<bool, string>(returnNumberSymbol, symbolText.ToString());
         }
 
         private string Identifier(Symbol nextSymbol, string c)
         {
 
-            string symbolText = c;
+            var symbolText = new StringBuilder(c);
             bool breakLoop = false;
 
             c = source!.GetNextChar();
@@ -492,18 +494,19 @@ namespace Klacks.Api.Infrastructure.Scripting
                     case "7":
                     case "8":
                     case "9":
-                        symbolText += c;
+                        symbolText.Append(c);
                         break;
                     default:
                         source.GoBack();
                         breakLoop = true;
-                        if (predefinedIdentifiers.TryGetValue(symbolText.ToUpper(), out var predefinedToken))
+                        var identifierText = symbolText.ToString();
+                        if (predefinedIdentifiers.TryGetValue(identifierText.ToUpper(), out var predefinedToken))
                         {
-                            nextSymbol.Init((Symbol.Tokens)predefinedToken, symbolText);
+                            nextSymbol.Init((Symbol.Tokens)predefinedToken, identifierText);
                         }
                         else
                         {
-                            nextSymbol.Init(Symbol.Tokens.tokIdentifier, symbolText);
+                            nextSymbol.Init(Symbol.Tokens.tokIdentifier, identifierText);
                         }
                         break;
                 }
@@ -520,7 +523,7 @@ namespace Klacks.Api.Infrastructure.Scripting
             }
             while (!breakLoop);
 
-            return symbolText;
+            return symbolText.ToString();
         }
 
         public void Dispose()

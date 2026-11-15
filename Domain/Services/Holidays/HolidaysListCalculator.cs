@@ -287,21 +287,14 @@ public class HolidaysListCalculator : IHolidaysListCalculator
         var sign = offsetString.StartsWith("+") ? 1 : -1;
         var remainingString = offsetString.Substring(1);
 
-        var numberPart = "";
-        string? weekdayPart = null;
-
-        for (int i = 0; i < remainingString.Length; i++)
+        var digitCount = 0;
+        while (digitCount < remainingString.Length && char.IsDigit(remainingString[digitCount]))
         {
-            if (char.IsDigit(remainingString[i]))
-            {
-                numberPart += remainingString[i];
-            }
-            else
-            {
-                weekdayPart = remainingString.Substring(i);
-                break;
-            }
+            digitCount++;
         }
+
+        var numberPart = remainingString.Substring(0, digitCount);
+        var weekdayPart = digitCount < remainingString.Length ? remainingString.Substring(digitCount) : null;
 
         var dayOffset = int.TryParse(numberPart, out int parsed) ? sign * parsed : 0;
 

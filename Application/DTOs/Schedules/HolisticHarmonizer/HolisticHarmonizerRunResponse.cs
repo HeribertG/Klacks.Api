@@ -5,6 +5,9 @@ using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 
+/// <summary>
+/// Result of a completed Holistic Harmonizer run: fitness before and after, accepted and rejected swaps, batches, qualification gaps and planning-rule and harmony diagnostics.
+/// </summary>
 /// <param name="AgentDisplayNames">Per-row agent display names in the post-RowSorter
 /// bitmap order. Index 0 corresponds to swap.RowA/RowB == 0 in any swap of this run.
 /// The frontend uses this array to map row indices to human names without having to

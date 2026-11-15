@@ -2,5 +2,8 @@
 
 namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 
+/// <summary>
+/// Result of a Holistic Harmonizer cancellation request.
+/// </summary>
 /// <param name="Cancelled">True if the job was found in the registry and a cancellation was issued.</param>
 public sealed record CancelHolisticHarmonizerResponse(bool Cancelled);

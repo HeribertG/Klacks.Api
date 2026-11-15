@@ -2,6 +2,9 @@
 
 namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 
+/// <summary>
+/// Outcome of one intent batch of swap steps inside a Holistic Harmonizer run: acceptance category, scores before and after, committed swaps and per-step rejections.
+/// </summary>
 /// <param name="BatchId">Stable id correlating to engine logs.</param>
 /// <param name="Intent">Intent label of the batch (e.g. "consolidate_block").</param>
 /// <param name="Result">Acceptance category: Accepted, PartiallyAccepted, Rejected, WouldDegrade.</param>

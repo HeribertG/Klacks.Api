@@ -93,7 +93,7 @@ public class CutShiftSkill : BaseSkillImplementation
 
         var resultData = new
         {
-            SealedOrderId = (Guid?)plan.SealedOrderId,
+            SealedOrderId = plan.SealedOrderId,
             OrderName = plan.OriginalShift!.Name,
             PartCount = results.Count,
             GroupCount = plan.Groups.Count,

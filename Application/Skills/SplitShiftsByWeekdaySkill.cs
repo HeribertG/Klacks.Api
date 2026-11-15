@@ -142,7 +142,7 @@ public class SplitShiftsByWeekdaySkill : BaseSkillImplementation
 
         var mismatches = await _verifier.FindMismatchesAsync(
             plans,
-            toCut.ToDictionary(s => s.Id, s => sourceLinks.GetValueOrDefault(s.Id) ?? (IReadOnlyList<ShiftGroupLink>)[]),
+            toCut.ToDictionary(s => s.Id, s => sourceLinks.GetValueOrDefault(s.Id) ?? []),
             cancellationToken);
         if (mismatches.Count > 0)
         {

@@ -272,7 +272,7 @@ public class RecipeEngineService
                                   && !AffirmationDetector.LeadsWithAffirmation(message, language);
         var (semanticMatch, alternativeGoal, alternativeGoalTranslations, semanticDenial) = runSemanticFallback
             ? await FindMatchingRecipeSemanticAsync(scope, eligible, message, language, rightsGate, cancellationToken)
-            : ((AgentRecipe?)null, (string?)null, (Dictionary<string, string>?)null, (RecipeDenial?)null);
+            : (null, null, null, null);
 
         var match = triggerMatch ?? semanticMatch;
         var result = new RecipeMatch(

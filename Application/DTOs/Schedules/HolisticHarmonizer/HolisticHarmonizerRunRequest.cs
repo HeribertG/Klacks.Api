@@ -2,6 +2,9 @@
 
 namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 
+/// <summary>
+/// Request to start a Holistic Harmonizer run over a period for a set of agents.
+/// </summary>
 /// <param name="PeriodFrom">Start date (inclusive).</param>
 /// <param name="PeriodUntil">End date (inclusive).</param>
 /// <param name="AgentIds">Clients whose rows are part of the bitmap.</param>

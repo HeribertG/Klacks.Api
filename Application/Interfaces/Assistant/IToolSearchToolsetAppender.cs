@@ -10,6 +10,9 @@ namespace Klacks.Api.Application.Interfaces.Assistant;
 /// </summary>
 public interface IToolSearchToolsetAppender
 {
+    /// <summary>
+    /// Adds the find_tools function to the assembled toolset when the tool search is switched on.
+    /// </summary>
     /// <param name="agent">The agent whose enabled skills hold find_tools</param>
     /// <param name="toolset">The assembled toolset; find_tools is added to its functions</param>
     /// <param name="cancellationToken">Cancellation of the turn</param>

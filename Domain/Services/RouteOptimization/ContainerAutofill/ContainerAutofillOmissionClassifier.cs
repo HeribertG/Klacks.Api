@@ -10,6 +10,9 @@ namespace Klacks.Api.Domain.Services.RouteOptimization.ContainerAutofill;
 
 public static class ContainerAutofillOmissionClassifier
 {
+    /// <summary>
+    /// Classifies every candidate that is not on the planned route with the reason it stayed out.
+    /// </summary>
     /// <param name="context">Matrix and limits of the plan</param>
     /// <param name="route">Matrix indices of the planned stops</param>
     /// <param name="candidateLocations">The candidates, in matrix order</param>

@@ -37,6 +37,9 @@ public sealed class ContainerAutofillPlanningStage
         _logger = logger;
     }
 
+    /// <summary>
+    /// Geocodes the bases, builds the distance matrix and plans the route through the located candidates; the outcome of the returned plan says whether a route was found.
+    /// </summary>
     /// <param name="input">Bases, time window and transport mode</param>
     /// <param name="candidateLocations">Located route candidates</param>
     /// <param name="totalAvailableShifts">Count reported in the result</param>

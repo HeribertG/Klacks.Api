@@ -5,6 +5,9 @@ using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 
+/// <summary>
+/// Request to start an AutoWizard run that plans the open slots of a schedule window for a set of agents.
+/// </summary>
 /// <param name="PeriodFrom">Start date (inclusive) of the schedule window to optimise.</param>
 /// <param name="PeriodUntil">End date (inclusive) of the schedule window to optimise.</param>
 /// <param name="AgentIds">Clients whose rows are part of the run.</param>

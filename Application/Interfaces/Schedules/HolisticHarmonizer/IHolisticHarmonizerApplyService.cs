@@ -13,6 +13,12 @@ namespace Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 /// </summary>
 public interface IHolisticHarmonizerApplyService
 {
+    /// <summary>
+    /// Materialises the cached Holistic Harmonizer result of a job into a new scenario; returns the scenario, the ids of the created works and, when requested, the compliance report.
+    /// </summary>
+    /// <param name="jobId">The Holistic Harmonizer job whose cached result is materialised</param>
+    /// <param name="groupId">Optional group scope for scenario cloning and name uniqueness</param>
+    /// <param name="ct">Cancels the materialisation</param>
     /// <param name="nameKind">Selects the localized scenario name prefix; null keeps the service default (Llm).</param>
     /// <param name="language">The planner's language for the name prefix; null falls back to the installation language.</param>
     /// <param name="captureRun">When true, writes a WizardRunCapture row for the (deferred) preference-learner.</param>

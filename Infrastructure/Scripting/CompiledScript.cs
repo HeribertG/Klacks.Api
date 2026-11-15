@@ -78,7 +78,7 @@ public sealed class CompiledScript
         var external = code.External();
         for (int i = 0; i < external.CloneCount(); i++)
         {
-            var id = (Identifier)external.CloneItem(i);
+            var id = external.CloneItem(i);
             if (id.Name != null)
             {
                 externalSymbols[id.Name] = id;

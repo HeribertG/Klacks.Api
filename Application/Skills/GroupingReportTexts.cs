@@ -12,6 +12,7 @@
 /// <param name="recomputed">Report view recomputed after an apply, whose remaining gaps the apply result states.</param>
 
 using System.Globalization;
+using System.Text;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Enums;
 
@@ -149,17 +150,18 @@ internal static class GroupingReportTexts
             return string.Empty;
         }
 
-        var text = string.Format(
+        var text = new StringBuilder();
+        text.AppendFormat(
             CultureInfo.InvariantCulture, UnitsHeaderTemplate, section.Totals.UnitsWithGaps, section.Totals.PlanningUnits);
         foreach (var unit in section.Units)
         {
-            text += string.Format(
+            text.AppendFormat(
                 CultureInfo.InvariantCulture, UnitTemplate,
                 unit.Unit, unit.DutiesAnalysed, unit.DutiesNobodyInUnitCanTake, unit.DutiesNobodyInCompanyCanTake,
                 unit.EmployeesInScope, unit.EmployeesWithoutActiveContract);
             if (unit.CapacityShortfalls.Count > 0)
             {
-                text += string.Format(
+                text.AppendFormat(
                     CultureInfo.InvariantCulture, UnitCapacityTemplate, unit.Unit,
                     string.Join(ItemSeparator, unit.CapacityShortfalls.Select(gap => string.Format(
                         CultureInfo.InvariantCulture, CapacityGapTemplate, gap.Weekday, gap.Demand, gap.Supply))));
@@ -168,15 +170,15 @@ internal static class GroupingReportTexts
 
         if (section.Totals.UnitsNotListed > 0)
         {
-            text += string.Format(CultureInfo.InvariantCulture, UnitsNotListedTemplate, section.Totals.UnitsNotListed);
+            text.AppendFormat(CultureInfo.InvariantCulture, UnitsNotListedTemplate, section.Totals.UnitsNotListed);
         }
 
         if (section.BlockingCauses.Count > 0)
         {
-            text += string.Format(
+            text.AppendFormat(
                 CultureInfo.InvariantCulture, BlockingCausesTemplate, string.Join(LineSeparator, section.BlockingCauses));
         }
 
-        return text;
+        return text.ToString();
     }
 }

@@ -15,6 +15,9 @@ namespace Klacks.Api.Application.Services.Schedules.Recovery;
 
 public static class ScenarioSourceRowMerger
 {
+    /// <summary>
+    /// Returns the real rows that stay plus the source scenario rows that count, following the ownership rule described on the class.
+    /// </summary>
     /// <param name="realRows">Rows of the real plan</param>
     /// <param name="scenarioRows">Rows of the source scenario</param>
     /// <param name="scope">Source scenario range, group and owned shifts</param>

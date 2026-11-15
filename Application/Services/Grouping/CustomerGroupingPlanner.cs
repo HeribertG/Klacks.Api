@@ -166,7 +166,7 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
     {
         if (candidate.NameTarget != null)
         {
-            return (candidate.NameTarget, (double?)null, DescribeMatch(MatchByCityName, candidate.CityAddress!.Type));
+            return (candidate.NameTarget, null, DescribeMatch(MatchByCityName, candidate.CityAddress!.Type));
         }
 
         if (candidate.CoordinateAddress != null && geoAnchors.Count > 0)

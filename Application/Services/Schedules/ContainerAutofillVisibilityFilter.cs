@@ -22,6 +22,9 @@ public sealed class ContainerAutofillVisibilityFilter
         _shiftVisibilityGuard = shiftVisibilityGuard;
     }
 
+    /// <summary>
+    /// Narrows the autofill result to the task shifts the caller may see; returns it unchanged when nothing is hidden.
+    /// </summary>
     /// <param name="autofillResult">Raw autofill result</param>
     public async Task<ContainerAutofillResult> KeepVisibleSelectionAsync(
         ContainerAutofillResult autofillResult, CancellationToken cancellationToken)

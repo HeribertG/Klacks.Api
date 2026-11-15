@@ -5,6 +5,9 @@ using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
+/// <summary>
+/// Input of a Holistic Harmonizer run: period, agents, scenario token, boundary context days, keyword mode, group and row-order mode.
+/// </summary>
 /// <param name="PeriodFrom">Start of the date range to load (inclusive).</param>
 /// <param name="PeriodUntil">End of the date range to load (inclusive).</param>
 /// <param name="AgentIds">Clients whose rows are part of the bitmap.</param>

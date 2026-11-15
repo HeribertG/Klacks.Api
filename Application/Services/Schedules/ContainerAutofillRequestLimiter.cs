@@ -33,6 +33,9 @@ public sealed class ContainerAutofillRequestLimiter
         _routeShiftVisibilityFilter = routeShiftVisibilityFilter;
     }
 
+    /// <summary>
+    /// Restricts the override ids and the candidate shifts of the request to those the caller may read.
+    /// </summary>
     /// <param name="request">Autofill request as the caller sent it</param>
     /// <returns>The same request with the override ids and the candidates the caller may read</returns>
     public async Task<ContainerAutofillRequest> LimitToReadableAsync(ContainerAutofillRequest request)

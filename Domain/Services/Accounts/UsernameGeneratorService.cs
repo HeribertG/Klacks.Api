@@ -97,12 +97,7 @@ public class UsernameGeneratorService : IUsernameGeneratorService
 
     private static string PadToThree(string input)
     {
-        var result = input.ToLowerInvariant();
-        while (result.Length < BaseUsernameLength)
-        {
-            result += "x";
-        }
-        return result;
+        return input.ToLowerInvariant().PadRight(BaseUsernameLength, 'x');
     }
 
     private static string NormalizeString(string input)

@@ -20,6 +20,9 @@ public static class SkillFunctionConverter
         PropertyNameCaseInsensitive = true
     };
 
+    /// <summary>
+    /// Converts an agent skill into the function definition the model sees; when a source is given, the provenance in the toolset and the retrieval score are included.
+    /// </summary>
     /// <param name="skill">The skill to describe to the model</param>
     /// <param name="source">How the skill entered the toolset; null leaves the provenance empty</param>
     /// <param name="retrievalScore">The retrieval score that surfaced the skill, if any</param>

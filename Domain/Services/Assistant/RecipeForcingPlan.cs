@@ -105,7 +105,7 @@ public sealed class RecipeForcingPlan : IRecipeForcingPlan
             { NeedsCustomerId: true } => (Key: RecipeConstants.ClientIdParam, Value: _capturedClientId),
             { NeedsOrderId: true } when !_awaitsConfirmedReplay => (Key: RecipeConstants.ShiftIdParam, Value: _capturedOrderId),
             { NeedsPlannableShiftId: true } => (Key: RecipeConstants.ShiftIdParam, Value: _capturedPlannableShiftId),
-            _ => (Key: string.Empty, Value: (string?)null)
+            _ => (Key: string.Empty, Value: null)
         };
 
         return injected.Value == null

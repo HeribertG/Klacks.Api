@@ -82,7 +82,7 @@ public class ListShiftCutsSkill : BaseSkillImplementation
             ShiftStatus.SealedOrder => loadedShift.Id,
             ShiftStatus.OriginalShift => loadedShift.OriginalId,
             ShiftStatus.SplitShift => loadedShift.OriginalId,
-            _ => (Guid?)null
+            _ => null
         };
 
         if (sealedOrderId == null)

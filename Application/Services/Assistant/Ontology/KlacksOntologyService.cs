@@ -349,9 +349,10 @@ public class KlacksOntologyService : IKlacksOntologyService
             body.Append(globalBlock);
         }
 
+        var entityBlock = new StringBuilder();
         foreach (var entity in Entities)
         {
-            var entityBlock = new StringBuilder();
+            entityBlock.Clear();
             entityBlock.Append('\n').Append("- ").Append(entity);
             foreach (var rel in GetRelations(entity))
             {

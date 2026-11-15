@@ -215,7 +215,7 @@ public partial class InboundActionOrchestrator : IInboundActionOrchestrator
             {
                 ["clientId"] = clientId,
                 ["date"] = fromDate,
-                ["untilDate"] = (DateOnly?)untilDate,
+                ["untilDate"] = untilDate,
                 ["groupId"] = groups[0].Id,
                 ["absenceId"] = absence.Id
             },

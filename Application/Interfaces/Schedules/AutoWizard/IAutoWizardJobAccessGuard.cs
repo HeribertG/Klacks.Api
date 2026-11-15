@@ -10,6 +10,9 @@ namespace Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 /// </summary>
 public interface IAutoWizardJobAccessGuard
 {
+    /// <summary>
+    /// Tells whether the current caller may follow, query or cancel the job with the given id.
+    /// </summary>
     /// <param name="jobId">The job the caller addresses</param>
     /// <param name="cancellationToken">Cancels the visibility lookup</param>
     Task<bool> CanAccessAsync(Guid jobId, CancellationToken cancellationToken = default);
