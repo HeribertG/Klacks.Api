@@ -85,7 +85,8 @@ public sealed class ScheduleTimelineRangeCheck
         var ruleBlocks = _timelineCalculationService
             .CalculateScheduleBlocks(ruleRows.Works, ruleRows.WorkChanges, ruleRows.Breaks)
             .ToLookup(b => b.ClientId);
-        var spillIn = await _loader.LoadHolidaySpillInAsync(startDate, analyseToken, cancellationToken);
+        var spillIn = await _loader.LoadHolidaySpillInAsync(
+            startDate, analyseToken, ruleRows.Works.Select(w => w.ClientId).Concat(ruleRows.Breaks.Select(b => b.ClientId)).ToHashSet(), cancellationToken);
 
         var groupedByClient = scheduleBlocks.GroupBy(b => b.ClientId).ToList();
         var clientIds = groupedByClient.Select(g => g.Key).ToList();

@@ -260,13 +260,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         HashSet<Guid> clientIds,
         Guid analyseToken,
         CancellationToken cancellationToken)
-        => await ScenarioRuleRows.Works(_context, analyseToken)
+        => await ScenarioRuleRows.OutsideTopLevelWorks(_context, analyseToken, clientIds, from, to)
             .AsNoTracking()
-            .Where(w => w.AnalyseToken == null
-                && clientIds.Contains(w.ClientId)
-                && w.CurrentDate >= from
-                && w.CurrentDate <= to
-                && w.ParentWorkId == null)
             .Include(w => w.Client)
             .ToListAsync(cancellationToken);
 

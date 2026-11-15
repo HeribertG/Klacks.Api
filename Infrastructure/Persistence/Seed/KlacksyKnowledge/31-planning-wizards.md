@@ -64,12 +64,14 @@ duty that overlaps it shows as a collision, and the rest and hours around it are
 limits (maximum hours per period, rolling average), the rest-day rotation, the counters, the restricted time windows and the
 planning rules: in a scenario they count the real duties and absences of the person outside the scenario, exactly as they
 would on the real plan, because those stay in the plan after an accept. A real duty that lies in the scenario as a copy is
-never counted twice: a scenario duty on the same shift, for the same person and on the same day, stands for the real
-one. That includes a task inside a copied container and a duty placed in the scenario directly on the real shift. The
-duties of another scenario never count. So a scenario can show a limit warning (or, where a
-rule is set to block, refuse a plan) that the scenario's own duties alone would not cause. The rule report and these limit
-checks count the outside duties; the live check of a single day in a scenario (rest, daily and weekly hours, consecutive
-days around a duty) still reads the scenario's own duties only.
+never counted twice: a scenario duty on the same shift, for the same person and on the same day stands for the real one
+when it is its copy or runs the same hours, so a second real duty of that person on that shift and day at other hours
+still counts. That includes a task inside a copied container and a duty placed in the scenario directly on the real
+shift, also in the stages of a run. The duties of another scenario never count. So a scenario can show a limit warning
+(or, where a rule is set to block, refuse a plan) that the scenario's own duties alone would not cause. The live check in
+a scenario (rest, daily and weekly hours, consecutive days, collisions around an edited duty, and the check of a whole
+range) sees the same duties; the range check adds the outside duties only for people who have a duty or absence in the
+scenario in that range.
 
 For qualifications the hard part is a missing mandatory qualification and a level below the minimum
 where that level is binding; a level below a non-binding minimum is allowed but penalised by the size of

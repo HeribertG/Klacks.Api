@@ -9,9 +9,8 @@
 /// the pauses of such real works, and the changes of the visible works. A real work on a carried shift inside the cloned
 /// span is the scenario's business and counts through its clone; rows of another scenario never count. The rule checks tell
 /// a clone from its source by shift and span, the cover-move facts by Work.ClonedFromWorkId (CoverMoveFactsReader). A work
-/// of the scenario on the same shift, person and day as a real work is its twin and stands for it, like an absence twin;
-/// this covers the clones that keep the real shift (container children on a task shift the scenario does not clone) and
-/// works placed in the scenario on a real shift. A token without a live scenario row has no span, so only the real works
+/// of the scenario that is a real work's twin stands for it (ScenarioWorkTwins: same shift, person and day, and the work's
+/// clone or the same hours), like an absence twin. A token without a live scenario row has no span, so only the real works
 /// on shifts it does not carry and without a twin count.
 /// </summary>
 /// <param name="context">Database context of the caller; the queries leave soft-deleted rows out themselves</param>
@@ -63,20 +62,50 @@ public static class ScenarioRuleRows
         return context.WorkChange.Where(wc => !wc.IsDeleted && visibleWorks.Any(w => w.Id == wc.WorkId));
     }
 
+    /// <summary>
+    /// The real top-level works of the given people in a date window that a scenario check sees beside the scenario's own
+    /// rows (the visible real works of Works): the outside part the live and period checks add to their scenario rows.
+    /// </summary>
+    public static IQueryable<Work> OutsideTopLevelWorks(
+        DataBaseContext context, Guid analyseToken, IReadOnlyCollection<Guid> clientIds, DateOnly from, DateOnly until)
+    {
+        var ids = clientIds.ToList();
+
+        return VisibleWorks(context, analyseToken)
+            .Where(w => w.AnalyseToken == null
+                && w.ParentWorkId == null
+                && ids.Contains(w.ClientId)
+                && w.CurrentDate >= from
+                && w.CurrentDate <= until);
+    }
+
+    /// <summary>The real absences (no pause of a work) of the given people in a date window that a scenario check sees.</summary>
+    public static IQueryable<Break> OutsideAbsences(
+        DataBaseContext context, Guid analyseToken, IReadOnlyCollection<Guid> clientIds, DateOnly from, DateOnly until)
+    {
+        var ids = clientIds.ToList();
+
+        return Breaks(context, analyseToken)
+            .Where(b => b.AnalyseToken == null
+                && b.ParentWorkId == null
+                && ids.Contains(b.ClientId)
+                && b.CurrentDate >= from
+                && b.CurrentDate <= until);
+    }
+
     private static IQueryable<Work> VisibleWorks(DataBaseContext context, Guid token)
     {
         var carriedShiftIds = OutsideScenarioWorkQuery.CarriedShiftIds(context, token);
         var scenarios = context.AnalyseScenarios.Where(s => s.Token == token && !s.IsDeleted);
-        var scenarioWorks = context.Work.Where(s => s.AnalyseToken == token && !s.IsDeleted);
 
-        return context.Work.Where(w => !w.IsDeleted
-            && (w.AnalyseToken == token
-                || (w.AnalyseToken == null
-                    && !scenarioWorks.Any(s => s.ShiftId == w.ShiftId
-                        && s.ClientId == w.ClientId
-                        && s.CurrentDate == w.CurrentDate)
-                    && (!carriedShiftIds.Contains(w.ShiftId)
-                        || scenarios.Any(s => w.CurrentDate < s.FromDate.AddDays(-ScenarioConstants.BoundaryDays)
-                            || w.CurrentDate > s.UntilDate.AddDays(ScenarioConstants.BoundaryDays))))));
+        return ScenarioWorkTwins.WithoutRealTwins(
+            context.Work.Where(w => !w.IsDeleted
+                && (w.AnalyseToken == token
+                    || (w.AnalyseToken == null
+                        && (!carriedShiftIds.Contains(w.ShiftId)
+                            || scenarios.Any(s => w.CurrentDate < s.FromDate.AddDays(-ScenarioConstants.BoundaryDays)
+                                || w.CurrentDate > s.UntilDate.AddDays(ScenarioConstants.BoundaryDays)))))),
+            context,
+            token);
     }
 }

@@ -4,12 +4,15 @@
 /// Finds work that belongs to the day BEFORE a checked range but runs into its first day - a night shift
 /// 31.07 22:00-06:00 seen from a range starting 01.08. The range loaders only load works whose CurrentDate lies
 /// inside the range, so without this the 01.08 holiday worked by that shift would be reported by no range at all
-/// at a month boundary. Only the holiday-work step uses it; the other checks keep their own load windows.
+/// at a month boundary. Only the holiday-work step uses it; the other checks keep their own load windows. In a scenario
+/// the people of the checked range also bring their real works of that day the scenario does not carry
+/// (ScenarioRuleRows), as the range rows do.
 /// </summary>
 /// <param name="dbContext">Scoped database context of the caller</param>
 /// <param name="timelineCalculationService">Converts works and work changes into schedule blocks</param>
 /// <param name="firstDate">First day of the checked range; works of the day before are inspected</param>
 /// <param name="analyseToken">Scenario token; null loads the real schedule only</param>
+/// <param name="scenarioClientIds">People of the checked range whose real works count in a scenario; unused without a token</param>
 
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -26,6 +29,7 @@ public static class HolidayWorkSpillInLoader
         ITimelineCalculationService timelineCalculationService,
         DateOnly firstDate,
         Guid? analyseToken,
+        IReadOnlyCollection<Guid> scenarioClientIds,
         CancellationToken cancellationToken)
     {
         var previousDay = firstDate.AddDays(-1);
@@ -35,6 +39,14 @@ public static class HolidayWorkSpillInLoader
             .Include(w => w.Client)
             .Where(w => w.CurrentDate == previousDay && !w.IsDeleted && w.ParentWorkId == null && w.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
+
+        if (analyseToken is { } token && scenarioClientIds.Count > 0)
+        {
+            works.AddRange(await ScenarioRuleRows.OutsideTopLevelWorks(dbContext, token, scenarioClientIds, previousDay, previousDay)
+                .AsNoTracking()
+                .Include(w => w.Client)
+                .ToListAsync(cancellationToken));
+        }
 
         if (works.Count == 0)
         {

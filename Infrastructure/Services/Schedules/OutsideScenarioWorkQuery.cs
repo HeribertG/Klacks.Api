@@ -3,7 +3,8 @@
 /// <summary>
 /// Real works of the run's agents that a scenario does not carry: works of the real plan (no token) on a real shift that no
 /// shift of the scenario stands for (ScenarioSourceShiftId). A group scenario clones only the group's shifts, so a work the
-/// person holds in another group lives outside it, yet stays in the plan after an accept. Only works that count their own
+/// person holds in another group lives outside it, yet stays in the plan after an accept. A real work with a twin in the
+/// scenario (ScenarioWorkTwins) is left out, because the twin stands for it. Only works that count their own
 /// hours are read (WorkOwnHours); a child of the person's own container lies inside the container's time.
 /// </summary>
 /// <param name="context">Database context of the caller (soft-delete filters apply to Work)</param>
@@ -42,19 +43,25 @@ public static class OutsideScenarioWorkQuery
                         && w.CurrentDate <= until)
             .Where(WorkOwnHours.Counts);
 
-    /// <summary>All works of the real plan on a real shift the scenario does not carry, of any person and date.</summary>
+    /// <summary>
+    /// All works of the real plan on a real shift the scenario does not carry and without a twin in the scenario, of any
+    /// person and date.
+    /// </summary>
     internal static IQueryable<Work> RealWorks(DataBaseContext context, Guid analyseToken)
     {
         var carriedShiftIds = CarriedShiftIds(context, analyseToken);
 
-        return context.Work
-            .AsNoTracking()
-            .Where(w => w.AnalyseToken == null && !w.IsDeleted && !carriedShiftIds.Contains(w.ShiftId));
+        return ScenarioWorkTwins.WithoutRealTwins(
+            context.Work
+                .AsNoTracking()
+                .Where(w => w.AnalyseToken == null && !w.IsDeleted && !carriedShiftIds.Contains(w.ShiftId)),
+            context,
+            analyseToken);
     }
 
     /// <summary>The real shifts a scenario stands for: the sources of the scenario's shift clones.</summary>
     internal static IQueryable<Guid> CarriedShiftIds(DataBaseContext context, Guid analyseToken)
-        => context.Shift.IgnoreQueryFilters()
+        => context.Shift
             .Where(s => s.AnalyseToken == analyseToken && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
             .Select(s => s.ScenarioSourceShiftId!.Value);
 }

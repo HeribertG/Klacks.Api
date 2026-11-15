@@ -2,7 +2,9 @@
 
 /// <summary>
 /// Read side of the schedule timeline checks: loads the rows of a single (client/day) or range check, the
-/// per-client timelines and holiday spill-in the checks need beyond them, and the shift locations of a range check.
+/// per-client timelines and holiday spill-in the checks need beyond them, and the shift locations of a range check. In a
+/// scenario the checks see the rows the rule checks see (ScenarioRuleRows): the scenario's own rows plus the real rows it
+/// does not carry; without a token only the real plan.
 /// Scoped, because it reads through the check scope's DataBaseContext.
 /// </summary>
 /// <param name="dbContext">The DataBaseContext of the current check attempt</param>
@@ -32,11 +34,11 @@ public sealed class ScheduleTimelineCheckLoader
 
     public async Task<TimelineCheckRows> LoadDayAsync(Guid clientId, DateOnly date, Guid? analyseToken, CancellationToken cancellationToken)
     {
-        var ownWorks = await _dbContext.Work
+        var ownWorks = await ScenarioRuleRows.Works(_dbContext, analyseToken)
             .AsNoTracking()
             .Include(w => w.Client)
             .Include(w => w.Shift).ThenInclude(s => s!.Client).ThenInclude(c => c!.Addresses)
-            .Where(w => w.ClientId == clientId && w.CurrentDate == date && !w.IsDeleted && w.ParentWorkId == null && w.AnalyseToken == analyseToken)
+            .Where(w => w.ClientId == clientId && w.CurrentDate == date && w.ParentWorkId == null)
             .ToListAsync(cancellationToken);
 
         var worksWithReplacementForClient = await WorksReplacedBy(clientId, date, analyseToken)
@@ -50,9 +52,9 @@ public sealed class ScheduleTimelineCheckLoader
 
         var workChanges = await LoadWorkChangesAsync(allWorks, cancellationToken);
 
-        var breaks = await _dbContext.Break
+        var breaks = await ScenarioRuleRows.Breaks(_dbContext, analyseToken)
             .AsNoTracking()
-            .Where(b => b.ClientId == clientId && b.CurrentDate == date && !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
+            .Where(b => b.ClientId == clientId && b.CurrentDate == date && b.ParentWorkId == null)
             .ToListAsync(cancellationToken);
 
         return new TimelineCheckRows(ownWorks, allWorks, workChanges, breaks, await LoadOnCallBreakIdsAsync(breaks, cancellationToken));
@@ -78,16 +80,16 @@ public sealed class ScheduleTimelineCheckLoader
         var firstBreakDay = date.AddDays(-BreakLookbackDays);
         var nextDay = date.AddDays(1);
 
-        var previousOwnWorks = await _dbContext.Work
+        var previousOwnWorks = await ScenarioRuleRows.Works(_dbContext, analyseToken)
             .AsNoTracking()
-            .Where(w => w.ClientId == clientId && w.CurrentDate == previousDay && !w.IsDeleted && w.ParentWorkId == null && w.AnalyseToken == analyseToken)
+            .Where(w => w.ClientId == clientId && w.CurrentDate == previousDay && w.ParentWorkId == null)
             .ToListAsync(cancellationToken);
         var previousReplacedWorks = await WorksReplacedBy(clientId, previousDay, analyseToken).ToListAsync(cancellationToken);
         var previousWorks = previousOwnWorks.Union(previousReplacedWorks, new WorkIdComparer()).ToList();
 
-        var neighbourBreaks = await _dbContext.Break
+        var neighbourBreaks = await ScenarioRuleRows.Breaks(_dbContext, analyseToken)
             .AsNoTracking()
-            .Where(b => b.ClientId == clientId && b.CurrentDate >= firstBreakDay && b.CurrentDate <= nextDay && b.CurrentDate != date && !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
+            .Where(b => b.ClientId == clientId && b.CurrentDate >= firstBreakDay && b.CurrentDate <= nextDay && b.CurrentDate != date && b.ParentWorkId == null)
             .ToListAsync(cancellationToken);
 
         var previousChanges = await LoadWorkChangesAsync(previousWorks, cancellationToken);
@@ -106,12 +108,18 @@ public sealed class ScheduleTimelineCheckLoader
     /// by which the checks find the replacement blocks of a client.
     /// </summary>
     private IQueryable<Work> WorksReplacedBy(Guid clientId, DateOnly date, Guid? analyseToken)
-        => _dbContext.Work
+        => ScenarioRuleRows.Works(_dbContext, analyseToken)
             .AsNoTracking()
-            .Where(w => w.CurrentDate == date && !w.IsDeleted && w.ParentWorkId == null && w.AnalyseToken == analyseToken &&
+            .Where(w => w.CurrentDate == date && w.ParentWorkId == null &&
                         _dbContext.WorkChange.Any(wc =>
                             wc.WorkId == w.Id && !wc.IsDeleted && wc.ReplaceClientId == clientId));
 
+    /// <summary>
+    /// Loads the rows of a range check: the top-level works and absences of the checked world. In a scenario the people
+    /// holding a scenario work or absence in the range also bring their real rows the scenario does not carry
+    /// (ScenarioRuleRows), so their rules and collisions are judged against the plan an accept leaves; real rows of people
+    /// without a scenario row in the range stay out, as in the period check.
+    /// </summary>
     public async Task<TimelineCheckRows> LoadRangeAsync(DateOnly startDate, DateOnly endDate, Guid? analyseToken, CancellationToken cancellationToken)
     {
         var works = await _dbContext.Work
@@ -120,12 +128,27 @@ public sealed class ScheduleTimelineCheckLoader
             .Where(w => w.CurrentDate >= startDate && w.CurrentDate <= endDate && !w.IsDeleted && w.ParentWorkId == null && w.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
 
-        var workChanges = await LoadWorkChangesAsync(works, cancellationToken);
-
         var breaks = await _dbContext.Break
             .AsNoTracking()
             .Where(b => b.CurrentDate >= startDate && b.CurrentDate <= endDate && !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
+
+        if (analyseToken is { } token)
+        {
+            var scenarioClientIds = works.Select(w => w.ClientId).Concat(breaks.Select(b => b.ClientId)).ToHashSet();
+            if (scenarioClientIds.Count > 0)
+            {
+                works.AddRange(await ScenarioRuleRows.OutsideTopLevelWorks(_dbContext, token, scenarioClientIds, startDate, endDate)
+                    .AsNoTracking()
+                    .Include(w => w.Client)
+                    .ToListAsync(cancellationToken));
+                breaks.AddRange(await ScenarioRuleRows.OutsideAbsences(_dbContext, token, scenarioClientIds, startDate, endDate)
+                    .AsNoTracking()
+                    .ToListAsync(cancellationToken));
+            }
+        }
+
+        var workChanges = await LoadWorkChangesAsync(works, cancellationToken);
 
         return new TimelineCheckRows(works, works, workChanges, breaks, await LoadOnCallBreakIdsAsync(breaks, cancellationToken));
     }
@@ -135,8 +158,10 @@ public sealed class ScheduleTimelineCheckLoader
         => ClientTimelineLoader.LoadAsync(
             _dbContext, _timelineCalculationService, clientId, from, to, analyseToken, cancellationToken);
 
-    public Task<HolidayWorkSpillIn> LoadHolidaySpillInAsync(DateOnly firstDate, Guid? analyseToken, CancellationToken cancellationToken)
-        => HolidayWorkSpillInLoader.LoadAsync(_dbContext, _timelineCalculationService, firstDate, analyseToken, cancellationToken);
+    public Task<HolidayWorkSpillIn> LoadHolidaySpillInAsync(
+        DateOnly firstDate, Guid? analyseToken, IReadOnlyCollection<Guid> scenarioClientIds, CancellationToken cancellationToken)
+        => HolidayWorkSpillInLoader.LoadAsync(
+            _dbContext, _timelineCalculationService, firstDate, analyseToken, scenarioClientIds, cancellationToken);
 
     public Task<UncoveredAbsenceLookup> LoadUncoveredAbsenceLookupAsync(TimelineCheckRows rows, CancellationToken cancellationToken)
         => UncoveredAbsenceLookupLoader.LoadAsync(
