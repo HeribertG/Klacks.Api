@@ -15,3 +15,21 @@ query-filters:
   # cs/empty-catch-block.
   - exclude:
       id: cs/catch-of-all-exceptions
+
+  # Style rules without defect value (sampled 2026-11-15, evidence in
+  # docs/knowledge/codeql-taste-rules-exclusion-2026-11-15.md, super repo): in ~110 read locations not one hid a
+  # bug. missed-where and missed-select suggest LINQ rewrites that often change semantics (await, out variables,
+  # mutated state in the condition); complex-condition mostly flags EF predicates that must stay inline to
+  # translate to SQL.
+  - exclude:
+      id: cs/linq/missed-where
+  - exclude:
+      id: cs/linq/missed-select
+  - exclude:
+      id: cs/complex-condition
+  - exclude:
+      id: cs/missed-ternary-operator
+  - exclude:
+      id: cs/nested-if-statements
+  - exclude:
+      id: cs/complex-block
