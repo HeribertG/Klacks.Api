@@ -2,7 +2,8 @@
 
 /// <summary>
 /// SocketsHttpHandler connect callback that resolves the target host itself and refuses to open
-/// a socket to any private, loopback or link-local address. Enforcement happens at the moment of
+/// a socket to any private, loopback, link-local or otherwise reserved address (see
+/// <see cref="PrivateNetworkHostClassifier.IsBlockedForOutboundRequest"/>). Enforcement happens at the moment of
 /// the actual TCP connection rather than on the original request URL, so it also blocks HTTP
 /// redirects into internal addresses and closes the DNS-rebinding gap where a hostname could
 /// resolve differently between an upfront check and the real connection.
@@ -35,11 +36,11 @@ public class PrivateNetworkBlockingConnectCallback
             throw new SocketException((int)SocketError.HostNotFound);
         }
 
-        var blockedAddress = Array.Find(addresses, PrivateNetworkHostClassifier.IsPrivateOrLoopbackAddress);
+        var blockedAddress = Array.Find(addresses, PrivateNetworkHostClassifier.IsBlockedForOutboundRequest);
         if (blockedAddress is not null)
         {
             throw new PrivateNetworkAccessBlockedException(
-                $"Connection to '{host}' was blocked: address {blockedAddress} is private/loopback/link-local, which is not allowed for outbound provider requests.");
+                $"Connection to '{host}' was blocked: address {blockedAddress} is private/loopback/link-local/reserved, which is not allowed for outbound provider requests.");
         }
 
         var socket = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
