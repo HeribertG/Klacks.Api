@@ -532,5 +532,6 @@
   "evaluate_employee_exit": "Evaluar las consecuencias de la salida de un empleado",
   "start_software_update": "Instalar la actualización de software",
   "evaluate_software_update": "Evaluar si conviene actualizar ahora",
-  "evaluate_container_bundling": "Evaluar la agrupación de visitas en un contenedor"
+  "evaluate_container_bundling": "Evaluar la agrupación de visitas en un contenedor",
+  "find_tools": "Buscar herramientas que faltan"
 }

@@ -5,7 +5,7 @@ description: |
   the same conversation, and pairs where one regularly follows the other. Covers the number
   expressing how sure it is, how confirming or rejecting a suggestion moves that number, why a
   rejected suggestion can reappear, and what these pairs change at runtime — quietly offering a
-  companion ability, and proposing the usual next step. Use this when the user asks what the
+  companion ability, proposing the usual next step, and looking up a missing ability during an answer. Use this when the user asks what the
   assistant learns from watching, or what confirming an observation does.
 category: Query
 executionType: Skill
@@ -26,8 +26,8 @@ triggerKeywords:
     - confidence
     - accept insight
 synonyms:
-  de: [skill-beziehung, beziehungen zwischen fähigkeiten, was hat klacksy bemerkt, konfidenz, erkenntnis übernehmen, erkenntnis verwerfen, warum kommt der vorschlag wieder, gelernte verknüpfung]
-  en: [skill relation, what has klacksy noticed, confidence, accept insight, dismiss insight, why does the suggestion come back, learned connection]
+  de: [skill-beziehung, beziehungen zwischen fähigkeiten, was hat klacksy bemerkt, konfidenz, erkenntnis übernehmen, erkenntnis verwerfen, warum kommt der vorschlag wieder, gelernte verknüpfung, fehlendes werkzeug nachladen]
+  en: [skill relation, what has klacksy noticed, confidence, accept insight, dismiss insight, why does the suggestion come back, learned connection, look up a missing tool]
   fr: [relation entre skills, ce que klacksy a remarqué, confiance, accepter une observation, rejeter une observation]
   it: [relazione tra skill, cosa ha notato klacksy, affidabilità, accettare osservazione, rifiutare osservazione]
 ---
@@ -90,6 +90,15 @@ exactly the abilities that match its words. Now and then the assistant skips thi
 what it learns next is not merely an echo of what it did before. An administrator can set how many
 places are open, or switch it off with 0 (setting Assistant:SkillGraph:AssociationSlots, default 3).
 
+**Looking up a missing ability.** The list is chosen before the assistant reads your message closely,
+so an unspoken next step can be missing — "Ben starts next month" also needs a contract and a team.
+When the tool search is switched on, the assistant can then look the missing ability up itself while
+it answers: it describes what it lacks in a few words, and the abilities it finds join its list from
+its next step on. It only finds abilities you are allowed to use, at most nine per answer and in at most
+two lookups. Each lookup
+costs one extra step, so such an answer takes a little longer. An administrator switches the search on
+or off (setting Assistant:ToolSearch:Enabled, off by default until its measurement is done).
+
 **Proposing the next step.** After an ability has been used successfully, a settled "one after the
 other" pair lets the assistant offer the usual follow-up. That proposal goes through the same
 politeness rules as any other — your preferences and the limit on how often it may speak up
@@ -111,3 +120,4 @@ Pairs are never deleted, only weakened until they fall out of use.
 - "Ich habe das verworfen, es taucht wieder auf."
 - "Die Liste ist leer — ist das kaputt?"
 - "Beeinflusst das, welche Werkzeuge er benutzt?"
+- "Kann Klacksy ein Werkzeug nachladen, das ihm fehlt?"

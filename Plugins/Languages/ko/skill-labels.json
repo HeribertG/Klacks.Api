@@ -532,5 +532,6 @@
   "evaluate_employee_exit": "직원 퇴사의 영향 판단",
   "start_software_update": "소프트웨어 업데이트 설치",
   "evaluate_software_update": "지금 업데이트할지 판단",
-  "evaluate_container_bundling": "컨테이너 묶기 타당성 판단"
+  "evaluate_container_bundling": "컨테이너 묶기 타당성 판단",
+  "find_tools": "부족한 도구 찾기"
 }

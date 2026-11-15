@@ -103,7 +103,8 @@ internal static class ConversationHistoryBudget
         if (functions == null || functions.Count == 0)
             return 0;
 
-        var rawTokens = functions.Sum(EstimateToolDefinitionTokens);
+        var definitionTokens = functions.Sum(EstimateToolDefinitionTokens);
+        var rawTokens = definitionTokens + ToolSearchReserveTokens(functions, definitionTokens);
         return rawTokens + (rawTokens * ToolDefinitionSafetyMarginPercent / PercentBase);
     }
 
@@ -185,6 +186,22 @@ internal static class ConversationHistoryBudget
     private static int EstimateTokens(string? text) => string.IsNullOrEmpty(text) ? 0 : text.Length / CharsPerToken;
 
     private static int EstimateTokens(IEnumerable<Providers.LLMMessage> messages) => messages.Sum(m => EstimateTokens(m.Content));
+
+    // The budget is computed once per turn, but find_tools can add up to MaxAddedToolsPerTurn definitions during the
+    // tool loop. When find_tools is offered, room for that many average-sized definitions is reserved up front, so the
+    // grown request still fits a small context window.
+    private static int ToolSearchReserveTokens(List<LLMFunction> functions, int definitionTokens)
+    {
+        var offersToolSearch = functions.Any(f =>
+            string.Equals(f.Name, ToolSearchConstants.SkillName, StringComparison.OrdinalIgnoreCase));
+        if (!offersToolSearch)
+        {
+            return 0;
+        }
+
+        var averageTokens = definitionTokens / functions.Count;
+        return averageTokens * ToolSearchConstants.MaxAddedToolsPerTurn;
+    }
 
     // Character-based JSON size of a single tool definition, mirroring the
     // {name, description, parameters:{type, properties, required}} shape every supported provider

@@ -532,5 +532,6 @@
   "evaluate_employee_exit": "Posoudit důsledky odchodu zaměstnance",
   "start_software_update": "Nainstalovat aktualizaci softwaru",
   "evaluate_software_update": "Posoudit vhodný čas pro aktualizaci",
-  "evaluate_container_bundling": "Posoudit sdružení do kontejneru"
+  "evaluate_container_bundling": "Posoudit sdružení do kontejneru",
+  "find_tools": "Vyhledat chybějící nástroje"
 }

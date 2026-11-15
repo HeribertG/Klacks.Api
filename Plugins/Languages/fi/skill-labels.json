@@ -532,5 +532,6 @@
   "evaluate_employee_exit": "Työntekijän lähdön seurausten arviointi",
   "start_software_update": "Asenna ohjelmistopäivitys",
   "evaluate_software_update": "Arvioi päivityksen ajankohta",
-  "evaluate_container_bundling": "Konttiin yhdistämisen arviointi"
+  "evaluate_container_bundling": "Konttiin yhdistämisen arviointi",
+  "find_tools": "Etsi puuttuvat työkalut"
 }

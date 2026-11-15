@@ -532,5 +532,6 @@
   "evaluate_employee_exit": "Vurder konsekvenserne af en fratrædelse",
   "start_software_update": "Installer softwareopdateringen",
   "evaluate_software_update": "Vurder om der skal opdateres nu",
-  "evaluate_container_bundling": "Vurder en samling af besøg i en container"
+  "evaluate_container_bundling": "Vurder en samling af besøg i en container",
+  "find_tools": "Find manglende værktøjer"
 }

@@ -4132,5 +4132,9 @@
     "keneen saan yhteyden viestipalvelun kautta",
     "kuka puuttuu viestipalvelusta",
     "kuka ei ole tavoitettavissa viestipalvelun kautta"
+  ],
+  "find_tools": [
+    "etsi työkalu",
+    "etsi puuttuva toiminto"
   ]
 }

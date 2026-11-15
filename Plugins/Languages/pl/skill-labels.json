@@ -532,5 +532,6 @@
   "evaluate_employee_exit": "Oceń skutki odejścia pracownika",
   "start_software_update": "Zainstaluj aktualizację oprogramowania",
   "evaluate_software_update": "Oceń moment aktualizacji",
-  "evaluate_container_bundling": "Oceń połączenie w kontener"
+  "evaluate_container_bundling": "Oceń połączenie w kontener",
+  "find_tools": "Wyszukaj brakujące narzędzia"
 }

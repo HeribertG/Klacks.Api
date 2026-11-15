@@ -532,5 +532,6 @@
   "evaluate_employee_exit": "Evaluează consecințele plecării unui angajat",
   "start_software_update": "Instalează actualizarea software",
   "evaluate_software_update": "Evaluează dacă să actualizezi acum",
-  "evaluate_container_bundling": "Evaluează gruparea într-un container"
+  "evaluate_container_bundling": "Evaluează gruparea într-un container",
+  "find_tools": "Caută instrumentele lipsă"
 }

@@ -532,5 +532,6 @@
   "evaluate_employee_exit": "评估员工离职的后果",
   "start_software_update": "安装软件更新",
   "evaluate_software_update": "评估现在是否更新",
-  "evaluate_container_bundling": "评估容器打包是否值得"
+  "evaluate_container_bundling": "评估容器打包是否值得",
+  "find_tools": "查找缺少的工具"
 }

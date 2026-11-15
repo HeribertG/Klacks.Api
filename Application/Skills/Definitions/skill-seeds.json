@@ -1,5 +1,5 @@
 {
-  "version": 30,
+  "version": 31,
   "skills": [
     {
       "name": "get_current_time",
@@ -11708,6 +11708,55 @@
         "it": "Elenca le abilità dell'assistente"
       },
       "version": 7
+    },
+    {
+      "name": "find_tools",
+      "area": "klacksy",
+      "description": "Only for a step none of your current tools can do: first check your tools; if one fits, use it and do not call this. Then pass short descriptions of the missing actions in one call, e.g. \"assign a contract; add an employee to a group\", instead of leaving that step out or saying it is done. The found tools become available from your next step on. At most two searches per answer.",
+      "category": "System",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "needs",
+          "description": "One to three short descriptions of the missing actions, separated by ';'",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": null,
+      "synonyms": {
+        "de": [
+          "werkzeug suchen",
+          "fehlende funktion suchen"
+        ],
+        "en": [
+          "find a tool",
+          "search for a missing function"
+        ],
+        "fr": [
+          "chercher un outil",
+          "chercher une fonction manquante"
+        ],
+        "it": [
+          "cercare uno strumento",
+          "cercare una funzione mancante"
+        ]
+      },
+      "labels": {
+        "de": "Fehlende Werkzeuge suchen",
+        "en": "Find missing tools",
+        "fr": "Chercher les outils manquants",
+        "it": "Cercare gli strumenti mancanti"
+      },
+      "version": 1
     },
     {
       "name": "create_agent_skill",

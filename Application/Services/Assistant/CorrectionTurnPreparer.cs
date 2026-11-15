@@ -41,6 +41,7 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
     private readonly ISkillPermissionGate _permissionGate;
     private readonly ILogger<CorrectionTurnPreparer> _logger;
     private readonly ITurnConfirmationScope _turnScope;
+    private readonly IToolSearchToolsetAppender _toolSearchAppender;
 
     public CorrectionTurnPreparer(
         IAssistantLastActionStore lastActionStore,
@@ -51,7 +52,8 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
         ISkillRegistry skillRegistry,
         ISkillPermissionGate permissionGate,
         ILogger<CorrectionTurnPreparer> logger,
-        ITurnConfirmationScope turnScope)
+        ITurnConfirmationScope turnScope,
+        IToolSearchToolsetAppender toolSearchAppender)
     {
         _lastActionStore = lastActionStore;
         _pendingRecipeStore = pendingRecipeStore;
@@ -62,6 +64,7 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
         _permissionGate = permissionGate;
         _logger = logger;
         _turnScope = turnScope;
+        _toolSearchAppender = toolSearchAppender;
     }
 
     public async Task<CorrectionTurnPreparation> PrepareAsync(
@@ -124,6 +127,8 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
             toolset = new SkillToolsetResult();
         }
 
+        await AppendToolSearchAsync(agent, toolset, userId, cancellationToken);
+
         GracefulCorrectionOutcome? correction = null;
         if (correctionPlan != null)
         {
@@ -178,6 +183,29 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
         }
 
         return new CorrectionTurnPreparation(toolset, correction, undoWasHeld);
+    }
+
+    /// <summary>
+    /// Adds find_tools above the provider cap when the tool search is on, also to the empty toolset a failed assembly
+    /// leaves, so the model can still look up what it needs. A failure keeps the toolset as assembled: the turn only
+    /// loses the search, not its tools.
+    /// </summary>
+    private async Task AppendToolSearchAsync(
+        Agent? agent, SkillToolsetResult toolset, string userId, CancellationToken cancellationToken)
+    {
+        if (agent == null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _toolSearchAppender.AppendAsync(agent, toolset, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Adding find_tools to the toolset failed for user {UserId}; the turn runs without the tool search.", userId);
+        }
     }
 
     /// <summary>

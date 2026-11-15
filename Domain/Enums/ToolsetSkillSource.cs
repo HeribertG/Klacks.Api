@@ -44,5 +44,10 @@ public enum ToolsetSkillSource
     /// tell which of them the user meant. The skill is still offered, but at truncation it competes with the
     /// retrieved skills on its retrieval score instead of evicting them. The weakest source: any other layer
     /// that claims the same skill replaces it.</summary>
-    BroadKeyword = 9
+    BroadKeyword = 9,
+
+    /// <summary>The in-turn tool search: either find_tools itself, which joins the toolset above the provider cap
+    /// when the tool search is switched on, or a skill find_tools found, which joins after the tool round that ran
+    /// the search.</summary>
+    ToolSearch = 10
 }

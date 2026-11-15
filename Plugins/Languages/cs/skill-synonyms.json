@@ -4178,5 +4178,9 @@
     "koho mohu zastihnout přes messenger",
     "kdo chybí v messengeru",
     "kdo není dosažitelný přes messenger"
+  ],
+  "find_tools": [
+    "najít nástroj",
+    "hledat chybějící funkci"
   ]
 }

@@ -532,5 +532,6 @@
   "evaluate_employee_exit": "Evaluasi dampak keluarnya karyawan",
   "start_software_update": "Pasang pembaruan perangkat lunak",
   "evaluate_software_update": "Evaluasi perlu tidaknya memperbarui sekarang",
-  "evaluate_container_bundling": "Evaluasi penggabungan ke kontainer"
+  "evaluate_container_bundling": "Evaluasi penggabungan ke kontainer",
+  "find_tools": "Cari alat yang belum tersedia"
 }

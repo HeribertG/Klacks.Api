@@ -532,5 +532,6 @@
   "evaluate_employee_exit": "ประเมินผลกระทบของการออกจากงานของพนักงาน",
   "start_software_update": "ติดตั้งอัปเดตซอฟต์แวร์",
   "evaluate_software_update": "ประเมินว่าควรอัปเดตตอนนี้หรือไม่",
-  "evaluate_container_bundling": "ประเมินการรวมเป็นคอนเทนเนอร์"
+  "evaluate_container_bundling": "ประเมินการรวมเป็นคอนเทนเนอร์",
+  "find_tools": "ค้นหาเครื่องมือที่ขาดอยู่"
 }

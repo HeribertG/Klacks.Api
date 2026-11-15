@@ -532,5 +532,6 @@
   "evaluate_employee_exit": "הערכת ההשלכות של עזיבת עובד",
   "start_software_update": "התקנת עדכון התוכנה",
   "evaluate_software_update": "הערכת עיתוי העדכון",
-  "evaluate_container_bundling": "הערכת כדאיות איחוד למיכל"
+  "evaluate_container_bundling": "הערכת כדאיות איחוד למיכל",
+  "find_tools": "חיפוש כלים חסרים"
 }
