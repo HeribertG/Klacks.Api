@@ -401,6 +401,9 @@ BEGIN
         AND cti.is_deleted = false
         AND container.from_date <= ip.schedule_date
         AND (container.until_date IS NULL OR container.until_date >= ip.schedule_date)
+        -- No holiday input: matches get_shift_schedule called with an empty holiday_dates array.
+        AND ct.is_holiday = false
+        AND ct.weekday = (EXTRACT(isodow FROM ip.schedule_date)::INTEGER % 7)
     ),
     work_counts AS (
         SELECT
