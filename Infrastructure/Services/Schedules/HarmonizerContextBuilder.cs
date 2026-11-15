@@ -30,7 +30,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// contract caps, the shift-work flag (<see cref="PlanningContractBasis"/>, same choice as Wizard 1), the contractual
 /// target prorated to the bitmap date range, per-(agent, date) availability (WorksOnDay flag closed outside the company membership and, in a run
 /// for a group, outside the agent's period in that group (GroupPeriodRanges, the rule of the planning period guard); FREE keywords, break
-/// blockers), and ClientShiftPreference Blacklist sets handed down the order tree (ShiftPreferenceScopeQuery). Uses the same data sources as
+/// blockers), ClientShiftPreference Blacklist sets handed down the order tree (ShiftPreferenceScopeQuery) and, on the real
+/// plan, the ineligibility of agents who are not members of a shift's group that day (ShiftGroupIneligibilityQuery). Uses the same data sources as
 /// Wizard 1 and the same scenario-isolation semantics for the AnalyseToken. Agents come in Wizard 1's <see cref="RosterPriorityOrder"/>.
 /// </summary>
 /// <param name="context">EF Core database context</param>
@@ -113,7 +114,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays, correctedWorkHours, onCallAbsenceIds, outsideScenarioWorks);
         var hints = BuildSofteningHints(softenings);
 
-        var ineligible = await BuildIneligibleAsync(agentIds, assignments, works, breakDates, ct);
+        var ineligible = await BuildIneligibleAsync(agentIds, assignments, works, breakDates, request.AnalyseToken, ct);
 
         var contextDaysBefore = Math.Max(0, request.ContextDaysBefore);
         var contextDaysAfter = Math.Max(0, request.ContextDaysAfter);
@@ -163,6 +164,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         List<BitmapAssignment> assignments,
         List<Work> works,
         IReadOnlySet<(Guid AgentId, DateOnly Date)> breakDates,
+        Guid? analyseToken,
         CancellationToken ct)
     {
         // The harmonizer only swaps within existing assignments, so the eligibility slots that matter
@@ -194,7 +196,19 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         availabilityIneligible = AvailabilitySuppression.RemoveGovernedDays(
             availabilityIneligible,
             CollectGovernedDays(breakDates));
-        return MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
+        var ineligible = MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
+        if (analyseToken is not null)
+        {
+            return ineligible;
+        }
+
+        var holders = assignments
+            .Where(a => a.ShiftRefId != Guid.Empty)
+            .Select(a => (a.AgentId, a.ShiftRefId, a.Date))
+            .ToHashSet();
+        var slots = eligibilitySlots.Select(s => (s.ShiftId, s.Date)).ToList();
+        var outsideGroup = await ShiftGroupIneligibilityQuery.LoadAsync(_context, agentIds, slots, holders, ct);
+        return MergeIneligible(ineligible, outsideGroup);
     }
 
     /// <summary>

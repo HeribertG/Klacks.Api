@@ -54,6 +54,9 @@ its hours towards the weekly limit. Stage three, and stage two when it runs on a
 as taken: no swap puts a second duty on it, and its hours count towards the person's hours. The same holds when the
 person stands in for a colleague on a duty of another group (a replacement entered on that duty), and when stage one
 replans only from a later day: a duty in another group before that day still bounds the rest and the weekly hours.
+When a swapping stage runs on the real plan instead of a scenario, the person's duties in all her groups are part of
+the run; a swap then hands a duty only to somebody who is a member of that duty's group (or of a group below it) on
+that day, the last day of a membership included. A duty nobody else in the run may take stays with its person.
 The rule check of a scenario (before it is accepted, and in the report after a run) also counts that duty: a scenario
 duty that overlaps it shows as a collision, and the rest and hours around it are checked.
 
