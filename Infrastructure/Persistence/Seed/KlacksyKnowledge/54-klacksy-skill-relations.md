@@ -94,7 +94,8 @@ places are open, or switch it off with 0 (setting Assistant:SkillGraph:Associati
 so an unspoken next step can be missing — "Ben starts next month" also needs a contract and a team.
 When the tool search is switched on, the assistant can then look the missing ability up itself while
 it answers: it describes what it lacks in a few words, and the abilities it finds join its list from
-its next step on. It only finds abilities you are allowed to use, at most nine per answer. Each lookup
+its next step on. It only finds abilities you are allowed to use, at most nine per answer and in at most
+two lookups. Each lookup
 costs one extra step, so such an answer takes a little longer. An administrator switches the search on
 or off (setting Assistant:ToolSearch:Enabled, off by default until its measurement is done).
 

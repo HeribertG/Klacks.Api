@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// See ITurnToolsetExtension. Holds the offers of one turn only; an offer for another turn id starts over, so a scope
-/// shared by several turns does not carry skills from one turn into the next. Turns without a turn id (eval replay,
-/// probes) share the null key; none of them runs a tool loop that calls find_tools.
+/// See ITurnToolsetExtension. Holds the offers and the search count of one turn only; an offer or search for another
+/// turn id starts over, so a scope shared by several turns does not carry skills from one turn into the next. Turns
+/// without a turn id (eval replay, probes) share the null key; none of them runs a tool loop that calls find_tools.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
