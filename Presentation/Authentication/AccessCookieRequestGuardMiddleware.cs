@@ -6,7 +6,9 @@
 /// A cookie-authenticated request is answered with 403 when
 /// - CookieCsrfRules does not accept its origin (any method; a WebSocket upgrade to a hub or the STT stream is judged by
 ///   Sec-Fetch-Site first, see CookieCsrfRules), or
-/// - its method is not GET, HEAD, OPTIONS or TRACE and it carries no CSRF proof (X-Requested-With or JSON).
+/// - its method is not GET, HEAD, OPTIONS or TRACE and it carries no CSRF proof (X-Requested-With or JSON). A WebSocket
+///   handshake over HTTP/2 (Extended CONNECT, RFC 8441) is treated like the GET upgrade of HTTP/1.1: a browser cannot add
+///   a header or content type to it, so only the origin check applies; any other CONNECT still needs the proof.
 /// Requests authenticated by an Authorization header or a hub/STT query token are not touched.
 /// </summary>
 /// <param name="next">Next middleware of the pipeline</param>
@@ -40,7 +42,7 @@ public sealed class AccessCookieRequestGuardMiddleware
                 return;
             }
 
-            if (!IsSafeMethod(context.Request.Method) && !CookieCsrfRules.CarriesCsrfProof(context.Request))
+            if (!IsSafeRequest(context) && !CookieCsrfRules.CarriesCsrfProof(context.Request))
             {
                 Reject(context, MissingProofReason);
                 return;
@@ -48,6 +50,16 @@ public sealed class AccessCookieRequestGuardMiddleware
         }
 
         await _next(context);
+    }
+
+    private static bool IsSafeRequest(HttpContext context)
+    {
+        return IsSafeMethod(context.Request.Method) || IsWebSocketConnect(context);
+    }
+
+    private static bool IsWebSocketConnect(HttpContext context)
+    {
+        return HttpMethods.IsConnect(context.Request.Method) && context.WebSockets.IsWebSocketRequest;
     }
 
     private static bool IsSafeMethod(string method)
