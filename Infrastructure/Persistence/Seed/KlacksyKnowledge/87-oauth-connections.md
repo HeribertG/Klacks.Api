@@ -22,7 +22,7 @@ The page is titled "Connect an external AI tool to Klacks". It shows the tool's 
 
 - **Claude** (claude.ai and claude.com) and **ChatGPT** connect directly.
 - **Programs on the same computer** (for example Claude Code, Cursor or VS Code on the desktop) connect directly while the administrator keeps the local programs switch on (it is on by default). They are shown as "Program on this computer" with the port.
-- **Every other tool** is refused until an administrator adds its address as an own target in the OAuth connection settings. Once added, every Supervisor and Admin can use it. Only Admins add targets.
+- **Every other tool** is refused until an administrator adds its address as an own target in the card "OAuth connections of AI tools" (Settings, section "System", expert mode). Once added, every Supervisor and Admin can use it. Only Admins add targets.
 
 The name on the consent page and in the token list always comes from this list of trusted targets, never from a name the tool announces itself. The address the code is sent to is shown next to the name; connect only if you just started the connection yourself.
 
@@ -38,7 +38,7 @@ The consent page preselects read only: the tool can look things up (plans, emplo
 
 ## What the administrator controls
 
-Mode "trusted tools" (default) or "off"; the own targets list; the local programs switch; the write switch. Mode "off" blocks new connections and also stops every access token that was issued through OAuth, including existing ones, until the mode is switched back. On a terminal server, switch local programs off: another user on the same machine could intercept the connection of a local program. On the public demo an OAuth token lives only 24 hours.
+Where: Settings (Admin only), expert mode switched on at the top, section "System", card "OAuth connections of AI tools". Supervisors and planners do not see the card. It holds the connections mode ("Trusted tools only" by default, or "Off"), the switch for programs on this computer, the write switch and the list of own trusted targets. Mode "off" blocks new connections and also stops every access token that was issued through OAuth, including existing ones, until the mode is switched back. On a terminal server, switch local programs off: another user on the same machine could intercept the connection of a local program. On the public demo an OAuth token lives only 24 hours.
 
 ## Trigger phrases
 
