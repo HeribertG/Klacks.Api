@@ -114,7 +114,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays, correctedWorkHours, onCallAbsenceIds, outsideScenarioWorks);
         var hints = BuildSofteningHints(softenings);
 
-        var ineligible = await BuildIneligibleAsync(agentIds, assignments, works, breakDates, request.AnalyseToken, ct);
+        var (ineligible, outsideGroup) = await BuildIneligibleAsync(agentIds, assignments, works, breakDates, request.AnalyseToken, ct);
 
         var contextDaysBefore = Math.Max(0, request.ContextDaysBefore);
         var contextDaysAfter = Math.Max(0, request.ContextDaysAfter);
@@ -156,10 +156,11 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             restrictedTimeWindows,
             planningRules,
             request.KeywordMode,
-            KeepAgentOrder: true);
+            KeepAgentOrder: true,
+            OutsideGroupAssignments: outsideGroup);
     }
 
-    private async Task<IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)>> BuildIneligibleAsync(
+    private async Task<(IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> Ineligible, IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> OutsideGroup)> BuildIneligibleAsync(
         List<Guid> agentIds,
         List<BitmapAssignment> assignments,
         List<Work> works,
@@ -199,7 +200,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var ineligible = MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
         if (analyseToken is not null)
         {
-            return ineligible;
+            return (ineligible, new HashSet<(string, Guid, DateOnly)>());
         }
 
         var holders = assignments
@@ -208,7 +209,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             .ToHashSet();
         var slots = eligibilitySlots.Select(s => (s.ShiftId, s.Date)).ToList();
         var outsideGroup = await ShiftGroupIneligibilityQuery.LoadAsync(_context, agentIds, slots, holders, ct);
-        return MergeIneligible(ineligible, outsideGroup);
+        return (MergeIneligible(ineligible, outsideGroup), outsideGroup);
     }
 
     /// <summary>

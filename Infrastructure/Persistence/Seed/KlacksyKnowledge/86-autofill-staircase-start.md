@@ -16,7 +16,7 @@ The top of the employee order works one shared cycle, each row shifted against t
 
 ## When it is tried, and what it costs
 
-Only when every person on a row can work every needed shift kind, each kind is needed every day, there are at least two rows, a row fits the contract hours and the period is at least one cycle long. The judge decides in its usual order (`explain_planning_wizards`). With a time limit the second run only starts if the first used at most half of it; otherwise stage one takes about twice as long. When the staircase wins, packages are more regular, but lower ranks can get fewer hours and weekends can be spread less evenly, because each stage is exactly one week and keeps a row's free days on the same weekdays.
+Only when every person on a row can work every needed shift kind, each kind is needed every day, there are at least two rows, a row fits the contract hours and the period is at least one cycle long. The judge decides in its usual order (`explain_planning_wizards`). With a time limit the second run only starts if the first used at most half of it; otherwise stage one takes about twice as long. When the staircase wins, packages are more regular, but lower ranks can get fewer hours and weekends can be spread less evenly, because each stage is exactly one week and keeps a row's free days on the same weekdays. That is intended: hours are served from the top of the order down, and the lowest ranks take what is left (owner decision 2026-11-15), so on large plans the staircase may take hours away from the bottom ranks.
 
 ## Rank check
 

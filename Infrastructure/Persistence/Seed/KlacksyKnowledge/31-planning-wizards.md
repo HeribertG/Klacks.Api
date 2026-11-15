@@ -56,7 +56,9 @@ person stands in for a colleague on a duty of another group (a replacement enter
 replans only from a later day: a duty in another group before that day still bounds the rest and the weekly hours.
 When a swapping stage runs on the real plan instead of a scenario, the person's duties in all her groups are part of
 the run; a swap then hands a duty only to somebody who is a member of that duty's group (or of a group below it) on
-that day, the last day of a membership included. A duty nobody else in the run may take stays with its person.
+that day, the last day of a membership included and days on which the person is borrowed into that group as well. A
+membership only in a group above the duty's group does not count. The person who holds the duty is never refused it, and
+a shift that belongs to no group may go to anybody in the run. A duty nobody else in the run may take stays with its person.
 The rule check of a scenario (before it is accepted, and in the report after a run) also counts that duty: a scenario
 duty that overlaps it shows as a collision, and the rest and hours around it are checked. The same holds for the period
 limits (maximum hours per period, rolling average), the rest-day rotation, the counters, the restricted time windows and the
