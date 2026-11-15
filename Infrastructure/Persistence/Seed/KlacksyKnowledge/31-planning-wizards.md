@@ -127,9 +127,12 @@ A container (a tour or day package) is planned as a whole: the filling stage giv
 but a duty that sits in the container's template on that day gets no seat of its own (owner rule 2026-11-15). The
 marker is the same one the shift rows of the schedule show (the container icon at the bottom left of the duty's
 cell), so what is marked there is not planned singly. On a day the duty is not in the template, and after it is
-taken out of the template, it gets its seat again (`explain_shift_container`). This holds for the real plan: when a
-run is started from inside a scenario the template duties are not marked there and can still get a seat of their
-own, and on a public holiday with its own holiday template the marker can differ from what the schedule shows.
+taken out of the template, it gets its seat again (`explain_shift_container`). This holds for the real plan and for
+a scenario alike, also when a run is started from inside a scenario: a scenario has no templates of its own and
+follows the current template of the real container, so a change there shows at once in existing scenarios. A
+container staffed in a scenario gets its duties from that template (or from the real container's day override), and
+accepting the scenario brings the container and its duties into the real plan together. On a
+public holiday with its own holiday template the marker can differ from what the schedule shows.
 
 ## Who comes first, and what never gives way
 

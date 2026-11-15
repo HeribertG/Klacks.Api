@@ -119,6 +119,17 @@ public interface IShiftReader
         IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The live clones of the given source shifts in one scenario, keyed by source shift id (ScenarioSourceShiftId).
+    /// A source without a clone in that scenario is missing from the result; of several clones the one with the lowest
+    /// id is taken.
+    /// </summary>
+    /// <param name="sourceShiftIds">Shifts whose clones are read; unknown ids yield nothing</param>
+    /// <param name="analyseToken">Scenario the clones belong to</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<IReadOnlyDictionary<Guid, Guid>> GetScenarioClonesBySourceAsync(
+        IReadOnlyCollection<Guid> sourceShiftIds, Guid analyseToken, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// The given shifts that are tasks, whatever their status, sporadic flag or time, untracked, with their client and
     /// all the client's addresses, in the base order (original id, from date, start time). Unknown ids and non-task
     /// shifts are dropped; scenario rows are not excluded.

@@ -4,6 +4,10 @@
 /// Expands a container work into sub-works, sub-breaks, and work changes based on day-specific overrides or weekly ContainerTemplate items.
 /// Before anything is written, every task shift of the chosen override or template must lie in the world of the container work
 /// (ShiftWorld): a shift of a variant (key) or of another scenario is refused like a missing shift.
+/// Templates and overrides carry no analyse token and are not cloned. A container work of a scenario on a cloned container
+/// without an own override or template for the day therefore reads those of the real container (ScenarioSourceShiftId), and
+/// each task shift is placed on its clone in that scenario (the real shift when the scenario holds no clone of it). Its
+/// sub-works, sub-breaks and work changes carry the token of the container work.
 /// </summary>
 /// <param name="containerTemplateRepository">Provides templates and items for a container shift</param>
 /// <param name="overrideRepository">Provides day-specific overrides that take priority over weekly templates</param>
@@ -12,6 +16,7 @@
 /// <param name="workChangeRepository">Used to persist briefing, debriefing, and travel time entries</param>
 /// <param name="shiftRepository">Used to load and validate the container shift type</param>
 /// <param name="childrenManager">Calculates a new sub-break like the recalculation of its container</param>
+/// <param name="shiftReader">Finds the clones of the real task shifts in the scenario of the container work</param>
 /// <param name="workWriteGuard">Refuses template and override items whose shift lies outside the world of the container work</param>
 /// <param name="logger">Logger for diagnostic output</param>
 using Klacks.Api.Application.Interfaces;
@@ -41,6 +46,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
     private readonly IShiftRepository _shiftRepository;
     private readonly IWorkWriteGuard _workWriteGuard;
     private readonly IContainerWorkChildrenManager _childrenManager;
+    private readonly IShiftReader _shiftReader;
     private readonly ILogger<ContainerWorkExpansionService> _logger;
 
     public ContainerWorkExpansionService(
@@ -52,6 +58,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         IShiftRepository shiftRepository,
         IWorkWriteGuard workWriteGuard,
         IContainerWorkChildrenManager childrenManager,
+        IShiftReader shiftReader,
         ILogger<ContainerWorkExpansionService> logger)
     {
         _containerTemplateRepository = containerTemplateRepository;
@@ -62,6 +69,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         _shiftRepository = shiftRepository;
         _workWriteGuard = workWriteGuard;
         _childrenManager = childrenManager;
+        _shiftReader = shiftReader;
         _logger = logger;
     }
 
@@ -72,12 +80,15 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         if (shift is null || shift.ShiftType != ShiftType.IsContainer)
             return;
 
-        var overrideEntity = await _overrideRepository.GetByContainerAndDateWithItems(containerWork.ShiftId, date);
+        var sourceContainerId = containerWork.AnalyseToken.HasValue ? shift.ScenarioSourceShiftId : null;
+        var (overrideEntity, overrideFromSource) = await LoadOverrideAsync(containerWork.ShiftId, sourceContainerId, date);
 
         if (overrideEntity != null)
         {
+            var overrideShiftInWorld = await ItemShiftInWorldAsync(
+                containerWork, overrideFromSource, overrideEntity.ContainerShiftOverrideItems.Select(item => item.ShiftId));
             await EnsureItemShiftsInWorldAsync(
-                containerWork, overrideEntity.ContainerShiftOverrideItems.Select(item => item.ShiftId));
+                containerWork, overrideEntity.ContainerShiftOverrideItems.Select(item => InWorld(item.ShiftId, overrideShiftInWorld)));
 
             containerWork.StartBase = overrideEntity.StartBase;
             containerWork.EndBase = overrideEntity.EndBase;
@@ -86,7 +97,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
             {
                 if (item.ShiftId.HasValue)
                 {
-                    await ExpandShiftItemFromOverride(containerWork, date, item);
+                    await ExpandShiftItemFromOverride(containerWork, date, item, overrideShiftInWorld(item.ShiftId.Value));
                 }
                 else if (item.AbsenceId.HasValue)
                 {
@@ -97,6 +108,12 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         }
 
         var templates = await _containerTemplateRepository.GetTemplatesForContainer(containerWork.ShiftId);
+        var templatesFromSource = false;
+        if (sourceContainerId is { } sourceTemplateContainerId && templates.Count == 0)
+        {
+            templates = await _containerTemplateRepository.GetTemplatesForContainer(sourceTemplateContainerId);
+            templatesFromSource = true;
+        }
 
         var template = ContainerTemplateForDate.Pick(templates, date);
 
@@ -108,7 +125,10 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
             return;
         }
 
-        await EnsureItemShiftsInWorldAsync(containerWork, template.ContainerTemplateItems.Select(item => item.ShiftId));
+        var templateShiftInWorld = await ItemShiftInWorldAsync(
+            containerWork, templatesFromSource, template.ContainerTemplateItems.Select(item => item.ShiftId));
+        await EnsureItemShiftsInWorldAsync(
+            containerWork, template.ContainerTemplateItems.Select(item => InWorld(item.ShiftId, templateShiftInWorld)));
 
         containerWork.StartBase = template.StartBase;
         containerWork.EndBase = template.EndBase;
@@ -117,7 +137,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         {
             if (item.ShiftId.HasValue)
             {
-                await ExpandShiftItem(containerWork, date, item);
+                await ExpandShiftItem(containerWork, date, item, templateShiftInWorld(item.ShiftId.Value));
             }
             else if (item.AbsenceId.HasValue)
             {
@@ -125,6 +145,35 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
             }
         }
     }
+
+    private async Task<(ContainerShiftOverride? Override, bool FromSource)> LoadOverrideAsync(
+        Guid containerId, Guid? sourceContainerId, DateOnly date)
+    {
+        var own = await _overrideRepository.GetByContainerAndDateWithItems(containerId, date);
+        if (own != null || sourceContainerId is not { } sourceId)
+        {
+            return (own, false);
+        }
+
+        var source = await _overrideRepository.GetByContainerAndDateWithItems(sourceId, date);
+        return (source, source != null);
+    }
+
+    private async Task<Func<Guid, Guid>> ItemShiftInWorldAsync(
+        Work containerWork, bool itemsOfSourceContainer, IEnumerable<Guid?> itemShiftIds)
+    {
+        if (!itemsOfSourceContainer || containerWork.AnalyseToken is not { } token)
+        {
+            return shiftId => shiftId;
+        }
+
+        var clones = await _shiftReader.GetScenarioClonesBySourceAsync(
+            itemShiftIds.OfType<Guid>().Distinct().ToList(), token, CancellationToken.None);
+        return shiftId => clones.TryGetValue(shiftId, out var clone) ? clone : shiftId;
+    }
+
+    private static Guid? InWorld(Guid? itemShiftId, Func<Guid, Guid> shiftInWorld)
+        => itemShiftId is { } shiftId ? shiftInWorld(shiftId) : null;
 
     private async Task EnsureItemShiftsInWorldAsync(Work containerWork, IEnumerable<Guid?> itemShiftIds)
     {
@@ -136,7 +185,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         await _workWriteGuard.EnsureShiftsInWorkWorldAsync(placements, CancellationToken.None);
     }
 
-    private async Task ExpandShiftItemFromOverride(Work containerWork, DateOnly date, ContainerShiftOverrideItem item)
+    private async Task ExpandShiftItemFromOverride(Work containerWork, DateOnly date, ContainerShiftOverrideItem item, Guid shiftId)
     {
         var clientId = ContainerChildOwner.Of(item.Shift?.ClientId, containerWork.ClientId);
         var isTimeRange = item.Shift?.IsTimeRange ?? false;
@@ -157,7 +206,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         {
             Id = Guid.NewGuid(),
             ParentWorkId = containerWork.Id,
-            ShiftId = item.ShiftId!.Value,
+            ShiftId = shiftId,
             ClientId = clientId,
             CurrentDate = date,
             StartTime = startTime,
@@ -209,7 +258,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = startTime,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = WorkChangeDefaults.ToInvoice
+                ToInvoice = WorkChangeDefaults.ToInvoice,
+                AnalyseToken = subWork.AnalyseToken
             });
         }
 
@@ -228,7 +278,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = debriefingEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = WorkChangeDefaults.ToInvoice
+                ToInvoice = WorkChangeDefaults.ToInvoice,
+                AnalyseToken = subWork.AnalyseToken
             });
         }
 
@@ -249,7 +300,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = briefingStart,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = WorkChangeDefaults.ToInvoice
+                ToInvoice = WorkChangeDefaults.ToInvoice,
+                AnalyseToken = subWork.AnalyseToken
             });
         }
 
@@ -270,12 +322,13 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = travelEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = WorkChangeDefaults.ToInvoice
+                ToInvoice = WorkChangeDefaults.ToInvoice,
+                AnalyseToken = subWork.AnalyseToken
             });
         }
     }
 
-    private async Task ExpandShiftItem(Work containerWork, DateOnly date, ContainerTemplateItem item)
+    private async Task ExpandShiftItem(Work containerWork, DateOnly date, ContainerTemplateItem item, Guid shiftId)
     {
         var clientId = ContainerChildOwner.Of(item.Shift?.ClientId, containerWork.ClientId);
         var isTimeRange = item.Shift?.IsTimeRange ?? false;
@@ -296,7 +349,7 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
         {
             Id = Guid.NewGuid(),
             ParentWorkId = containerWork.Id,
-            ShiftId = item.ShiftId!.Value,
+            ShiftId = shiftId,
             ClientId = clientId,
             CurrentDate = date,
             StartTime = startTime,
@@ -348,7 +401,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = startTime,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = WorkChangeDefaults.ToInvoice
+                ToInvoice = WorkChangeDefaults.ToInvoice,
+                AnalyseToken = subWork.AnalyseToken
             });
         }
 
@@ -367,7 +421,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = debriefingEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = WorkChangeDefaults.ToInvoice
+                ToInvoice = WorkChangeDefaults.ToInvoice,
+                AnalyseToken = subWork.AnalyseToken
             });
         }
 
@@ -388,7 +443,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = briefingStart,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = WorkChangeDefaults.ToInvoice
+                ToInvoice = WorkChangeDefaults.ToInvoice,
+                AnalyseToken = subWork.AnalyseToken
             });
         }
 
@@ -409,7 +465,8 @@ public class ContainerWorkExpansionService : IContainerWorkExpansionService
                 EndTime = travelEnd,
                 ChangeTime = (decimal)(durationMinutes / MinutesPerHour),
                 Surcharges = 0,
-                ToInvoice = WorkChangeDefaults.ToInvoice
+                ToInvoice = WorkChangeDefaults.ToInvoice,
+                AnalyseToken = subWork.AnalyseToken
             });
         }
     }

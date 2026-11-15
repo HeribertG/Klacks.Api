@@ -13,7 +13,7 @@ namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 /// <summary>
 /// Materialising shift reads of the Application and Domain layers (proactive scans, order lineage of the cut skills,
 /// find_split_shift_candidates, Shifts/ByIds, the candidate tasks of a container template slot, the validity period of
-/// a shift). Each one composes on
+/// a shift, the clones of source shifts in a scenario). Each one composes on
 /// ShiftBaseQueries, the same base query ShiftRepository.GetQuery() uses, so the base order (original id, from date,
 /// start time) and the no-tracking load are the same as when the callers composed IShiftRepository.GetQuery()
 /// themselves; the slot candidates replace that order with start time, then client name, as the service did before.
@@ -136,6 +136,23 @@ public class ShiftReader : IShiftReader
             .Select(s => s.Id)
             .ToListAsync(cancellationToken);
         return found.ToHashSet();
+    }
+
+    public async Task<IReadOnlyDictionary<Guid, Guid>> GetScenarioClonesBySourceAsync(
+        IReadOnlyCollection<Guid> sourceShiftIds, Guid analyseToken, CancellationToken cancellationToken = default)
+    {
+        var ids = sourceShiftIds.ToList();
+        var clones = await _context.Shift
+            .AsNoTracking()
+            .Where(s => s.AnalyseToken == analyseToken
+                && s.ScenarioSourceShiftId != null
+                && ids.Contains(s.ScenarioSourceShiftId.Value))
+            .OrderBy(s => s.Id)
+            .Select(s => new { s.Id, SourceId = s.ScenarioSourceShiftId!.Value })
+            .ToListAsync(cancellationToken);
+        return clones
+            .GroupBy(clone => clone.SourceId)
+            .ToDictionary(group => group.Key, group => group.First().Id);
     }
 
     public async Task<IReadOnlyList<Shift>> GetTasksWithClientByIdsAsync(

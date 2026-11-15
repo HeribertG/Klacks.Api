@@ -9,6 +9,9 @@
 --   show_ungrouped_shifts: If TRUE, a restricted result also includes shifts not assigned to any group (default FALSE)
 -- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status, sporadic_status, period_booked_days, is_variant_shift
 -- is_variant_shift: TRUE when the shift is a scenario clone whose source shift (scenario_source_shift_id) still carries the token of a live variant (key), FALSE for real shifts and after the variant was promoted
+-- is_in_template_container: TRUE when a live template of a live container lists the shift for that day. Container templates
+--   carry no token and are not cloned, so in a scenario (p_analyse_token set) a clone also matches the items that name its
+--   source shift (scenario_source_shift_id); the real plan matches the shift id only
 -- sporadic_status: 0 = none, 1 = booked (per-day capacity reached: engaged_at_day >= sum_employees), 2 = blocked (no booking on this day AND distinct booked days in range >= quantity)
 -- period_booked_days: sporadic shifts only - distinct booked days within the whole sporadic period (week/month/...) containing the date,
 --   independent of the requested date range; 0 for non-sporadic shifts. Same count that drives sporadic_status = 2.
@@ -130,17 +133,26 @@ BEGIN
                 OR (s.is_holiday AND d.is_holiday)
             )
     ),
+    container_item_shift_ids AS MATERIALIZED (
+        SELECT vs.id AS shift_id, vs.id AS item_shift_id
+        FROM valid_shifts vs
+        UNION
+        SELECT vs.id AS shift_id, vs.scenario_source_shift_id AS item_shift_id
+        FROM valid_shifts vs
+        WHERE p_analyse_token IS NOT NULL
+        AND vs.scenario_source_shift_id IS NOT NULL
+    ),
     container_lookup AS MATERIALIZED (
         SELECT DISTINCT
-            cti.shift_id,
+            cis.shift_id,
             d.schedule_date
         FROM container_template_item cti
+        JOIN container_item_shift_ids cis ON cis.item_shift_id = cti.shift_id
         JOIN container_template ct ON ct.id = cti.container_template_id AND ct.is_deleted = false
         JOIN shift container ON container.id = ct.container_id
         CROSS JOIN date_series d
         WHERE container.is_deleted = false
         AND cti.is_deleted = false
-        AND cti.shift_id IN (SELECT id FROM filtered_shift_ids)
         AND container.from_date <= d.schedule_date
         AND (container.until_date IS NULL OR container.until_date >= d.schedule_date)
         AND (
@@ -367,14 +379,24 @@ BEGIN
                        AND gi.group_id IN (SELECT gh.id FROM group_hierarchy gh))
         )
     ),
+    container_item_shift_ids AS (
+        SELECT sd.shift_id, sd.shift_id AS item_shift_id
+        FROM shift_data sd
+        UNION
+        SELECT sd.shift_id, sd.scenario_source_shift_id AS item_shift_id
+        FROM shift_data sd
+        WHERE p_analyse_token IS NOT NULL
+        AND sd.scenario_source_shift_id IS NOT NULL
+    ),
     container_lookup AS (
         SELECT DISTINCT
-            cti.shift_id,
+            cis.shift_id,
             ip.schedule_date
         FROM container_template_item cti
+        JOIN container_item_shift_ids cis ON cis.item_shift_id = cti.shift_id
         JOIN container_template ct ON ct.id = cti.container_template_id AND ct.is_deleted = false
         JOIN shift container ON container.id = ct.container_id
-        JOIN input_pairs ip ON ip.shift_id = cti.shift_id
+        JOIN input_pairs ip ON ip.shift_id = cis.shift_id
         WHERE container.is_deleted = false
         AND cti.is_deleted = false
         AND container.from_date <= ip.schedule_date
