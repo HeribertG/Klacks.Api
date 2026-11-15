@@ -1478,5 +1478,14 @@
       "parakeet音声認識"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "oauth接続",
+      "aiツールのoauth接続",
+      "外部ツールoauth接続",
+      "oauth接続設定"
+    ],
+    "status": "generated"
   }
 }

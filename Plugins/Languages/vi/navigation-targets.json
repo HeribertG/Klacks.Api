@@ -1317,5 +1317,14 @@
       "nhận dạng giọng nói ngoại tuyến"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "kết nối oauth",
+      "liên kết oauth",
+      "kết nối oauth công cụ ai",
+      "cài đặt kết nối oauth"
+    ],
+    "status": "generated"
   }
 }

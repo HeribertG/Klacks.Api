@@ -1510,5 +1510,13 @@
       "รู้จำเสียงออฟไลน์"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "การเชื่อมต่อ oauth",
+      "การตั้งค่าการเชื่อมต่อ oauth",
+      "oauth ของเครื่องมือ ai"
+    ],
+    "status": "generated"
   }
 }

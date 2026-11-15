@@ -1521,5 +1521,12 @@
       "주말 근무 할증"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "oauth 연결",
+      "ai 도구 oauth 연결"
+    ],
+    "status": "generated"
   }
 }

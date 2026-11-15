@@ -4315,8 +4315,27 @@
     "requiredPermission": "Admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
     "lastScannedAt": "2026-11-15T02:13:22.476Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
+    "synonyms": {
+      "de": [
+        "oauth-verbindungen",
+        "oauth verbindungen",
+        "ki-werkzeug-verbindungen",
+        "ki-tool-verbindungen"
+      ],
+      "it": [
+        "connessioni oauth",
+        "connessioni oauth strumenti ia",
+        "collegamenti oauth"
+      ],
+      "en": [
+        "oauth connections",
+        "ai tool connections"
+      ],
+      "fr": [
+        "connexions oauth"
+      ]
+    },
+    "synonymStatus": "generated",
     "obsolete": false
   },
   {

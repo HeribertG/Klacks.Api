@@ -1367,5 +1367,11 @@
       "parakeet pengenalan suara"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "koneksi oauth"
+    ],
+    "status": "generated"
   }
 }

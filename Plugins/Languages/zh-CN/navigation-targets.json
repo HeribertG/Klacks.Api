@@ -1493,5 +1493,15 @@
       "离线语音识别"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "oauth连接",
+      "oauth连接设置",
+      "ai工具的oauth连接",
+      "oauth授权连接",
+      "oauth连接管理"
+    ],
+    "status": "generated"
   }
 }

@@ -1368,5 +1368,13 @@
       "offline rozpoznávání řeči"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "oauth připojení",
+      "připojení oauth",
+      "připojení nástrojů ai"
+    ],
+    "status": "generated"
   }
 }

@@ -1391,5 +1391,13 @@
       "التعرف على الصوت بدون اتصال"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "اتصالات oauth",
+      "إعدادات اتصالات oauth",
+      "اتصالات oauth للذكاء الاصطناعي"
+    ],
+    "status": "generated"
   }
 }

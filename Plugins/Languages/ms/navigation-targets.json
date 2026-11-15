@@ -1386,5 +1386,12 @@
       "pengecaman suara luar talian"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "sambungan oauth",
+      "sambungan aplikasi oauth"
+    ],
+    "status": "generated"
   }
 }

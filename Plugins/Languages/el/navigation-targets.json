@@ -1329,5 +1329,12 @@
       "αναγνώριση φωνής εκτός σύνδεσης"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "συνδέσεις oauth",
+      "διαχείριση συνδέσεων oauth"
+    ],
+    "status": "generated"
   }
 }

@@ -1444,5 +1444,13 @@
       "parakeet talegjenkjenning"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "oauth-tilkoblinger",
+      "oauth tilkoblinger",
+      "tilkoblinger for ki-verktøy"
+    ],
+    "status": "generated"
   }
 }

@@ -1432,5 +1432,12 @@
       "offline-puheentunnistus"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "oauth-yhteydet",
+      "oauth-yhteyksien hallinta"
+    ],
+    "status": "generated"
   }
 }

@@ -1404,5 +1404,12 @@
       "căutare"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "conexiuni oauth",
+      "conexiuni oauth instrumente ai"
+    ],
+    "status": "generated"
   }
 }

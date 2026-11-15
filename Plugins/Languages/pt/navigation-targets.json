@@ -1305,5 +1305,12 @@
       "reconhecimento de voz offline"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "ligações oauth",
+      "conexões oauth"
+    ],
+    "status": "generated"
   }
 }

@@ -1460,5 +1460,13 @@
       "parakeet spraakherkenning"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "oauth-verbindingen",
+      "oauth-koppelingen",
+      "oauth connecties"
+    ],
+    "status": "generated"
   }
 }

@@ -1355,5 +1355,11 @@
       "rozpoznawanie mowy offline"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "połączenia oauth"
+    ],
+    "status": "generated"
   }
 }

@@ -1423,5 +1423,11 @@
       "זיהוי דיבור אופליין"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "חיבורי oauth"
+    ],
+    "status": "generated"
   }
 }

@@ -1511,5 +1511,14 @@
       "parakeet語音辨識"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "oauth 連線",
+      "oauth 連線設定",
+      "oauth 連線管理",
+      "oauth 授權連線"
+    ],
+    "status": "generated"
   }
 }

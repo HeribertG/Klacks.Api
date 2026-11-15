@@ -1328,5 +1328,14 @@
       "reconocimiento de voz sin conexión"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "conexiones oauth",
+      "conexiones de oauth",
+      "conexiones oauth de ia",
+      "oauth de herramientas de ia"
+    ],
+    "status": "generated"
   }
 }

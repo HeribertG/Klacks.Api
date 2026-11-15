@@ -1466,5 +1466,13 @@
       "offline talegenkendelse"
     ],
     "status": "generated"
+  },
+  "oauth-connections": {
+    "synonyms": [
+      "oauth-forbindelser",
+      "oauth forbindelser",
+      "oauth tilslutninger"
+    ],
+    "status": "generated"
   }
 }
