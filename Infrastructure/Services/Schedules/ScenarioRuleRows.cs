@@ -8,8 +8,11 @@
 /// absences the scenario holds no twin of (same person, day and absence type, as ScenarioRealAbsenceGuard matches them),
 /// the pauses of such real works, and the changes of the visible works. A real work on a carried shift inside the cloned
 /// span is the scenario's business and counts through its clone; rows of another scenario never count. The rule checks tell
-/// a clone from its source by shift and span, the cover-move facts by Work.ClonedFromWorkId (CoverMoveFactsReader). A token
-/// without a scenario row (a variant) has no span, so only the real works on shifts it does not carry count.
+/// a clone from its source by shift and span, the cover-move facts by Work.ClonedFromWorkId (CoverMoveFactsReader). A work
+/// of the scenario on the same shift, person and day as a real work is its twin and stands for it, like an absence twin;
+/// this covers the clones that keep the real shift (container children on a task shift the scenario does not clone) and
+/// works placed in the scenario on a real shift. A token without a live scenario row has no span, so only the real works
+/// on shifts it does not carry and without a twin count.
 /// </summary>
 /// <param name="context">Database context of the caller; the queries leave soft-deleted rows out themselves</param>
 /// <param name="analyseToken">Scenario token of the check; null reads the real plan</param>
@@ -64,10 +67,14 @@ public static class ScenarioRuleRows
     {
         var carriedShiftIds = OutsideScenarioWorkQuery.CarriedShiftIds(context, token);
         var scenarios = context.AnalyseScenarios.Where(s => s.Token == token && !s.IsDeleted);
+        var scenarioWorks = context.Work.Where(s => s.AnalyseToken == token && !s.IsDeleted);
 
         return context.Work.Where(w => !w.IsDeleted
             && (w.AnalyseToken == token
                 || (w.AnalyseToken == null
+                    && !scenarioWorks.Any(s => s.ShiftId == w.ShiftId
+                        && s.ClientId == w.ClientId
+                        && s.CurrentDate == w.CurrentDate)
                     && (!carriedShiftIds.Contains(w.ShiftId)
                         || scenarios.Any(s => w.CurrentDate < s.FromDate.AddDays(-ScenarioConstants.BoundaryDays)
                             || w.CurrentDate > s.UntilDate.AddDays(ScenarioConstants.BoundaryDays))))));

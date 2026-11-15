@@ -151,7 +151,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         await _scenarioRepository.Add(scenario);
 
         // Clone the real schedule under the token FIRST, then flush, so the guardrail sees the cloned
-        // world. If the check ran before this, it would query by token, find nothing, and falsely pass.
+        // world. If the check ran before this, the scenario would carry no shift yet and read the real plan only.
         var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(
             groupId, fromDate, untilDate, token, shifts.Keys.ToList(), sourceToken: null, cancellationToken);
         await _unitOfWork.CompleteAsync();
