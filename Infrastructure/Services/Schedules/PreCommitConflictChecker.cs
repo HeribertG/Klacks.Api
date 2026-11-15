@@ -3,7 +3,8 @@
 /// <summary>
 /// Default <see cref="IPreCommitConflictChecker"/>. It loads the existing works/changes/breaks of all affected
 /// clients in a +/- BoundaryDays window around all planned dates (one query per table and chunk of IdListQueryLimits.ChunkSize
-/// ids, the rows then grouped by client in memory) and their scheduling policies with one resolver call per
+/// ids, the rows then grouped by client in memory; a scenario also loads the real works and absences it does not carry,
+/// ScenarioRuleRows) and their scheduling policies with one resolver call per
 /// distinct day. For each affected client it builds the schedule timeline once with and
 /// once without synthetic blocks for the planned rows, runs the shared validation builders over both
 /// and returns the violations present only in the augmented run (the ones the placement introduces).
@@ -463,7 +464,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
     };
 
     /// <summary>
-    /// The top-level works of the clients in the window, exact on the token, grouped by client. One query per chunk
+    /// The top-level works of the clients in the window, as a rule check reads them (ScenarioRuleRows), grouped by client. One query per chunk
     /// of IdListQueryLimits.ChunkSize clients; a client without works has no entry.
     /// </summary>
     private async Task<Dictionary<Guid, List<Work>>> LoadWorksAsync(
@@ -488,14 +489,13 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
     }
 
     internal IQueryable<Work> QueryWorks(Guid[] clientIds, DateOnly from, DateOnly to, Guid? analyseToken)
-        => _context.Work
+        => ScenarioRuleRows.Works(_context, analyseToken)
             .AsNoTracking()
             .Where(w => clientIds.Contains(w.ClientId)
                 && w.CurrentDate >= from
                 && w.CurrentDate <= to
                 && !w.IsDeleted
-                && w.ParentWorkId == null
-                && w.AnalyseToken == analyseToken);
+                && w.ParentWorkId == null);
 
     /// <summary>
     /// The work changes of the loaded works, grouped by the client of their work. One query per chunk of IdListQueryLimits.ChunkSize
@@ -529,7 +529,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
             .Where(wc => workIds.Contains(wc.WorkId) && !wc.IsDeleted);
 
     /// <summary>
-    /// The top-level breaks of the clients in the window, exact on the token, grouped by client. One query per chunk
+    /// The top-level breaks of the clients in the window as a rule check reads them (ScenarioRuleRows), grouped by client. One query per chunk
     /// of IdListQueryLimits.ChunkSize clients; a client without breaks has no entry.
     /// </summary>
     private async Task<Dictionary<Guid, List<Break>>> LoadBreaksAsync(
@@ -554,14 +554,13 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
     }
 
     internal IQueryable<Break> QueryBreaks(Guid[] clientIds, DateOnly from, DateOnly to, Guid? analyseToken)
-        => _context.Break
+        => ScenarioRuleRows.Breaks(_context, analyseToken)
             .AsNoTracking()
             .Where(b => clientIds.Contains(b.ClientId)
                 && b.CurrentDate >= from
                 && b.CurrentDate <= to
                 && !b.IsDeleted
-                && b.ParentWorkId == null
-                && b.AnalyseToken == analyseToken);
+                && b.ParentWorkId == null);
 
     /// <summary>
     /// The scheduling policy of every client on its own day, with one resolver call per distinct day. A client the

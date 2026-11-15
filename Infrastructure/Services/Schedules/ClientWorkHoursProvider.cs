@@ -2,8 +2,8 @@
 
 /// <summary>
 /// Default <see cref="IClientWorkHoursProvider"/>: groups a client's Work rows by CurrentDate and sums
-/// WorkTime. Uses the same AnalyseToken equality semantics as OvertimeSurchargeCalculator's period
-/// lookup (exact token match, null = real mode); soft-deleted rows are excluded by the EF query filter. A container
+/// WorkTime. Reads the rows a rule check sees (ScenarioRuleRows: null = real plan, a token = the scenario plus the real
+/// works it does not carry); soft-deleted rows are excluded by the query. A container
 /// child of the container's own person adds nothing, because the container counts its time (WorkOwnHours).
 /// </summary>
 /// <param name="context">Database access for the client's Work rows</param>
@@ -29,9 +29,8 @@ public class ClientWorkHoursProvider : IClientWorkHoursProvider
         DateOnly end,
         Guid? analyseToken)
     {
-        var rows = await _context.Work
+        var rows = await ScenarioRuleRows.Works(_context, analyseToken)
             .Where(w => w.ClientId == clientId
-                && w.AnalyseToken == analyseToken
                 && w.CurrentDate >= start
                 && w.CurrentDate <= end)
             .Where(WorkOwnHours.Counts)

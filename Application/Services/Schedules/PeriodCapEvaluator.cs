@@ -276,8 +276,8 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
     private async Task<decimal> ResolveCapBaselineHoursAsync(
         Guid clientId, DateOnly start, DateOnly end, Guid? analyseToken)
     {
-        var baseline = await _periodHoursService.CalculatePeriodHoursAsync(clientId, start, end, analyseToken);
-        return baseline.Hours;
+        var hoursByClient = await _periodHoursService.CalculateHoursForClientsAsync([clientId], start, end, analyseToken);
+        return hoursByClient.GetValueOrDefault(clientId);
     }
 
     private async Task<List<ScheduleValidationNotificationDto>> EvaluateFixedPeriodRulesAsync(

@@ -298,7 +298,7 @@ public sealed class CounterRuleEvaluator : ICounterRuleEvaluator
     /// IdListQueryLimits.ChunkSize clients, through the query of the single-client read. Every requested pair gets an entry.
     /// </summary>
     /// <param name="requests">The (client, period start, period end) triples to read</param>
-    /// <param name="analyseToken">Scenario token; null reads the real schedule</param>
+    /// <param name="analyseToken">Scenario token; null reads the real schedule, a token also the real works the scenario does not carry (ScenarioRuleRows)</param>
     private async Task<Dictionary<(Guid ClientId, DateOnly Start, DateOnly End), List<WorkSegment>>> LoadWorksOfClientsAsync(
         IEnumerable<(Guid ClientId, DateOnly Start, DateOnly End)> requests,
         Guid? analyseToken,
@@ -325,11 +325,10 @@ public sealed class CounterRuleEvaluator : ICounterRuleEvaluator
 
     internal IQueryable<ClientWorkRow> QueryWorksOfClients(
         Guid[] clientIds, DateOnly periodStart, DateOnly periodEnd, Guid? analyseToken)
-        => _context.Work
+        => ScenarioRuleRows.Works(_context, analyseToken)
             .AsNoTracking()
             .Where(w => clientIds.Contains(w.ClientId)
                 && !w.IsDeleted
-                && w.AnalyseToken == analyseToken
                 && w.CurrentDate >= periodStart
                 && w.CurrentDate <= periodEnd)
             .Select(w => new ClientWorkRow(w.ClientId, w.CurrentDate, w.StartTime, w.EndTime));

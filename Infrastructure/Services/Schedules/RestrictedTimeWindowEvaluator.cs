@@ -207,11 +207,10 @@ public sealed class RestrictedTimeWindowEvaluator : IRestrictedTimeWindowEvaluat
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
-        var works = await _context.Work
+        var works = await ScenarioRuleRows.Works(_context, analyseToken)
             .AsNoTracking()
             .Where(w => w.ClientId == clientId
                 && !w.IsDeleted
-                && w.AnalyseToken == analyseToken
                 && w.CurrentDate >= from
                 && w.CurrentDate <= to)
             .Select(w => new { w.CurrentDate, w.StartTime, w.EndTime, w.ShiftId })

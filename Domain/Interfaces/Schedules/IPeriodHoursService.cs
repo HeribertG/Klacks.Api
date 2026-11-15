@@ -13,6 +13,14 @@ public interface IPeriodHoursService
         DateOnly endDate,
         Guid? analyseToken = null);
 
+    /// <summary>
+    /// The live period hours of one client for one date range, exactly the rows of the given token (null = the real plan);
+    /// a scenario token adds no real rows outside the scenario. The rule checks use CalculateHoursForClientsAsync instead.
+    /// </summary>
+    /// <param name="clientId">Client to sum</param>
+    /// <param name="startDate">First day of the range</param>
+    /// <param name="endDate">Last day of the range</param>
+    /// <param name="analyseToken">Scenario token of the rows, null for the real plan</param>
     Task<PeriodHoursResource> CalculatePeriodHoursAsync(
         Guid clientId,
         DateOnly startDate,
@@ -20,13 +28,15 @@ public interface IPeriodHoursService
         Guid? analyseToken = null);
 
     /// <summary>
-    /// The live period hours (the Hours of CalculatePeriodHoursAsync) of several clients for one date range, summed in
-    /// one pass. The result holds one entry per requested client; neither the target hours nor the cache are read.
+    /// The live period hours of several clients for one date range, summed in one pass: on the real plan the Hours of
+    /// CalculatePeriodHoursAsync. The result holds one entry per requested client; neither the target hours nor the cache
+    /// are read. For the rule checks: a scenario token also counts the real works, absences and changes of the clients that the
+    /// scenario does not carry, as the plan will hold them after an accept.
     /// </summary>
     /// <param name="clientIds">Clients to sum</param>
     /// <param name="startDate">First day of the range</param>
     /// <param name="endDate">Last day of the range</param>
-    /// <param name="analyseToken">Scenario token of the rows, null for the real plan</param>
+    /// <param name="analyseToken">Scenario token of the check, null for the real plan</param>
     Task<Dictionary<Guid, decimal>> CalculateHoursForClientsAsync(
         IReadOnlyCollection<Guid> clientIds,
         DateOnly startDate,

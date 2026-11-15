@@ -58,7 +58,14 @@ When a swapping stage runs on the real plan instead of a scenario, the person's 
 the run; a swap then hands a duty only to somebody who is a member of that duty's group (or of a group below it) on
 that day, the last day of a membership included. A duty nobody else in the run may take stays with its person.
 The rule check of a scenario (before it is accepted, and in the report after a run) also counts that duty: a scenario
-duty that overlaps it shows as a collision, and the rest and hours around it are checked.
+duty that overlaps it shows as a collision, and the rest and hours around it are checked. The same holds for the period
+limits (maximum hours per period, rolling average), the rest-day rotation, the counters, the restricted time windows and the
+planning rules: in a scenario they count the real duties and absences of the person outside the scenario, exactly as they
+would on the real plan, because those stay in the plan after an accept. A real duty that lies in the scenario as a copy is
+never counted twice, and the duties of another scenario never count. So a scenario can show a limit warning (or, where a
+rule is set to block, refuse a plan) that the scenario's own duties alone would not cause. The rule report and these limit
+checks count the outside duties; the live check of a single day in a scenario (rest, daily and weekly hours, consecutive
+days around a duty) still reads the scenario's own duties only.
 
 For qualifications the hard part is a missing mandatory qualification and a level below the minimum
 where that level is binding; a level below a non-binding minimum is allowed but penalised by the size of

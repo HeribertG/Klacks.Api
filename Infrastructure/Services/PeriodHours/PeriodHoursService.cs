@@ -162,7 +162,8 @@ public class PeriodHoursService : IPeriodHoursService
             startDate,
             endDate,
             analyseToken,
-            await LoadOnCallAbsenceIdsAsync());
+            await LoadOnCallAbsenceIdsAsync(),
+            includeRealRowsOutsideScenario: true);
 
         return results.ToDictionary(entry => entry.Key, entry => entry.Value.Hours);
     }
@@ -505,12 +506,14 @@ public class PeriodHoursService : IPeriodHoursService
     /// <param name="endDate">Last day of the range</param>
     /// <param name="analyseToken">Scenario token of the rows, null for the real plan</param>
     /// <param name="onCallAbsenceIds">Ids of the on-call absence types, loaded once per caller</param>
+    /// <param name="includeRealRowsOutsideScenario">True for a rule check: a scenario then also counts the real rows it does not carry (ScenarioRuleRows); false reads exactly the token</param>
     private async Task<Dictionary<Guid, PeriodHoursResource>> CalculatePeriodHoursForClientsAsync(
         List<Guid> clientIds,
         DateOnly startDate,
         DateOnly endDate,
         Guid? analyseToken,
-        IReadOnlyCollection<Guid> onCallAbsenceIds)
+        IReadOnlyCollection<Guid> onCallAbsenceIds,
+        bool includeRealRowsOutsideScenario = false)
     {
         var result = new Dictionary<Guid, PeriodHoursResource>();
 
@@ -519,11 +522,12 @@ public class PeriodHoursService : IPeriodHoursService
             return result;
         }
 
-        var allWorks = await _context.Work
+        var allWorks = await (includeRealRowsOutsideScenario
+                ? ScenarioRuleRows.Works(_context, analyseToken)
+                : _context.Work.Where(w => w.AnalyseToken == analyseToken))
             .Where(w => clientIds.Contains(w.ClientId)
                 && w.CurrentDate >= startDate
-                && w.CurrentDate <= endDate
-                && w.AnalyseToken == analyseToken)
+                && w.CurrentDate <= endDate)
             .Where(WorkOwnHours.Counts)
             .Select(w => new { w.ClientId, w.WorkTime, w.Surcharges, w.CurrentDate })
             .ToListAsync();
@@ -533,22 +537,24 @@ public class PeriodHoursService : IPeriodHoursService
             .Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime), TotalSurcharges = g.Sum(w => w.Surcharges) })
             .ToList();
 
-        var breaksHours = await _context.Break
+        var breaksHours = await (includeRealRowsOutsideScenario
+                ? ScenarioRuleRows.Breaks(_context, analyseToken)
+                : _context.Break.Where(b => b.AnalyseToken == analyseToken))
             .Where(b => clientIds.Contains(b.ClientId)
                 && b.CurrentDate >= startDate
-                && b.CurrentDate <= endDate
-                && b.AnalyseToken == analyseToken)
+                && b.CurrentDate <= endDate)
             .Where(BreakOwnHours.Counts(onCallAbsenceIds))
             .GroupBy(b => b.ClientId)
             .Select(g => new { ClientId = g.Key, TotalBreaks = g.Sum(b => b.WorkTime), TotalBreakSurcharges = g.Sum(b => b.Surcharges) })
             .ToListAsync();
 
-        var workChanges = await _context.WorkChange
+        var workChanges = await (includeRealRowsOutsideScenario
+                ? ScenarioRuleRows.WorkChanges(_context, analyseToken)
+                : _context.WorkChange.Where(wc => wc.Work!.AnalyseToken == analyseToken))
             .Where(wc => (clientIds.Contains(wc.Work!.ClientId) ||
                          (wc.ReplaceClientId.HasValue && clientIds.Contains(wc.ReplaceClientId.Value)))
                 && wc.Work.CurrentDate >= startDate
-                && wc.Work.CurrentDate <= endDate
-                && wc.Work.AnalyseToken == analyseToken)
+                && wc.Work.CurrentDate <= endDate)
             .Where(WorkChangeOwnHours.Counts)
             .Select(wc => new
             {

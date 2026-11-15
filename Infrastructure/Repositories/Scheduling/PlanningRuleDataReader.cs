@@ -11,6 +11,7 @@
 using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories.Scheduling;
@@ -71,11 +72,10 @@ public class PlanningRuleDataReader : IPlanningRuleDataReader
         }
 
         var clientIdList = clientIds.Distinct().ToList();
-        var rows = await _context.Work
+        var rows = await ScenarioRuleRows.Works(_context, analyseToken)
             .AsNoTracking()
             .Where(work => !work.IsDeleted
                 && clientIdList.Contains(work.ClientId)
-                && work.AnalyseToken == analyseToken
                 && work.ParentWorkId == null
                 && work.CurrentDate >= from
                 && work.CurrentDate <= until)

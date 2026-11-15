@@ -13,6 +13,6 @@ public interface IClientWorkHoursProvider
     /// <param name="clientId">The client whose Work rows are summed</param>
     /// <param name="start">Inclusive first day of the range</param>
     /// <param name="end">Inclusive last day of the range</param>
-    /// <param name="analyseToken">Scenario isolation: only rows with exactly this token (null = real mode) are counted</param>
+    /// <param name="analyseToken">Null = the real plan; a scenario token = the scenario's rows plus the real works the scenario does not carry</param>
     Task<IReadOnlyDictionary<DateOnly, decimal>> GetWorkHoursByDayAsync(Guid clientId, DateOnly start, DateOnly end, Guid? analyseToken);
 }

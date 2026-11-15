@@ -15,6 +15,8 @@
 /// So this loader reconciles each client's obligations for [from, to] BEFORE evaluating
 /// them, guaranteeing the compensatory-rest state is fresh at close time. The reconcile is real-mode
 /// only (it no-ops on a non-null analyseToken), so scenario loads stay side-effect-free.
+/// A scenario reads its absences through ScenarioRuleRows: the real absences it holds no twin of stay in the plan after an
+/// accept and count as well.
 /// The work-time rules (rest, daily and weekly hours, consecutive days, rest days) read the schedule with
 /// ScenarioConstants.BoundaryDays on each side, like the live range check, so a run that crosses the period
 /// start is counted in full; every other finding stays on the period's own rows.
@@ -248,8 +250,9 @@ public class PeriodValidationLoader : IPeriodValidationLoader
     }
 
     /// <summary>
-    /// A scenario carries only the works on the shifts it cloned; the people's real works elsewhere (another group) stay in
-    /// the plan after an accept, so the scenario's rules and collisions are checked against them too.
+    /// A scenario carries only the works on the shifts it cloned and only inside its cloned span; the people's real works
+    /// elsewhere (another group, dates beyond the span) stay in the plan after an accept, so the scenario's rules and
+    /// collisions are checked against them too (ScenarioRuleRows).
     /// </summary>
     private async Task<List<Work>> LoadOutsideScenarioWorksAsync(
         DateOnly from,
@@ -257,7 +260,13 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         HashSet<Guid> clientIds,
         Guid analyseToken,
         CancellationToken cancellationToken)
-        => await OutsideScenarioWorkQuery.TopLevelQuery(_context, analyseToken, clientIds, from, to)
+        => await ScenarioRuleRows.Works(_context, analyseToken)
+            .AsNoTracking()
+            .Where(w => w.AnalyseToken == null
+                && clientIds.Contains(w.ClientId)
+                && w.CurrentDate >= from
+                && w.CurrentDate <= to
+                && w.ParentWorkId == null)
             .Include(w => w.Client)
             .ToListAsync(cancellationToken);
 
@@ -284,13 +293,12 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
-        var query = _context.Break
+        var query = ScenarioRuleRows.Breaks(_context, analyseToken)
             .AsNoTracking()
             .Where(b => b.CurrentDate >= from
                 && b.CurrentDate <= to
                 && !b.IsDeleted
-                && b.ParentWorkId == null
-                && b.AnalyseToken == analyseToken);
+                && b.ParentWorkId == null);
 
         if (clientFilter != null)
         {
