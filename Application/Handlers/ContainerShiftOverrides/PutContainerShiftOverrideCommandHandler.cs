@@ -10,6 +10,7 @@
 /// <param name="overrideId">The override to update</param>
 /// <param name="resource">Updated override data with items</param>
 /// <param name="containerVisibilityGuard">Refuses missing and hidden containers and new hidden task shifts</param>
+/// <param name="containerFitGuard">Refuses an override whose item occupies time outside of it</param>
 using Klacks.Api.Application.Commands.ContainerShiftOverrides;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Exceptions;
@@ -33,6 +34,7 @@ public class PutContainerShiftOverrideCommandHandler : IRequestHandler<PutContai
     private readonly ScheduleMapper _mapper;
     private readonly IUserService _userService;
     private readonly IContainerVisibilityGuard _containerVisibilityGuard;
+    private readonly IContainerFitGuard _containerFitGuard;
     private readonly ILogger<PutContainerShiftOverrideCommandHandler> _logger;
 
     public PutContainerShiftOverrideCommandHandler(
@@ -42,6 +44,7 @@ public class PutContainerShiftOverrideCommandHandler : IRequestHandler<PutContai
         ScheduleMapper mapper,
         IUserService userService,
         IContainerVisibilityGuard containerVisibilityGuard,
+        IContainerFitGuard containerFitGuard,
         ILogger<PutContainerShiftOverrideCommandHandler> logger)
     {
         _repository = repository;
@@ -50,6 +53,7 @@ public class PutContainerShiftOverrideCommandHandler : IRequestHandler<PutContai
         _mapper = mapper;
         _userService = userService;
         _containerVisibilityGuard = containerVisibilityGuard;
+        _containerFitGuard = containerFitGuard;
         _logger = logger;
     }
 
@@ -76,7 +80,7 @@ public class PutContainerShiftOverrideCommandHandler : IRequestHandler<PutContai
             request.Resource.ContainerShiftOverrideItems.Select(i => i.ShiftId),
             cancellationToken);
 
-        ContainerFitCheck.EnsureOverrideFits(_mapper.ToContainerShiftOverrideEntity(request.Resource));
+        await _containerFitGuard.EnsureOverrideFitsAsync(_mapper.ToContainerShiftOverrideEntity(request.Resource), cancellationToken);
 
         var hasWork = await _repository.HasWorkForOverride(existing.ContainerId, existing.Date, cancellationToken);
         if (hasWork)

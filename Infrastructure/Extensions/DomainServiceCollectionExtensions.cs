@@ -170,6 +170,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IGroupVisibilityGuard, GroupVisibilityGuard>();
         services.AddScoped<IShiftVisibilityGuard, ShiftVisibilityGuard>();
         services.AddScoped<IContainerVisibilityGuard, ContainerVisibilityGuard>();
+        services.AddScoped<IContainerFitGuard, ContainerFitGuard>();
         services.AddScoped<IRouteShiftVisibilityFilter, RouteShiftVisibilityFilter>();
         services.AddScoped<IScenarioTokenAccessGuard, ScenarioTokenAccessGuard>();
         services.AddScoped<IScheduleRowAccessGuard, ScheduleRowAccessGuard>();

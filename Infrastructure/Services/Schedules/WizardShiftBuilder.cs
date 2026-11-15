@@ -4,6 +4,7 @@ using System.Globalization;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -18,19 +19,25 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// ShiftStaffingDemand.PerDay (Quantity x SumEmployees) single-seat CoreShifts, because every seeding strategy of
 /// the optimizer places exactly one employee per CoreShift. Sporadic shifts are on-call shifts whose Quantity counts
 /// days per period, not shifts per day; they carry no daily demand and are left to manual booking.
+/// A shift day the shift schedule marks as a container child (get_shift_schedule.is_in_template_container, the marker
+/// the shift table shows and ShiftStaffingDemand.RequiredOn reads) gets no seat: the container is planned as a whole
+/// and keeps its own seats (owner rule 2026-11-15).
 /// The order identity a slot belongs to is derived as RootId ?? OriginalId ?? Id, so a standalone shift
 /// counts as its own object.
 /// </summary>
 /// <param name="context">EF Core database context</param>
+/// <param name="shiftScheduleReader">Reads the shift schedule rows whose container marker decides which shift days are container children</param>
 public sealed class WizardShiftBuilder : IWizardShiftBuilder
 {
     private const int SingleSeat = 1;
 
     private readonly DataBaseContext _context;
+    private readonly IShiftScheduleReader _shiftScheduleReader;
 
-    public WizardShiftBuilder(DataBaseContext context)
+    public WizardShiftBuilder(DataBaseContext context, IShiftScheduleReader shiftScheduleReader)
     {
         _context = context;
+        _shiftScheduleReader = shiftScheduleReader;
     }
 
     public async Task<IReadOnlyList<CoreShift>> BuildAsync(
@@ -54,6 +61,7 @@ public sealed class WizardShiftBuilder : IWizardShiftBuilder
         }
 
         var shifts = await query.ToListAsync(ct);
+        var containerChildDays = await LoadContainerChildDaysAsync(from, until, analyseToken, ct);
 
         var result = new List<CoreShift>();
         foreach (var shift in shifts)
@@ -70,7 +78,7 @@ public sealed class WizardShiftBuilder : IWizardShiftBuilder
 
             for (var date = firstActive; date <= lastActive; date = date.AddDays(1))
             {
-                if (!IsShiftActiveOnWeekday(shift, date.DayOfWeek))
+                if (!IsShiftActiveOnWeekday(shift, date.DayOfWeek) || containerChildDays.Contains((shift.Id, date)))
                 {
                     continue;
                 }
@@ -94,6 +102,17 @@ public sealed class WizardShiftBuilder : IWizardShiftBuilder
         }
 
         return result;
+    }
+
+    private async Task<HashSet<(Guid ShiftId, DateOnly Date)>> LoadContainerChildDaysAsync(
+        DateOnly from, DateOnly until, Guid? analyseToken, CancellationToken ct)
+    {
+        var rows = await _shiftScheduleReader.GetShiftScheduleListAsync(
+            from, until, holidayDates: null, visibleGroupIds: null, showUngroupedShifts: false, analyseToken, ct);
+        return rows
+            .Where(row => row.IsInTemplateContainer)
+            .Select(row => (row.ShiftId, row.Date))
+            .ToHashSet();
     }
 
     private static bool IsShiftActiveOnWeekday(Shift shift, DayOfWeek day) => day switch

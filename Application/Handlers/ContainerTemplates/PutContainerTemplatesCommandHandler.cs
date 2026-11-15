@@ -9,6 +9,7 @@
 /// outside the template window is refused with the ContainerFitRefusal code before anything is written (ContainerFitCheck).
 /// </summary>
 /// <param name="containerVisibilityGuard">Refuses missing and hidden containers and new hidden task shifts</param>
+/// <param name="containerFitGuard">Refuses a template whose item occupies time outside of it</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.ContainerTemplates;
@@ -32,6 +33,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
     private readonly IContainerLockRepository _lockRepository;
     private readonly IUserService _userService;
     private readonly IContainerVisibilityGuard _containerVisibilityGuard;
+    private readonly IContainerFitGuard _containerFitGuard;
     private readonly ILogger<PutContainerTemplatesCommandHandler> _logger;
 
     public PutContainerTemplatesCommandHandler(
@@ -41,6 +43,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
         IContainerLockRepository lockRepository,
         IUserService userService,
         IContainerVisibilityGuard containerVisibilityGuard,
+        IContainerFitGuard containerFitGuard,
         ILogger<PutContainerTemplatesCommandHandler> logger)
     {
         _repository = repository;
@@ -49,6 +52,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
         _lockRepository = lockRepository;
         _userService = userService;
         _containerVisibilityGuard = containerVisibilityGuard;
+        _containerFitGuard = containerFitGuard;
         _logger = logger;
     }
 
@@ -74,7 +78,7 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
             request.Resources.SelectMany(r => r.ContainerTemplateItems).Select(i => i.ShiftId),
             cancellationToken);
 
-        EnsureTemplatesFit(request.Resources);
+        await EnsureTemplatesFitAsync(request.Resources, cancellationToken);
 
         var resultTemplates = new List<ContainerTemplate>();
 
@@ -207,11 +211,11 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
             t.IsWeekdayAndHoliday == resource.IsWeekdayAndHoliday);
     }
 
-    private void EnsureTemplatesFit(IEnumerable<ContainerTemplateResource> resources)
+    private async Task EnsureTemplatesFitAsync(IEnumerable<ContainerTemplateResource> resources, CancellationToken cancellationToken)
     {
         foreach (var resource in resources)
         {
-            ContainerFitCheck.EnsureTemplateFits(_scheduleMapper.ToContainerTemplateEntity(resource));
+            await _containerFitGuard.EnsureTemplateFitsAsync(_scheduleMapper.ToContainerTemplateEntity(resource), cancellationToken);
         }
     }
 }

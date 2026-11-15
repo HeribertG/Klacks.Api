@@ -126,6 +126,18 @@ public class ShiftReader : IShiftReader
         return found.ToHashSet();
     }
 
+    public async Task<IReadOnlySet<Guid>> GetTimeRangeShiftIdsAsync(
+        IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
+    {
+        var ids = shiftIds.ToList();
+        var found = await _context.Shift
+            .AsNoTracking()
+            .Where(s => ids.Contains(s.Id) && s.IsTimeRange && !s.IsDeleted)
+            .Select(s => s.Id)
+            .ToListAsync(cancellationToken);
+        return found.ToHashSet();
+    }
+
     public async Task<IReadOnlyList<Shift>> GetTasksWithClientByIdsAsync(
         IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default)
     {

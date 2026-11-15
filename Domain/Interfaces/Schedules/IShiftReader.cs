@@ -110,6 +110,15 @@ public interface IShiftReader
         IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The shifts among the given ones that are TimeRange shifts (soft-deleted shifts dropped; scenario rows are not
+    /// excluded, the ids decide).
+    /// </summary>
+    /// <param name="shiftIds">Shifts to check; unknown ids yield nothing</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<IReadOnlySet<Guid>> GetTimeRangeShiftIdsAsync(
+        IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// The given shifts that are tasks, whatever their status, sporadic flag or time, untracked, with their client and
     /// all the client's addresses, in the base order (original id, from date, start time). Unknown ids and non-task
     /// shifts are dropped; scenario rows are not excluded.

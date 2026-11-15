@@ -9,6 +9,7 @@
 /// <param name="containerId">The container shift to override</param>
 /// <param name="resource">The override data with items</param>
 /// <param name="containerVisibilityGuard">Refuses missing and hidden containers and new hidden task shifts</param>
+/// <param name="containerFitGuard">Refuses an override whose item occupies time outside of it</param>
 using Klacks.Api.Application.Commands.ContainerShiftOverrides;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -31,6 +32,7 @@ public class PostContainerShiftOverrideCommandHandler : IRequestHandler<PostCont
     private readonly ScheduleMapper _mapper;
     private readonly IUserService _userService;
     private readonly IContainerVisibilityGuard _containerVisibilityGuard;
+    private readonly IContainerFitGuard _containerFitGuard;
     private readonly ILogger<PostContainerShiftOverrideCommandHandler> _logger;
 
     public PostContainerShiftOverrideCommandHandler(
@@ -40,6 +42,7 @@ public class PostContainerShiftOverrideCommandHandler : IRequestHandler<PostCont
         ScheduleMapper mapper,
         IUserService userService,
         IContainerVisibilityGuard containerVisibilityGuard,
+        IContainerFitGuard containerFitGuard,
         ILogger<PostContainerShiftOverrideCommandHandler> logger)
     {
         _repository = repository;
@@ -48,6 +51,7 @@ public class PostContainerShiftOverrideCommandHandler : IRequestHandler<PostCont
         _mapper = mapper;
         _userService = userService;
         _containerVisibilityGuard = containerVisibilityGuard;
+        _containerFitGuard = containerFitGuard;
         _logger = logger;
     }
 
@@ -70,7 +74,7 @@ public class PostContainerShiftOverrideCommandHandler : IRequestHandler<PostCont
 
         request.Resource.ContainerId = request.ContainerId;
         var entity = _mapper.ToContainerShiftOverrideEntity(request.Resource);
-        ContainerFitCheck.EnsureOverrideFits(entity);
+        await _containerFitGuard.EnsureOverrideFitsAsync(entity, cancellationToken);
 
         foreach (var item in entity.ContainerShiftOverrideItems)
         {
