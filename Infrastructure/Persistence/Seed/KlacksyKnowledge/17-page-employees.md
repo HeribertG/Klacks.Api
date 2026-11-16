@@ -205,8 +205,8 @@ Cards plus einer rechten Navigationsspalte:
   - **Titel** (`title`), **Vorname** (`firstname`, per `+` zweite Vornamenszeile),
     **Nachname** (`profile-name`, per `+` Ledigname).
   - **Strasse** (`street`, de: "Strasse", en: "Street", fr: "Rue", it: "Via"; per `+` bis
-    zu drei Zeilen `street2`/`street3`), **PLZ** (`zip` — beim Verlassen wird der Ort
-    automatisch vorgeschlagen), **Ort** (`city` mit Vorschlagsliste), **Kanton/Bundesland**
+    zu drei Zeilen `street2`/`street3`), **PLZ** (`zip` — beim Verlassen werden Ort und Kanton
+    nur für Schweizer Adressen automatisch vorgeschlagen, andere Länder von Hand), **Ort** (`city` mit Vorschlagsliste), **Kanton/Bundesland**
     (`state`, nur wenn das Land Regionen hat), **Nation** (`country`, de: "Nation", en:
     "Country", fr: "Pays", it: "Nazione").
   - Pflichtfelder sind mit `*` markiert und werden live rot/grün validiert.

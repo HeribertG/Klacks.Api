@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Looks up a location by city name or zip code and returns canton/state information.
+/// Looks up a location by city name or zip code and returns canton/state information. The postcode directory
+/// holds Swiss postcodes only, so every result is labelled as Switzerland, whatever the installation's default country is.
 /// Used by the guided workflow to determine canton before filtering contracts and groups.
 /// </summary>
 /// <param name="city">City name to look up (e.g. "Bern")</param>
@@ -9,6 +10,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -52,8 +54,8 @@ public class LookupLocationSkill : BaseSkillImplementation
             return SkillResult.Error($"No location found for {searchTerm}. Try a different search term or use web_search for international locations.");
         }
 
-        var defaultCountry = await _countryResolver.GetDefaultAsync(cancellationToken);
-        var countryDisplayName = defaultCountry?.Name.De ?? defaultCountry?.Name.En ?? defaultCountry?.Abbreviation ?? string.Empty;
+        var swissCountry = await _countryResolver.ResolveAsync(CountryCodes.Switzerland, cancellationToken);
+        var countryDisplayName = swissCountry?.Name.De ?? swissCountry?.Name.En ?? swissCountry?.Abbreviation ?? CountryCodes.Switzerland;
 
         var distinctLocations = results
             .GroupBy(r => new { r.City, r.State })
@@ -68,22 +70,25 @@ public class LookupLocationSkill : BaseSkillImplementation
             .Take(MaxResults)
             .ToList();
 
+        var coverageNote = $"The postcode directory covers {countryDisplayName} only.";
+
         var resultData = new
         {
             Locations = distinctLocations,
             TotalFound = distinctLocations.Count,
-            SearchedBy = zip.HasValue ? "zip" : "city"
+            SearchedBy = zip.HasValue ? "zip" : "city",
+            DirectoryCountry = countryDisplayName
         };
 
         if (distinctLocations.Count == 1)
         {
             var loc = distinctLocations[0];
             return SkillResult.SuccessResult(resultData,
-                $"{loc.City} is in canton {loc.Canton}, {loc.Country} (ZIP: {string.Join(", ", loc.ZipCodes)}).");
+                $"{loc.City} is in canton {loc.Canton}, {loc.Country} (ZIP: {string.Join(", ", loc.ZipCodes)}). {coverageNote}");
         }
 
         var summary = string.Join(", ", distinctLocations.Select(l => $"{l.City} ({l.Canton})"));
         return SkillResult.SuccessResult(resultData,
-            $"Found {distinctLocations.Count} location(s): {summary}.");
+            $"Found {distinctLocations.Count} location(s): {summary}. {coverageNote}");
     }
 }
