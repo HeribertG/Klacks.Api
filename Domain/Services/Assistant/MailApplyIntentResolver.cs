@@ -8,7 +8,7 @@
 /// names mails or because the previous tool-calling turn read them (PreviousTurnSkillNames of the guarantee request, the
 /// same names TurnPreparationService reads off the last-action record, so the toolset and the recipe decision cannot
 /// disagree). A message that opens with an information question never counts.
-/// Why it exists: the data is already in the conversation, so the guided recipe offer ("Möchtest du diese geführte Aktion
+/// Why it exists: the data is already in the conversation, so the guided recipe offer ("Soll ich diese geführte Aktion
 /// starten: ... verfügbar ...") would ask the user for what they just had read out, and the retrieval for such a wording
 /// ranks mail-management skills, not the write skills. Core languages de/en/fr/it only, matched case-insensitively on word
 /// starts; a plugin-language wording does not count. The skills it names only matter for visibility: the autonomy gate and

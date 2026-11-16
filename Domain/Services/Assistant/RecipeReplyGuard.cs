@@ -28,18 +28,18 @@ public static class RecipeReplyGuard
 
     private static readonly Dictionary<string, string> SingleFrames = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["de"] = "Möchtest du diese geführte Aktion starten: „{0}\"? Bitte antworte mit Ja oder Nein.",
+        ["de"] = "Soll ich diese geführte Aktion starten: „{0}\"? Bitte mit Ja oder Nein antworten.",
         ["en"] = "Do you want to start this guided action: \"{0}\"? Please reply with Yes or No.",
-        ["fr"] = "Veux-tu lancer cette action guidée : « {0} » ? Réponds par Oui ou Non.",
-        ["it"] = "Vuoi avviare questa azione guidata: «{0}»? Rispondi con Sì o No.",
+        ["fr"] = "Dois-je lancer cette action guidée : « {0} » ? Merci de répondre par Oui ou Non.",
+        ["it"] = "Devo avviare questa azione guidata: «{0}»? Rispondere con Sì o No.",
     };
 
     private static readonly Dictionary<string, string> AlternativeFrames = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["de"] = "Ich habe zwei mögliche Aktionen erkannt: „{0}\" oder „{1}\". Welche meinst du – oder keine?",
+        ["de"] = "Ich habe zwei mögliche Aktionen erkannt: „{0}\" oder „{1}\". Welche ist gemeint – oder keine?",
         ["en"] = "I found two possible actions: \"{0}\" or \"{1}\". Which do you mean — or neither?",
-        ["fr"] = "J'ai identifié deux actions possibles : « {0} » ou « {1} ». Laquelle veux-tu — ou aucune ?",
-        ["it"] = "Ho individuato due azioni possibili: «{0}» o «{1}». Quale intendi — o nessuna?",
+        ["fr"] = "J'ai identifié deux actions possibles : « {0} » ou « {1} ». Laquelle est visée — ou aucune ?",
+        ["it"] = "Ho individuato due azioni possibili: «{0}» o «{1}». Quale si intende — o nessuna?",
     };
 
     private const string FallbackLanguage = "en";
