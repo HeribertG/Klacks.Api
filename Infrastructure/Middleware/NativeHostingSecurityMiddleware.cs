@@ -4,7 +4,8 @@
 /// Restores on native installations what nginx provides in front of the Docker stack. Endpoints that were only reachable
 /// inside the compose network (/internal, /_blazor) answer 404 unless the request comes from the machine itself, and
 /// every response carries the security headers of deploy/onprem/nginx (nosniff, frame options, the same content
-/// security policy, HSTS only over HTTPS). Registered only when Hosting:DataRoot is set.
+/// security policy, HSTS only over HTTPS). Frame options, referrer policy and content security policy are only set when
+/// the response has not set them itself, so the OAuth consent page keeps its stricter values. Registered only when Hosting:DataRoot is set.
 /// </summary>
 /// <param name="next">Next middleware in the pipeline</param>
 /// <param name="configuration">Effective configuration; Hosting:MapTileCspSources replaces the tile hosts in img-src like
@@ -60,9 +61,9 @@ public class NativeHostingSecurityMiddleware
         {
             var headers = context.Response.Headers;
             headers[HeaderNames.XContentTypeOptions] = NoSniff;
-            headers[HeaderNames.XFrameOptions] = SameOrigin;
-            headers[ReferrerPolicyHeader] = ReferrerPolicy;
-            headers[HeaderNames.ContentSecurityPolicy] = _contentSecurityPolicy;
+            SetIfAbsent(headers, HeaderNames.XFrameOptions, SameOrigin);
+            SetIfAbsent(headers, ReferrerPolicyHeader, ReferrerPolicy);
+            SetIfAbsent(headers, HeaderNames.ContentSecurityPolicy, _contentSecurityPolicy);
             if (context.Request.IsHttps)
             {
                 headers[HeaderNames.StrictTransportSecurity] = HstsValue;
@@ -72,6 +73,14 @@ public class NativeHostingSecurityMiddleware
         });
 
         await _next(context);
+    }
+
+    private static void SetIfAbsent(IHeaderDictionary headers, string name, string value)
+    {
+        if (!headers.ContainsKey(name))
+        {
+            headers[name] = value;
+        }
     }
 
     public static bool IsLoopbackOnlyPath(PathString path)

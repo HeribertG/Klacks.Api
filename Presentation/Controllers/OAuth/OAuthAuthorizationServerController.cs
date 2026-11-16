@@ -15,6 +15,7 @@ using Klacks.Api.Application.Services.OAuth;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Queries.OAuth;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.Authentication;
 using Microsoft.AspNetCore.Antiforgery;
@@ -249,15 +250,11 @@ public class OAuthAuthorizationServerController : ControllerBase
 
     private static string LocalizeIssueError(OAuthConsentTextSet texts, OAuthAuthorizationCodeResult result)
     {
-        if (result.IsSetupRequired)
+        return result.Failure switch
         {
-            return texts.Get(OAuthConsentTexts.ErrorSetupRequired);
-        }
-
-        return result.ErrorDescription switch
-        {
-            OAuthConstants.InvalidCredentialsDescription => texts.Get(OAuthConsentTexts.ErrorInvalidCredentials),
-            OAuthConstants.AccountNotAllowedDescription => texts.Get(OAuthConsentTexts.ErrorAccountNotAllowed),
+            OAuthIssueFailure.SetupRequired => texts.Get(OAuthConsentTexts.ErrorSetupRequired),
+            OAuthIssueFailure.InvalidCredentials => texts.Get(OAuthConsentTexts.ErrorInvalidCredentials),
+            OAuthIssueFailure.AccountNotAllowed => texts.Get(OAuthConsentTexts.ErrorAccountNotAllowed),
             _ => result.ErrorDescription ?? texts.Get(OAuthConsentTexts.ErrorInvalidCredentials)
         };
     }

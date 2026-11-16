@@ -65,13 +65,19 @@ public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOA
 
         if (await _adminSetupGateService.IsSeedAdminSignInReservedForSetupCodeAsync(request.Email, request.IsLocalRequest))
         {
-            return OAuthAuthorizationCodeResult.Rejected(OAuthConstants.ErrorAccessDenied, OAuthConstants.InvalidCredentialsDescription);
+            return OAuthAuthorizationCodeResult.Rejected(
+                OAuthConstants.ErrorAccessDenied,
+                OAuthConstants.InvalidCredentialsDescription,
+                OAuthIssueFailure.InvalidCredentials);
         }
 
         var (isValid, user) = await _authenticationService.ValidateCredentialsAsync(request.Email, request.Password);
         if (!isValid || user == null)
         {
-            return OAuthAuthorizationCodeResult.Rejected(OAuthConstants.ErrorAccessDenied, OAuthConstants.InvalidCredentialsDescription);
+            return OAuthAuthorizationCodeResult.Rejected(
+                OAuthConstants.ErrorAccessDenied,
+                OAuthConstants.InvalidCredentialsDescription,
+                OAuthIssueFailure.InvalidCredentials);
         }
 
         if (user.Id == SystemAccounts.SeedAdminUserId && await _adminSetupGateService.IsGateActiveAsync())
@@ -84,7 +90,8 @@ public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOA
         {
             return OAuthAuthorizationCodeResult.Rejected(
                 OAuthConstants.ErrorAccessDenied,
-                OAuthConstants.AccountNotAllowedDescription);
+                OAuthConstants.AccountNotAllowedDescription,
+                OAuthIssueFailure.AccountNotAllowed);
         }
 
         var code = Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(OAuthConstants.AuthorizationCodeByteLength));

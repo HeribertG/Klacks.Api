@@ -88,6 +88,21 @@ http {
         default                                         $http_referer;
     }
 
+    # Referrer-Policy at http level for every server block that does not repeat its own. The consent
+    # page of klacks-api (/oauth/authorize) carries its own "no-referrer"; an add_header
+    # with an empty value is not sent, so nginx adds no second, weaker value behind it there.
+    map $uri $referrer_policy {
+        default                                         "strict-origin-when-cross-origin";
+        ~^/oauth/authorize                              "";
+    }
+
+    # Same for X-Frame-Options: the consent page answers DENY itself, and two conflicting values
+    # would leave it to the browser which one counts.
+    map $uri $frame_options {
+        default                                         "SAMEORIGIN";
+        ~^/oauth/authorize                              "";
+    }
+
     log_format redacted '$remote_addr - $remote_user [$time_local] '
                         '"$request_method $log_uri_redacted $server_protocol" '
                         '$status $body_bytes_sent "$log_referer_redacted" "$http_user_agent" '
@@ -174,9 +189,9 @@ http {
     # (Whisper, voice shell, microphone test) depends on it; geolocation is used
     # by the greeting service. Camera, screen capture, payment and USB are unused.
     add_header X-Content-Type-Options "nosniff" always;
-    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Frame-Options $frame_options always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Referrer-Policy $referrer_policy always;
     add_header Permissions-Policy "camera=(), display-capture=(), geolocation=(self), microphone=(self), payment=(), usb=()" always;
     add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: ${MAP_TILE_CSP_SOURCES}; media-src 'self' blob: data:; connect-src 'self' wss: https: blob:; worker-src 'self' blob:; frame-ancestors 'self';" always;
 
