@@ -40,6 +40,17 @@ a secret in each test repo) or a small `tests.yml` duplicated into each test rep
 Klacks.Api and its siblings the same way. Neither was built here — flagging it as an explicit,
 open decision rather than silently leaving it uncovered.
 
+## Release tags freeze the siblings
+
+On a stable release tag `vX.Y.Z`, `deploy.yml` (`unit-tests`, `build-and-push`) and `native-windows.yml`
+(`package`, mode `release`) check every sibling out at the **same tag** (`SIBLING_REF`), not at main.
+`scripts/release.ps1` / `release.sh` set that tag on the siblings' `origin/main` before tagging Klacks.Api.
+A stable tag without sibling tags fails at checkout ("could not find remote ref") on purpose. main pushes,
+`workflow_dispatch`, gate/dry-run and prerelease tags (`-rc1`) keep the default branch. Incident: v1.0.71
+(2026-11-16) checked Klacks.UnitTest out from main, which no longer compiled against the tagged Api code.
+A new sibling checkout in these jobs needs `ref: ${{ env.SIBLING_REF }}` and an entry in
+`scripts/release-siblings.ps1` / `.sh`.
+
 ## Cross-repo checkout: no new secret needed
 
 The `token: ${{ secrets.GH_PAT || github.token }}` pattern in `tests.yml` mirrors `deploy.yml`

@@ -15,6 +15,15 @@ concurrency:
   group: deploy-klacks-api-${{ github.ref }}
   cancel-in-progress: true
 
+# A stable release tag (vX.Y.Z) builds and tests against the sibling repos frozen at the same tag, which
+# scripts/release.ps1 sets on their origin/main before it tags Klacks.Api. Without it v1.0.71 (2026-11-16) checked
+# out Klacks.UnitTest from main, which already held commits that did not compile against the tagged Api code.
+# main pushes, workflow_dispatch and prerelease tags (vX.Y.Z-rc1, never tagged by the script) keep the default
+# branch. A stable tag without sibling tags fails at checkout ("could not find remote ref") instead of building
+# against main; re-runs of tags older than this change use their own, unpinned copy of this file.
+env:
+  SIBLING_REF: ${{ startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-') && github.ref_name || '' }}
+
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
@@ -30,6 +39,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.Plugin.Contracts
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.Plugin.Contracts
         token: ${{ secrets.GH_PAT || github.token }}
 
@@ -37,6 +47,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.Plugin.Messaging
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.Plugin.Messaging
         token: ${{ secrets.GH_PAT || github.token }}
 
@@ -44,6 +55,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.Docs
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.Docs
         token: ${{ secrets.GH_PAT || github.token }}
 
@@ -51,6 +63,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.Api.SourceGenerators
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.Api.SourceGenerators
         token: ${{ secrets.GH_PAT || github.token }}
 
@@ -58,6 +71,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.UnitTest
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.UnitTest
         token: ${{ secrets.GH_PAT || github.token }}
 
@@ -65,6 +79,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.Ui
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.Ui
         token: ${{ secrets.GH_PAT || github.token }}
         sparse-checkout: |
@@ -77,6 +92,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.Marketplace
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.Marketplace
         token: ${{ secrets.GH_PAT || github.token }}
         sparse-checkout: |
@@ -88,12 +104,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.ScheduleOptimizer
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.ScheduleOptimizer
 
     - name: Checkout Klacks.ScheduleRecovery
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.ScheduleRecovery
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.ScheduleRecovery
 
     - name: Setup .NET 10
@@ -140,6 +158,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.Plugin.Contracts
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.Plugin.Contracts
         token: ${{ secrets.GH_PAT || github.token }}
 
@@ -147,6 +166,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.Plugin.Messaging
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.Plugin.Messaging
         token: ${{ secrets.GH_PAT || github.token }}
 
@@ -154,6 +174,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.Docs
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.Docs
         token: ${{ secrets.GH_PAT || github.token }}
 
@@ -161,6 +182,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.Api.SourceGenerators
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.Api.SourceGenerators
         token: ${{ secrets.GH_PAT || github.token }}
 
@@ -168,12 +190,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.ScheduleOptimizer
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.ScheduleOptimizer
 
     - name: Checkout Klacks.ScheduleRecovery
       uses: actions/checkout@v4
       with:
         repository: HeribertG/Klacks.ScheduleRecovery
+        ref: ${{ env.SIBLING_REF }}
         path: Klacks.ScheduleRecovery
 
     - name: Extract version from tag
