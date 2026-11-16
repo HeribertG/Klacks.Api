@@ -365,8 +365,8 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
         if (!delivery.Success)
         {
             _logger.LogWarning(
-                "Clarification question to client {ClientId} (clarification {ClarificationId}) could not be sent: {Error}",
-                request.ClientId, clarificationId, delivery.Error);
+                "Clarification question to client {ClientId} (clarification {ClarificationId}) could not be sent",
+                request.ClientId, clarificationId);
             await MarkUnresolvedSafelyAsync(clarificationId, request.ClientId);
             return ClarificationPostAnalysis.ContinueWith(await _textService.SendFailedAsync(composed.Question, cancellationToken));
         }
