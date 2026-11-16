@@ -92,13 +92,13 @@ places are open, or switch it off with 0 (setting Assistant:SkillGraph:Associati
 
 **Looking up a missing ability.** The list is chosen before the assistant reads your message closely,
 so an unspoken next step can be missing — "Ben starts next month" also needs a contract and a team.
-The assistant can then look the missing ability up itself while
+When the tool search is switched on, the assistant can then look the missing ability up itself while
 it answers: it describes what it lacks in a few words, and the abilities it finds join its list from
 its next step on. It only finds abilities you are allowed to use, at most nine per answer and in at most
 two lookups. Each lookup
-costs one extra step, so such an answer takes a little longer. The search is on by default, because in the
-measurement it found the needed abilities for clearly more multi-step requests; an administrator can switch
-it off (setting Assistant:ToolSearch:Enabled).
+costs one extra step, so such an answer takes a little longer. The search is off by default: in recorded runs of a
+longer request (for example booking a tour for a week), the assistant failed with the search switched on and
+succeeded with it switched off. An administrator can switch it on (setting Assistant:ToolSearch:Enabled).
 
 **Proposing the next step.** After an ability has been used successfully, a settled "one after the
 other" pair lets the assistant offer the usual follow-up. That proposal goes through the same
