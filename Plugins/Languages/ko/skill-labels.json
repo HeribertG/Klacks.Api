@@ -149,6 +149,7 @@
   "explain_absence_overlap_not_blocked": "검사되지 않은 결근 중복 설명",
   "explain_absence_cover_move": "결근 대체 설명",
   "explain_oauth_connections": "OAuth로 AI 도구 연결",
+  "explain_office_pc_installation": "Klacks 설치: Klacks Store 또는 Microsoft Store",
   "explain_scenario_variant_keys": "잠정 근무 설명",
   "explain_placeholder_employees": "가상 직원 설명",
   "explain_autofill_staircase_start": "계단형 시작 설명",

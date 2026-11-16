@@ -1264,6 +1264,12 @@
     "hvordan tillader jeg mit eget AI-værktøj",
     "kun læsning eller læsning og ændring ved tilslutning af et værktøj"
   ],
+  "explain_office_pc_installation": [
+    "findes klacks i microsoft store",
+    "hvor downloader jeg klacks",
+    "hvordan installerer jeg klacks på kontor-pc'en",
+    "bliver mine data gemt når jeg afinstallerer klacks"
+  ],
   "explain_scenario_variant_keys": [
     "hvad er en nøgle i et scenarie",
     "planlæg ikke-bindende vagter",

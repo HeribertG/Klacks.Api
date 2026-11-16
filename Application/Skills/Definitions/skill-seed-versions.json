@@ -796,6 +796,10 @@
       "version": 1,
       "hash": "987F7464BA23F4AFE17F693A6FE404B3A1B21FD6AF419F1FE2DBA76649A97465"
     },
+    "explain_office_pc_installation": {
+      "version": 1,
+      "hash": "0D9777DB0D4971120C8B9A73AECD72897B4A89B10E6611DDB186D840C16843A3"
+    },
     "explain_overtime_model": {
       "version": 8,
       "hash": "C699445B2267968CC3EA115D3612F726448961860869A69E4519B0F812EB6FBB"

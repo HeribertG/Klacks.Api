@@ -1240,6 +1240,12 @@
     "나만의 AI 도구를 허용하는 방법",
     "도구를 연결할 때 읽기 전용인지 읽기와 변경인지"
   ],
+  "explain_office_pc_installation": [
+    "Klacks가 마이크로소프트 스토어에 있나요",
+    "Klacks는 어디서 다운로드하나요",
+    "사무실 PC에 Klacks를 설치하는 방법",
+    "Klacks를 제거해도 데이터가 남아 있나요"
+  ],
   "explain_scenario_variant_keys": [
     "시나리오의 키란 무엇인가요",
     "확정되지 않은 근무 계획하기",

@@ -1244,6 +1244,12 @@
     "如何允许我自己的 AI 工具",
     "连接工具时只读还是读取和修改"
   ],
+  "explain_office_pc_installation": [
+    "微软商店里有Klacks吗",
+    "在哪里下载Klacks",
+    "怎么在办公室电脑上安装Klacks",
+    "卸载Klacks后数据还在吗"
+  ],
   "explain_scenario_variant_keys": [
     "场景中的键是什么",
     "规划非约束性班次",

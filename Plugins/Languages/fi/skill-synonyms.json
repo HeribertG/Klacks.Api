@@ -1251,6 +1251,12 @@
     "miten sallin oman tekoälytyökaluni",
     "vain luku vai luku ja muutokset työkalua yhdistettäessä"
   ],
+  "explain_office_pc_installation": [
+    "löytyykö klacks microsoft storesta",
+    "mistä lataan klacksin",
+    "miten asennan klacksin toimiston tietokoneelle",
+    "säilyvätkö tietoni kun poistan klacksin"
+  ],
   "explain_scenario_variant_keys": [
     "mikä on avain skenaariossa",
     "suunnittele ei-sitovia vuoroja",

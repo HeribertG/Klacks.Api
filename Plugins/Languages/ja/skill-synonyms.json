@@ -1250,6 +1250,12 @@
     "自分のAIツールを許可するにはどうすればいいですか",
     "接続時に読み取り専用か読み取りと変更かを選ぶには"
   ],
+  "explain_office_pc_installation": [
+    "KlacksはMicrosoft Storeにありますか",
+    "Klacksはどこからダウンロードできますか",
+    "オフィスのパソコンにKlacksをインストールするには",
+    "Klacksをアンインストールしてもデータは残りますか"
+  ],
   "explain_scenario_variant_keys": [
     "シナリオのキーとは何か",
     "確定していないシフトを計画する",

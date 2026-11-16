@@ -1250,6 +1250,12 @@
     "hvordan tillater jeg mitt eget KI-verktøy",
     "bare lesing eller lesing og endring når et verktøy kobles til"
   ],
+  "explain_office_pc_installation": [
+    "finnes klacks i microsoft store",
+    "hvor laster jeg ned klacks",
+    "hvordan installerer jeg klacks på kontor-pc-en",
+    "beholdes dataene mine når jeg avinstallerer klacks"
+  ],
   "explain_scenario_variant_keys": [
     "hva er en nøkkel i et scenario",
     "planlegg ikke-bindende vakter",

@@ -1260,6 +1260,12 @@
     "hur tillåter jag mitt eget AI-verktyg",
     "endast läsning eller läsning och ändring när ett verktyg ansluts"
   ],
+  "explain_office_pc_installation": [
+    "finns klacks i microsoft store",
+    "var laddar jag ner klacks",
+    "hur installerar jag klacks på kontorsdatorn",
+    "finns mina data kvar när jag avinstallerar klacks"
+  ],
   "explain_scenario_variant_keys": [
     "vad är en nyckel i ett scenario",
     "planera icke-bindande pass",

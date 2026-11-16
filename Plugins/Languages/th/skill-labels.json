@@ -149,6 +149,7 @@
   "explain_absence_overlap_not_blocked": "อธิบายการลาทับซ้อนที่ยังไม่ตรวจสอบ",
   "explain_absence_cover_move": "อธิบายการทดแทนเมื่อขาดงาน",
   "explain_oauth_connections": "เชื่อมต่อเครื่องมือ AI ผ่าน OAuth",
+  "explain_office_pc_installation": "ติดตั้ง Klacks: Klacks Store หรือ Microsoft Store",
   "explain_scenario_variant_keys": "อธิบายกะเบื้องต้น",
   "explain_placeholder_employees": "อธิบายพนักงานสมมติ",
   "explain_autofill_staircase_start": "อธิบายการเริ่มแบบขั้นบันได",

@@ -1279,6 +1279,12 @@
     "jak zezwolić na własne narzędzie AI",
     "tylko odczyt czy odczyt i zmiany przy łączeniu narzędzia"
   ],
+  "explain_office_pc_installation": [
+    "czy klacks jest w microsoft store",
+    "skąd pobrać klacks",
+    "jak zainstalować klacks na komputerze w biurze",
+    "czy moje dane zostaną po odinstalowaniu klacks"
+  ],
   "explain_scenario_variant_keys": [
     "czym jest klucz w scenariuszu",
     "planowanie niewiążących zmian",

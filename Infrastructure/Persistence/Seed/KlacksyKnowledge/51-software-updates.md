@@ -108,10 +108,10 @@ that Klacks is already installed and should be updated under Software Updates. R
 the version that is already installed is allowed and repairs the installation. Reason: only this card
 backs up the database, checks the new version and returns to the old one if it fails. New
 installations come from the Klacks Store, where the country (and industry) is chosen before the
-download. The office PC setup is also being listed in the Microsoft Store (entry "Klacks", once
-Microsoft has approved it; until then the Klacks Store is the way): it is the same setup, installs
-without questions and applies the country set on the PC. Updates never come from the Microsoft Store,
-always from this card. When installing from the Klacks Store, Edge may warn that the setup file "is not commonly
+download, or for the office PC from the Microsoft Store. The office PC setup is available in the Microsoft Store (entry "Klacks"): it is the
+same setup, installs without questions and applies the country set on the PC; server, Docker, Linux
+and the country and industry packages are only in the Klacks Store (`explain_office_pc_installation`).
+Updates never come from the Microsoft Store, always from this card. When installing from the Klacks Store, Edge may warn that the setup file "is not commonly
 downloaded" because the file is new, not because it is unsafe, and the file can be kept via the
 download list ("…" > "Keep" > "Show more" > "Keep anyway"). If Edge still does not let the file
 through, download it with another browser, for example Google Chrome.
@@ -135,4 +135,3 @@ and backups grow with use. Uninstalling keeps this data unless the user chooses 
 - "Das Setup sagt, Klacks sei bereits installiert."
 - "Edge sagt, die Datei werde selten heruntergeladen."
 - "Wie viel Speicherplatz braucht Klacks?"
-- "Gibt es Klacks im Microsoft Store?"

@@ -149,6 +149,7 @@
   "explain_absence_overlap_not_blocked": "說明未檢查的請假重疊",
   "explain_absence_cover_move": "說明缺勤頂替",
   "explain_oauth_connections": "透過 OAuth 連線 AI 工具",
+  "explain_office_pc_installation": "安裝 Klacks：Klacks Store 或 Microsoft Store",
   "explain_scenario_variant_keys": "說明暫定班次",
   "explain_placeholder_employees": "解釋佔位員工",
   "explain_autofill_staircase_start": "說明階梯式起始",
