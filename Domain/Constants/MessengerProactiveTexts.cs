@@ -58,7 +58,7 @@ public static class MessengerProactiveTexts
             },
             [ProactiveMessageI18nKeys.EscalationStageAlert] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                [German] = "{{employee}} ist für den Dienst am {{date}} ausgefallen. Bitte antworte bis {{dueTime}}, ob du übernimmst.",
+                [German] = "{{employee}} ist für den Dienst am {{date}} ausgefallen. Bitte bis {{dueTime}} antworten, ob eine Übernahme möglich ist.",
                 [English] = "{{employee}} is out for the shift on {{date}}. Please reply by {{dueTime}} whether you can take it.",
                 [French] = "{{employee}} est absent(e) pour le service du {{date}}. Merci de répondre avant {{dueTime}} si tu peux le prendre.",
                 [Italian] = "{{employee}} non è disponibile per il turno del {{date}}. Rispondi entro le {{dueTime}} se puoi coprirlo."
