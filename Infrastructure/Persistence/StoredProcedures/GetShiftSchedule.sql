@@ -143,9 +143,21 @@ BEGIN
         AND vs.scenario_source_shift_id IS NOT NULL
     ),
     container_lookup AS MATERIALIZED (
-        SELECT DISTINCT
+        SELECT
             cis.shift_id,
-            d.schedule_date
+            d.schedule_date,
+        bool_or(EXISTS (
+            SELECT 1 FROM work cw
+            LEFT JOIN work csr ON csr.id = cw.split_from_work_id AND csr.is_deleted = false
+            WHERE cw.is_deleted = false
+            AND cw.parent_work_id IS NULL
+            AND cw.analyse_token IS NOT DISTINCT FROM p_analyse_token
+            AND COALESCE(csr.workday, cw.workday)::DATE = d.schedule_date
+            AND (cw.shift_id = container.id
+                 OR (p_analyse_token IS NOT NULL AND cw.shift_id IN (
+                     SELECT cs.id FROM shift cs
+                     WHERE cs.scenario_source_shift_id = container.id AND cs.analyse_token = p_analyse_token)))
+        )) AS container_planned
         FROM container_template_item cti
         JOIN container_item_shift_ids cis ON cis.item_shift_id = cti.shift_id
         JOIN container_template ct ON ct.id = cti.container_template_id AND ct.is_deleted = false
@@ -163,6 +175,7 @@ BEGIN
                 ct.is_weekday_and_holiday = false OR ct.weekday = (d.dow % 7)
             ))
         )
+        GROUP BY cis.shift_id, d.schedule_date
     ),
     work_counts AS MATERIALIZED (
         SELECT
@@ -275,7 +288,9 @@ BEGIN
         sd.sum_employees,
         sd.quantity,
         sd.sporadic_scope,
-        COALESCE(wc.engaged_count, 0) AS engaged,
+        CASE WHEN COALESCE(cl.container_planned, false)
+             THEN GREATEST(COALESCE(wc.engaged_count, 0), sd.sum_employees * sd.quantity)
+             ELSE COALESCE(wc.engaged_count, 0) END AS engaged,
         COALESCE(ss.status, 0::SMALLINT) AS sporadic_status,
         COALESCE(ss.period_booked_days, 0) AS period_booked_days,
         (vsi.id IS NOT NULL) AS is_variant_shift
@@ -389,9 +404,21 @@ BEGIN
         AND sd.scenario_source_shift_id IS NOT NULL
     ),
     container_lookup AS (
-        SELECT DISTINCT
+        SELECT
             cis.shift_id,
-            ip.schedule_date
+            ip.schedule_date,
+        bool_or(EXISTS (
+            SELECT 1 FROM work cw
+            LEFT JOIN work csr ON csr.id = cw.split_from_work_id AND csr.is_deleted = false
+            WHERE cw.is_deleted = false
+            AND cw.parent_work_id IS NULL
+            AND cw.analyse_token IS NOT DISTINCT FROM p_analyse_token
+            AND COALESCE(csr.workday, cw.workday)::DATE = ip.schedule_date
+            AND (cw.shift_id = container.id
+                 OR (p_analyse_token IS NOT NULL AND cw.shift_id IN (
+                     SELECT cs.id FROM shift cs
+                     WHERE cs.scenario_source_shift_id = container.id AND cs.analyse_token = p_analyse_token)))
+        )) AS container_planned
         FROM container_template_item cti
         JOIN container_item_shift_ids cis ON cis.item_shift_id = cti.shift_id
         JOIN container_template ct ON ct.id = cti.container_template_id AND ct.is_deleted = false
@@ -404,6 +431,7 @@ BEGIN
         -- No holiday input: matches get_shift_schedule called with an empty holiday_dates array.
         AND ct.is_holiday = false
         AND ct.weekday = (EXTRACT(isodow FROM ip.schedule_date)::INTEGER % 7)
+        GROUP BY cis.shift_id, ip.schedule_date
     ),
     work_counts AS (
         SELECT
@@ -515,7 +543,9 @@ BEGIN
         sd.sum_employees,
         sd.quantity,
         sd.sporadic_scope,
-        COALESCE(wc.engaged_count, 0) AS engaged,
+        CASE WHEN COALESCE(cl.container_planned, false)
+             THEN GREATEST(COALESCE(wc.engaged_count, 0), sd.sum_employees * sd.quantity)
+             ELSE COALESCE(wc.engaged_count, 0) END AS engaged,
         COALESCE(ss.status, 0::SMALLINT) AS sporadic_status,
         COALESCE(ss.period_booked_days, 0) AS period_booked_days,
         (vsi.id IS NOT NULL) AS is_variant_shift
