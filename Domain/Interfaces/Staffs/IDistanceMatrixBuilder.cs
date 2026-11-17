@@ -6,6 +6,7 @@
 /// </summary>
 /// <param name="locations">List of locations for which the matrix is calculated</param>
 /// <param name="transportMode">The transport mode determining the routing profile</param>
+/// <param name="cancellationToken">Cancels the OpenRouteService request and its retry pauses; a cancelled call throws instead of falling back</param>
 
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Services.RouteOptimization;
@@ -16,7 +17,8 @@ public interface IDistanceMatrixBuilder
 {
     Task<DistanceMatrix> BuildDistanceMatrixAsync(
         List<Location> locations,
-        ContainerTransportMode transportMode);
+        ContainerTransportMode transportMode,
+        CancellationToken cancellationToken = default);
 
     Task<DistanceMatrix> BuildMixedDistanceMatrixAsync(
         List<Location> locations);

@@ -2,6 +2,8 @@
 
 /// <summary>
 /// Builds distance and duration matrices using OSRM, OpenRouteService or Haversine fallback.
+/// The OpenRouteService matrix request is retried on 500/502/503/504/429 answers, network errors and timeouts
+/// (OpenRouteServiceRetryConstants); other 4xx answers are not retried.
 /// </summary>
 /// <param name="_settingsReader">Repository for reading application settings (e.g. API keys)</param>
 /// <param name="_encryptionService">Decrypts encrypted setting values</param>
@@ -9,6 +11,8 @@
 /// <param name="_httpClient">Named routing HTTP client (carries the User-Agent the public OSRM server requires)</param>
 /// <param name="_geoServicesPolicy">Effective geo service configuration; a disabled OSRM/OpenRouteService falls back to Haversine without any request</param>
 
+using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
@@ -57,7 +61,8 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
 
     public async Task<DistanceMatrix> BuildDistanceMatrixAsync(
         List<Location> locations,
-        ContainerTransportMode transportMode)
+        ContainerTransportMode transportMode,
+        CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("=== BuildDistanceMatrixAsync START ===");
         _logger.LogInformation("TransportMode received: {TransportMode} (int value: {IntValue})", transportMode, (int)transportMode);
@@ -97,7 +102,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
             if (isOpenRouteServiceConfigured)
             {
                 _logger.LogInformation("Using OpenRouteService API");
-                result = await GetOpenRouteServiceMatrixAsync(locations, transportMode, apiKey!);
+                result = await GetOpenRouteServiceMatrixAsync(locations, transportMode, apiKey!, cancellationToken);
             }
             else
             {
@@ -109,7 +114,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
             _logger.LogInformation("Successfully retrieved distance/duration matrix");
             return new DistanceMatrix(locations, result.distanceMatrix, result.durationMatrix);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             _logger.LogWarning(ex, "Failed to get routing matrix, falling back to Haversine distances with estimated times");
             return BuildEstimatedDistanceMatrix(locations, transportMode);
@@ -347,7 +352,8 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
     private async Task<(double[,] distanceMatrix, double[,] durationMatrix)> GetOpenRouteServiceMatrixAsync(
         List<Location> locations,
         ContainerTransportMode transportMode,
-        string apiKey)
+        string apiKey,
+        CancellationToken cancellationToken)
     {
         var size = locations.Count;
         var distanceMatrix = new double[size, size];
@@ -367,22 +373,27 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         };
 
         var jsonContent = JsonSerializer.Serialize(requestBody);
-        var httpContent = new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json);
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, url);
-        request.Content = httpContent;
-        request.Headers.TryAddWithoutValidation("Authorization", apiKey);
+        HttpRequestMessage CreateRequest()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new StringContent(jsonContent, Encoding.UTF8, MediaTypeNames.Application.Json)
+            };
+            request.Headers.TryAddWithoutValidation("Authorization", apiKey);
+            return request;
+        }
 
-        var response = await _httpClient.SendAsync(request);
+        using var response = await SendOpenRouteServiceMatrixRequestAsync(CreateRequest, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
-            var errorContent = await response.Content.ReadAsStringAsync();
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
             _logger.LogError("OpenRouteService API error: {StatusCode} - {Content}", response.StatusCode, errorContent);
             throw new Exception($"OpenRouteService API returned error: {response.StatusCode}");
         }
 
-        var json = await response.Content.ReadAsStringAsync();
+        var json = await response.Content.ReadAsStringAsync(cancellationToken);
         using var document = JsonDocument.Parse(json);
         var root = document.RootElement;
 
@@ -408,5 +419,73 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
             profile);
 
         return (distanceMatrix, durationMatrix);
+    }
+
+    private async Task<HttpResponseMessage> SendOpenRouteServiceMatrixRequestAsync(
+        Func<HttpRequestMessage> createRequest,
+        CancellationToken cancellationToken)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            HttpResponseMessage response;
+            using (var request = createRequest())
+            using (var attemptCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                attemptCts.CancelAfter(OpenRouteServiceRetryConstants.PerAttemptTimeout);
+                try
+                {
+                    response = await _httpClient.SendAsync(request, attemptCts.Token);
+                }
+                catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                    && !cancellationToken.IsCancellationRequested
+                    && attempt < OpenRouteServiceRetryConstants.MaxAttempts)
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "OpenRouteService matrix request failed without an answer, retrying (attempt {NextAttempt} of {MaxAttempts})",
+                        attempt + 1,
+                        OpenRouteServiceRetryConstants.MaxAttempts);
+                    await Task.Delay(OpenRouteServiceRetryDelay(attempt, null), cancellationToken);
+                    continue;
+                }
+            }
+
+            if (response.IsSuccessStatusCode || !IsTransientOpenRouteServiceStatus(response.StatusCode) || attempt >= OpenRouteServiceRetryConstants.MaxAttempts)
+            {
+                return response;
+            }
+
+            var delay = OpenRouteServiceRetryDelay(attempt, response.Headers.RetryAfter);
+            _logger.LogWarning(
+                "OpenRouteService matrix request returned {StatusCode}, retrying (attempt {NextAttempt} of {MaxAttempts}) in {Delay}",
+                response.StatusCode,
+                attempt + 1,
+                OpenRouteServiceRetryConstants.MaxAttempts,
+                delay);
+            response.Dispose();
+            await Task.Delay(delay, cancellationToken);
+        }
+    }
+
+    private static bool IsTransientOpenRouteServiceStatus(HttpStatusCode statusCode) => statusCode switch
+    {
+        HttpStatusCode.InternalServerError => true,
+        HttpStatusCode.BadGateway => true,
+        HttpStatusCode.ServiceUnavailable => true,
+        HttpStatusCode.GatewayTimeout => true,
+        HttpStatusCode.TooManyRequests => true,
+        _ => false
+    };
+
+    private static TimeSpan OpenRouteServiceRetryDelay(int attempt, RetryConditionHeaderValue? retryAfter)
+    {
+        if (retryAfter?.Delta is { } serverDelay && serverDelay > TimeSpan.Zero)
+        {
+            return serverDelay < OpenRouteServiceRetryConstants.MaxRetryAfterDelay
+                ? serverDelay
+                : OpenRouteServiceRetryConstants.MaxRetryAfterDelay;
+        }
+
+        return OpenRouteServiceRetryConstants.BaseDelay * attempt;
     }
 }
