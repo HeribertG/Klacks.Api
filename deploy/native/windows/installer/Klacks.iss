@@ -34,6 +34,7 @@
 #define ReadyMarker "READY"
 #define CompletedMarker "COMPLETED"
 #define FailedMarker "FAILED"
+#define IconFileName "klacks.ico"
 #define ReportTimestampFormat "yyyymmdd-hhnnss"
 #define UninstallReportPrefix "Deinstallationsbericht-"
 #ifndef InstalledSizeBytes
@@ -76,6 +77,8 @@ Compression=lzma2/fast
 SolidCompression=no
 WizardStyle=modern
 UninstallDisplayName=Klacks
+UninstallDisplayIcon={app}\{#IconFileName}
+SetupIconFile={#IconFileName}
 UninstallDisplaySize={#InstalledSizeBytes}
 SetupLogging=yes
 CloseApplications=no
@@ -129,13 +132,16 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "{#SourceDir}\*"; DestDir: "{tmp}\package"; Flags: ignoreversion recursesubdirs createallsubdirs deleteafterinstall
 Source: "{#SourceDir}\scripts\Uninstall-Klacks.ps1"; DestDir: "{app}\scripts"; Flags: ignoreversion
 Source: "{#SourceDir}\scripts\Get-KlacksDiagnostics.ps1"; DestDir: "{app}\scripts"; Flags: ignoreversion
+Source: "{#IconFileName}"; DestDir: "{app}"; Flags: ignoreversion
 
 [INI]
 Filename: "{app}\Klacks.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://localhost:{code:GetPort}"
+Filename: "{app}\Klacks.url"; Section: "InternetShortcut"; Key: "IconFile"; String: "{app}\{#IconFileName}"
+Filename: "{app}\Klacks.url"; Section: "InternetShortcut"; Key: "IconIndex"; String: "0"
 
 [Icons]
-Name: "{autoprograms}\Klacks"; Filename: "{app}\Klacks.url"
-Name: "{autodesktop}\Klacks"; Filename: "{app}\Klacks.url"; Tasks: desktopicon
+Name: "{autoprograms}\Klacks"; Filename: "{app}\Klacks.url"; IconFilename: "{app}\{#IconFileName}"
+Name: "{autodesktop}\Klacks"; Filename: "{app}\Klacks.url"; IconFilename: "{app}\{#IconFileName}"; Tasks: desktopicon
 
 [UninstallDelete]
 Type: files; Name: "{app}\Klacks.url"
