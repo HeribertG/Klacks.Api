@@ -1,0 +1,127 @@
+# .github/workflows/hetzner-engine-upgrade.yml for Klacks.Api
+#
+# Manual runbook for the PostgreSQL major upgrade of the production server (Hetzner). The work is done by
+# deploy/scripts/hetzner-engine-upgrade.sh on the server; deploy/scripts/hetzner-engine-upgrade-remote.sh uploads it, starts it
+# detached (so a dropped connection cannot leave an upgrade or the suspended reset cron half-way) and follows its log.
+#
+# Modes: preflight (read-only checks plus backups), upgrade (switch to the new major through the updater), rollback (manual return
+# before cleanup), regenerate-golden (rebuild the playground golden dump from the new major), cleanup (>= 7 days after success).
+# Every mode except preflight needs its own confirm word. The runbook refuses to start in the blocked window 01:15-04:00 UTC
+# (nightly reset 02:00, maintenance 03:30, DevKnowledge dump 03:45) and while a deploy holds the deploy lock.
+#
+# Job selftest runs the script tests against fakes before the server is touched.
+#
+# Same secrets as deploy.yml (SSH_HOST, SSH_USERNAME, SSH_PRIVATE_KEY, SSH_PORT). Optional secret SSH_KNOWN_HOSTS: known_hosts content
+# of the server; without it the host key is read once per run with ssh-keyscan (trust on first use, like the ssh action of deploy.yml).
+# The key sits in a file on the runner only while this job runs and is deleted at the end; no third-party action sees it.
+name: Hetzner engine upgrade
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'What to run'
+        required: true
+        type: choice
+        options:
+          - preflight
+          - upgrade
+          - rollback
+          - regenerate-golden
+          - cleanup
+      confirm:
+        description: 'Confirm word: upgrade SWITCH-PG19, rollback ROLLBACK-PG17, regenerate-golden REGEN-GOLDEN, cleanup DELETE-PG17-CLUSTER (empty for preflight)'
+        required: false
+        type: string
+        default: ''
+      pre_release:
+        description: 'preflight only: skip the checks that need the published release (before the tag)'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: hetzner-engine-upgrade
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Test the runbook scripts against fakes
+        run: |
+          bash deploy/scripts/test-hetzner-engine-upgrade.sh
+          bash deploy/scripts/test-hetzner-engine-upgrade-remote.sh
+
+  run:
+    needs: selftest
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 170
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate inputs
+        env:
+          MODE: ${{ inputs.mode }}
+          CONFIRM: ${{ inputs.confirm }}
+          PRE_RELEASE: ${{ inputs.pre_release }}
+        run: |
+          set -euo pipefail
+          case "$MODE" in
+            preflight) expected="" ;;
+            upgrade) expected="SWITCH-PG19" ;;
+            rollback) expected="ROLLBACK-PG17" ;;
+            regenerate-golden) expected="REGEN-GOLDEN" ;;
+            cleanup) expected="DELETE-PG17-CLUSTER" ;;
+            *) echo "::error::Unknown mode '$MODE'"; exit 1 ;;
+          esac
+          if [ "$MODE" != "preflight" ] && [ "$CONFIRM" != "$expected" ]; then
+            echo "::error::Mode $MODE needs the confirm word $expected"; exit 1
+          fi
+          if [ "$PRE_RELEASE" = "true" ] && [ "$MODE" != "preflight" ]; then
+            echo "::error::pre_release is for preflight only"; exit 1
+          fi
+
+      - name: Prepare SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SSH_PRIVATE_KEY:-}" ]; then echo "::error::SSH_PRIVATE_KEY secret is not set"; exit 1; fi
+          umask 077
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$RUNNER_TEMP/hetzner_key"
+
+      - name: Run on the server
+        env:
+          HEU_HOST: ${{ secrets.SSH_HOST }}
+          HEU_USER: ${{ secrets.SSH_USERNAME }}
+          HEU_PORT: ${{ secrets.SSH_PORT || '22' }}
+          HEU_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          HEU_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          MODE: ${{ inputs.mode }}
+          CONFIRM: ${{ inputs.confirm }}
+          PRE_RELEASE: ${{ inputs.pre_release }}
+        run: |
+          set -euo pipefail
+          args=(--mode "$MODE")
+          if [ -n "$CONFIRM" ]; then args+=(--confirm "$CONFIRM"); fi
+          if [ "$PRE_RELEASE" = "true" ]; then args+=(--pre-release); fi
+          HEU_KEY_FILE="$RUNNER_TEMP/hetzner_key" bash deploy/scripts/hetzner-engine-upgrade-remote.sh "${args[@]}"
+
+      - name: Remove SSH key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/hetzner_key"
