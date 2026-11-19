@@ -153,7 +153,11 @@ otherwise the route PDF export fails.
 
 Installations made before these settings existed: the auto-updater only swaps the image
 versions. Take `docker-compose.yml` and `nginx/nginx.onprem.conf.template` from a current
-bundle (and re-run the installer) before the switch has any effect.
+bundle (and re-run the installer) before the switch has any effect. Exception: an installation
+whose database still runs PostgreSQL 17 (`pgvector/pgvector:pg17` in its `docker-compose.yml`) must
+keep the `postgres` service of its own file. The current bundle uses PostgreSQL 19, which cannot
+open PostgreSQL 17 data: the database would not start (the data stays intact). Moving the data to
+PostgreSQL 19 needs a dump and restore and is not automated yet.
 
 Automatic updates are on for a new installation. The installer writes `UPDATE_AUTO_ENABLED=true`
 and `UPDATE_NOTIFY_ONLY=false` into `.env`; they are applied once, on the first start, and only

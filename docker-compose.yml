@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:17-alpine
+    image: ghcr.io/heribertg/klacks-postgres:19
     container_name: klacks-postgres
     restart: unless-stopped
     environment:

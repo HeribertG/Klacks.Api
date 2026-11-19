@@ -13,14 +13,14 @@ reviewed them.
 | Repo | Workflow | Job | What it needs | DB? |
 |---|---|---|---|---|
 | Klacks.Api | tests.yml | `backend-tests` | Klacks.UnitTest | no |
-| Klacks.Api | tests.yml | `api-tests` | Klacks.ApiTest | yes (pgvector/pgvector:pg17 service) |
-| Klacks.Api | tests.yml | `integration-tests` | Klacks.IntegrationTest | yes (pgvector/pgvector:pg17 service) |
+| Klacks.Api | tests.yml | `api-tests` | Klacks.ApiTest | yes (ghcr.io/heribertg/klacks-postgres:19 service) |
+| Klacks.Api | tests.yml | `integration-tests` | Klacks.IntegrationTest | yes (ghcr.io/heribertg/klacks-postgres:19 service) |
 | Klacks.Ui | tests.yml | `frontend-tests` | npm ci / vitest / eslint | no |
 
 `Klacks.ApiTest` boots the real `Program.cs` via `WebApplicationFactory<Program>`
 (`KlacksApiFactory`), which requires a live Postgres exactly like `Klacks.IntegrationTest` does —
 despite the name, it is not a DB-free suite. Each of the two DB jobs gets its **own** fresh
-`pgvector/pgvector:pg17` service container (not a shared one), so neither suite's seeded rows leak
+`ghcr.io/heribertg/klacks-postgres:19` service container (PostgreSQL 19 + pgvector, built by `postgres-image.yml`; not a shared one), so neither suite's seeded rows leak
 into the other's assertions.
 
 ## Known trigger gap (read before assuming "every push is covered")

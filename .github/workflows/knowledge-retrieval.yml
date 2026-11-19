@@ -76,7 +76,7 @@ jobs:
         shell: bash
     services:
       postgres:
-        image: pgvector/pgvector:pg17
+        image: ghcr.io/heribertg/klacks-postgres:19
         env:
           POSTGRES_DB: klacks
           POSTGRES_USER: postgres

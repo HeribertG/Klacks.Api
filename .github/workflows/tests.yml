@@ -149,9 +149,9 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        # Standard postgres:17 has no pgvector extension; KnowledgeIndex requires it
+        # Klacks PostgreSQL image (deploy/postgres, PostgreSQL 19 + pgvector); KnowledgeIndex requires pgvector
         # (see Klacks.Api/Infrastructure/Persistence/Migrations/20260712182751_InitialCreate.cs).
-        image: pgvector/pgvector:pg17
+        image: ghcr.io/heribertg/klacks-postgres:19
         env:
           POSTGRES_DB: klacks
           POSTGRES_USER: postgres
@@ -252,7 +252,7 @@ jobs:
     timeout-minutes: 60
     services:
       postgres:
-        image: pgvector/pgvector:pg17
+        image: ghcr.io/heribertg/klacks-postgres:19
         env:
           POSTGRES_DB: klacks
           POSTGRES_USER: postgres

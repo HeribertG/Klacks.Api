@@ -22,7 +22,9 @@ x-default-logging: &default-logging
 
 services:
   postgres:
-    image: pgvector/pgvector:pg17
+    # PostgreSQL 19 + pgvector (deploy/postgres). PGDATA stays explicit: the data of an earlier PostgreSQL 17 install in
+    # this volume is never opened by 19 (the server refuses to start instead); moving it needs a dump and restore.
+    image: ghcr.io/heribertg/klacks-postgres:19
     container_name: klacks-postgres
     restart: unless-stopped
     environment:
