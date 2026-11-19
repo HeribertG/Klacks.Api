@@ -57,7 +57,17 @@ public class UserManagementService : IUserManagementService
     /// </summary>
     /// <param name="user">The new account; Email and UserName are required</param>
     /// <param name="password">The initial password, validated by Identity's password policy</param>
-    public async Task<(bool Success, IdentityResult? Result)> RegisterUserAsync(AppUser user, string password)
+    public Task<(bool Success, IdentityResult? Result)> RegisterUserAsync(AppUser user, string password) =>
+        RegisterCoreAsync(user, password);
+
+    /// <summary>
+    /// Creates a directory-linked account without a local password, after the same checks as RegisterUserAsync.
+    /// </summary>
+    /// <param name="user">The new account with Email, UserName and the directory link set</param>
+    public Task<(bool Success, IdentityResult? Result)> RegisterDirectoryUserAsync(AppUser user) =>
+        RegisterCoreAsync(user, null);
+
+    private async Task<(bool Success, IdentityResult? Result)> RegisterCoreAsync(AppUser user, string? password)
     {
         if (string.IsNullOrWhiteSpace(user.Email))
         {
@@ -76,7 +86,9 @@ public class UserManagementService : IUserManagementService
         }
 
         user.UserName = FormatHelper.ReplaceUmlaud(user.UserName);
-        var result = await _userManager.CreateAsync(user, password);
+        var result = password == null
+            ? await _userManager.CreateAsync(user)
+            : await _userManager.CreateAsync(user, password);
 
         return (result.Succeeded, result);
     }
@@ -251,6 +263,7 @@ public class UserManagementService : IUserManagementService
                 IsAdmin = adminIds.Contains(user.Id),
                 DeactivatedAt = user.DeactivatedAt,
                 PhoneNumber = user.PhoneNumber,
+                IsDirectoryLoginOnly = user.IsDirectoryLoginOnly(),
             };
 
             userResources.Add(userResource);

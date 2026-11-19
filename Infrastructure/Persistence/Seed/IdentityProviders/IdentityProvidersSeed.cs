@@ -23,9 +23,9 @@ public static class IdentityProvidersSeed
                 'fc0b8e9c-4694-40c1-a10e-fdb66a10b26e',
                 'Forumsys LDAP Test',
                 0, -- LDAP
-                true,
+                false,
                 10,
-                true,
+                false,
                 true,
                 'ldap.forumsys.com',
                 389,

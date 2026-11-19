@@ -1,13 +1,15 @@
 ---
 name: explain_user_account_creation
 description: |
-  Explains that a login account can come from two different sources with different outcomes: one
-  immediately emails a time-limited password-reset link, the other only creates the account and
-  sends no mail. Also covers how someone who forgot their password gets back in on their own,
+  Explains that a login account can come from different sources with different outcomes: one
+  immediately emails a time-limited password-reset link, one only creates the account and sends no
+  mail, and a third (a person ticked in the approval list of a company directory) creates an account
+  with no password and no mail at all because the person signs in with the directory password. Also covers how someone who forgot their password gets back in on their own,
   through the same kind of reset link requested from the login page, and how the very first
   administrator of a new installation is created on the first visit, before anyone signs in. Use this
   when a new colleague never received a welcome mail, nobody knows how their first password gets set,
-  or someone asks why a fresh installation opens with "create your own admin account".
+  or someone asks why a fresh installation opens with "create your own admin account", or why a
+  person from the company directory has no "send password" link.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -21,8 +23,8 @@ triggerKeywords:
     - where does the password come from
     - receive password
 synonyms:
-  de: [neuer benutzer bekommt keine mail, konto ohne willkommensmail von klacksy, wie bekommt jemand sein erstes passwort, assistent legt konto an ohne mailversand, eigenes passwort selbst zurücksetzen, eigenes admin-konto einrichten, erster start nach der installation]
-  en: [new user never got a password email, account created without a welcome mail, how does someone get their first password, assistant creates account without sending mail, reset your own forgotten password, create your own admin account, first start after installation]
+  de: [neuer benutzer bekommt keine mail, konto ohne willkommensmail von klacksy, wie bekommt jemand sein erstes passwort, assistent legt konto an ohne mailversand, konto aus verzeichnis ohne passwort, kein passwort senden für verzeichnisbenutzer, eigenes passwort selbst zurücksetzen, eigenes admin-konto einrichten, erster start nach der installation]
+  en: [new user never got a password email, account created without a welcome mail, how does someone get their first password, assistant creates account without sending mail, directory account has no password, no password link for directory user, reset your own forgotten password, create your own admin account, first start after installation]
   fr: [nouveau compte sans e-mail de bienvenue, comment obtenir son premier mot de passe, réinitialiser soi-même son mot de passe oublié]
   it: [nuovo account senza email di benvenuto, come ottenere la prima password, reimpostare da soli la password dimenticata]
 ---
@@ -31,8 +33,9 @@ synonyms:
 
 ## Core idea (one sentence)
 
-A login account can be created through two different routes, and only one of them sends the new
-person an email telling them how to get in.
+A login account can be created through two ordinary routes, and only one of them sends the new
+person an email telling them how to get in. A third route, approving a person from a company
+directory, creates an account that never needs a password from Klacks at all.
 
 ## Two routes, two outcomes
 
@@ -55,6 +58,19 @@ What it does not say outright is that this only works because the person request
 nothing was sent to them automatically. Whoever created the account this way needs to pass on that
 one extra step by hand, typically by telling the new colleague to go to the login page and use
 "forgot password?" with their email address.
+
+## Third route: approved from a company directory
+
+When an administrator ticks a person in the approval list of a directory connection (see
+`explain_identity_providers`), Klacks creates the account without sending any mail and without any
+password: the person signs in with the password of the directory. There is **no reset link** and nothing
+to receive, and the account has no role until one is granted in user administration. User
+administration marks such an account as (de: "Nur Verzeichnis-Anmeldung", en: "Directory sign-in only", fr: "Connexion par annuaire uniquement", it: "Solo accesso tramite directory")
+and shows no password link (de: "Passwort zurücksetzen", en: "Send Access Credentials", fr: "Envoyer les informations d'accès", it: "Invia Credenziali di Accesso") for it; a password reset requested from the login page does nothing for it either.
+
+An existing Klacks account is never linked to the directory by its e-mail address. If the directory
+person's e-mail address is already used by a Klacks account, the tick is refused; delete that account or
+change its e-mail address first, then tick again, and a new account without password and role is created.
 
 ## Getting back in with a forgotten password
 
@@ -88,12 +104,15 @@ Next comes the page "Country and industry" (de: "Land und Branche"), see `explai
 ## Related skills
 
 - `create_user` — creates an account through the assistant (no mail sent)
+- `explain_identity_providers` — approving people from a company directory
 
 ## Trigger phrases
 
 - "Der neue Benutzer hat keine E-Mail bekommen — was jetzt?"
 - "Wie bekommt ein neu angelegtes Benutzerkonto sein erstes Passwort?"
 - "I created a user with the assistant, why didn't they get an email?"
+- "Warum gibt es für den Verzeichnis-Benutzer keinen Link 'Passwort senden'?"
+- "Why has the person from our company directory no password in Klacks?"
 - "How does someone reset a forgotten password themselves?"
 - "Warum zeigt Klacks nach der Installation zuerst 'Eigenes Admin-Konto einrichten'?"
 - "I installed Klacks, how do I get the first administrator account?"

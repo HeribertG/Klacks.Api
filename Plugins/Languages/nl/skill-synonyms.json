@@ -1435,7 +1435,9 @@
     "wat is single sign-on",
     "waarom heeft de nieuwe medewerker geen rechten",
     "hoe stel ik een identiteitsprovider in",
-    "waarom kan ik niet inloggen met mijn werkaccount"
+    "waarom kan ik niet inloggen met mijn werkaccount",
+    "waarom kan een collega uit de bedrijfsdirectory zich niet aanmelden",
+    "een persoon uit de directory toestaan zich aan te melden"
   ],
   "explain_individual_periods": [
     "hoe stel ik een eigen afrekenperiode in",
@@ -1799,7 +1801,8 @@
     "account aangemaakt zonder welkomstmail",
     "hoe komt iemand aan zijn eerste wachtwoord",
     "assistent maakt account aan zonder mail",
-    "eigen wachtwoord zelf resetten"
+    "eigen wachtwoord zelf resetten",
+    "waarom heeft een directoryaccount geen wachtwoord"
   ],
   "explain_whisper_setup": [
     "hoe gebruik ik lokale spraakherkenning",

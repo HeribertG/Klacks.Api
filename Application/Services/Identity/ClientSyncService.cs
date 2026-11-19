@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Diagnostics.CodeAnalysis;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
@@ -12,8 +13,29 @@ using Klacks.Api.Domain.Interfaces.Authentification;
 
 namespace Klacks.Api.Application.Services.Identity;
 
+/// <summary>
+/// Imports directory accounts as clients of one provider: creates, updates, links by LdapExternalId and ends the
+/// membership of clients whose entry the directory no longer returns. Keys every entry on LdapUserEntry.StableId and
+/// re-keys a client still stored under its distinguished name. Only enabled entries are imported: a disabled entry
+/// counts as missing, so its client is deactivated and none is created for it. An incomplete result, or one without any
+/// enabled entry, aborts the sync before anything is written, so a size limit can never end memberships of people who
+/// are still employed.
+/// </summary>
+/// <param name="ldapService">Reads the directory</param>
+/// <param name="clientRepository">Reads and writes the clients</param>
+/// <param name="membershipRepository">Writes memberships of new clients</param>
+/// <param name="clientAddressService">Writes the client addresses</param>
+/// <param name="syncLogRepository">Reads and writes the sync log per directory entry</param>
+/// <param name="unitOfWork">Commits the sync</param>
+/// <param name="logger">Records the outcome</param>
 public class ClientSyncService : IClientSyncService
 {
+    public const string IncompleteResultMessage =
+        "The directory returned an incomplete user list (size or time limit). The import was aborted and nothing was changed.";
+    public const string EmptyResultMessage =
+        "The directory returned no enabled users. The import was aborted and nothing was changed.";
+    public const string SyncFailedMessage = "The import failed. See the server log for details.";
+
     private readonly ILdapService _ldapService;
     private readonly IClientRepository _clientRepository;
     private readonly IMembershipRepository _membershipRepository;
@@ -51,20 +73,34 @@ public class ClientSyncService : IClientSyncService
         {
             _logger.LogInformation("Starting client sync for provider {Name}", provider.Name);
 
-            var ldapUsers = await _ldapService.GetUsersAsync(provider);
-            _logger.LogInformation("Retrieved {Count} users from LDAP", ldapUsers.Count);
+            var searchResult = await _ldapService.GetUsersAsync(provider);
+            _logger.LogInformation("Retrieved {Count} users from LDAP (complete: {IsComplete})", searchResult.Entries.Count, searchResult.IsComplete);
+
+            var enabledEntries = searchResult.Entries.Where(entry => entry.IsEnabled).ToList();
+
+            if (!searchResult.IsComplete || enabledEntries.Count == 0)
+            {
+                var abortMessage = searchResult.IsComplete ? EmptyResultMessage : IncompleteResultMessage;
+                _logger.LogWarning("Client sync aborted for provider {ProviderId}: {Reason}", provider.Id, abortMessage);
+                result.Success = false;
+                result.ErrorMessage = abortMessage;
+                provider.LastSyncError = abortMessage;
+                await _unitOfWork.CompleteAsync();
+                return result;
+            }
 
             var existingSyncLogs = await _syncLogRepository.GetByProviderId(provider.Id);
             var existingByExternalId = existingSyncLogs.ToDictionary(s => s.ExternalId);
 
             var processedExternalIds = new HashSet<string>();
 
-            foreach (var ldapUser in ldapUsers)
+            foreach (var ldapUser in enabledEntries)
             {
-                var externalId = ldapUser.ObjectGuid ?? ldapUser.DistinguishedName;
+                var externalId = ldapUser.StableId;
                 processedExternalIds.Add(externalId);
 
-                if (existingByExternalId.TryGetValue(externalId, out var existingLog))
+                if (existingByExternalId.TryGetValue(externalId, out var existingLog)
+                    || TryRekeyFromDistinguishedName(ldapUser, existingByExternalId, out existingLog))
                 {
                     await UpdateExistingClient(provider, ldapUser, existingLog);
                     result.UpdatedClients++;
@@ -112,9 +148,9 @@ public class ClientSyncService : IClientSyncService
         {
             _logger.LogError(ex, "Client sync failed for provider {Name}", provider.Name);
             result.Success = false;
-            result.ErrorMessage = ex.Message;
+            result.ErrorMessage = SyncFailedMessage;
 
-            provider.LastSyncError = ex.Message;
+            provider.LastSyncError = SyncFailedMessage;
             await _unitOfWork.CompleteAsync();
         }
 
@@ -123,7 +159,7 @@ public class ClientSyncService : IClientSyncService
 
     private async Task CreateNewClient(IdentityProvider provider, LdapUserEntry ldapUser)
     {
-        var externalId = ldapUser.ObjectGuid ?? ldapUser.DistinguishedName;
+        var externalId = ldapUser.StableId;
 
         var client = new Client
         {
@@ -157,7 +193,7 @@ public class ClientSyncService : IClientSyncService
             Id = Guid.NewGuid(),
             IdentityProviderId = provider.Id,
             ClientId = client.Id,
-            ExternalId = ldapUser.ObjectGuid ?? ldapUser.DistinguishedName,
+            ExternalId = externalId,
             ExternalDn = ldapUser.DistinguishedName,
             LastSyncTime = DateTime.UtcNow,
             IsActiveInSource = ldapUser.IsEnabled
@@ -181,6 +217,7 @@ public class ClientSyncService : IClientSyncService
         client.FirstName = ldapUser.GivenName ?? client.FirstName;
         client.Title = ldapUser.Title ?? client.Title;
         client.Company = ldapUser.Company ?? client.Company;
+        client.LdapExternalId = ldapUser.StableId;
 
         await _clientAddressService.UpdateClientAddressAsync(client.Id, ldapUser);
 
@@ -209,6 +246,30 @@ public class ClientSyncService : IClientSyncService
         _logger.LogDebug("Updated client {Name} from LDAP user {DN}", client.Name, ldapUser.DistinguishedName);
     }
 
+    /// <summary>
+    /// Finds the sync log of an entry that an earlier import stored under its distinguished name (before entryUUID was
+    /// read) and moves it to the stable id, so the client is updated instead of duplicated.
+    /// </summary>
+    private static bool TryRekeyFromDistinguishedName(
+        LdapUserEntry ldapUser,
+        Dictionary<string, IdentityProviderSyncLog> existingByExternalId,
+        [NotNullWhen(true)] out IdentityProviderSyncLog? syncLog)
+    {
+        var stableId = ldapUser.StableId;
+        if (string.Equals(stableId, ldapUser.DistinguishedName, StringComparison.Ordinal)
+            || existingByExternalId.ContainsKey(stableId)
+            || !existingByExternalId.Remove(ldapUser.DistinguishedName, out var found))
+        {
+            syncLog = null;
+            return false;
+        }
+
+        found.ExternalId = stableId;
+        existingByExternalId[stableId] = found;
+        syncLog = found;
+        return true;
+    }
+
     private async Task DeactivateClient(IdentityProviderSyncLog syncLog)
     {
         var client = await _clientRepository.Get(syncLog.ClientId);
@@ -235,7 +296,7 @@ public class ClientSyncService : IClientSyncService
 
     private async Task LinkExistingClientToProvider(IdentityProvider provider, LdapUserEntry ldapUser, Guid clientId)
     {
-        var externalId = ldapUser.ObjectGuid ?? ldapUser.DistinguishedName;
+        var externalId = ldapUser.StableId;
 
         var syncLog = new IdentityProviderSyncLog
         {

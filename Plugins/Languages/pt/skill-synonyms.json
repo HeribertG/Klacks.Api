@@ -1441,7 +1441,9 @@
     "como funciona login com conta da empresa",
     "por que o novo usuário não tem permissões",
     "me explica sobre provedor de identidade",
-    "posso entrar com o active directory?"
+    "posso entrar com o active directory?",
+    "porque é que um colega do diretório da empresa não consegue iniciar sessão",
+    "permitir que uma pessoa do diretório inicie sessão"
   ],
   "explain_individual_periods": [
     "como funciona um período individual",
@@ -1792,7 +1794,8 @@
     "conta criada sem e-mail de boas-vindas",
     "como alguém obtém a primeira senha?",
     "assistente cria conta sem enviar e-mail",
-    "redefinir a própria senha esquecida"
+    "redefinir a própria senha esquecida",
+    "porque é que uma conta do diretório não tem palavra-passe"
   ],
   "explain_whisper_setup": [
     "como deixar o reconhecimento de voz local",

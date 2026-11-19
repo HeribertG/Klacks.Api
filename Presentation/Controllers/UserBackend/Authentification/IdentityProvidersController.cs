@@ -102,4 +102,20 @@ public class IdentityProvidersController : BaseController
         var result = await _mediator.Send(new SyncClientsCommand(id));
         return result;
     }
+
+    [BlockedOnPlayground]
+    [HttpGet("{id}/DirectoryAccounts")]
+    public async Task<ActionResult<DirectoryAccountListResource>> GetDirectoryAccounts(Guid id, [FromQuery] string? search)
+    {
+        _logger.LogInformation("[IDENTITY-PROVIDER-API] GET IdentityProviders/{Id}/DirectoryAccounts", id);
+        return await _mediator.Send(new ListDirectoryAccountsQuery(id, search));
+    }
+
+    [BlockedOnPlayground]
+    [HttpPut("{id}/DirectoryAccounts/Access")]
+    public async Task<ActionResult<DirectoryAccountResource>> SetDirectoryAccountAccess(Guid id, [FromBody] DirectoryAccountAccessResource resource)
+    {
+        _logger.LogInformation("[IDENTITY-PROVIDER-API] PUT IdentityProviders/{Id}/DirectoryAccounts/Access - MayLogin: {MayLogin}", id, resource.MayLogin);
+        return await _mediator.Send(new SetDirectoryAccountAccessCommand(id, resource.ExternalId, resource.MayLogin));
+    }
 }

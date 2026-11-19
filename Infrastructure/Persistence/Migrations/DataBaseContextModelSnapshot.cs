@@ -14863,6 +14863,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("deactivated_by");
 
+                    b.Property<string>("DirectoryExternalId")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("directory_external_id");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer")
                         .HasColumnName("display_order");
@@ -14876,6 +14881,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("first_name");
 
+                    b.Property<Guid?>("IdentityProviderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("identity_provider_id");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("text")
@@ -14888,6 +14897,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("PasswordResetTokenExpires")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("password_reset_token_expires");
+
+                    b.HasIndex("IdentityProviderId", "DirectoryExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_asp_net_users_identity_provider_id_directory_external_id")
+                        .HasFilter("\"identity_provider_id\" IS NOT NULL");
 
                     b.HasDiscriminator().HasValue("AppUser");
                 });
@@ -16085,6 +16099,15 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_asp_net_user_tokens_asp_net_users_user_id");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Authentification.AppUser", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Authentification.IdentityProvider", null)
+                        .WithMany()
+                        .HasForeignKey("IdentityProviderId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_asp_net_users_identity_providers_identity_provider_id");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.Agent", b =>

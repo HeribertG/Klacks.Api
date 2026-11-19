@@ -30,4 +30,43 @@ public interface IAppUserReader
     /// <param name="userId">Identity user id</param>
     /// <param name="cancellationToken">Cancels the query</param>
     Task<AppUser?> FindByIdNoTrackingAsync(string userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The account linked to this directory entry of this provider, tracked (sign-in updates its lockout counter through
+    /// UserManager); null when none. Deactivated accounts are returned as well.
+    /// </summary>
+    /// <param name="identityProviderId">Directory provider id</param>
+    /// <param name="directoryExternalId">LdapUserEntry.StableId of the entry</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<AppUser?> FindByDirectoryLinkAsync(Guid identityProviderId, string directoryExternalId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Every account linked to this provider, deactivated ones included, untracked.
+    /// </summary>
+    /// <param name="identityProviderId">Directory provider id</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<List<AppUser>> GetByIdentityProviderAsync(Guid identityProviderId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The given e-mail addresses that an account already uses (compared as normalized by Identity), in their input
+    /// spelling, in one query. Deactivated accounts count as well.
+    /// </summary>
+    /// <param name="emails">E-mail addresses as read from the directory</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<HashSet<string>> GetEmailsInUseAsync(IReadOnlyCollection<string> emails, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The ids of the given accounts that hold at least one role, in one query.
+    /// </summary>
+    /// <param name="userIds">Account ids</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<HashSet<string>> GetUserIdsWithRolesAsync(IReadOnlyCollection<string> userIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The account linked to this directory external id on a soft-deleted identity provider, tracked; null when none
+    /// or more than one.
+    /// </summary>
+    /// <param name="directoryExternalId">Normalized GUID external id (objectGUID or entryUUID)</param>
+    /// <param name="cancellationToken">Cancels the query</param>
+    Task<AppUser?> FindLinkedToDeletedProviderAsync(string directoryExternalId, CancellationToken cancellationToken = default);
 }

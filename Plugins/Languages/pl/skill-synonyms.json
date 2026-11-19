@@ -1443,7 +1443,9 @@
     "jak połączyć konto firmowe?",
     "dlaczego nowy użytkownik nie ma uprawnień?",
     "wyjaśnij dostawców tożsamości",
-    "jak dodać zewnętrzny serwer logowania?"
+    "jak dodać zewnętrzny serwer logowania?",
+    "dlaczego współpracownik z katalogu firmowego nie może się zalogować",
+    "zezwolić osobie z katalogu na logowanie"
   ],
   "explain_individual_periods": [
     "jak ustawić własny okres rozliczeniowy?",
@@ -1800,7 +1802,8 @@
     "konto utworzone bez maila powitalnego od klacksy",
     "jak ktoś dostaje swoje pierwsze hasło",
     "asystent tworzy konto bez wysyłki maila",
-    "zresetuj samodzielnie zapomniane hasło"
+    "zresetuj samodzielnie zapomniane hasło",
+    "dlaczego konto z katalogu nie ma hasła"
   ],
   "explain_whisper_setup": [
     "czy mogę używać lokalnego rozpoznawania mowy?",

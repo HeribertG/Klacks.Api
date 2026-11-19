@@ -1428,7 +1428,9 @@
     "hvorfor har en ny bruger ingen rettigheder?",
     "hvordan logger man ind med firmakonto?",
     "hvad er en identitetsudbyder?",
-    "hvordan opsætter jeg active directory-integration?"
+    "hvordan opsætter jeg active directory-integration?",
+    "hvorfor kan en kollega fra firmakataloget ikke logge ind",
+    "give en person fra kataloget lov til at logge ind"
   ],
   "explain_individual_periods": [
     "hvordan definerer jeg en individuel afregningsperiode?",
@@ -1792,7 +1794,8 @@
     "opretter assistenten en konto uden at sende en mail?",
     "kan man selv nulstille sit kodeord?",
     "hvorfor modtog medarbejderen ingen mail?",
-    "hvordan kommer man ind på systemet første gang?"
+    "hvordan kommer man ind på systemet første gang?",
+    "hvorfor har en konto fra kataloget ingen adgangskode"
   ],
   "explain_whisper_setup": [
     "hvordan kører jeg talegenkendelse lokalt?",

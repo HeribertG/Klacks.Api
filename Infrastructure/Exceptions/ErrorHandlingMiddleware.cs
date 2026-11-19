@@ -300,7 +300,14 @@ public class ErrorHandlingMiddleware
     private async Task HandleUnauthorizedAsync(HttpContext context, UnauthorizedException ex)
     {
         _logger.LogWarning(ex, "UnauthorizedException caught by middleware: {Message}", ex.Message);
-        await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, UnauthorizedTitle, ex.Message);
+        if (ex is ICodedRejection coded)
+        {
+            await WriteCodedProblemAsync(context, StatusCodes.Status401Unauthorized, UnauthorizedTitle, ex.Message, coded);
+        }
+        else
+        {
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, UnauthorizedTitle, ex.Message);
+        }
     }
 
     private async Task HandleNotFoundAsync(HttpContext context, NotFoundException ex)

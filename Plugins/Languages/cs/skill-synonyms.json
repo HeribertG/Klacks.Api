@@ -1443,7 +1443,9 @@
     "proč nový uživatel nic nevidí",
     "jak připojit active directory",
     "jak funguje přihlašování přes firmu",
-    "co je single sign-on"
+    "co je single sign-on",
+    "proč se kolega z firemního adresáře nemůže přihlásit",
+    "povolit přihlášení osobě z adresáře"
   ],
   "explain_individual_periods": [
     "jak nastavit vlastní účetní období",
@@ -1791,7 +1793,8 @@
     "účet vytvořen bez uvítacího e-mailu",
     "jak někdo získá své první heslo",
     "asistent vytvoří účet bez odeslání e-mailu",
-    "obnovit si vlastní zapomenuté heslo"
+    "obnovit si vlastní zapomenuté heslo",
+    "proč účet z adresáře nemá heslo"
   ],
   "explain_whisper_setup": [
     "jak spustit rozpoznávání řeči na našem serveru",

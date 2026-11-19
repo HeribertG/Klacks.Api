@@ -69,6 +69,11 @@ public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResour
             _logger.LogWarning("Login failed for user: {Email}", request.Email.MaskEmail());
             throw new UnauthorizedException(InvalidCredentialsMessage);
         }
+        catch (DirectoryAccessNotGrantedException)
+        {
+            _logger.LogWarning("Login refused for user {Email}: directory account not granted access", request.Email.MaskEmail());
+            throw;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing login for user: {Email}", request.Email.MaskEmail());

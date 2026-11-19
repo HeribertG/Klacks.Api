@@ -1408,7 +1408,9 @@
     "kenapa pengguna baru tiada kebenaran",
     "bagaimana menyediakan pembekal identiti",
     "bolehkah saya log masuk dengan akaun syarikat",
-    "apa yang berlaku apabila pengguna log masuk pertama kali"
+    "apa yang berlaku apabila pengguna log masuk pertama kali",
+    "mengapa rakan sekerja dari direktori syarikat tidak boleh log masuk",
+    "benarkan orang dari direktori log masuk"
   ],
   "explain_individual_periods": [
     "apa itu tempoh individu",
@@ -1756,7 +1758,8 @@
     "akaun dibuat tanpa emel ucapan, normal?",
     "macam mana seseorang dapat kata laluan pertama mereka?",
     "klacksy buat akaun tanpa hantar emel, kenapa?",
-    "macam mana nak reset kata laluan sendiri?"
+    "macam mana nak reset kata laluan sendiri?",
+    "mengapa akaun direktori tiada kata laluan"
   ],
   "explain_whisper_setup": [
     "apa itu whisper",

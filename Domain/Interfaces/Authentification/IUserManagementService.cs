@@ -21,6 +21,13 @@ public interface IUserManagementService
     Task<(bool Success, IdentityResult? Result)> RegisterUserAsync(AppUser user, string password);
 
     /// <summary>
+    /// Registers a directory-linked user without a local password, after the same checks as RegisterUserAsync
+    /// </summary>
+    /// <param name="user">User to register, with IdentityProviderId and DirectoryExternalId set</param>
+    /// <returns>Success status and identity result; a refusal always carries the Identity error codes explaining it</returns>
+    Task<(bool Success, IdentityResult? Result)> RegisterDirectoryUserAsync(AppUser user);
+
+    /// <summary>
     /// Finds a user by email address
     /// </summary>
     /// <param name="email">User's email</param>

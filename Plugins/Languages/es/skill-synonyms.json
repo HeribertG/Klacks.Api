@@ -1439,7 +1439,9 @@
     "¿por qué el nuevo usuario no ve nada?",
     "¿cómo se añade un proveedor de identidad externo?",
     "¿se reemplaza la contraseña normal?",
-    "¿qué pasa cuando alguien inicia sesión por primera vez?"
+    "¿qué pasa cuando alguien inicia sesión por primera vez?",
+    "por qué un compañero del directorio de la empresa no puede iniciar sesión",
+    "permitir que una persona del directorio inicie sesión"
   ],
   "explain_individual_periods": [
     "¿cómo defino un periodo de facturación personalizado?",
@@ -1788,7 +1790,8 @@
     "¿se ha creado la cuenta sin enviar correo de bienvenida?",
     "¿cómo consigue alguien su primera contraseña?",
     "¿el asistente crea la cuenta sin enviar correo?",
-    "¿puedo restablecer mi propia contraseña olvidada?"
+    "¿puedo restablecer mi propia contraseña olvidada?",
+    "por qué una cuenta del directorio no tiene contraseña"
   ],
   "explain_whisper_setup": [
     "¿puedo usar reconocimiento de voz local?",

@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
 namespace Klacks.Api.Domain.Models.Authentification;
@@ -37,4 +38,25 @@ public class AppUser : IdentityUser
     /// to reproduce the prior alphabetical order; new users are appended at the end.
     /// </summary>
     public int EscalationRosterOrder { get; set; }
+
+    /// <summary>
+    /// Directory (LDAP/AD) identity provider this account is linked to; null for an account without a directory link.
+    /// Set when an administrator grants a directory account access. Providers are soft-deleted, so the link survives a
+    /// provider deletion (the database SET NULL only applies to a hard delete); granting the same GUID-keyed entry on a
+    /// new provider moves the link there.
+    /// </summary>
+    public Guid? IdentityProviderId { get; set; }
+
+    /// <summary>
+    /// Stable id of the linked directory entry (objectGUID, else entryUUID, else the distinguished name), unique per
+    /// provider. Null when the account has no directory link.
+    /// </summary>
+    [MaxLength(500)]
+    public string? DirectoryExternalId { get; set; }
+
+    /// <summary>
+    /// True when the account is linked to a directory and has no local password, so it signs in only through the
+    /// directory and gets no password-reset link.
+    /// </summary>
+    public bool IsDirectoryLoginOnly() => IdentityProviderId != null && PasswordHash == null;
 }

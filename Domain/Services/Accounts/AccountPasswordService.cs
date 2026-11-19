@@ -16,7 +16,8 @@ namespace Klacks.Api.Domain.Services.Accounts;
 /// Changes, resets and issues reset tokens for account passwords. A change binds to the caller's id, refuses blocked
 /// accounts before the old password is checked, revokes all refresh tokens of the account and hands back a fresh token
 /// pair for the current session; personal access tokens stay. A reset revokes all refresh tokens and all personal
-/// access tokens (OAuth access tokens included) of the account.
+/// access tokens (OAuth access tokens included) of the account. A directory-only account (directory link, no local
+/// password) gets no reset token.
 /// </summary>
 /// <param name="authenticationService">Checks and changes the password and keeps the lockout counter</param>
 /// <param name="userManagementService">Looks up and updates accounts</param>
@@ -162,6 +163,12 @@ public class AccountPasswordService : IAccountPasswordService
             if (user == null)
             {
                 _logger.LogWarning("Password reset requested for non-existing email");
+                return false;
+            }
+
+            if (user.IsDirectoryLoginOnly())
+            {
+                _logger.LogInformation("Password reset ignored for directory-only account {UserId}", user.Id);
                 return false;
             }
 

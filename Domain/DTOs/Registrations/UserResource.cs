@@ -29,4 +29,10 @@ public class UserResource
     /// call list). Not validated or format-checked; not wired to any delivery channel yet.
     /// </summary>
     public string? PhoneNumber { get; set; }
+
+    /// <summary>
+    /// True when the account is linked to a directory and has no local password: it signs in through the directory
+    /// only, so the administration list offers no password link for it.
+    /// </summary>
+    public bool IsDirectoryLoginOnly { get; set; }
 }

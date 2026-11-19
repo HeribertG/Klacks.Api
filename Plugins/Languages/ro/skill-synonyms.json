@@ -1420,7 +1420,9 @@
     "cum pot conecta un server de directoare?",
     "ce este autentificarea unică (sso)?",
     "cum configurez un serviciu de conectare extern?",
-    "de ce nu vede nimic persoana proaspăt adăugată?"
+    "de ce nu vede nimic persoana proaspăt adăugată?",
+    "de ce nu se poate conecta un coleg din directorul firmei",
+    "permite unei persoane din director să se conecteze"
   ],
   "explain_individual_periods": [
     "cum definesc o perioadă de facturare personalizată?",
@@ -1784,7 +1786,8 @@
     "cont creat fără un email de bun venit",
     "cum își obține cineva prima parolă?",
     "klacksy creează contul fără a trimite un email",
-    "resetează-ți singur parola uitată"
+    "resetează-ți singur parola uitată",
+    "de ce un cont din director nu are parolă"
   ],
   "explain_whisper_setup": [
     "pot folosi recunoașterea vocală fără cloud?",

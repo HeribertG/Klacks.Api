@@ -1415,7 +1415,9 @@
     "miksi uudella käyttäjällä ei ole oikeuksia?",
     "mitä on kertakirjautuminen?",
     "miten lisään ulkoisen kirjautumispalvelun?",
-    "selitä identiteetinhallinta"
+    "selitä identiteetinhallinta",
+    "miksi yrityshakemiston työntekijä ei pääse kirjautumaan",
+    "salli hakemiston henkilön kirjautua sisään"
   ],
   "explain_individual_periods": [
     "miten määritän oman laskutusjakson?",
@@ -1778,7 +1780,8 @@
     "tili luotiin ilman tervetuloviestiä",
     "miten joku saa ensimmäisen salasanansa?",
     "avustaja luo tilin lähettämättä sähköpostia",
-    "unohdin salasanani - miten saan uuden?"
+    "unohdin salasanani - miten saan uuden?",
+    "miksi hakemistotilillä ei ole salasanaa"
   ],
   "explain_whisper_setup": [
     "miten asennan puheentunnistuksen omalle palvelimelle?",

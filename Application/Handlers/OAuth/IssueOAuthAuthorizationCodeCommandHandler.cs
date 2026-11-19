@@ -7,7 +7,8 @@
 /// and the code binds read access unless the user chose write and the installation allows it.
 /// Refuses the seeded admin account while its own-admin setup gate is active, so no MCP token can be
 /// minted for the publicly known seed credentials before setup, and refuses accounts without
-/// CanManageAccessTokens (planners), because the code is exchanged for a personal access token.
+/// CanManageAccessTokens (planners), because the code is exchanged for a personal access token. A directory sign-in
+/// whose account was not granted access is refused as account-not-allowed.
 /// </summary>
 /// <param name="request">Contains the user credentials and the validated OAuth request parameters</param>
 
@@ -15,6 +16,7 @@ using System.Buffers.Text;
 using System.Security.Cryptography;
 using Klacks.Api.Application.Commands.OAuth;
 using Klacks.Api.Application.DTOs.OAuth;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces.OAuth;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -71,7 +73,20 @@ public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOA
                 OAuthIssueFailure.InvalidCredentials);
         }
 
-        var (isValid, user) = await _authenticationService.ValidateCredentialsAsync(request.Email, request.Password);
+        bool isValid;
+        AppUser? user;
+        try
+        {
+            (isValid, user) = await _authenticationService.ValidateCredentialsAsync(request.Email, request.Password);
+        }
+        catch (DirectoryAccessNotGrantedException)
+        {
+            return OAuthAuthorizationCodeResult.Rejected(
+                OAuthConstants.ErrorAccessDenied,
+                OAuthConstants.AccountNotAllowedDescription,
+                OAuthIssueFailure.AccountNotAllowed);
+        }
+
         if (!isValid || user == null)
         {
             return OAuthAuthorizationCodeResult.Rejected(

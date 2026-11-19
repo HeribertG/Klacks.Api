@@ -1,6 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Identity;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Services.Accounts;
@@ -13,14 +16,27 @@ using System.Security.Claims;
 
 namespace Klacks.Api.Application.Services.Authentication;
 
+/// <summary>
+/// Checks sign-in credentials: first the local password of the account with the typed e-mail, then each enabled
+/// LDAP/AD authentication provider in SortOrder by search-then-bind. A directory sign-in maps only onto the account an
+/// administrator linked to that directory entry; a correct directory password without such an active account ends in
+/// DirectoryAccessNotGrantedException. For a deactivated account the local password check (and its lockout counter) is
+/// skipped; the directory loop then refuses it, because it grants only active linked accounts. An entry linked to the
+/// seeded admin account is refused, and a failed attempt already counted by the local check is not counted twice.
+/// </summary>
+/// <param name="userManager">Identity store: local password, lockout counter</param>
+/// <param name="jwtValidator">Validates access tokens</param>
+/// <param name="identityProviderRepository">Lists the authentication providers</param>
+/// <param name="ldapService">Finds the directory entry and binds as it</param>
+/// <param name="userReader">Finds the account linked to a directory entry</param>
+/// <param name="logger">Records outcomes without credentials</param>
 public class AuthenticationService : IAuthenticationService
 {
-    private const string LdapEmailDomainSuffix = "@ldap.local";
-
     private readonly UserManager<AppUser> _userManager;
     private readonly JwtValidator _jwtValidator;
     private readonly IIdentityProviderRepository _identityProviderRepository;
     private readonly ILdapService _ldapService;
+    private readonly IAppUserReader _userReader;
     private readonly ILogger<AuthenticationService> _logger;
 
     public AuthenticationService(
@@ -28,12 +44,14 @@ public class AuthenticationService : IAuthenticationService
         JwtValidator jwtValidator,
         IIdentityProviderRepository identityProviderRepository,
         ILdapService ldapService,
+        IAppUserReader userReader,
         ILogger<AuthenticationService> logger)
     {
         _userManager = userManager;
         _jwtValidator = jwtValidator;
         _identityProviderRepository = identityProviderRepository;
         _ldapService = ldapService;
+        _userReader = userReader;
         _logger = logger;
     }
 
@@ -49,15 +67,14 @@ public class AuthenticationService : IAuthenticationService
 
         var user = await _userManager.FindByEmailAsync(email);
 
-        // A deliberately deactivated account is refused before any credential is checked, and
-        // before the LDAP fallback can hand out a session for the same account.
-        if (user != null && user.DeactivatedAt is not null)
+        var isDeactivated = user is { DeactivatedAt: not null };
+        if (isDeactivated)
         {
-            _logger.LogWarning("Account is deactivated for user {UserId}", user.Id);
-            return (false, null);
+            _logger.LogWarning("Account is deactivated for user {UserId}; local password check skipped", user!.Id);
         }
 
-        if (user != null && await _userManager.HasPasswordAsync(user))
+        string? locallyCountedUserId = null;
+        if (user != null && !isDeactivated && await _userManager.HasPasswordAsync(user))
         {
             if (await _userManager.IsLockedOutAsync(user))
             {
@@ -73,89 +90,106 @@ public class AuthenticationService : IAuthenticationService
             }
 
             await _userManager.AccessFailedAsync(user);
+            locallyCountedUserId = user.Id;
             _logger.LogWarning("Local authentication failed (invalid password) for user {UserId}", user.Id);
         }
 
-        _logger.LogInformation("Local authentication failed, trying LDAP");
-        var ldapResult = await ValidateLdapCredentialsAsync(email, password);
-        if (ldapResult.IsValid)
+        _logger.LogInformation("Local authentication failed, trying directory providers");
+        var directoryResult = await ValidateDirectoryCredentialsAsync(email, password, locallyCountedUserId);
+        if (directoryResult.IsValid)
         {
-            if (user != null && await _userManager.HasPasswordAsync(user))
-            {
-                await _userManager.ResetAccessFailedCountAsync(user);
-            }
-
-            _logger.LogInformation("LDAP authentication successful for user {UserId}", ldapResult.User!.Id);
-            return ldapResult;
+            _logger.LogInformation("Directory authentication successful for user {UserId}", directoryResult.User!.Id);
+            return directoryResult;
         }
 
         _logger.LogWarning("All authentication methods failed");
         return (false, null);
     }
 
-    private async Task<(bool IsValid, AppUser? User)> ValidateLdapCredentialsAsync(string username, string password)
+    private async Task<(bool IsValid, AppUser? User)> ValidateDirectoryCredentialsAsync(
+        string loginName, string password, string? locallyCountedUserId)
     {
         var allProviders = await _identityProviderRepository.GetAuthenticationProviders();
-        var providers = allProviders.Where(p =>
-            p.Type == Domain.Enums.IdentityProviderType.Ldap ||
-            p.Type == Domain.Enums.IdentityProviderType.ActiveDirectory).ToList();
+        var providers = allProviders.Where(DirectoryLoginProviders.IsUsableForLogin).ToList();
         _logger.LogInformation("Found {Count} LDAP/AD authentication providers (of {Total} total)", providers.Count, allProviders.Count);
+
+        var notGranted = false;
 
         foreach (var provider in providers)
         {
-            _logger.LogInformation("Trying LDAP provider: {Provider} ({Host}:{Port})", provider.Name, provider.Host, provider.Port);
             try
             {
-                var isValid = await _ldapService.ValidateCredentialsAsync(provider, username, password);
-                _logger.LogInformation("LDAP validation result for {Provider}: {IsValid}", provider.Name, isValid);
-
-                if (isValid)
+                var outcome = await TryDirectoryProviderAsync(provider, loginName, password, locallyCountedUserId);
+                switch (outcome.Kind)
                 {
-                    _logger.LogInformation("LDAP authentication successful via provider {Provider}", provider.Name);
-
-                    var user = await FindLocalUserForLdapAsync(username, provider);
-                    if (user != null)
-                    {
-                        // Repeated for the LDAP path: the account this maps onto can be a different
-                        // row than the one the caller's e-mail resolved to, so the early refusal in
-                        // ValidateCredentialsAsync does not necessarily cover it.
-                        if (user.DeactivatedAt is not null)
-                        {
-                            _logger.LogWarning("Account is deactivated for user {UserId}", user.Id);
-                            return (false, null);
-                        }
-
-                        return (true, user);
-                    }
+                    case DirectorySignInOutcome.Granted:
+                        return (true, outcome.User);
+                    case DirectorySignInOutcome.Refused:
+                        return (false, null);
+                    case DirectorySignInOutcome.NotGranted:
+                        notGranted = true;
+                        break;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "LDAP authentication failed for provider {Provider}", provider.Name);
+                _logger.LogWarning(ex, "Directory authentication failed for provider {ProviderId}", provider.Id);
             }
+        }
+
+        if (notGranted)
+        {
+            throw new DirectoryAccessNotGrantedException();
         }
 
         return (false, null);
     }
 
-    // Fail-closed: a successful external LDAP bind maps only onto a local account that already
-    // exists. Just-in-time provisioning is deliberately disabled so an unknown directory principal
-    // can never mint a local login. Do not re-add CreateAsync here without an explicit,
-    // provider-scoped allow decision.
-    private async Task<AppUser?> FindLocalUserForLdapAsync(string ldapUsername, IdentityProvider provider)
+    private async Task<(DirectorySignInOutcome Kind, AppUser? User)> TryDirectoryProviderAsync(
+        IdentityProvider provider, string loginName, string password, string? locallyCountedUserId)
     {
-        var email = ldapUsername.Contains('@') ? ldapUsername : $"{ldapUsername}{LdapEmailDomainSuffix}";
-
-        var user = await _userManager.FindByEmailAsync(email);
-        if (user != null)
+        var entry = await _ldapService.FindLoginEntryAsync(provider, loginName);
+        if (entry == null)
         {
-            return user;
+            return (DirectorySignInOutcome.NoMatch, null);
         }
 
-        _logger.LogWarning(
-            "LDAP bind succeeded via provider {Provider} but no local account is mapped to this identity; just-in-time provisioning is disabled, the account must be provisioned in advance",
-            provider.Name);
-        return null;
+        var linked = await _userReader.FindByDirectoryLinkAsync(provider.Id, entry.StableId);
+        if (linked?.Id == SystemAccounts.SeedAdminUserId)
+        {
+            _logger.LogWarning("Directory sign-in refused: the entry is linked to the seeded admin account");
+            return (DirectorySignInOutcome.Refused, null);
+        }
+
+        var linkedActive = linked is { DeactivatedAt: null };
+
+        if (linkedActive && await _userManager.IsLockedOutAsync(linked!))
+        {
+            _logger.LogWarning("Account is locked out for user {UserId}", linked!.Id);
+            return (DirectorySignInOutcome.Refused, null);
+        }
+
+        if (!await _ldapService.BindAsUserAsync(provider, entry.DistinguishedName, password))
+        {
+            if (linkedActive && linked!.Id != locallyCountedUserId)
+            {
+                await _userManager.AccessFailedAsync(linked);
+                _logger.LogWarning("Directory authentication failed (invalid password) for user {UserId}", linked!.Id);
+            }
+
+            return (DirectorySignInOutcome.NoMatch, null);
+        }
+
+        if (!linkedActive)
+        {
+            _logger.LogWarning(
+                "Directory bind succeeded via provider {ProviderId} but the entry is not granted access (no active linked account)",
+                provider.Id);
+            return (DirectorySignInOutcome.NotGranted, null);
+        }
+
+        await _userManager.ResetAccessFailedCountAsync(linked!);
+        return (DirectorySignInOutcome.Granted, linked);
     }
 
     /// <summary>

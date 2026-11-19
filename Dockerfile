@@ -58,6 +58,7 @@ EXPOSE 443
 # Native deps:
 # - libgssapi-krb5-2: Kerberos for Npgsql
 # - libldap2: LDAP authentication
+# - libldap-common: OpenLDAP client config (ldap.conf) libldap reads for TLS (LDAPS)
 # - curl: healthcheck probe
 # Canonical's primary ports.ubuntu.com IPs are unreachable from Hetzner, and any
 # single regional mirror can be temporarily down (2026-07-16: de.ports failed a
@@ -75,7 +76,7 @@ RUN set -e; \
         apply_mirror "$mirror"; \
         if apt-get -o Acquire::Retries=3 -o Acquire::ForceIPv4=true update && \
            apt-get -o Acquire::Retries=3 -o Acquire::ForceIPv4=true install -y --no-install-recommends \
-               libgssapi-krb5-2 libldap2 curl gosu; then \
+               libgssapi-krb5-2 libldap2 libldap-common curl gosu; then \
             installed=1; break; \
         fi; \
         echo "package install via $mirror failed, trying next mirror"; \

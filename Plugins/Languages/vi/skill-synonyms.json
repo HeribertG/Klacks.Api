@@ -1408,7 +1408,9 @@
     "kết nối active directory",
     "cấu hình đăng nhập một lần",
     "tại sao người dùng mới không có quyền",
-    "kết nối dịch vụ định danh"
+    "kết nối dịch vụ định danh",
+    "tại sao đồng nghiệp từ thư mục công ty không đăng nhập được",
+    "cho phép người trong thư mục đăng nhập"
   ],
   "explain_individual_periods": [
     "giải thích kỳ thanh toán tùy chỉnh",
@@ -1751,7 +1753,8 @@
     "tài khoản được tạo mà không có email chào mừng",
     "làm sao ai đó có được mật khẩu đầu tiên",
     "trợ lý tạo tài khoản mà không gửi email",
-    "tự đặt lại mật khẩu đã quên"
+    "tự đặt lại mật khẩu đã quên",
+    "tại sao tài khoản thư mục không có mật khẩu"
   ],
   "explain_whisper_setup": [
     "cài đặt nhận dạng giọng nói nội bộ",

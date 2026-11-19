@@ -8,7 +8,11 @@ public class TestConnectionResultResource
 
     public string? ErrorMessage { get; set; }
 
+    /// <summary>Number of enabled accounts the directory returned.</summary>
     public int? UserCount { get; set; }
+
+    /// <summary>True when the directory stopped early (server size limit), so UserCount is a lower bound.</summary>
+    public bool IsTruncated { get; set; }
 
     public List<string>? SampleUsers { get; set; }
 }

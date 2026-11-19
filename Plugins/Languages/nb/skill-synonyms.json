@@ -1414,7 +1414,9 @@
     "hvorfor har den nye brukeren ingen rettigheter?",
     "hvordan logger jeg på med firmakonto?",
     "kan jeg bruke azure ad for pålogging?",
-    "hvordan fungerer pålogging med ekstern tjeneste?"
+    "hvordan fungerer pålogging med ekstern tjeneste?",
+    "hvorfor kan ikke en kollega fra firmakatalogen logge inn",
+    "gi en person fra katalogen tilgang til å logge inn"
   ],
   "explain_individual_periods": [
     "hvordan definerer jeg en individuell periode?",
@@ -1762,7 +1764,8 @@
     "kan det opprettes konto uten at det sendes e-post?",
     "hvordan får noen sitt første passord?",
     "kan klacksy opprette konto uten å sende e-post?",
-    "hvordan resetter jeg mitt eget glemte passord?"
+    "hvordan resetter jeg mitt eget glemte passord?",
+    "hvorfor har en katalogkonto ikke passord"
   ],
   "explain_whisper_setup": [
     "hvordan installerer jeg whisper?",

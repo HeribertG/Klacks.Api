@@ -733,8 +733,8 @@
       "hash": "92CD8A4AE166D3297EED7B7F3B16A137C6120EECB81F7AD58950ABA63338D5EC"
     },
     "explain_identity_providers": {
-      "version": 6,
-      "hash": "F7540991C3E3EE448DAAC2362C72058EA773945233DBE398008E453885394E90"
+      "version": 7,
+      "hash": "117CB6D7E3C177FE079C29411884D9C1418A97B26277A5AE19721EF1E788554F"
     },
     "explain_individual_periods": {
       "version": 4,
@@ -969,8 +969,8 @@
       "hash": "3ECB47E428157146D731EBED0200BC8BDDC4CBA5AF0B788EFBD9EB7ED8F918BE"
     },
     "explain_user_account_creation": {
-      "version": 4,
-      "hash": "54A5D4076D0E2AF4CA7BBA52A0E80067A1852445A97A7445F0B7049B24B73435"
+      "version": 5,
+      "hash": "5FB14EFA37B9B2A1278F94D0A33FCEC744B05FD47713F9E0A4EA15FE01B55502"
     },
     "explain_whisper_setup": {
       "version": 5,

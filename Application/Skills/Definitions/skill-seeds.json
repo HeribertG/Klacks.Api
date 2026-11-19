@@ -1,5 +1,5 @@
 {
-  "version": 34,
+  "version": 35,
   "skills": [
     {
       "name": "get_current_time",
@@ -48003,7 +48003,7 @@
     {
       "name": "explain_identity_providers",
       "area": "security",
-      "description": "Explains signing in with an existing company directory or an external sign-in service: connecting a directory server by host, port, base entry and search filter, or a redirect-based service by client identifier, secret and the three endpoint addresses. Covers that this is added alongside the ordinary password login and never replaces it, that an account is created on first successful sign-in, and that such an account arrives without any permissions.",
+      "description": "Explains signing in with an existing company directory or an external sign-in service. A person from a directory can sign in only after an administrator ticks them in the sign-in approval list of the connection (nothing is created automatically); such an account has no role and no local password. Covers login names and why a staff import stops. Use this when asked about single sign-on, connecting a directory, or why a colleague cannot sign in.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -48056,7 +48056,11 @@
           "single sign-on",
           "anmeldung mit firmenkonto",
           "active directory anbinden",
-          "warum hat der neue benutzer keine rechte"
+          "warum hat der neue benutzer keine rechte",
+          "kein zugriff verzeichnis anmeldung",
+          "mitarbeiter aus verzeichnis freigeben",
+          "benutzer aus active directory freischalten",
+          "ldap anmeldung funktioniert nicht"
         ],
         "en": [
           "identity provider",
@@ -48064,19 +48068,27 @@
           "single sign-on",
           "sign in with company account",
           "connect active directory",
-          "new user has no permissions"
+          "new user has no permissions",
+          "no access directory sign-in",
+          "approve person from directory",
+          "allow directory user to sign in",
+          "ldap sign-in not working"
         ],
         "fr": [
           "fournisseur d identité",
           "annuaire d entreprise",
           "authentification unique",
-          "connexion avec compte d entreprise"
+          "connexion avec compte d entreprise",
+          "autoriser une personne de l annuaire à se connecter",
+          "pas d accès annuaire"
         ],
         "it": [
           "provider di identità",
           "directory aziendale",
           "single sign-on",
-          "accesso con account aziendale"
+          "accesso con account aziendale",
+          "autorizzare una persona della directory all accesso",
+          "nessun accesso directory"
         ]
       },
       "labels": {
@@ -48085,7 +48097,7 @@
         "fr": "Connexion via annuaire ou SSO",
         "it": "Accesso tramite directory o SSO"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_individual_periods",
@@ -51046,7 +51058,7 @@
     {
       "name": "explain_user_account_creation",
       "area": "security",
-      "description": "Explains the two ways a login account is created: one emails a time-limited password-reset link, the other sends no mail. Covers resetting a forgotten password from the login page, and how the first administrator of a new installation is created on the first visit before anyone signs in. Use this when a new colleague got no welcome mail, nobody knows how a first password is set, or a fresh installation opens with \"create your own admin account\".",
+      "description": "Explains the ways a login account is created: one emails a time-limited password-reset link, one sends no mail, and a person approved from a company directory gets an account without a password (no reset link). Covers resetting a forgotten password from the login page and how the first administrator of a new installation is created on the first visit. Use this when a new colleague got no welcome mail, the first password is unclear, or a fresh installation asks to create your own admin account.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -51071,21 +51083,25 @@
           "receive password"
         ]
       },
-      "version": 4,
+      "version": 5,
       "synonyms": {
         "de": [
           "neuer benutzer bekommt keine mail",
           "konto ohne willkommensmail von klacksy",
           "wie bekommt jemand sein erstes passwort",
           "konto ohne willkommensmail",
-          "eigenes passwort selbst zurücksetzen"
+          "eigenes passwort selbst zurücksetzen",
+          "konto aus verzeichnis ohne passwort",
+          "kein passwort senden für verzeichnisbenutzer"
         ],
         "en": [
           "new user never got a password email",
           "welcome mail missing",
           "how does someone get their first password",
           "how account creation works",
-          "reset your own forgotten password"
+          "reset your own forgotten password",
+          "directory account has no password",
+          "no password link for directory user"
         ],
         "fr": [
           "nouveau compte sans e-mail de bienvenue",

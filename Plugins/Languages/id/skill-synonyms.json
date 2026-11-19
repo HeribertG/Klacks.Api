@@ -1407,7 +1407,9 @@
     "bagaimana cara menghubungkan direktori perusahaan",
     "kenapa pengguna baru tidak punya izin",
     "apa itu penyedia identitas",
-    "bagaimana cara masuk dengan akun perusahaan"
+    "bagaimana cara masuk dengan akun perusahaan",
+    "mengapa rekan dari direktori perusahaan tidak bisa masuk",
+    "izinkan orang dari direktori untuk masuk"
   ],
   "explain_individual_periods": [
     "apa itu periode akuntansi kustom",
@@ -1756,7 +1758,8 @@
     "akun dibuat tanpa email selamat datang?",
     "bagaimana cara mendapatkan password pertama?",
     "apakah asisten membuat akun tanpa kirim email?",
-    "bagaimana cara reset password sendiri?"
+    "bagaimana cara reset password sendiri?",
+    "mengapa akun direktori tidak memiliki kata sandi"
   ],
   "explain_whisper_setup": [
     "apakah rekaman suara bisa diproses di server sendiri",

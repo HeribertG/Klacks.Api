@@ -1424,7 +1424,9 @@
     "kan jag använda active directory?",
     "varför ser ny anställd ingenting?",
     "förklara identitetsleverantörer",
-    "hur fungerar inloggning med företagskonto?"
+    "hur fungerar inloggning med företagskonto?",
+    "varför kan en kollega från företagskatalogen inte logga in",
+    "låt en person från katalogen logga in"
   ],
   "explain_individual_periods": [
     "hur skapar jag en egen period?",
@@ -1782,7 +1784,8 @@
     "konto skapades utan välkomstmail",
     "hur får någon sitt första lösenord",
     "kan klacksy skapa konto utan att skicka mail",
-    "hur återställer man ett glömt lösenord själv"
+    "hur återställer man ett glömt lösenord själv",
+    "varför har ett katalogkonto inget lösenord"
   ],
   "explain_whisper_setup": [
     "hur kör jag taligenkänning lokalt?",
