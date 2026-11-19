@@ -153,13 +153,72 @@ otherwise the route PDF export fails.
 
 Installations made before these settings existed: the auto-updater only swaps the image
 versions. Take `docker-compose.yml` and `nginx/nginx.onprem.conf.template` from a current
-bundle (and re-run the installer) before the switch has any effect. Exception: an installation
-whose database still runs PostgreSQL 17 (`pgvector/pgvector:pg17` in its `docker-compose.yml`) must
-keep the `postgres` service of its own file. The current bundle uses PostgreSQL 19, which cannot
-open PostgreSQL 17 data: the database would not start (the data stays intact). Moving the data to
-PostgreSQL 19 needs a dump and restore and is not automated yet.
+bundle (and re-run the installer) before the switch has any effect. An installation whose
+database still runs PostgreSQL 17 can take the current files as well, provided the installer runs
+before the next `docker compose up -d`: it notices the PostgreSQL 17 data and keeps it on its own
+engine (see "PostgreSQL major upgrade"). Without that run the database does not start; its data
+stays intact.
 
 Automatic updates are on for a new installation. The installer writes `UPDATE_AUTO_ENABLED=true`
 and `UPDATE_NOTIFY_ONLY=false` into `.env`; they are applied once, on the first start, and only
 if no update setting was saved yet. Afterwards switch updates off or to notify-only in the admin
 UI (Settings > Software Updates); editing `.env` later has no effect on a saved choice.
+
+## PostgreSQL major upgrade
+A new installation runs PostgreSQL 19 (`ghcr.io/heribertg/klacks-postgres:19`) with its data in
+the folder `pgdata` of the Docker volume `<project>_postgres_data`. Two optional `.env` keys
+override this: `KLACKS_POSTGRES_IMAGE` (the image) and `KLACKS_POSTGRES_DATA_SUBDIR` (the folder in
+the volume). A PostgreSQL version can never open the data of another major version; it refuses to
+start instead, so a wrong value costs availability, not data.
+
+**Existing PostgreSQL 17 data:** the installer (`install.sh`, `install.ps1`) reads the version of
+the database already in the volume. If it is PostgreSQL 17 and `.env` names no image yet, it writes
+`KLACKS_POSTGRES_IMAGE=pgvector/pgvector:pg17` and `KLACKS_POSTGRES_DATA_SUBDIR=pgdata`, so the
+database keeps running unchanged. The installer never moves data to another version, and it leaves
+an image already set in `.env` alone.
+
+**The move to a new major version** is done by the auto-updater as a separate, signed engine
+upgrade (never as part of a normal Klacks update). It needs the updater of Klacks 1.0.79 or newer;
+an older installation gets it by re-running the installer, which pulls the current updater. This
+version has no button for it in the admin UI yet: contact Klacks support to start it. The updater
+then:
+
+1. checks the signature, the current PostgreSQL version, the database roles and the free space;
+2. stops `klacks-api` and writes a dump (`pg_dump -Fc`) of every database into the folder
+   `engine-upgrade` of the volume;
+3. stops the old database, pins the new image by its digest (`repo@sha256:...`) and the new folder
+   `pg<major>` (e.g. `pg19`) in `.env`, starts the new database and restores the dumps into it;
+4. compares row counts, extensions and indexes with the old database, starts `klacks-api` again and
+   waits until it is healthy.
+
+Any failure, also a restart of the updater halfway through, puts the old `.env` values back and
+starts the old database again. The old folder (`pgdata`) is never changed or deleted.
+
+**Before you start it:**
+- Free disk space for Docker of at least 3 times the size of all databases, at least 2 GB.
+- The databases may only be owned and used by the database user of the installation (`admin`).
+  Other roles are not moved yet; the upgrade stops before changing anything if it finds one.
+- Keep a current backup (`.env` and a `pg_dumpall`), as before every larger change.
+
+**Manual rollback** (only needed when the automatic one could not finish): put the previous values
+back into `.env` (`KLACKS_POSTGRES_IMAGE=pgvector/pgvector:pg17` and `KLACKS_POSTGRES_DATA_SUBDIR=pgdata`
+for a PostgreSQL 17 installation), then run `sudo docker compose up -d postgres klacks-api` in this
+folder. Everything entered in Klacks after the switch exists only in the new database and is lost
+with a rollback.
+
+After an upgrade the volume holds more than one database folder, and `.env` names the current one.
+Back up `.env` again after the upgrade: an installer run on a `.env` without the two
+`KLACKS_POSTGRES_*` lines, or with lines naming an older folder than the newest database in the
+volume, stops instead of guessing which folder is current.
+
+**Cleaning up:** the old folder and the dumps stay in the volume until you remove them. Once the new
+version has run without problems for some days, take a fresh backup and delete them. `pgdata` is the
+live database of every installation that was never upgraded, so the command below (Linux, project
+`klacks`, former PostgreSQL 17 installation) only runs when `.env` names the new folder `pg19`:
+```bash
+sudo docker run --rm -v klacks_postgres_data:/pgvolume alpine:3.20 ls /pgvolume
+sudo grep -qx 'KLACKS_POSTGRES_DATA_SUBDIR=pg19' .env \
+  && sudo docker run --rm -v klacks_postgres_data:/pgvolume alpine:3.20 \
+     sh -c 'test -f /pgvolume/pg19/PG_VERSION && rm -rf /pgvolume/pgdata /pgvolume/engine-upgrade'
+```
+After the cleanup a rollback to the old version is no longer possible.

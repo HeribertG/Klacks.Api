@@ -35,6 +35,19 @@ $BytesPerGiB = 1073741824
 # 0.25 GiB each). Docker Desktop gives its VM half of the PC memory by default, so a 16 GB PC
 # reports about 7.7 GiB; 7 GiB is the floor that still leaves the VM some headroom.
 $MinDockerMemoryGiB = 7
+# Database engine: the compose defaults (no KLACKS_POSTGRES_* in .env) start PostgreSQL 19 on the subdirectory pgdata.
+# A volume that still holds PostgreSQL 17 data is pinned to its own engine; only the updater's engine upgrade moves it.
+$DefaultPostgresMajor = '19'
+$DefaultPostgresImage = 'ghcr.io/heribertg/klacks-postgres:19'
+$DefaultPostgresDataSubdir = 'pgdata'
+$LegacyPostgresMajor = '17'
+$LegacyPostgresImage = 'pgvector/pgvector:pg17'
+$PostgresContainer = 'klacks-postgres'
+$PostgresVolumeSuffix = '_postgres_data'
+$PostgresVolumeMount = '/pgvolume'
+# Runs inside the probe container (sh); prints "<folder>/ <major>" for every cluster folder of the volume. Without
+# double quotes on purpose: Windows PowerShell 5.1 mangles them in native arguments (cluster folders have no spaces).
+$PostgresClusterProbe = 'for d in ' + $PostgresVolumeMount + '/*/; do test -f ${d}PG_VERSION && echo ${d} $(head -n 1 ${d}PG_VERSION); done; true'
 
 # Runs a native command without letting $ErrorActionPreference turn its stderr into an exception:
 # Windows PowerShell 5.1 aborts on the first stderr line (docker's "Unable to find image" while
@@ -52,6 +65,74 @@ function Invoke-NativeQuiet([string]$command, [string[]]$arguments) {
     return $output
 }
 function Invoke-DockerQuiet([string[]]$arguments) { return Invoke-NativeQuiet 'docker' $arguments }
+
+# Database clusters in the postgres volume as a hashtable folder -> major, one entry per top-level folder with a
+# PG_VERSION file; empty when the volume does not exist, $null when Docker cannot read it. Read in a throw-away container
+# (volume read-only, no network, sh as entrypoint), so no PostgreSQL process ever opens the data. Uses the image of the
+# existing database container when there is one, so nothing has to be pulled. Only lines of the expected form count:
+# the combined output may also carry Docker's pull or platform messages.
+function Get-VolumePostgresClusters([string]$volume) {
+    $clusters = @{}
+    Invoke-DockerQuiet @('volume', 'inspect', $volume) | Out-Null
+    if ($LASTEXITCODE -ne 0) { return $clusters }
+    $image = (Invoke-DockerQuiet @('container', 'inspect', '--format', '{{.Image}}', $PostgresContainer)).Trim()
+    if (($LASTEXITCODE -ne 0) -or -not $image) { $image = $DefaultPostgresImage }
+    $output = Invoke-DockerQuiet @('run', '--rm', '--network', 'none', '--security-opt', 'no-new-privileges', '--entrypoint', 'sh',
+        '-v', "${volume}:${PostgresVolumeMount}:ro", $image, '-c', $PostgresClusterProbe)
+    if ($LASTEXITCODE -ne 0) { return $null }
+    $linePattern = '^' + [regex]::Escape($PostgresVolumeMount) + '/([A-Za-z0-9._-]+)/ (\d+)\z'
+    foreach ($line in ($output -split "\r?\n")) {
+        if ($line.Trim() -match $linePattern) { $clusters[$Matches[1]] = $Matches[2] }
+    }
+    return $clusters
+}
+
+# Keeps an existing database on the engine it was created with. Only acts while .env names no image (missing or
+# empty, the two cases compose treats alike): an image already pinned there, by this script or by the updater's engine
+# upgrade, is never changed. Moving to another major version is the updater's job (dump and restore), never this one's.
+# A volume with more than one cluster has seen an engine upgrade; without the pin from .env it is unclear which cluster
+# is current, so the script stops instead of guessing (it could otherwise revive the old one). With a pin it also stops
+# when another folder holds a newer cluster (e.g. .env restored from a backup made before the upgrade); an older one
+# next to the pinned folder is the normal state after an upgrade (kept for rollback).
+function Set-ExistingPostgresEnginePin {
+    $subdir = $DefaultPostgresDataSubdir
+    if ($envMap['KLACKS_POSTGRES_DATA_SUBDIR']) { $subdir = $envMap['KLACKS_POSTGRES_DATA_SUBDIR'] }
+    if (($subdir -notmatch '^[A-Za-z0-9._-]+\z') -or ($subdir -eq '.') -or ($subdir -eq '..')) {
+        Stop-Install "KLACKS_POSTGRES_DATA_SUBDIR in .env must be a plain folder name, found '$subdir'."
+    }
+    $volume = $envMap['COMPOSE_PROJECT_NAME'].ToLowerInvariant() + $PostgresVolumeSuffix
+    $clusters = Get-VolumePostgresClusters $volume
+    if ($null -eq $clusters) {
+        if ($envMap['KLACKS_POSTGRES_IMAGE']) {
+            Write-Warn "Could not read the databases in the Docker volume $volume; keeping the database engine pinned in .env unchecked."
+            return
+        }
+        Stop-Install "Could not read the databases in the Docker volume $volume. Nothing was changed; check Docker Desktop (with private ghcr.io packages run 'docker login ghcr.io' first) and re-run this script."
+    }
+    if ($envMap['KLACKS_POSTGRES_IMAGE']) {
+        $pinnedMajor = 0
+        if ($clusters[$subdir]) { $pinnedMajor = [int]$clusters[$subdir] }
+        $newer = @($clusters.Keys | Where-Object { ($_ -ne $subdir) -and ([int]$clusters[$_] -gt $pinnedMajor) } | Sort-Object |
+            ForEach-Object { "$_ (PostgreSQL $($clusters[$_]))" })
+        if ($newer.Count -gt 0) {
+            Stop-Install "The Docker volume $volume holds a newer database than the folder $subdir named in .env: $($newer -join ', '). Nothing was changed. If .env comes from a backup made before a PostgreSQL major upgrade, set KLACKS_POSTGRES_IMAGE and KLACKS_POSTGRES_DATA_SUBDIR to the current values; if the newer folder is left over from a failed upgrade, contact Klacks support (see README.md, PostgreSQL major upgrade)."
+        }
+        return
+    }
+    $others = @($clusters.Keys | Where-Object { $_ -ne $subdir } | Sort-Object | ForEach-Object { "$_ (PostgreSQL $($clusters[$_]))" })
+    if ($others.Count -gt 0) {
+        Stop-Install "The Docker volume $volume holds another database besides ${subdir}: $($others -join ', '). A PostgreSQL major upgrade has run, but .env names no database image. Nothing was changed. Put KLACKS_POSTGRES_IMAGE and KLACKS_POSTGRES_DATA_SUBDIR back into .env (see README.md, PostgreSQL major upgrade) and re-run this script."
+    }
+    $major = $clusters[$subdir]
+    if ((-not $major) -or ($major -eq $DefaultPostgresMajor)) { return }
+    if ($major -eq $LegacyPostgresMajor) {
+        $envMap['KLACKS_POSTGRES_IMAGE'] = $LegacyPostgresImage
+        $envMap['KLACKS_POSTGRES_DATA_SUBDIR'] = $subdir
+        Write-Warn "The database in $volume runs PostgreSQL $LegacyPostgresMajor; .env keeps it on $LegacyPostgresImage (see README.md, PostgreSQL major upgrade)."
+        return
+    }
+    Stop-Install "The database in $volume ($subdir) was created with PostgreSQL $major, which this bundle cannot run. Nothing was changed. Set KLACKS_POSTGRES_IMAGE in .env to an image of PostgreSQL $major, or contact Klacks support."
+}
 
 # --- 1. Prerequisites --------------------------------------------------------
 Write-Step "Checking Docker..."
@@ -147,6 +228,8 @@ function New-DataProtectionCertificate($password) {
 }
 
 Set-IfEmpty 'COMPOSE_PROJECT_NAME' 'klacks'
+Write-Step "Checking the database engine..."
+Set-ExistingPostgresEnginePin
 Set-IfEmpty 'POSTGRES_PASSWORD' (New-Secret)
 Set-IfEmpty 'JWT_SECRET' (New-Secret 64)
 Set-IfEmpty 'KLACKS_SETUP_CODE' (New-SetupCode)

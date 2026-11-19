@@ -31,6 +31,18 @@ BYTES_PER_GIB=1073741824
 # leaves the host some headroom.
 MIN_DOCKER_MEMORY_GIB=7
 MEMORY_OVERRIDE_KEYS=(KLACKS_API_MEMORY_LIMIT KLACKS_API_IDLE_UNLOAD_MINUTES)
+# Database engine: the compose defaults (no KLACKS_POSTGRES_* in .env) start PostgreSQL 19 on the subdirectory pgdata.
+# A volume that still holds PostgreSQL 17 data is pinned to its own engine; only the updater's engine upgrade moves it.
+DEFAULT_POSTGRES_MAJOR=19
+DEFAULT_POSTGRES_IMAGE=ghcr.io/heribertg/klacks-postgres:19
+DEFAULT_POSTGRES_DATA_SUBDIR=pgdata
+LEGACY_POSTGRES_MAJOR=17
+LEGACY_POSTGRES_IMAGE=pgvector/pgvector:pg17
+POSTGRES_CONTAINER=klacks-postgres
+POSTGRES_VOLUME_SUFFIX=_postgres_data
+POSTGRES_VOLUME_MOUNT=/pgvolume
+# Runs inside the probe container (sh); prints "<folder>/ <major>" for every cluster folder of the volume.
+POSTGRES_CLUSTER_PROBE="for d in $POSTGRES_VOLUME_MOUNT/*/; do test -f \"\${d}PG_VERSION\" && echo \"\${d} \$(head -n 1 \"\${d}PG_VERSION\")\"; done; true"
 
 # Writes the URL to the file ('-' = stdout); fresh desktop installs often ship wget but no curl.
 download() {
@@ -116,6 +128,61 @@ check_memory() {
   warn "$msg"
 }
 
+# Database clusters in the postgres volume, one line "<folder> <major>" per top-level folder with a PG_VERSION file;
+# prints nothing when the volume does not exist, returns 1 when Docker cannot read it. Read in a throw-away container
+# (volume read-only, no network, sh as entrypoint), so no PostgreSQL process ever opens the data. Uses the image of the
+# existing database container when there is one, so nothing has to be pulled.
+list_volume_postgres_clusters() {
+  local volume="$1" image output
+  docker volume inspect "$volume" >/dev/null 2>&1 || return 0
+  image="$(docker container inspect --format '{{.Image}}' "$POSTGRES_CONTAINER" 2>/dev/null)" || image=""
+  [ -n "$image" ] || image="$DEFAULT_POSTGRES_IMAGE"
+  output="$(docker run --rm --network none --security-opt no-new-privileges --entrypoint sh \
+    -v "$volume:$POSTGRES_VOLUME_MOUNT:ro" "$image" -c "$POSTGRES_CLUSTER_PROBE" 2>/dev/null)" || return 1
+  printf '%s\n' "$output" | sed -n "s#^$POSTGRES_VOLUME_MOUNT/\([A-Za-z0-9._-]*\)/ \([0-9][0-9]*\)\$#\1 \2#p"
+}
+
+# Keeps an existing database on the engine it was created with. Only acts while .env names no image (missing or
+# empty, the two cases compose treats alike): an image already pinned there, by this script or by the updater's engine
+# upgrade, is never changed. Moving to another major version is the updater's job (dump and restore), never this one's.
+# A volume with more than one cluster has seen an engine upgrade; without the pin from .env it is unclear which cluster
+# is current, so the script stops instead of guessing (it could otherwise revive the old one). With a pin it also stops
+# when another folder holds a newer cluster (e.g. .env restored from a backup made before the upgrade); an older one
+# next to the pinned folder is the normal state after an upgrade (kept for rollback).
+pin_existing_postgres_engine() {
+  local subdir volume clusters major others newer
+  subdir="${ENVMAP[KLACKS_POSTGRES_DATA_SUBDIR]:-$DEFAULT_POSTGRES_DATA_SUBDIR}"
+  [[ "$subdir" =~ ^[A-Za-z0-9._-]+$ ]] && [ "$subdir" != . ] && [ "$subdir" != .. ] \
+    || fail "KLACKS_POSTGRES_DATA_SUBDIR in .env must be a plain folder name, found '$subdir'."
+  volume="${ENVMAP[COMPOSE_PROJECT_NAME],,}${POSTGRES_VOLUME_SUFFIX}"
+  if ! clusters="$(list_volume_postgres_clusters "$volume")"; then
+    if [ -n "${ENVMAP[KLACKS_POSTGRES_IMAGE]:-}" ]; then
+      warn "Could not read the databases in the Docker volume $volume; keeping the database engine pinned in .env unchecked."
+      return 0
+    fi
+    fail "Could not read the databases in the Docker volume $volume. Nothing was changed; check Docker (with private ghcr.io packages run 'docker login ghcr.io' first) and re-run this script."
+  fi
+  major="$(printf '%s\n' "$clusters" | awk -v s="$subdir" '$1 == s { print $2 }')"
+  others="$(printf '%s\n' "$clusters" | awk -v s="$subdir" 'NF && $1 != s { printf "%s%s (PostgreSQL %s)", sep, $1, $2; sep = ", " }')"
+  if [ -n "${ENVMAP[KLACKS_POSTGRES_IMAGE]:-}" ]; then
+    newer="$(printf '%s\n' "$clusters" | awk -v s="$subdir" -v m="${major:-0}" 'NF && $1 != s && $2 + 0 > m + 0 { printf "%s%s (PostgreSQL %s)", sep, $1, $2; sep = ", " }')"
+    [ -z "$newer" ] \
+      || fail "The Docker volume $volume holds a newer database than the folder $subdir named in .env: $newer. Nothing was changed. If .env comes from a backup made before a PostgreSQL major upgrade, set KLACKS_POSTGRES_IMAGE and KLACKS_POSTGRES_DATA_SUBDIR to the current values; if the newer folder is left over from a failed upgrade, contact Klacks support (see README.md, PostgreSQL major upgrade)."
+    return 0
+  fi
+  [ -z "$others" ] \
+    || fail "The Docker volume $volume holds another database besides $subdir: $others. A PostgreSQL major upgrade has run, but .env names no database image. Nothing was changed. Put KLACKS_POSTGRES_IMAGE and KLACKS_POSTGRES_DATA_SUBDIR back into .env (see README.md, PostgreSQL major upgrade) and re-run this script."
+  case "$major" in
+    ""|"$DEFAULT_POSTGRES_MAJOR") ;;
+    "$LEGACY_POSTGRES_MAJOR")
+      ENVMAP[KLACKS_POSTGRES_IMAGE]="$LEGACY_POSTGRES_IMAGE"
+      ENVMAP[KLACKS_POSTGRES_DATA_SUBDIR]="$subdir"
+      warn "The database in $volume runs PostgreSQL $LEGACY_POSTGRES_MAJOR; .env keeps it on $LEGACY_POSTGRES_IMAGE (see README.md, PostgreSQL major upgrade)." ;;
+    *)
+      fail "The database in $volume ($subdir) was created with PostgreSQL $major, which this bundle cannot run. Nothing was changed. Set KLACKS_POSTGRES_IMAGE in .env to an image of PostgreSQL $major, or contact Klacks support." ;;
+  esac
+}
+
 step "Checking Docker..."
 check_docker
 
@@ -131,7 +198,7 @@ declare -A ENVMAP
 if [ -f "$ENV_FILE" ]; then
   FIRST_RUN=false
   step "Existing .env found — preserving secrets."
-  while IFS='=' read -r k v; do
+  while IFS='=' read -r k v || [ -n "$k" ]; do
     [[ "$k" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] && ENVMAP["$k"]="$v"
   done < "$ENV_FILE"
 else
@@ -163,6 +230,8 @@ set_if_empty() { local k="$1" v="$2"; [ -z "${ENVMAP[$k]:-}" ] && ENVMAP["$k"]="
 set_if_absent() { local k="$1" v="$2"; [ -z "${ENVMAP[$k]+x}" ] && ENVMAP["$k"]="$v" || true; }
 
 set_if_empty COMPOSE_PROJECT_NAME klacks
+step "Checking the database engine..."
+pin_existing_postgres_engine
 # Absolute host path of this directory; the updater mounts it at the same path and uses it as its
 # compose project dir so relative bind mounts resolve identically inside and outside the container.
 ENVMAP[KLACKS_INSTALL_DIR]="$(pwd -P)"

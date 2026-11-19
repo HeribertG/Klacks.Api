@@ -22,16 +22,18 @@ x-default-logging: &default-logging
 
 services:
   postgres:
-    # PostgreSQL 19 + pgvector (deploy/postgres). PGDATA stays explicit: the data of an earlier PostgreSQL 17 install in
-    # this volume is never opened by 19 (the server refuses to start instead); moving it needs a dump and restore.
-    image: ghcr.io/heribertg/klacks-postgres:19
+    # PostgreSQL 19 + pgvector (deploy/postgres). Image and data subdirectory can be pinned in .env: the installer pins
+    # the data of an earlier PostgreSQL 17 install to its 17 image, and the engine upgrade of the updater (dump and
+    # restore) moves the data into a new subdirectory pg<major> of the same volume. A 19 image never opens 17 data (the
+    # server refuses to start instead), which is why the default subdirectory stays pgdata.
+    image: ${KLACKS_POSTGRES_IMAGE:-ghcr.io/heribertg/klacks-postgres:19}
     container_name: klacks-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: Klacks
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set (run install.ps1/install.sh)}
-      PGDATA: /var/lib/postgresql/data/pgdata
+      PGDATA: /var/lib/postgresql/data/${KLACKS_POSTGRES_DATA_SUBDIR:-pgdata}
     expose:
       - "5432"
     volumes:
