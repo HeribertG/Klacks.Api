@@ -15,6 +15,9 @@
 #          <DataRoot>\pgdata  <DataRoot>\config\klacks.native.json  <DataRoot>\backups  <DataRoot>\logs
 #          <DataRoot>\stt-models
 #          (+ API data)
+#          After an engine upgrade by the updater the database runs from versioned folders (<ProgramRoot>\pgsql-<major>,
+#          <DataRoot>\pgdata-<major>) named in <DataRoot>\config\postgres-engine.json; every PostgreSQL path below goes
+#          through Resolve-PostgresEngineLayout, which falls back to pgsql/pgdata while that pointer file is missing.
 
 [CmdletBinding()]
 param(
@@ -55,6 +58,11 @@ $EventLogName = 'Application'
 $PostgresSuperUser = 'klacks'
 $DatabaseName = 'Klacks'
 $ConfigFileName = 'klacks.native.json'
+# Pointer to the active PostgreSQL engine, written by the updater when an engine upgrade commits (schema below).
+$EngineLayoutFileName = 'postgres-engine.json'
+$EngineLayoutSchemaVersion = 1
+$LegacyPostgresDirectoryName = 'pgsql'
+$LegacyDataDirectoryName = 'pgdata'
 # Last status line when Klacks answered its health check; Setup.exe reads it to tell "ready" from "still starting".
 $ReadyMarker = 'READY'
 $SecretsFileName = 'secrets.json'
@@ -195,6 +203,91 @@ function Get-ClusterMajor([string]$dataDirectory) {
     return [int]$text
 }
 
+# Active PostgreSQL layout: PostgresRoot (holds bin, lib, share), DataDirectory and Major (of the pointer; $null for the
+# legacy layout). Without the pointer file it is the layout of a first installation (pgsql, pgdata).
+# The pointer file is JSON written by the updater's engine upgrade:
+#   { "schemaVersion": 1, "major": 19, "postgresDirectory": "<ProgramRoot>\pgsql-19", "dataDirectory": "<DataRoot>\pgdata-19" }
+# The folders are pinned to exactly these names below ProgramRoot and DataRoot, so a pointer can never make this elevated
+# script run binaries, initialise a cluster or set ACLs anywhere else; links (reparse points) are refused as well.
+# Anything unexpected throws before the installer changes something: an unreadable pointer, a cluster folder that does
+# not exist, holds another major version or is older than another versioned cluster, or a versioned cluster without a
+# pointer. Silently falling back to pgdata would initialise an empty second cluster or reopen an outdated one.
+# A missing postgresDirectory is not an error here; the PG_VERSION check and step 3 treat it like a missing pgsql folder.
+function Resolve-PostgresEngineLayout([string]$programRoot, [string]$dataRoot, [string]$pointerFile) {
+    $versionedClusters = @()
+    if (Test-Path -LiteralPath $dataRoot) {
+        # -ErrorAction Stop: an unreadable data folder must stop the installer, not look like "no versioned cluster".
+        $versionedClusters = @(Get-ChildItem -LiteralPath $dataRoot -Directory -Filter "$LegacyDataDirectoryName-*" -ErrorAction Stop |
+            Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName 'PG_VERSION') })
+    }
+    if (-not (Test-Path -LiteralPath $pointerFile)) {
+        # A versioned cluster without the pointer means the pointer got lost after an engine upgrade: the legacy pgdata
+        # would then be the old, outdated database. The updater deletes a versioned cluster of a failed upgrade itself.
+        if ($versionedClusters.Count -gt 0) {
+            throw "The database folder $(($versionedClusters | ForEach-Object { $_.FullName }) -join ', ') exists, but the PostgreSQL engine pointer '$pointerFile' is missing, so it is unclear which database is current. Nothing was changed; contact Klacks support."
+        }
+        return [pscustomobject]@{
+            Major         = $null
+            PostgresRoot  = Join-Path $programRoot $LegacyPostgresDirectoryName
+            DataDirectory = Join-Path $dataRoot $LegacyDataDirectoryName
+        }
+    }
+    try {
+        $pointer = Get-Content -LiteralPath $pointerFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    }
+    catch {
+        throw "The PostgreSQL engine pointer '$pointerFile' cannot be read ($($_.Exception.Message)). Nothing was changed; contact Klacks support."
+    }
+    $schemaVersion = "$($pointer.schemaVersion)"
+    $majorText = "$($pointer.major)"
+    if ($schemaVersion -ne "$EngineLayoutSchemaVersion") {
+        throw "The PostgreSQL engine pointer '$pointerFile' has schema version '$schemaVersion', expected $EngineLayoutSchemaVersion. Nothing was changed; contact Klacks support."
+    }
+    if ($majorText -notmatch '^[1-9]\d*$') {
+        throw "The PostgreSQL engine pointer '$pointerFile' names no valid major version ('$majorText'). Nothing was changed; contact Klacks support."
+    }
+    $major = [int]$majorText
+    $postgresDirectory = Join-Path $programRoot "$LegacyPostgresDirectoryName-$major"
+    $dataDirectory = Join-Path $dataRoot "$LegacyDataDirectoryName-$major"
+    foreach ($pair in @(@("$($pointer.postgresDirectory)", $postgresDirectory), @("$($pointer.dataDirectory)", $dataDirectory))) {
+        $named = $pair[0].TrimEnd([char]92)
+        if ($named -ine $pair[1]) {
+            throw "The PostgreSQL engine pointer '$pointerFile' names the folder '$($pair[0])', expected '$($pair[1])'. Nothing was changed; contact Klacks support."
+        }
+        $item = Get-Item -LiteralPath $pair[1] -Force -ErrorAction SilentlyContinue
+        if ($item -and ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+            throw "The PostgreSQL folder '$($pair[1])' is a link. Nothing was changed; contact Klacks support."
+        }
+    }
+    $clusterMajor = Get-ClusterMajor $dataDirectory
+    if ($null -eq $clusterMajor) {
+        throw "The PostgreSQL engine pointer '$pointerFile' names the database folder '$dataDirectory', which holds no database. Nothing was changed; restore the folder from a backup or contact Klacks support."
+    }
+    if ($clusterMajor -ne $major) {
+        throw "The database in '$dataDirectory' was created with PostgreSQL $clusterMajor, but the engine pointer '$pointerFile' names PostgreSQL $major. Nothing was changed; contact Klacks support."
+    }
+    $newer = @($versionedClusters | Where-Object { (Get-ClusterMajor $_.FullName) -gt $major } | ForEach-Object { $_.FullName })
+    if ($newer.Count -gt 0) {
+        throw "The engine pointer '$pointerFile' names PostgreSQL $major, but the newer database folder $($newer -join ', ') exists, so it is unclear which database is current. Nothing was changed; contact Klacks support."
+    }
+    return [pscustomobject]@{
+        Major         = $major
+        PostgresRoot  = $postgresDirectory
+        DataDirectory = $dataDirectory
+    }
+}
+
+# Removes one service from the dependency list of another (sc.exe "depend= /" clears the list).
+function Remove-ServiceDependency([string]$serviceName, [string]$dependencyName) {
+    $key = "HKLM:\SYSTEM\CurrentControlSet\Services\$serviceName"
+    $dependencies = @((Get-ItemProperty -Path $key -Name 'DependOnService' -ErrorAction SilentlyContinue).DependOnService | Where-Object { $_ })
+    if ($dependencies -notcontains $dependencyName) { return }
+    $remaining = @($dependencies | Where-Object { $_ -ne $dependencyName })
+    $dependValue = if ($remaining.Count -gt 0) { $remaining -join '/' } else { '/' }
+    Write-Step "Service $serviceName no longer depends on $dependencyName"
+    Invoke-Native 'sc.exe' @('config', $serviceName, 'depend=', $dependValue) | Out-Null
+}
+
 function Get-ClusterPort([string]$dataDirectory) {
     $conf = Join-Path $dataDirectory 'postgresql.conf'
     if (-not (Test-Path -LiteralPath $conf)) { return $null }
@@ -248,10 +341,12 @@ if (-not (Test-Path (Join-Path $PostgresDirectory 'bin\pg_ctl.exe'))) { throw "N
 $versionsDirectory = Join-Path $ProgramRoot 'versions'
 $versionDirectory = Join-Path $versionsDirectory $Version
 $currentLink = Join-Path $ProgramRoot 'current'
-$postgresRoot = Join-Path $ProgramRoot 'pgsql'
-$postgresBin = Join-Path $postgresRoot 'bin'
-$pgData = Join-Path $DataRoot 'pgdata'
 $configDirectory = Join-Path $DataRoot 'config'
+$engineLayout = Resolve-PostgresEngineLayout $ProgramRoot $DataRoot (Join-Path $configDirectory $EngineLayoutFileName)
+$postgresRoot = $engineLayout.PostgresRoot
+$postgresBin = Join-Path $postgresRoot 'bin'
+$pgData = $engineLayout.DataDirectory
+if ($null -ne $engineLayout.Major) { Write-Step "PostgreSQL $($engineLayout.Major) in $postgresRoot, database in $pgData (engine pointer)" }
 $logDirectory = Join-Path $DataRoot 'logs'
 $backupDirectory = Join-Path $DataRoot 'backups'
 $secretsFile = Join-Path $configDirectory $SecretsFileName
@@ -270,13 +365,29 @@ if (Test-Path -LiteralPath $currentLink) {
 # An existing database cluster only starts with PostgreSQL binaries of its own major version. Already installed binaries
 # are kept (step 3 copies the payload only when they are missing), otherwise the package's binaries are used. A mismatch
 # (e.g. data of an earlier PostgreSQL 17 installation that the uninstaller kept, and a package with PostgreSQL 19) stops
-# here before anything is changed; the data stays untouched. Moving data to a new major version is not automated yet.
+# here before anything is changed; the data stays untouched. Moving data to a new major version is the updater's engine
+# upgrade, never this script's; after it, $pgData and $postgresBin are the versioned folders of the engine pointer.
 $clusterMajor = Get-ClusterMajor $pgData
 if ($null -ne $clusterMajor) {
     $runtimeBin = if (Test-Path (Join-Path $postgresBin 'pg_ctl.exe')) { $postgresBin } else { Join-Path $PostgresDirectory 'bin' }
     $runtimeMajor = Get-PostgresBinaryMajor $runtimeBin
     if ($clusterMajor -ne $runtimeMajor) {
         throw "The existing Klacks database in '$pgData' was created with PostgreSQL $clusterMajor, but this installation would run PostgreSQL $runtimeMajor ('$runtimeBin'). PostgreSQL cannot open data of another major version, so the installation was stopped and the database was left unchanged. Back up the folder '$pgData' and contact Klacks support for the move to PostgreSQL $runtimeMajor."
+    }
+}
+
+# After an engine upgrade the KlacksPostgres service has to run the folders of the pointer: a service still on the old
+# cluster (or a pointer left behind after a revert) would start another database than the one configured below. pg_ctl
+# writes the paths quoted and with forward slashes into ImagePath; the updater switches it with sc.exe config binPath=.
+if (($null -ne $engineLayout.Major) -and -not $NoServices) {
+    $postgresImagePath = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\$PostgresServiceName" -Name 'ImagePath' -ErrorAction SilentlyContinue).ImagePath
+    if ($postgresImagePath) {
+        $normalizedImagePath = $postgresImagePath.Replace('/', '\')
+        foreach ($expectedPath in @((Join-Path $postgresBin 'pg_ctl.exe'), $pgData)) {
+            if ($normalizedImagePath.IndexOf("`"$expectedPath`"", [StringComparison]::OrdinalIgnoreCase) -lt 0) {
+                throw "The service $PostgresServiceName runs '$postgresImagePath', but the engine pointer names '$expectedPath'. Nothing was changed; contact Klacks support."
+            }
+        }
     }
 }
 
@@ -484,9 +595,12 @@ else {
     # Register every service first and start them without waiting: Klacks reports "start pending" while it migrates
     # (up to 30 min on a first start), and Start-Service would block on it, so a later service was never registered.
     # Wait-Healthy below is the only place that waits.
+    # The updater has no dependency on KlacksPostgres: an engine upgrade stops PostgreSQL while the updater keeps running,
+    # and the service control manager refuses to stop a service that a running service depends on. It waits for the
+    # database itself. Klacks keeps the dependency.
     $services = @(@{ Name = $ApiServiceName; Exe = $apiExe; Display = 'Klacks'; DependsOn = @($PostgresServiceName) })
     if (Test-Path $updaterExe) {
-        $services += @{ Name = $UpdaterServiceName; Exe = $updaterExe; Display = 'Klacks Updater'; DependsOn = @($PostgresServiceName) }
+        $services += @{ Name = $UpdaterServiceName; Exe = $updaterExe; Display = 'Klacks Updater'; DependsOn = @() }
     }
     else {
         Write-Warning "The bundle contains no updater ($updaterExe); service $UpdaterServiceName is not registered."
@@ -506,14 +620,25 @@ else {
     foreach ($service in $services) {
         if (-not (Get-Service -Name $service.Name -ErrorAction SilentlyContinue)) {
             Write-Step "Registering service $($service.Name)"
-            New-Service -Name $service.Name -BinaryPathName "`"$($service.Exe)`"" -DisplayName $service.Display `
-                -StartupType Automatic -DependsOn $service.DependsOn | Out-Null
+            $serviceArguments = @{
+                Name           = $service.Name
+                BinaryPathName = "`"$($service.Exe)`""
+                DisplayName    = $service.Display
+                StartupType    = 'Automatic'
+            }
+            # Windows PowerShell 5.1 does not bind an empty -DependsOn list.
+            if ($service.DependsOn.Count -gt 0) { $serviceArguments['DependsOn'] = $service.DependsOn }
+            New-Service @serviceArguments | Out-Null
             $key = "HKLM:\SYSTEM\CurrentControlSet\Services\$($service.Name)"
             New-ItemProperty -Path $key -Name 'Environment' -PropertyType MultiString -Value $environment -Force | Out-Null
             sc.exe failure $service.Name reset= 86400 actions= restart/60000/restart/60000/restart/300000 | Out-Null
             # Also recover when the service reports itself stopped with an error code, not only after a crash.
             sc.exe failureflag $service.Name 1 | Out-Null
         }
+    }
+    # Installations registered before the engine upgrade existed: the updater service still depends on PostgreSQL.
+    if (Get-Service -Name $UpdaterServiceName -ErrorAction SilentlyContinue) {
+        Remove-ServiceDependency $UpdaterServiceName $PostgresServiceName
     }
     # The speech recognition service is registered but never started here: Disabled until the user installs the
     # Parakeet engine, at which point the updater (LocalSystem) switches it to Automatic and starts it.

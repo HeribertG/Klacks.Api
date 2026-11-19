@@ -35,11 +35,45 @@ $Masked = '***'
 $PostgresUser = 'klacks'
 $DatabaseName = 'Klacks'
 
+$EngineServiceName = 'KlacksPostgres'
+$EngineDependentServiceNames = @('Klacks', 'KlacksUpdater')
+$LegacyPostgresDirectoryName = 'pgsql'
+$LegacyDataDirectoryName = 'pgdata'
+
 $reportFile = Join-Path $ReportDirectory ('Klacks-Diagnose-{0:yyyyMMdd-HHmmss}.txt' -f (Get-Date))
 $baseUrl = "http://localhost:$HttpPort"
 $configFile = Join-Path $DataRoot 'config\klacks.native.json'
+# Written by the updater's engine upgrade; names the versioned PostgreSQL folders (pgsql-<major>, pgdata-<major>).
+# Install-Klacks.ps1 enforces it (Resolve-PostgresEngineLayout); this report only reads it and never fails on it. Like
+# the installer it only follows the pointer to <ProgramRoot>\pgsql-<major> and <DataRoot>\pgdata-<major>: psql runs
+# from there with the database password.
+$enginePointerFile = Join-Path $DataRoot 'config\postgres-engine.json'
+$postgresRoot = Join-Path $ProgramRoot $LegacyPostgresDirectoryName
+$pgData = Join-Path $DataRoot $LegacyDataDirectoryName
+$enginePointer = $null
+$enginePointerStatus = 'none, legacy folders'
+try {
+    if (Test-Path -LiteralPath $enginePointerFile -ErrorAction Stop) {
+        $enginePointer = Get-Content -LiteralPath $enginePointerFile -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
+        $pointerMajor = "$($enginePointer.major)"
+        $expectedRoot = Join-Path $ProgramRoot "$LegacyPostgresDirectoryName-$pointerMajor"
+        $expectedData = Join-Path $DataRoot "$LegacyDataDirectoryName-$pointerMajor"
+        if (($pointerMajor -match '^[1-9]\d*$') -and ("$($enginePointer.postgresDirectory)".TrimEnd([char]92) -ieq $expectedRoot) -and
+            ("$($enginePointer.dataDirectory)".TrimEnd([char]92) -ieq $expectedData)) {
+            $postgresRoot = $expectedRoot
+            $pgData = $expectedData
+            $enginePointerStatus = 'active'
+        }
+        else {
+            $enginePointerStatus = "not usable (a valid major and the folders $expectedRoot and $expectedData expected); the report uses the legacy folders"
+        }
+    }
+}
+catch {
+    $enginePointerStatus = "unreadable ($($_.Exception.Message)); the report uses the legacy folders"
+}
 # Install-Klacks.ps1 moves PostgreSQL to the next free port when the default is taken; the cluster's own config knows which.
-$postgresConf = Join-Path $DataRoot 'pgdata\postgresql.conf'
+$postgresConf = Join-Path $pgData 'postgresql.conf'
 if (-not $PSBoundParameters.ContainsKey('PostgresPort') -and (Test-Path -LiteralPath $postgresConf)) {
     foreach ($line in Get-Content -LiteralPath $postgresConf) {
         if ($line -match '^\s*port\s*=\s*(\d+)') { $PostgresPort = [int]$Matches[1] }
@@ -121,6 +155,41 @@ Add-Section 'Services' {
     foreach ($name in $ServiceNames) { sc.exe qc $name }
 }
 
+Add-Section 'PostgreSQL engine' {
+    "Engine pointer: $enginePointerFile"
+    if (-not $isAdmin) { '  Not elevated: the protected config folder may hide the pointer, the status below can be wrong.' }
+    "  Status: $enginePointerStatus"
+    if ($enginePointer) {
+        # Only the known keys: a later schema must not carry anything else into the report unchecked.
+        foreach ($key in @('schemaVersion', 'major', 'postgresDirectory', 'dataDirectory')) { "  ${key}: $($enginePointer.$key)" }
+    }
+    "Active binaries: $postgresRoot"
+    "Active database: $pgData"
+    ''
+    Get-ChildItem -LiteralPath $DataRoot -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -eq $LegacyDataDirectoryName -or $_.Name -like "$LegacyDataDirectoryName-*" } |
+        ForEach-Object {
+            $versionFile = Join-Path $_.FullName 'PG_VERSION'
+            $clusterVersion = if (Test-Path -LiteralPath $versionFile) { "$(Get-Content -LiteralPath $versionFile -TotalCount 1)".Trim() } else { 'no PG_VERSION' }
+            'Cluster  {0,-14} PostgreSQL {1}' -f $_.Name, $clusterVersion
+        }
+    Get-ChildItem -LiteralPath $ProgramRoot -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -eq $LegacyPostgresDirectoryName -or $_.Name -like "$LegacyPostgresDirectoryName-*" } |
+        ForEach-Object {
+            $postgresExe = Join-Path $_.FullName 'bin\postgres.exe'
+            $binaryVersion = if (Test-Path -LiteralPath $postgresExe) { (Get-Item -LiteralPath $postgresExe).VersionInfo.ProductVersion } else { 'no bin\postgres.exe' }
+            'Binaries {0,-14} {1}' -f $_.Name, $binaryVersion
+        }
+    ''
+    $engineKey = "HKLM:\SYSTEM\CurrentControlSet\Services\$EngineServiceName"
+    $engineImagePath = (Get-ItemProperty -Path $engineKey -Name 'ImagePath' -ErrorAction SilentlyContinue).ImagePath
+    "Service $EngineServiceName ImagePath: $(if ($engineImagePath) { $engineImagePath } else { '(not registered)' })"
+    foreach ($name in $EngineDependentServiceNames) {
+        $dependencies = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\$name" -Name 'DependOnService' -ErrorAction SilentlyContinue).DependOnService
+        "Service $name depends on: $(if ($dependencies) { $dependencies -join ', ' } else { '(nothing)' })"
+    }
+}
+
 Add-Section 'Processes' {
     Get-Process -Name $ProcessNames -ErrorAction SilentlyContinue |
         Select-Object Name, Id, @{ n = 'CpuSeconds'; e = { [int]$_.CPU } }, @{ n = 'RamMB'; e = { [int]($_.WorkingSet64 / 1MB) } }, StartTime |
@@ -174,7 +243,7 @@ Add-Section 'Settings (secrets masked)' {
 
 Add-Section 'Database' {
     if (-not $isAdmin) { 'Skipped: needs an elevated PowerShell.'; return }
-    $psql = Join-Path $ProgramRoot 'pgsql\bin\psql.exe'
+    $psql = Join-Path $postgresRoot 'bin\psql.exe'
     # The query goes through a file: Windows PowerShell 5.1 strips the double quotes of native arguments.
     $queryFile = Join-Path $env:TEMP 'klacks-diagnostics.sql'
     Set-Content -Path $queryFile -Encoding ASCII -Value (
