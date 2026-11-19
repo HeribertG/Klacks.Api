@@ -22,7 +22,9 @@ description: "Verwende wenn an LDAP, OAuth2, OpenID Connect Authentifizierung od
 2. Lokale DB-Auth versuchen
 3. Falls fehlgeschlagen: je Provider, für den `DirectoryLoginProviders.IsUsableForLogin` gilt (LDAP/AD, aktiv,
    `UseForAuthentication=true`, AD nur mit SSL), nach SortOrder. **AD-Login nur über LDAPS (636)**; AD ohne SSL wird nur
-   gelesen (Negotiate, Import/Test), `BindAsUserAsync` wirft dort `DirectoryUnavailableException`:
+   gelesen (Negotiate, Import/Test) und nur unter nativem Windows; im Docker-Container (Linux) ist Negotiate nicht
+   unterstützt (LdapException 92), dort braucht AD LDAPS für alles. `BindAsUserAsync` wirft ohne SSL
+   `DirectoryUnavailableException`:
    1. `ILdapService.FindLoginEntryAsync(provider, typed)`: Bind mit dem Service-Account, Subtree-Suche unter BaseDn
       (Filter `LdapUserFilters.ForLogin`, SizeLimit 2). Nur genau ein Treffer zählt; deaktivierte AD-Konten
       (`userAccountControl`) fallen heraus.
@@ -135,7 +137,9 @@ StreetAddress = GetStringAttribute(entry, "streetAddress")
 ### Auth-Typ (fest, kein Fallback)
 
 - SSL: Basic über TLS (beide Typen)
-- AD ohne SSL: Negotiate, nur lesend (Import/Test)
+- AD ohne SSL: Negotiate, nur lesend (Import/Test), nur unter nativem Windows; unter Linux/Docker nicht unterstützt
+- LDAPS im Container: CA bzw. selbstsigniertes DC-Zertifikat als PEM mounten, `LDAPTLS_CACERT` setzen, Host = FQDN wie im
+  Zertifikat (IP scheitert), bei fehlendem DNS `extra_hosts`; ohne vertrauenswürdiges Zertifikat Abbruch (fail-closed)
 - LDAP ohne SSL: Basic
 
 ## Test-Server

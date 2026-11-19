@@ -91,16 +91,19 @@ server**; a Synology "Directory Server" (Active Directory compatible) is the **c
 **Company directory: sign-in only with encryption.** A company directory refuses to check a person's
 password over an unencrypted connection. Sign-in through the company-directory kind therefore works
 **only with encryption switched on (LDAPS, port 636)**. Without it the connection can still be read for
-the staff import and the connection test (Klacks then signs the search account in with the Windows
-procedure), but nobody can sign in through it, the sign-in approval tab stays closed, and the dialog
-shows a warning. The message "Strong authentication required" from the server means: switch on
+the staff import and the connection test only when Klacks runs directly on Windows (it then signs the
+search account in with the Windows procedure); in Docker (Linux) this procedure is not supported, so
+Active Directory needs LDAPS for everything there, including import and test. Nobody can sign in through it,
+the sign-in approval tab stays closed, and the dialog shows a warning. The message "Strong authentication required" from the server means: switch on
 encryption. For LDAPS:
 - the **host** must be the server's full name exactly as written in its certificate (for example
   `dc1.firma.local`), not an IP address;
 - the computer running Klacks must trust the certificate's issuing authority. On Windows import the CA
   certificate into the trusted root store (`certutil -addstore Root ca.cer`). In Docker mount the CA as a
-  PEM file, set `LDAPTLS_CACERT` to its path and add the host name with `extra_hosts` (these Docker steps
-  are not yet verified);
+  PEM file, set `LDAPTLS_CACERT` to its path and add the host name with `extra_hosts` if DNS does not
+  resolve it. A domain controller with a self-signed certificate sends no CA chain: then its own
+  certificate as PEM file is the trust anchor. Without a trusted certificate the connection is refused
+  and shows as a connection error;
 - enter the search account as user principal name (for example `klacks-search@firma.local`).
 Klacks never accepts an untrusted certificate.
 
