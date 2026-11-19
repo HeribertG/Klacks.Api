@@ -176,6 +176,25 @@ function Register-SttService($serviceName, $executable, $dataRoot) {
     New-ItemProperty -Path $key -Name 'Environment' -PropertyType MultiString -Value $sttEnvironment -Force | Out-Null
 }
 
+# Major version of the PostgreSQL binaries below $binDirectory, read from the version resource of postgres.exe (works before
+# the Visual C++ runtime is installed, unlike running the binary).
+function Get-PostgresBinaryMajor([string]$binDirectory) {
+    $postgresExe = Join-Path $binDirectory 'postgres.exe'
+    if (-not (Test-Path -LiteralPath $postgresExe)) { throw "postgres.exe is missing below '$binDirectory'." }
+    $major = (Get-Item -LiteralPath $postgresExe).VersionInfo.ProductMajorPart
+    if (-not $major) { throw "Cannot read the PostgreSQL version of '$postgresExe'." }
+    return [int]$major
+}
+
+# Major version a cluster was created with (first line of PG_VERSION), or $null when there is no cluster.
+function Get-ClusterMajor([string]$dataDirectory) {
+    $versionFile = Join-Path $dataDirectory 'PG_VERSION'
+    if (-not (Test-Path -LiteralPath $versionFile)) { return $null }
+    $text = "$(Get-Content -LiteralPath $versionFile -TotalCount 1)".Trim()
+    if ($text -notmatch '^\d+$') { throw "Unexpected content '$text' in '$versionFile'." }
+    return [int]$text
+}
+
 function Get-ClusterPort([string]$dataDirectory) {
     $conf = Join-Path $dataDirectory 'postgresql.conf'
     if (-not (Test-Path -LiteralPath $conf)) { return $null }
@@ -245,6 +264,19 @@ if (Test-Path -LiteralPath $currentLink) {
     $activeVersion = if ($activeTarget) { Split-Path -Leaf $activeTarget.TrimEnd('\') } else { '' }
     if ($activeVersion -and $activeVersion -ne $Version) {
         throw "Klacks $activeVersion is already installed in $ProgramRoot; this package contains $Version. Update Klacks from within Klacks (Settings > Software Updates) instead of installing over it."
+    }
+}
+
+# An existing database cluster only starts with PostgreSQL binaries of its own major version. Already installed binaries
+# are kept (step 3 copies the payload only when they are missing), otherwise the package's binaries are used. A mismatch
+# (e.g. data of an earlier PostgreSQL 17 installation that the uninstaller kept, and a package with PostgreSQL 19) stops
+# here before anything is changed; the data stays untouched. Moving data to a new major version is not automated yet.
+$clusterMajor = Get-ClusterMajor $pgData
+if ($null -ne $clusterMajor) {
+    $runtimeBin = if (Test-Path (Join-Path $postgresBin 'pg_ctl.exe')) { $postgresBin } else { Join-Path $PostgresDirectory 'bin' }
+    $runtimeMajor = Get-PostgresBinaryMajor $runtimeBin
+    if ($clusterMajor -ne $runtimeMajor) {
+        throw "The existing Klacks database in '$pgData' was created with PostgreSQL $clusterMajor, but this installation would run PostgreSQL $runtimeMajor ('$runtimeBin'). PostgreSQL cannot open data of another major version, so the installation was stopped and the database was left unchanged. Back up the folder '$pgData' and contact Klacks support for the move to PostgreSQL $runtimeMajor."
     }
 }
 

@@ -10,13 +10,15 @@ namespace Klacks.Api.Infrastructure.Persistence;
 /// The one translation of EF Core write failures into the Domain exceptions Application code catches: a concurrency
 /// failure becomes ConcurrencyException, every other DbUpdateException a DatabaseUpdateException whose duplicate and
 /// foreign-key flags come from the PostgreSQL SQLSTATE (locale-independent, unlike the localized server message, e.g.
-/// "doppelter Schlüsselwert" on a German-locale server never contains "duplicate"). The EF exception stays the inner
-/// exception.
+/// "doppelter Schlüsselwert" on a German-locale server never contains "duplicate"). A foreign-key violation is 23503, or
+/// 23001 (restrict_violation), which PostgreSQL 18+ reports when deleting or updating a row an ON DELETE/UPDATE RESTRICT
+/// constraint still references. The EF exception stays the inner exception.
 /// </summary>
 internal static class DbUpdateExceptionTranslator
 {
     private const string UniqueViolationSqlState = "23505";
     private const string ForeignKeyViolationSqlState = "23503";
+    private const string RestrictViolationSqlState = "23001";
     private const string ConcurrencyMessage = "The record was modified by another user. Please refresh and try again.";
 
     /// <summary>
@@ -37,7 +39,7 @@ internal static class DbUpdateExceptionTranslator
             exception.InnerException?.Message ?? string.Empty,
             exception,
             isDuplicate: sqlState == UniqueViolationSqlState,
-            isForeignKeyViolation: sqlState == ForeignKeyViolationSqlState,
+            isForeignKeyViolation: sqlState is ForeignKeyViolationSqlState or RestrictViolationSqlState,
             constraintName: postgresException?.ConstraintName);
     }
 

@@ -35,8 +35,8 @@ on:
 
 env:
   DOTNET_VERSION: '10.0.x'
-  POSTGRES_BINARIES_URL: 'https://get.enterprisedb.com/postgresql/postgresql-17.4-1-windows-x64-binaries.zip'
-  PGVECTOR_TAG: 'v0.8.1'
+  POSTGRES_BINARIES_URL: 'https://get.enterprisedb.com/postgresql/postgresql-19.0-1-windows-x64-binaries.zip'
+  PGVECTOR_TAG: 'v0.8.7'
   VC_REDIST_URL: 'https://aka.ms/vs/17/release/vc_redist.x64.exe'
   HTTP_PORT: '5180'
   SEED_ADMIN_EMAIL: 'admin@test.com'
