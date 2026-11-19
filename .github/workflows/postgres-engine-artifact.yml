@@ -1,0 +1,293 @@
+# .github/workflows/postgres-engine-artifact.yml for Klacks.Api
+#
+# Builds the Windows PostgreSQL engine bundle (EDB binaries checked against the pinned SHA-256 + pgvector built with MSVC, ZIP root =
+# bin, lib, share), smoke-tests exactly that ZIP, signs its manifest entry with the release signing key (engine payload, see
+# deploy/postgres/sign-engine-entry.ps1) and publishes ZIP + entry JSON to the prerelease
+# postgres-engine-<version>-pgvector<pgvector><releaseSuffix> (no "v" prefix, never latest). deploy.yml reads that entry back into
+# artifacts.postgres.native of stable.json.
+#
+# Three jobs keep the powers apart. build runs the third-party code (EDB binaries, pgvector sources, MSVC) with a read-only token and
+# no secret. sign holds the release key and runs only repository scripts and GitHub-owned actions on a fresh machine; it recomputes the
+# ZIP hash itself before signing. publish has the write token and no secret. All jobs run on main only: a branch must not be able to
+# claim the release tag. The signature protects the key and binds URL and hash; it does not prove the ZIP is benign: that rests on the
+# pinned EDB hash, the pgvector tag and the smoke test.
+#
+# Everything comes from deploy/postgres/engine.json (the single pin; PostgresEnginePinGuardTests keeps Dockerfile, native-windows.yml
+# and the compose files consistent). Trigger: a change of the pin or of this workflow, or a manual run. Published assets are never
+# replaced: when the release already exists it is only verified (anonymous download, SHA-256, signature); a rebuild needs a new
+# releaseSuffix (-r2) in engine.json. A release created by this workflow stays a draft until both assets are uploaded, so there is
+# never a public release with a partial asset set; a leftover draft of a dead run is deleted and rebuilt.
+name: PostgreSQL engine artifact
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'deploy/postgres/engine.json'
+      - 'deploy/postgres/build-engine-artifact.ps1'
+      - 'deploy/postgres/sign-engine-entry.ps1'
+      - '.github/workflows/postgres-engine-artifact.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: postgres-engine-artifact
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    timeout-minutes: 90
+    outputs:
+      state: ${{ steps.existing.outputs.state }}
+      major: ${{ steps.pin.outputs.major }}
+      version: ${{ steps.pin.outputs.version }}
+      tag: ${{ steps.pin.outputs.tag }}
+      zip: ${{ steps.pin.outputs.zip }}
+      entry: ${{ steps.pin.outputs.entry }}
+      url: ${{ steps.pin.outputs.url }}
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Read pin
+        id: pin
+        shell: pwsh
+        run: |
+          $pin = Get-Content -Raw deploy/postgres/engine.json | ConvertFrom-Json
+          if ([string]$pin.major -cnotmatch '^[0-9]+\z') { throw "engine.json major '$($pin.major)' is not a number." }
+          if ($pin.version -cnotmatch '^[0-9]+\.[0-9]+\z') { throw "engine.json version '$($pin.version)' is not <major>.<minor>." }
+          if ($pin.version.Split('.')[0] -ne [string]$pin.major) { throw 'engine.json version does not belong to its major.' }
+          if ($pin.pgvector -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+\z') { throw "engine.json pgvector '$($pin.pgvector)' is not X.Y.Z." }
+          if ($pin.windowsBinariesUrl -cnotmatch '^https://get\.enterprisedb\.com/postgresql/[A-Za-z0-9._-]+\.zip\z') { throw 'engine.json windowsBinariesUrl is not an EDB binaries ZIP.' }
+          if ($pin.windowsBinariesSha256 -cnotmatch '^[0-9a-f]{64}\z') { throw 'engine.json windowsBinariesSha256 is not 64 lowercase hex characters.' }
+          $suffix = if ($null -eq $pin.releaseSuffix) { '' } else { [string]$pin.releaseSuffix }
+          if ($suffix -cnotmatch '^(-r[0-9]+)?\z') { throw "engine.json releaseSuffix '$suffix' is not empty or -rN." }
+          $tag = "postgres-engine-$($pin.version)-pgvector$($pin.pgvector)$suffix"
+          $zip = "klacks-postgres-$($pin.version)-win-x64.zip"
+          $entry = "klacks-postgres-$($pin.version)-win-x64.json"
+          $lines = @(
+            "major=$($pin.major)", "version=$($pin.version)", "pgvector=$($pin.pgvector)", "binaries_url=$($pin.windowsBinariesUrl)",
+            "binaries_sha256=$($pin.windowsBinariesSha256)", "tag=$tag", "zip=$zip", "entry=$entry",
+            "url=https://github.com/${env:GITHUB_REPOSITORY}/releases/download/$tag/$zip"
+          )
+          $lines | Add-Content -Path $env:GITHUB_OUTPUT
+          $lines | ForEach-Object { Write-Host $_ }
+
+      - name: Look for an existing release
+        id: existing
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.pin.outputs.tag }}
+        run: |
+          $releases = gh release list --repo $env:GITHUB_REPOSITORY --limit 1000 --json tagName,isDraft | ConvertFrom-Json
+          $found = @($releases | Where-Object { $_.tagName -ceq $env:TAG })
+          # Drafts of dead runs are handled by the publish job (they may be invisible to this read-only token).
+          $state = if ($found.Count -gt 0 -and -not $found[0].isDraft) { 'published' } else { 'none' }
+          "state=$state" | Add-Content -Path $env:GITHUB_OUTPUT
+          Write-Host "Release ${env:TAG}: $state"
+
+      - name: Download PostgreSQL binaries
+        if: steps.existing.outputs.state != 'published'
+        shell: pwsh
+        env:
+          BINARIES_URL: ${{ steps.pin.outputs.binaries_url }}
+          BINARIES_SHA256: ${{ steps.pin.outputs.binaries_sha256 }}
+        run: |
+          Invoke-WebRequest -UseBasicParsing -Uri $env:BINARIES_URL -OutFile postgresql.zip
+          $actual = (Get-FileHash -Algorithm SHA256 postgresql.zip).Hash.ToLowerInvariant()
+          if ($actual -cne $env:BINARIES_SHA256) { throw "EDB archive has SHA-256 $actual, engine.json pins $($env:BINARIES_SHA256)." }
+          Expand-Archive postgresql.zip -DestinationPath postgres-extract
+          Move-Item postgres-extract/pgsql postgresql
+
+      - name: Checkout pgvector
+        if: steps.existing.outputs.state != 'published'
+        uses: actions/checkout@v4
+        with:
+          repository: pgvector/pgvector
+          ref: v${{ steps.pin.outputs.pgvector }}
+          path: pgvector
+          persist-credentials: false
+
+      - name: Setup MSVC
+        if: steps.existing.outputs.state != 'published'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build pgvector
+        if: steps.existing.outputs.state != 'published'
+        shell: cmd
+        run: |
+          set "PGROOT=%GITHUB_WORKSPACE%\postgresql"
+          cd pgvector
+          nmake /NOLOGO /F Makefile.win || exit /b 1
+          nmake /NOLOGO /F Makefile.win install || exit /b 1
+          if not exist "%PGROOT%\lib\vector.dll" exit /b 1
+
+      - name: Pack engine and smoke test the ZIP
+        if: steps.existing.outputs.state != 'published'
+        shell: pwsh
+        env:
+          MAJOR: ${{ steps.pin.outputs.major }}
+          VERSION: ${{ steps.pin.outputs.version }}
+          PGVECTOR: ${{ steps.pin.outputs.pgvector }}
+          BUNDLE_URL: ${{ steps.pin.outputs.url }}
+        run: |
+          & deploy/postgres/build-engine-artifact.ps1 -PostgresDirectory postgresql -Major ([int]$env:MAJOR) `
+            -Version $env:VERSION -PgvectorVersion $env:PGVECTOR -BundleUrl $env:BUNDLE_URL -OutputDirectory out
+
+      - name: Upload unsigned bundle
+        if: steps.existing.outputs.state != 'published'
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-unsigned
+          path: out/
+          if-no-files-found: error
+          retention-days: 3
+
+  sign:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download unsigned bundle
+        if: needs.build.outputs.state != 'published'
+        uses: actions/download-artifact@v4
+        with:
+          name: engine-unsigned
+          path: out
+
+      - name: Sign manifest entry and derive public key
+        shell: pwsh
+        env:
+          PRIV_B64: ${{ secrets.UPDATE_SIGNATURE_PRIVATE_KEY_B64 }}
+          STATE: ${{ needs.build.outputs.state }}
+          MAJOR: ${{ needs.build.outputs.major }}
+          ZIP: ${{ needs.build.outputs.zip }}
+          ENTRY: ${{ needs.build.outputs.entry }}
+          URL: ${{ needs.build.outputs.url }}
+        run: |
+          if (-not $env:PRIV_B64) { throw 'UPDATE_SIGNATURE_PRIVATE_KEY_B64 secret is not set.' }
+          New-Item -ItemType Directory -Force -Path signed | Out-Null
+          $key = Join-Path $env:RUNNER_TEMP 'update_priv.pem'
+          try {
+            [IO.File]::WriteAllBytes($key, [Convert]::FromBase64String($env:PRIV_B64))
+            $rsa = [Security.Cryptography.RSA]::Create()
+            try {
+              $rsa.ImportFromPem((Get-Content -Raw $key))
+              [IO.File]::WriteAllText('signed/update-public-key.pem', $rsa.ExportSubjectPublicKeyInfoPem())
+            }
+            finally { $rsa.Dispose() }
+            if ($env:STATE -ne 'published') {
+              $entryPath = Join-Path 'out' $env:ENTRY
+              $zipPath = Join-Path 'out' $env:ZIP
+              $entry = Get-Content -Raw $entryPath | ConvertFrom-Json
+              if ($entry.rid -cne 'win-x64') { throw "The unsigned entry names RID '$($entry.rid)'." }
+              if ($entry.bundleUrl -cne $env:URL) { throw "The unsigned entry names URL '$($entry.bundleUrl)', expected '$($env:URL)'." }
+              $actual = (Get-FileHash -Algorithm SHA256 $zipPath).Hash.ToLowerInvariant()
+              if ($actual -cne $entry.sha256) { throw "The ZIP has SHA-256 $actual, the unsigned entry says $($entry.sha256)." }
+              & deploy/postgres/sign-engine-entry.ps1 -EntryPath $entryPath -Major ([int]$env:MAJOR) -SigningKeyPath $key
+              Copy-Item $entryPath (Join-Path 'signed' $env:ENTRY)
+              Copy-Item $zipPath (Join-Path 'signed' $env:ZIP)
+            }
+          }
+          finally {
+            Remove-Item -Force -ErrorAction SilentlyContinue $key
+          }
+
+      - name: Upload signed bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-signed
+          path: signed/
+          if-no-files-found: error
+          retention-days: 3
+
+  publish:
+    needs: [build, sign]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download signed bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: engine-signed
+          path: signed
+
+      - name: Publish prerelease
+        if: needs.build.outputs.state != 'published'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.build.outputs.tag }}
+          VERSION: ${{ needs.build.outputs.version }}
+          ZIP: ${{ needs.build.outputs.zip }}
+          ENTRY: ${{ needs.build.outputs.entry }}
+        run: |
+          $releases = gh release list --repo $env:GITHUB_REPOSITORY --limit 1000 --json tagName,isDraft | ConvertFrom-Json
+          $leftover = @($releases | Where-Object { $_.tagName -ceq $env:TAG })
+          if ($leftover.Count -gt 0) {
+            if (-not $leftover[0].isDraft) { throw "Release $($env:TAG) was published meanwhile, nothing is replaced." }
+            Write-Host 'Deleting the draft of a dead run.'
+            gh release delete $env:TAG --repo $env:GITHUB_REPOSITORY --yes
+            if ($LASTEXITCODE -ne 0) { throw 'Could not delete the leftover draft.' }
+          }
+          $notes = "PostgreSQL $($env:VERSION) (EDB binaries) with pgvector for Windows x64. Engine bundle for the Klacks updater; the signed manifest entry sits next to the ZIP. Never replace these assets: a rebuild is a new release with -rN in releaseSuffix of deploy/postgres/engine.json."
+          gh release create $env:TAG --repo $env:GITHUB_REPOSITORY --draft --prerelease --latest=false --target $env:GITHUB_SHA `
+            --title "PostgreSQL engine $($env:VERSION) + pgvector" --notes $notes
+          if ($LASTEXITCODE -ne 0) { throw 'gh release create failed.' }
+          gh release upload $env:TAG (Join-Path 'signed' $env:ZIP) (Join-Path 'signed' $env:ENTRY) --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { throw 'gh release upload failed.' }
+          gh release edit $env:TAG --repo $env:GITHUB_REPOSITORY --draft=false --prerelease --latest=false
+          if ($LASTEXITCODE -ne 0) { throw 'gh release edit failed.' }
+
+      - name: Verify the published release anonymously
+        shell: pwsh
+        env:
+          TAG: ${{ needs.build.outputs.tag }}
+          ZIP: ${{ needs.build.outputs.zip }}
+          ENTRY: ${{ needs.build.outputs.entry }}
+          URL: ${{ needs.build.outputs.url }}
+          MAJOR: ${{ needs.build.outputs.major }}
+          STATE: ${{ needs.build.outputs.state }}
+        run: |
+          $verify = Join-Path $env:RUNNER_TEMP 'verify'
+          New-Item -ItemType Directory -Force -Path $verify | Out-Null
+          $base = "https://github.com/${env:GITHUB_REPOSITORY}/releases/download/$($env:TAG)"
+          $zip = Join-Path $verify $env:ZIP
+          $entryFile = Join-Path $verify $env:ENTRY
+          # Plain web requests without the token: this is what an updater or the manifest step sees.
+          Invoke-WebRequest -UseBasicParsing -Uri "$base/$($env:ZIP)" -OutFile $zip -MaximumRetryCount 5 -RetryIntervalSec 15
+          Invoke-WebRequest -UseBasicParsing -Uri "$base/$($env:ENTRY)" -OutFile $entryFile -MaximumRetryCount 5 -RetryIntervalSec 15
+          $entry = Get-Content -Raw $entryFile | ConvertFrom-Json
+          if ($entry.rid -cne 'win-x64') { throw "Published entry RID is '$($entry.rid)'." }
+          if ($entry.bundleUrl -cne $env:URL) { throw "Published entry URL is '$($entry.bundleUrl)'." }
+          $sha = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
+          if ($sha -cne $entry.sha256) { throw "Downloaded ZIP has SHA-256 $sha, the entry says $($entry.sha256)." }
+          if ($env:STATE -ne 'published') {
+            $local = (Get-FileHash -Algorithm SHA256 (Join-Path 'signed' $env:ZIP)).Hash.ToLowerInvariant()
+            if ($local -cne $sha) { throw "The published ZIP ($sha) differs from the built one ($local)." }
+          }
+          & deploy/postgres/sign-engine-entry.ps1 -EntryPath $entryFile -Major ([int]$env:MAJOR) -PublicKeyPath 'signed/update-public-key.pem' -Verify
+          Write-Host "Engine release $($env:TAG) verified (SHA-256 $sha)."

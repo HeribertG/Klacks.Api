@@ -1,0 +1,9 @@
+{
+  "major": 19,
+  "version": "19.0",
+  "pgvector": "0.8.7",
+  "image": "ghcr.io/heribertg/klacks-postgres:19",
+  "windowsBinariesUrl": "https://get.enterprisedb.com/postgresql/postgresql-19.0-1-windows-x64-binaries.zip",
+  "windowsBinariesSha256": "bc397f1e58f018e364262074c2e9d960f6169e7436892dbe6e73313d1bb201ff",
+  "releaseSuffix": ""
+}

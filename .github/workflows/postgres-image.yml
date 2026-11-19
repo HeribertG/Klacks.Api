@@ -13,8 +13,14 @@ name: PostgreSQL image
 on:
   push:
     branches: [main]
+    # Only what goes into the image. The engine pin, the engine artifact and manifest scripts, the upgrade gates and
+    # the enqueue helper also live in deploy/postgres/ and must not rebuild (and so re-digest) the :<major> tag the
+    # signed manifest block binds.
     paths:
-      - 'deploy/postgres/**'
+      - 'deploy/postgres/Dockerfile'
+      - 'deploy/postgres/docker-entrypoint.sh'
+      - 'deploy/postgres/docker-ensure-initdb.sh'
+      - 'deploy/postgres/LICENSE.docker-library'
       - '.github/workflows/postgres-image.yml'
   workflow_dispatch:
 

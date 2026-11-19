@@ -269,6 +269,30 @@ jobs:
           KLACKS_VARIANT=RELEASE
           KLACKS_STT_VERSION=${{ steps.sttver.outputs.version }}
 
+    # Stable releases only: the signed block artifacts.postgres (engine upgrade, deploy/postgres/engine.json). The Docker entry
+    # carries the OCI index digest of the pinned klacks-postgres image, signed with the engine payload; the Windows entry is
+    # read back from the engine prerelease and only adopted when its ZIP and signature check out. This step must never block
+    # a release: on any error no block is written and stable.json goes out without artifacts.postgres exactly as before.
+    # Only run: steps touch the signing key, and it is deleted right after use.
+    - name: Build postgres engine manifest block
+      id: pgblock
+      if: ${{ !contains(github.ref, '-') }}
+      continue-on-error: true
+      env:
+        PRIV_B64: ${{ secrets.UPDATE_SIGNATURE_PRIVATE_KEY_B64 }}
+      run: |
+        set -euo pipefail
+        rm -f postgres-block.json
+        if [ -z "${PRIV_B64:-}" ]; then
+          echo "::error::UPDATE_SIGNATURE_PRIVATE_KEY_B64 secret is not set"; exit 1
+        fi
+        key="$RUNNER_TEMP/engine_priv.pem"
+        trap 'rm -f "$key"' EXIT
+        umask 077
+        echo "$PRIV_B64" | base64 -d > "$key"
+        bash Klacks.Api/deploy/postgres/New-EngineManifestBlock.sh \
+          --engine-json Klacks.Api/deploy/postgres/engine.json --private-key "$key" --out postgres-block.json
+
     # Stable releases only: build the signed update manifest and publish it as a GitHub Release
     # asset. The out-of-process updater verifies the RSA-SHA256 signature over the canonical
     # "{version}\n{apiImage}\n{digest}" payload; the API detection service reads the manifest from
@@ -305,6 +329,13 @@ jobs:
           "signature": "${SIG}"
         }
         EOF
+        if [ -s postgres-block.json ]; then
+          if bash Klacks.Api/deploy/postgres/Merge-EngineManifestBlock.sh --manifest stable.json --block postgres-block.json; then
+            echo "artifacts.postgres added to stable.json"
+          else
+            echo "::warning::engine block not merged; stable.json goes out without artifacts.postgres"
+          fi
+        fi
         echo "Manifest stable.json:"; cat stable.json
         gh release create "v${VERSION}" --repo "$GITHUB_REPOSITORY" --title "v${VERSION}" \
           --notes "Automated release ${VERSION}" --latest 2>/dev/null || true
