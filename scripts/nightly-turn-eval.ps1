@@ -207,7 +207,7 @@ $DatabasePattern      = 'Database=([^;"]+)'
 $TestDatabaseEnvVar   = "DATABASE_URL"
 $DbUser               = "postgres"
 $DbPassword           = "admin"
-$PsqlDefaultPath      = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
+$PsqlDefaultPath      = "C:\PostgreSQL\19\bin\psql.exe"
 $ExitOk               = 0
 $ExitRegression       = 2
 $MinBaselineRuns      = 3

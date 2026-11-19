@@ -40,10 +40,10 @@ export DATABASE_URL="Host=localhost;Port=5434;Database=klacks;Username=postgres;
 
 ```bash
 # SQL-Datei ausführen
-powershell.exe -Command "\$env:PGPASSWORD='admin'; & 'C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe' -h localhost -p 5434 -U postgres -d klacks -f 'C:\\SourceCode\\path\\to\\file.sql'"
+powershell.exe -Command "\$env:PGPASSWORD='admin'; & 'C:\\PostgreSQL\\19\\bin\\psql.exe' -h localhost -p 5434 -U postgres -d klacks -f 'C:\\SourceCode\\path\\to\\file.sql'"
 
 # SQL-Query ausführen
-powershell.exe -Command "\$env:PGPASSWORD='admin'; & 'C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe' -h localhost -p 5434 -U postgres -d klacks -c 'SELECT * FROM work LIMIT 5'"
+powershell.exe -Command "\$env:PGPASSWORD='admin'; & 'C:\\PostgreSQL\\19\\bin\\psql.exe' -h localhost -p 5434 -U postgres -d klacks -c 'SELECT * FROM work LIMIT 5'"
 ```
 
 ## Client-bezogene Tabellen
