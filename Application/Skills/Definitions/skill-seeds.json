@@ -4984,6 +4984,19 @@
           "shift planner",
           "rota",
           "planning"
+        ],
+        "fr": [
+          "ouvre le planning",
+          "ouvrir le planning",
+          "ouvre-moi le planning",
+          "affiche le planning",
+          "montre-moi le planning",
+          "planning de la semaine"
+        ],
+        "it": [
+          "apri il piano turni",
+          "mostrami il piano turni",
+          "apri il planning"
         ]
       },
       "synonyms": {
@@ -5036,7 +5049,7 @@
         "fr": "Ouvrir le planning",
         "it": "Apri il planning"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "search_and_navigate",
