@@ -772,6 +772,10 @@
       "version": 5,
       "hash": "B10C2294AF0F3C528BA1C1BAE7A10BBB594FF32AF595130E9A5D07C9B1DA635E"
     },
+    "explain_linux_installation": {
+      "version": 1,
+      "hash": "0FCD4B3BC99BC32C9A16AE449A7E26186F0A95F1C784D66EA7E96F998A30AC22"
+    },
     "explain_macro_editor": {
       "version": 6,
       "hash": "DF040F8B96AB63E77535328EFA369C60153262D8CFB154050AD9B2ABB0A5035D"
@@ -797,8 +801,8 @@
       "hash": "987F7464BA23F4AFE17F693A6FE404B3A1B21FD6AF419F1FE2DBA76649A97465"
     },
     "explain_office_pc_installation": {
-      "version": 1,
-      "hash": "0D9777DB0D4971120C8B9A73AECD72897B4A89B10E6611DDB186D840C16843A3"
+      "version": 2,
+      "hash": "6665F0C23A0031DB0BAC5C21FFC9B89CE5E575ADDF25073B98F79A79944413F3"
     },
     "explain_overtime_model": {
       "version": 8,

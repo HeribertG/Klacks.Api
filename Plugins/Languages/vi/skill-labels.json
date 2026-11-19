@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "Giải thích việc thay thế khi vắng mặt",
   "explain_oauth_connections": "Kết nối công cụ AI bằng OAuth",
   "explain_office_pc_installation": "Cài đặt Klacks: Klacks Store hay Microsoft Store",
+  "explain_linux_installation": "Cài đặt Klacks trên Linux",
   "explain_scenario_variant_keys": "Giải thích ca tạm thời",
   "explain_placeholder_employees": "Giải thích nhân viên giả định",
   "explain_autofill_staircase_start": "Giải thích khởi đầu dạng bậc thang",

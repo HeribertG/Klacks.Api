@@ -1256,6 +1256,11 @@
     "オフィスのパソコンにKlacksをインストールするには",
     "Klacksをアンインストールしてもデータは残りますか"
   ],
+  "explain_linux_installation": [
+    "linuxにklacksをインストールする方法",
+    "dockerでサーバーにklacksをインストール",
+    "セットアップコードはどこ"
+  ],
   "explain_scenario_variant_keys": [
     "シナリオのキーとは何か",
     "確定していないシフトを計画する",

@@ -1261,6 +1261,11 @@
     "cara menginstal klacks di pc kantor",
     "apakah data saya tetap ada setelah klacks dihapus"
   ],
+  "explain_linux_installation": [
+    "bagaimana cara memasang klacks di linux",
+    "memasang klacks di server dengan docker",
+    "di mana kode penyiapan"
+  ],
   "explain_scenario_variant_keys": [
     "apa itu kunci dalam skenario",
     "merencanakan shift yang tidak mengikat",

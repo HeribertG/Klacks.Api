@@ -1250,6 +1250,11 @@
     "cara memasang klacks pada pc pejabat",
     "adakah data saya kekal selepas klacks dinyahpasang"
   ],
+  "explain_linux_installation": [
+    "bagaimana memasang klacks pada linux",
+    "pasang klacks pada pelayan dengan docker",
+    "di mana kod persediaan"
+  ],
   "explain_scenario_variant_keys": [
     "apa itu kunci dalam senario",
     "merancang syif yang tidak mengikat",

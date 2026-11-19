@@ -18,7 +18,7 @@ Klacks can be obtained in two places. The Klacks Store offers every way of runni
 ## Which way fits
 
 - A single Windows PC in the office, country of the PC is the country of use: the Microsoft Store is the simplest way.
-- A server, Docker, Linux, or a different country or an industry package: the Klacks Store.
+- A server, Docker, Linux, or a different country or an industry package: the Klacks Store. The steps on Linux: `explain_linux_installation`.
 - Unsure: the Klacks Store, because it covers every case.
 
 Klacks is installed only once per PC. A later setup of a different version does not install over it; newer versions come through Settings, card (de: "Software-Updates", en: "Software Updates"), see `explain_software_updates`.

@@ -97,7 +97,7 @@ check_docker() {
 }
 
 # Below the floor a first install stops unless the API limit is lowered; a re-run only warns, so an
-# existing small installation can still be updated by re-running the script.
+# existing small installation can still be repaired by re-running the script.
 check_memory() {
   local total gib msg
   total="$(docker info --format '{{.MemTotal}}' 2>/dev/null || true)"
@@ -256,7 +256,10 @@ if [ -z "${ENVMAP[KLACKS_API_TAG]:-}" ] || [ "${ENVMAP[KLACKS_API_TAG]}" = lates
   fi
 fi
 
+# .env holds the database password, the JWT secret, the DataProtection certificate and the setup code: owner-only
+# before any secret is written. Compose (run with sudo) and the updater container both read it as root.
 : > "$ENV_FILE"
+chmod 600 "$ENV_FILE"
 for k in "${!ENVMAP[@]}"; do echo "$k=${ENVMAP[$k]}" >> "$ENV_FILE"; done
 step ".env written."
 
@@ -301,7 +304,7 @@ if [ "$HEALTHY" = true ]; then
   [ "${ENVMAP[HTTPS_PORT]}" != 443 ] && HTTPS_SUFFIX=":${ENVMAP[HTTPS_PORT]}"
   printf '\033[32mKlacks is up at https://%s%s\033[0m\n' "$SERVER_NAME" "$HTTPS_SUFFIX"
 else
-  warn "API did not report healthy yet. Check: docker compose logs klacks-api"
+  warn "API did not report healthy yet. Check: sudo docker compose logs klacks-api"
 fi
 echo ""
 printf '\033[32mYour setup code:  %s\033[0m\n' "${ENVMAP[KLACKS_SETUP_CODE]}"

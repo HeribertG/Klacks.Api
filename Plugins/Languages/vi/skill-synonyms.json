@@ -1253,6 +1253,11 @@
     "cách cài klacks trên máy tính văn phòng",
     "dữ liệu có còn sau khi gỡ cài đặt klacks không"
   ],
+  "explain_linux_installation": [
+    "cách cài đặt klacks trên linux",
+    "cài đặt klacks trên máy chủ bằng docker",
+    "mã thiết lập ở đâu"
+  ],
   "explain_scenario_variant_keys": [
     "khóa trong kịch bản là gì",
     "lập kế hoạch ca làm chưa ràng buộc",

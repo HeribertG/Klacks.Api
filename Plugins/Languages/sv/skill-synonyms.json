@@ -1266,6 +1266,11 @@
     "hur installerar jag klacks på kontorsdatorn",
     "finns mina data kvar när jag avinstallerar klacks"
   ],
+  "explain_linux_installation": [
+    "hur installerar jag klacks på linux",
+    "installera klacks på en server med docker",
+    "var hittar jag installationskoden"
+  ],
   "explain_scenario_variant_keys": [
     "vad är en nyckel i ett scenario",
     "planera icke-bindande pass",

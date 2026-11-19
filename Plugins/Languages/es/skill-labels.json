@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "Explicar la cobertura de una ausencia",
   "explain_oauth_connections": "Conectar una herramienta de IA mediante OAuth",
   "explain_office_pc_installation": "Instalar Klacks: Klacks Store o Microsoft Store",
+  "explain_linux_installation": "Instalar Klacks en Linux",
   "explain_scenario_variant_keys": "Explicar los turnos provisionales",
   "explain_placeholder_employees": "Explicar los empleados ficticios",
   "explain_autofill_staircase_start": "Explicar el inicio en escalera",

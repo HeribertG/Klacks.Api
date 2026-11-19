@@ -1285,6 +1285,11 @@
     "jak zainstalować klacks na komputerze w biurze",
     "czy moje dane zostaną po odinstalowaniu klacks"
   ],
+  "explain_linux_installation": [
+    "jak zainstalować klacks na linuksie",
+    "instalacja klacks na serwerze z dockerem",
+    "gdzie znajdę kod konfiguracji"
+  ],
   "explain_scenario_variant_keys": [
     "czym jest klucz w scenariuszu",
     "planowanie niewiążących zmian",

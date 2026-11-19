@@ -1270,6 +1270,11 @@
     "hvordan installerer jeg klacks på kontor-pc'en",
     "bliver mine data gemt når jeg afinstallerer klacks"
   ],
+  "explain_linux_installation": [
+    "hvordan installerer jeg klacks på linux",
+    "installer klacks på en server med docker",
+    "hvor finder jeg opsætningskoden"
+  ],
   "explain_scenario_variant_keys": [
     "hvad er en nøgle i et scenarie",
     "planlæg ikke-bindende vagter",

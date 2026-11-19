@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "Vysvětlit pokrytí absence",
   "explain_oauth_connections": "Připojení nástroje AI přes OAuth",
   "explain_office_pc_installation": "Instalace Klacks: Klacks Store nebo Microsoft Store",
+  "explain_linux_installation": "Instalace Klacks na Linuxu",
   "explain_scenario_variant_keys": "Vysvětlit předběžné služby",
   "explain_placeholder_employees": "Vysvětlit fiktivní zaměstnance",
   "explain_autofill_staircase_start": "Vysvětlit start ve tvaru schodů",

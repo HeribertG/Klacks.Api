@@ -1250,6 +1250,11 @@
     "怎么在办公室电脑上安装Klacks",
     "卸载Klacks后数据还在吗"
   ],
+  "explain_linux_installation": [
+    "如何在linux上安装klacks",
+    "用docker在服务器上安装klacks",
+    "设置代码在哪里"
+  ],
   "explain_scenario_variant_keys": [
     "场景中的键是什么",
     "规划非约束性班次",

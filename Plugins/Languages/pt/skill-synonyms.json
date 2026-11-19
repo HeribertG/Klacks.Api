@@ -1283,6 +1283,11 @@
     "como instalo o klacks no pc do escritório",
     "os meus dados ficam guardados ao desinstalar o klacks"
   ],
+  "explain_linux_installation": [
+    "como instalo o klacks no linux",
+    "instalar o klacks num servidor com docker",
+    "onde encontro o código de configuração"
+  ],
   "explain_scenario_variant_keys": [
     "o que é uma chave no cenário",
     "planear turnos não vinculativos",

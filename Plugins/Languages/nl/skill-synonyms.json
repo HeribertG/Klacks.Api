@@ -1277,6 +1277,11 @@
     "hoe installeer ik klacks op de kantoor-pc",
     "blijven mijn gegevens bewaard als ik klacks verwijder"
   ],
+  "explain_linux_installation": [
+    "hoe installeer ik klacks op linux",
+    "klacks op een server met docker installeren",
+    "waar vind ik de installatiecode"
+  ],
   "explain_scenario_variant_keys": [
     "wat is een sleutel in een scenario",
     "niet-bindende diensten plannen",

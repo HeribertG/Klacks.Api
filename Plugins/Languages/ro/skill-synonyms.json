@@ -1262,6 +1262,11 @@
     "cum instalez klacks pe calculatorul de la birou",
     "îmi rămân datele după dezinstalarea klacks"
   ],
+  "explain_linux_installation": [
+    "cum instalez klacks pe linux",
+    "instalarea klacks pe un server cu docker",
+    "unde găsesc codul de configurare"
+  ],
   "explain_scenario_variant_keys": [
     "ce este o cheie în scenariu",
     "planificarea turelor neobligatorii",

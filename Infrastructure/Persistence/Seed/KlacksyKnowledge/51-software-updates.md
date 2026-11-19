@@ -48,9 +48,10 @@ new version or return to the previous one.
 Two release streams exist: **Stable** and **Beta**.
 
 **A prerequisite that decides everything:** the address where new releases are announced is set
-during deployment, not on this card. Where it has not been configured, no version is ever offered
-and the install button will refuse — the card is then a display of the current version and nothing
-more. That is the normal state of a fresh installation.
+during deployment, not on this card. Every installation from the Klacks Store or the Microsoft Store
+sets it and switches automatic updates on for a new installation. Only a developer setup built from the source code, or a hand-made Docker setup without that address, has
+none: then no version is ever offered and the install button will refuse — the card is then a
+display of the current version and nothing more.
 
 <!-- level:elements -->
 

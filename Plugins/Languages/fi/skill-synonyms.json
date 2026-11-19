@@ -1257,6 +1257,11 @@
     "miten asennan klacksin toimiston tietokoneelle",
     "säilyvätkö tietoni kun poistan klacksin"
   ],
+  "explain_linux_installation": [
+    "miten asennan klacksin linuxiin",
+    "asenna klacks palvelimelle dockerilla",
+    "mistä löydän asennuskoodin"
+  ],
   "explain_scenario_variant_keys": [
     "mikä on avain skenaariossa",
     "suunnittele ei-sitovia vuoroja",

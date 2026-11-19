@@ -13,7 +13,8 @@ Run Klacks on your own Windows or Linux machine with Docker. Updates apply autom
   `.\install.ps1 -ApiMemoryLimit 2560M -IdleUnloadMinutes 30`; they write them into `.env`
   so the auto-updater keeps them. On Windows, Docker Desktop gives its VM half of the PC
   memory, so a 16 GB PC is recommended.
-- Docker Desktop (Windows/Mac) or Docker Engine + Compose plugin (Linux)
+- Docker Desktop (Windows) or Docker Engine + Compose plugin (Linux). macOS is not supported:
+  `install.sh` needs Bash 4, macOS ships Bash 3.2.
 - Outbound internet to `ghcr.io` and `github.com` (for images + auto-update)
 - Open ports 80 + 443 (configurable)
 
@@ -24,7 +25,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -ServerName klacks.exampl
 ```
 **Linux:**
 ```bash
-SERVER_NAME=klacks.example.com REGION=de ./install.sh
+sudo SERVER_NAME=klacks.example.com REGION=de bash ./install.sh
 ```
 
 The installer generates secrets + a self-signed certificate, pins the latest released
@@ -36,6 +37,14 @@ automatic updates break the API's bind mounts. `-Region`/`REGION` is optional
 and pre-configures the country's locale, holidays, worktime limits, surcharges and
 industry presets on first boot — see [`regions/README.md`](regions/README.md) for the
 list of supported country codes.
+
+Re-running the installer repairs an installation, it does not update it: it keeps the secrets,
+the certificate and the version pinned in `.env`, then pulls and restarts that version. New
+versions come through the auto-updater (Settings > Software Updates). On Linux, re-run it with
+`sudo` as well. `.env` holds the database password, the JWT secret and the setup code, so
+`install.sh` makes it readable by its owner only (mode 600; root when run with `sudo`), and after the first
+automatic update the file belongs to root. Run later `docker compose` commands in this folder with `sudo` too,
+because without it they cannot read `.env`.
 
 ## First login
 At the end the installer prints **your setup code** (also kept in `.env` as `KLACKS_SETUP_CODE`).
@@ -150,6 +159,3 @@ Automatic updates are on for a new installation. The installer writes `UPDATE_AU
 and `UPDATE_NOTIFY_ONLY=false` into `.env`; they are applied once, on the first start, and only
 if no update setting was saved yet. Afterwards switch updates off or to notify-only in the admin
 UI (Settings > Software Updates); editing `.env` later has no effect on a saved choice.
-
-Full guide (update, backup/restore, rollback, BYO certificate): see
-[`docs/onprem-docker-install.md`](../../../docs/onprem-docker-install.md).

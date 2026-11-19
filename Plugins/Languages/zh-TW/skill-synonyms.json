@@ -1245,6 +1245,11 @@
     "怎麼在辦公室電腦上安裝Klacks",
     "解除安裝Klacks後資料還在嗎"
   ],
+  "explain_linux_installation": [
+    "如何在linux上安裝klacks",
+    "用docker在伺服器上安裝klacks",
+    "設定代碼在哪裡"
+  ],
   "explain_scenario_variant_keys": [
     "情境中的鍵是什麼",
     "規劃非約束性班次",

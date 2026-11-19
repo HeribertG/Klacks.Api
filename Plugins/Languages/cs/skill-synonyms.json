@@ -1285,6 +1285,11 @@
     "jak nainstalovat klacks na kancelářský počítač",
     "zůstanou mi data po odinstalování klacks"
   ],
+  "explain_linux_installation": [
+    "jak nainstaluji klacks na linux",
+    "instalace klacks na server s dockerem",
+    "kde najdu instalační kód"
+  ],
   "explain_scenario_variant_keys": [
     "co je klíč ve scénáři",
     "plánovat nezávazné směny",

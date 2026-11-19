@@ -150,6 +150,7 @@
   "explain_absence_cover_move": "解释缺勤顶替",
   "explain_oauth_connections": "通过 OAuth 连接 AI 工具",
   "explain_office_pc_installation": "安装 Klacks：Klacks Store 或 Microsoft Store",
+  "explain_linux_installation": "在 Linux 上安装 Klacks",
   "explain_scenario_variant_keys": "解释暂定班次",
   "explain_placeholder_employees": "解释占位员工",
   "explain_autofill_staircase_start": "解释阶梯式起始",
