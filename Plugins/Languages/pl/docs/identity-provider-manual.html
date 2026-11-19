@@ -62,6 +62,96 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Uwaga: W OpenLDAP płeć jest domyślnie ustawiona na "Neutralna" i może być ręcznie skorygowana.</em></p>
 
+<h4>Logowanie przez katalog</h4>
+<p>
+Gdy opcja "Użyj do uwierzytelniania" jest włączona i zapisana, użytkownicy mogą logować się do Klacks hasłem
+z katalogu. Nikt nie otrzymuje dostępu automatycznie: administrator zatwierdza każdą osobę na karcie
+<strong>Zatwierdzenie logowania</strong>.
+</p>
+<ul>
+  <li>Karta wyświetla konta z katalogu (maksymalnie 1000; użyj wyszukiwania, aby zawęzić listę).</li>
+  <li>
+    Zaznaczenie konta tworzy nowe konto Klacks bez roli i bez hasła. Istniejące konta Klacks nigdy nie są
+    przejmowane: jeśli adres e-mail jest już używany przez konto Klacks, wiersza nie można zaznaczyć. Najpierw
+    usuń to konto lub zmień jego adres e-mail w administracji użytkownikami.
+  </li>
+  <li>
+    Odznaczenie dezaktywuje konto Klacks; ponowne zaznaczenie aktywuje je ponownie, o ile konto nie ma roli.
+    Zdezaktywowane konto, które nadal ma role, jest ponownie aktywowane w administracji użytkownikami.
+  </li>
+  <li>
+    Odejście z firmy: gdy ktoś odchodzi, odznacz go również w Klacks. Wyłączenie konta w katalogu blokuje nowe
+    logowania, ale już trwające sesje działają dalej do czasu ich wygaśnięcia.
+  </li>
+  <li>Konta bez adresu e-mail w katalogu nie można zatwierdzić.</li>
+  <li>Własnego konta nie można zmienić na tej karcie.</li>
+  <li>
+    Osoba z poprawnymi danymi logowania do katalogu, ale bez zatwierdzenia, otrzymuje komunikat, że konto nie
+    zostało zatwierdzone i że należy skontaktować się z administratorem.
+  </li>
+</ul>
+
+<h4>Nazwy logowania</h4>
+<table>
+  <tr><th>Typ</th><th>Akceptowane nazwy logowania</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName lub adres e-mail</td></tr>
+  <tr><td>LDAP</td><td>uid lub adres e-mail</td></tr>
+</table>
+<p>
+Klacks wyszukuje osobę za pomocą użytkownika bind, a następnie sprawdza hasło w katalogu, dlatego
+nazwa logowania nie musi być zgodna z adresem e-mail.
+</p>
+
+<h4>Szyfrowanie</h4>
+<p>
+Zwykły LDAP na porcie 389 wysyła hasła bez szyfrowania; formularz wyświetla ostrzeżenie dla dostawcy LDAP bez
+SSL. Używaj LDAPS ("Użyj SSL", port 636) zawsze, gdy katalog jest używany do logowania.
+</p>
+
+<h4>Active Directory: logowanie wyłącznie przez LDAPS</h4>
+<p>
+Klacks loguje osoby do Active Directory wyłącznie przez LDAPS (port 636). Bez SSL formularz wyświetla ostrzeżenie,
+nikt nie może się zalogować, a karta zatwierdzania logowania pozostaje zamknięta. Bez SSL import klientów i test
+połączenia działają tylko wtedy, gdy Klacks działa bezpośrednio w systemie Windows; w Docker (Linux) Active Directory
+wymaga LDAPS dla wszystkich funkcji.
+</p>
+<ul>
+  <li>
+    <strong>Host:</strong> pełna nazwa kwalifikowana (FQDN) dokładnie taka, jak w certyfikacie kontrolera domeny,
+    np. <code>dc01.example.local</code>. Adres IP nie działa, ponieważ weryfikacja certyfikatu porównuje nazwę.
+  </li>
+  <li>
+    <strong>Zaufanie do CA:</strong> komputer, na którym działa Klacks, musi ufać urzędowi certyfikacji, który
+    wystawił certyfikat kontrolera domeny. Windows: zaimportuj certyfikat CA do magazynu komputera
+    <em>Zaufane główne urzędy certyfikacji</em>, np. <code>certutil -addstore Root ca.cer</code>
+    (jako administrator).
+  </li>
+  <li>
+    <strong>Rozpoznawanie nazw:</strong> jeśli FQDN nie może zostać rozpoznany przez DNS, dodaj wpis w pliku hosts
+    (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker:</strong> zamontuj certyfikat CA jako plik PEM w kontenerze API,
+    ustaw zmienną środowiskową <code>LDAPTLS_CACERT</code> na jego ścieżkę i dodaj FQDN przez
+    <code>extra_hosts</code>, jeśli DNS go nie rozpoznaje. Jeśli kontroler domeny nie wysyła certyfikatu CA
+    (certyfikat z podpisem własnym), jako punkt zaufania działa jego własny certyfikat w postaci pliku PEM.
+    Bez zaufanego certyfikatu połączenie jest odrzucane i zgłaszane jako błąd połączenia.
+  </li>
+  <li>
+    <strong>Konto bind:</strong> wpisz je jako user principal name (UPN), np.
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Które konta są importowane</h4>
+<ul>
+  <li>Wyłączone konta i konta systemowe Active Directory nigdy nie są importowane ani wyświetlane.</li>
+  <li>
+    Wyklucz konta usługowe za pomocą filtra użytkowników, np. tylko członkowie jednej grupy:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,16 +186,17 @@ Synology NAS może być używany jako serwer LDAP. W tym celu należy zainstalow
 "LDAP Server" lub kontener Docker z OpenLDAP.
 </p>
 <ul>
-  <li>Typ dostawcy: "Active Directory" (dla uwierzytelniania zapasowego)</li>
+  <li>Typ dostawcy: "LDAP" (nie "Active Directory")</li>
   <li>Filtr użytkowników: (objectClass=inetOrgPerson)</li>
-  <li>Format DN użytkownika: cn=nazwa_użytkownika,ou=users,dc=example,dc=com</li>
+  <li>Użytkownicy logują się za pomocą uid lub adresu e-mail</li>
+  <li>Preferuj LDAPS (port 636)</li>
 </ul>
 
 <h4>Testowanie połączenia</h4>
 <p>
-Użyj przycisku "Testuj połączenie", aby zweryfikować konfigurację.
-W przypadku pomyślnego połączenia wyświetlana jest liczba znalezionych użytkowników oraz kilka
-przykładowych nazw użytkowników.
+Użyj przycisku "Testuj połączenie", aby zweryfikować konfigurację. Wyświetla on liczbę aktywnych kont znalezionych
+przez filtr użytkowników (konta wyłączone i systemowe nie są liczone) oraz kilka przykładowych nazw użytkowników.
+Znak "+" po liczbie oznacza, że serwer katalogowy zatrzymał się na swoim limicie wyników, więc kont jest więcej.
 </p>
 
 <h4>Rozwiązywanie problemów</h4>
@@ -115,4 +206,6 @@ przykładowych nazw użytkowników.
   <tr><td>Bind nieudany</td><td>Sprawdź Bind DN i hasło</td></tr>
   <tr><td>Nie znaleziono użytkowników</td><td>Sprawdź Base DN i filtr użytkowników</td></tr>
   <tr><td>Adresy nie zaimportowane</td><td>OpenLDAP używa "street" zamiast "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>Włącz "Użyj SSL" (port 636)</td></tr>
+  <tr><td>Połączenie nie działa tylko z SSL</td><td>Wpisz host jako FQDN dokładnie takie, jak w certyfikacie, i spraw, aby komputer ufał CA</td></tr>
 </table>

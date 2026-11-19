@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "找到的用户",
   "settings.identity-provider.user-filter": "用户过滤器",
   "settings.identity-provider.user-info-url": "用户信息URL",
-  "settings.identity-provider.warning.ad-requires-ssl": "通过 Active Directory 登录需要加密连接（LDAPS，端口 636）。没有 SSL 时，Active Directory 只能被读取以用于员工导入和连接测试；任何人都无法登录，“登录批准”选项卡保持关闭。",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory 仅接受通过 LDAPS 的登录：没有 SSL 时，任何人都无法登录，“登录批准”选项卡保持关闭。请启用 SSL（端口 636），并按服务器证书中的写法输入主机名（FQDN，而非 IP 地址）。",
   "settings.identity-provider.warning.ldap-unencrypted": "没有 SSL 时，密码会以未加密的方式发送到目录服务器。只要服务器支持，请启用 SSL（LDAPS，端口 636）。",
   "settings.identityProviders": "身份提供商",
   "settings.imap": "收件邮件服务器（IMAP）",

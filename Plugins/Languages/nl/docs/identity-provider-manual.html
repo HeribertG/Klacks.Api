@@ -62,6 +62,99 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Opmerking: In OpenLDAP is het geslacht standaard "Neutraal" en kan handmatig worden gecorrigeerd.</em></p>
 
+<h4>Aanmelden via de directory</h4>
+<p>
+Wanneer "Gebruiken voor authenticatie" is ingeschakeld en opgeslagen, kunnen mensen zich met hun directorywachtwoord
+aanmelden bij Klacks. Niemand krijgt automatisch toegang: de beheerder keurt elke persoon goed op het tabblad
+<strong>Aanmeldgoedkeuring</strong>.
+</p>
+<ul>
+  <li>Het tabblad toont de directoryaccounts (maximaal 1000; gebruik de zoekfunctie om de lijst te beperken).</li>
+  <li>
+    Door een account aan te vinken, wordt een nieuw Klacks-account zonder rol en zonder wachtwoord aangemaakt.
+    Bestaande Klacks-accounts worden nooit overgenomen: als het e-mailadres al door een Klacks-account wordt
+    gebruikt, kan de rij niet worden aangevinkt. Verwijder dat account of wijzig eerst het e-mailadres in het
+    gebruikersbeheer.
+  </li>
+  <li>
+    Door het vinkje te verwijderen, wordt het Klacks-account gedeactiveerd; opnieuw aanvinken activeert het weer,
+    zolang het geen rol heeft. Een gedeactiveerd account dat nog rollen heeft, wordt in het gebruikersbeheer
+    opnieuw geactiveerd.
+  </li>
+  <li>
+    Uitdiensttreding: wanneer iemand vertrekt, verwijder dan ook in Klacks het vinkje. Het uitschakelen van het
+    account in de directory blokkeert nieuwe aanmeldingen, maar sessies die al lopen, gaan door tot ze verlopen.
+  </li>
+  <li>Een account zonder e-mailadres in de directory kan niet worden goedgekeurd.</li>
+  <li>Het eigen account kan op dit tabblad niet worden gewijzigd.</li>
+  <li>
+    Iemand met correcte directorygegevens maar zonder goedkeuring krijgt de melding dat het account niet is
+    goedgekeurd en dat contact moet worden opgenomen met de beheerder.
+  </li>
+</ul>
+
+<h4>Aanmeldnamen</h4>
+<table>
+  <tr><th>Type</th><th>Geaccepteerde aanmeldnamen</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName of e-mailadres</td></tr>
+  <tr><td>LDAP</td><td>uid of e-mailadres</td></tr>
+</table>
+<p>
+Klacks zoekt de persoon op met de bind-gebruiker en controleert vervolgens het wachtwoord bij de directory, zodat
+de aanmeldnaam niet gelijk hoeft te zijn aan het e-mailadres.
+</p>
+
+<h4>Versleuteling</h4>
+<p>
+Gewoon LDAP op poort 389 verstuurt wachtwoorden onversleuteld; het formulier toont een waarschuwing voor een
+LDAP-provider zonder SSL. Gebruik LDAPS ("SSL gebruiken", poort 636) wanneer de directory voor aanmelding wordt gebruikt.
+</p>
+
+<h4>Active Directory: aanmelden alleen via LDAPS</h4>
+<p>
+Klacks meldt mensen alleen via LDAPS (poort 636) aan bij Active Directory. Zonder SSL toont het formulier een
+waarschuwing, kan niemand zich aanmelden en blijft het tabblad voor de aanmeldgoedkeuring gesloten. Zonder SSL
+werken klantimport en verbindingstest alleen wanneer Klacks rechtstreeks op Windows draait; in Docker (Linux)
+heeft Active Directory voor alles LDAPS nodig.
+</p>
+<ul>
+  <li>
+    <strong>Host:</strong> de volledige naam (FQDN) precies zoals die in het certificaat van de domeincontroller
+    staat, bijv. <code>dc01.example.local</code>. Een IP-adres werkt niet, omdat de certificaatcontrole de naam
+    vergelijkt.
+  </li>
+  <li>
+    <strong>De CA vertrouwen:</strong> de computer waarop Klacks draait, moet de certificeringsinstantie vertrouwen
+    die het certificaat van de domeincontroller heeft uitgegeven. Windows: importeer het CA-certificaat in het
+    archief <em>Vertrouwde basiscertificeringsinstanties</em> van de computer, bijv.
+    <code>certutil -addstore Root ca.cer</code> (als beheerder).
+  </li>
+  <li>
+    <strong>Naamresolutie:</strong> als de FQDN niet via DNS kan worden omgezet, voeg dan een hosts-vermelding toe
+    (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker:</strong> koppel het CA-certificaat als PEM-bestand in de API-container,
+    stel de omgevingsvariabele <code>LDAPTLS_CACERT</code> in op het pad ervan en voeg de FQDN toe met
+    <code>extra_hosts</code> als DNS die niet omzet. Als de domeincontroller geen CA-certificaat meestuurt
+    (zelfondertekend certificaat), werkt zijn eigen certificaat als PEM-bestand als trust anchor.
+    Zonder vertrouwd certificaat wordt de verbinding geweigerd en gemeld als verbindingsfout.
+  </li>
+  <li>
+    <strong>Bind-account:</strong> voer het in als user principal name (UPN), bijv.
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Welke accounts worden geïmporteerd</h4>
+<ul>
+  <li>Uitgeschakelde accounts en systeemaccounts van Active Directory worden nooit geïmporteerd en nooit getoond.</li>
+  <li>
+    Sluit serviceaccounts uit met het gebruikersfilter, bijv. alleen leden van één groep:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,16 +189,18 @@ Een Synology NAS kan als LDAP-server worden gebruikt. Hiervoor moet het pakket
 "LDAP Server" of een Docker-container met OpenLDAP worden geïnstalleerd.
 </p>
 <ul>
-  <li>Providertype: "Active Directory" (voor fallback-authenticatie)</li>
+  <li>Providertype: "LDAP" (niet "Active Directory")</li>
   <li>Gebruikersfilter: (objectClass=inetOrgPerson)</li>
-  <li>Gebruikers-DN-formaat: cn=gebruikersnaam,ou=users,dc=example,dc=com</li>
+  <li>Gebruikers melden zich aan met hun uid of e-mailadres</li>
+  <li>Geef de voorkeur aan LDAPS (poort 636)</li>
 </ul>
 
 <h4>Verbinding testen</h4>
 <p>
-Gebruik de knop "Verbinding testen" om de configuratie te controleren.
-Bij een succesvolle verbinding worden het aantal gevonden gebruikers en enkele
-voorbeeldgebruikersnamen weergegeven.
+Gebruik de knop "Verbinding testen" om de configuratie te controleren. Deze toont het aantal actieve accounts dat
+het gebruikersfilter vindt (uitgeschakelde accounts en systeemaccounts worden niet meegeteld) en enkele
+voorbeeldgebruikersnamen. Een "+" achter het aantal betekent dat de directoryserver bij zijn resultaatlimiet is
+gestopt, dus er zijn meer accounts.
 </p>
 
 <h4>Probleemoplossing</h4>
@@ -115,4 +210,6 @@ voorbeeldgebruikersnamen weergegeven.
   <tr><td>Bind mislukt</td><td>Controleer Bind DN en wachtwoord</td></tr>
   <tr><td>Geen gebruikers gevonden</td><td>Controleer Base DN en gebruikersfilter</td></tr>
   <tr><td>Adressen niet geïmporteerd</td><td>OpenLDAP gebruikt "street" in plaats van "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>Schakel "SSL gebruiken" in (poort 636)</td></tr>
+  <tr><td>Verbinding mislukt alleen met SSL</td><td>Voer de host in als FQDN precies zoals in het certificaat en zorg dat de computer de CA vertrouwt</td></tr>
 </table>

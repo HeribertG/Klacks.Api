@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Utilizatori găsiți",
   "settings.identity-provider.user-filter": "Filtru utilizatori",
   "settings.identity-provider.user-info-url": "URL informații utilizator",
-  "settings.identity-provider.warning.ad-requires-ssl": "Conectarea prin Active Directory necesită o conexiune criptată (LDAPS, portul 636). Fără SSL, Active Directory poate fi citit doar pentru importul personalului și testarea conexiunii; nimeni nu se poate conecta, iar fila Aprobarea conectării rămâne închisă.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory acceptă conectări doar prin LDAPS: fără SSL nimeni nu se poate conecta, iar aprobarea conectării rămâne închisă. Activați SSL (portul 636) și introduceți numele gazdei exact ca în certificatul serverului (FQDN, nu o adresă IP).",
   "settings.identity-provider.warning.ldap-unencrypted": "Fără SSL, parolele sunt trimise necriptat către serverul de director. Activați SSL (LDAPS, portul 636) oriunde serverul îl acceptă.",
   "settings.identityProviders": "Furnizor de identitate",
   "settings.imap": "Server de e-mail primite (IMAP)",

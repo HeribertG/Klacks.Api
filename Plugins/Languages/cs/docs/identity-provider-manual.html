@@ -62,6 +62,95 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Poznámka: V OpenLDAP je pohlaví standardně nastaveno na "Neutrální" a může být ručně opraveno.</em></p>
 
+<h4>Přihlášení přes adresář</h4>
+<p>
+Je-li možnost "Použít pro ověření" zapnutá a uložená, mohou se lidé do Klacks přihlašovat heslem ze svého adresáře.
+Nikdo nezíská přístup automaticky: správce schvaluje každou osobu na kartě <strong>Schválení přihlášení</strong>.
+</p>
+<ul>
+  <li>Karta zobrazuje účty z adresáře (nejvýše 1000; seznam zúžíte vyhledáváním).</li>
+  <li>
+    Zaškrtnutím účtu se vytvoří nový účet Klacks bez role a bez hesla. Existující účty Klacks se nikdy nepřebírají:
+    pokud e-mailovou adresu už používá nějaký účet Klacks, řádek nelze zaškrtnout. Nejprve tento účet smažte nebo
+    změňte jeho e-mailovou adresu ve správě uživatelů.
+  </li>
+  <li>
+    Odebráním zaškrtnutí se účet Klacks deaktivuje; opětovným zaškrtnutím se znovu aktivuje, pokud nemá žádnou
+    roli. Deaktivovaný účet, který ještě má role, se znovu aktivuje ve správě uživatelů.
+  </li>
+  <li>
+    Odchod zaměstnance: když někdo odchází, odeberte zaškrtnutí i v Klacks. Zakázání účtu v adresáři zablokuje
+    nová přihlášení, ale již běžící relace pokračují, dokud nevyprší.
+  </li>
+  <li>Účet bez e-mailové adresy v adresáři nelze schválit.</li>
+  <li>Vlastní účet nelze na této kartě změnit.</li>
+  <li>
+    Osoba se správnými přihlašovacími údaji z adresáře, ale bez schválení, dostane zprávu, že účet není schválen
+    a že se má obrátit na správce.
+  </li>
+</ul>
+
+<h4>Přihlašovací jména</h4>
+<table>
+  <tr><th>Typ</th><th>Přijímaná přihlašovací jména</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName nebo e-mailová adresa</td></tr>
+  <tr><td>LDAP</td><td>uid nebo e-mailová adresa</td></tr>
+</table>
+<p>
+Klacks osobu vyhledá pomocí uživatele Bind a poté ověří heslo v adresáři, takže přihlašovací jméno se nemusí
+shodovat s e-mailovou adresou.
+</p>
+
+<h4>Šifrování</h4>
+<p>
+Prostý LDAP na portu 389 posílá hesla nešifrovaně; formulář pro poskytovatele LDAP bez SSL zobrazí varování.
+Kdykoli se adresář používá pro přihlášení, použijte LDAPS ("Použít SSL", port 636).
+</p>
+
+<h4>Active Directory: přihlášení pouze přes LDAPS</h4>
+<p>
+Klacks přihlašuje osoby do Active Directory pouze přes LDAPS (port 636). Bez SSL formulář zobrazí varování,
+nikdo se nemůže přihlásit a karta schválení přihlášení zůstane zavřená. Bez SSL fungují import klientů a test
+připojení jen tehdy, když Klacks běží přímo ve Windows; v Dockeru (Linux) vyžaduje Active Directory LDAPS pro
+všechno.
+</p>
+<ul>
+  <li>
+    <strong>Host:</strong> plně kvalifikovaný název (FQDN) přesně tak, jak je uveden v certifikátu řadiče domény,
+    např. <code>dc01.example.local</code>. IP adresa nefunguje, protože kontrola certifikátu porovnává název.
+  </li>
+  <li>
+    <strong>Důvěra v CA:</strong> počítač, na kterém běží Klacks, musí důvěřovat certifikační autoritě, která
+    vydala certifikát řadiče domény. Windows: importujte certifikát CA do úložiště počítače
+    <em>Důvěryhodné kořenové certifikační autority</em>, např. <code>certutil -addstore Root ca.cer</code>
+    (jako správce).
+  </li>
+  <li>
+    <strong>Překlad názvů:</strong> pokud se FQDN nepodaří přeložit přes DNS, přidejte záznam do souboru hosts
+    (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker:</strong> připojte certifikát CA jako soubor PEM do kontejneru API, nastavte proměnnou
+    prostředí <code>LDAPTLS_CACERT</code> na jeho cestu a pokud DNS FQDN nepřeloží, přidejte ho pomocí
+    <code>extra_hosts</code>. Pokud řadič domény neposílá certifikát CA (self-signed certifikát), poslouží jako
+    kotva důvěry jeho vlastní certifikát jako soubor PEM. Bez důvěryhodného certifikátu je připojení odmítnuto
+    a hlášeno jako chyba připojení.
+  </li>
+  <li>
+    <strong>Účet Bind:</strong> zadejte ho jako user principal name (UPN), např.
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Které účty se importují</h4>
+<ul>
+  <li>Zakázané účty a systémové účty Active Directory se nikdy neimportují ani nezobrazují.</li>
+  <li>
+    Servisní účty vyloučíte filtrem uživatelů, např. pouze členové jedné skupiny:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,16 +185,17 @@ Synology NAS lze použít jako LDAP server. K tomu je nutné nainstalovat balí�
 "LDAP Server" nebo Docker kontejner s OpenLDAP.
 </p>
 <ul>
-  <li>Typ poskytovatele: "Active Directory" (pro záložní ověření)</li>
+  <li>Typ poskytovatele: "LDAP" (ne "Active Directory")</li>
   <li>Filtr uživatelů: (objectClass=inetOrgPerson)</li>
-  <li>Formát DN uživatele: cn=uživatelské_jméno,ou=users,dc=example,dc=com</li>
+  <li>Uživatelé se přihlašují pomocí uid nebo e-mailové adresy</li>
+  <li>Doporučeno LDAPS (port 636)</li>
 </ul>
 
 <h4>Testování připojení</h4>
 <p>
-Použijte tlačítko "Testovat připojení" pro ověření konfigurace.
-Při úspěšném připojení se zobrazí počet nalezených uživatelů a několik
-ukázkových uživatelských jmen.
+Pomocí tlačítka "Testovat připojení" ověřte konfiguraci. Zobrazí počet aktivních účtů, které filtr uživatelů
+najde (zakázané a systémové účty se nepočítají), a několik ukázkových uživatelských jmen. Znaménko "+" za číslem
+znamená, že se server adresáře zastavil na svém limitu výsledků, takže účtů je více.
 </p>
 
 <h4>Řešení problémů</h4>
@@ -115,4 +205,6 @@ ukázkových uživatelských jmen.
   <tr><td>Bind selhal</td><td>Zkontrolujte Bind DN a heslo</td></tr>
   <tr><td>Uživatelé nenalezeni</td><td>Zkontrolujte Base DN a filtr uživatelů</td></tr>
   <tr><td>Adresy neimportovány</td><td>OpenLDAP používá "street" místo "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>Zapněte "Použít SSL" (port 636)</td></tr>
+  <tr><td>Připojení selhává pouze s SSL</td><td>Zadejte host jako FQDN přesně tak, jak je v certifikátu, a zajistěte, aby počítač důvěřoval CA</td></tr>
 </table>

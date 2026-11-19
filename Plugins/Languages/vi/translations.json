@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Người dùng tìm thấy",
   "settings.identity-provider.user-filter": "Bộ lọc người dùng",
   "settings.identity-provider.user-info-url": "URL thông tin người dùng",
-  "settings.identity-provider.warning.ad-requires-ssl": "Đăng nhập qua Active Directory cần kết nối được mã hóa (LDAPS, cổng 636). Không có SSL, Active Directory chỉ có thể được đọc để nhập nhân viên và kiểm tra kết nối; không ai có thể đăng nhập và tab Phê duyệt đăng nhập vẫn đóng.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory chỉ chấp nhận đăng nhập qua LDAPS: không có SSL thì không ai có thể đăng nhập và tab Phê duyệt đăng nhập vẫn đóng. Hãy bật SSL (cổng 636) và nhập tên host đúng như trong chứng chỉ máy chủ (FQDN, không phải địa chỉ IP).",
   "settings.identity-provider.warning.ldap-unencrypted": "Không có SSL, mật khẩu được gửi đến máy chủ thư mục mà không được mã hóa. Hãy bật SSL (LDAPS, cổng 636) ở bất cứ nơi nào máy chủ hỗ trợ.",
   "settings.identityProviders": "Nhà cung cấp danh tính",
   "settings.imap": "Máy chủ thư đến (IMAP)",

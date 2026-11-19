@@ -62,6 +62,97 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Catatan: Untuk OpenLDAP, jenis kelamin secara default ditetapkan "Netral" dan dapat diperbaiki secara manual.</em></p>
 
+<h4>Login melalui direktori</h4>
+<p>
+Jika "Gunakan untuk autentikasi" diaktifkan dan disimpan, orang dapat login ke Klacks dengan kata sandi
+direktori mereka. Tidak ada yang mendapat akses secara otomatis: administrator menyetujui setiap orang di tab
+<strong>Persetujuan login</strong>.
+</p>
+<ul>
+  <li>Tab ini mencantumkan akun direktori (maksimal 1000; gunakan pencarian untuk mempersempit daftar).</li>
+  <li>
+    Mencentang akun membuat akun Klacks baru tanpa peran dan tanpa kata sandi. Akun Klacks yang sudah ada
+    tidak pernah diambil alih: jika alamat e-mail sudah digunakan oleh akun Klacks, baris tersebut tidak dapat
+    dicentang. Hapus akun itu atau ubah alamat e-mailnya di administrasi pengguna terlebih dahulu.
+  </li>
+  <li>
+    Menghapus centang menonaktifkan akun Klacks; mencentang lagi mengaktifkannya kembali, selama akun tersebut
+    tidak memiliki peran. Akun nonaktif yang masih memiliki peran diaktifkan kembali di administrasi pengguna.
+  </li>
+  <li>
+    Saat karyawan keluar: ketika seseorang keluar, hapus juga centangnya di Klacks. Menonaktifkan akun di
+    direktori memblokir login baru, tetapi sesi yang sudah berjalan tetap berlanjut hingga kedaluwarsa.
+  </li>
+  <li>Akun tanpa alamat e-mail di direktori tidak dapat disetujui.</li>
+  <li>Akun Anda sendiri tidak dapat diubah di tab ini.</li>
+  <li>
+    Orang dengan kredensial direktori yang benar tetapi tanpa persetujuan akan mendapat pesan bahwa akun
+    belum disetujui dan harus menghubungi administrator.
+  </li>
+</ul>
+
+<h4>Nama login</h4>
+<table>
+  <tr><th>Tipe</th><th>Nama login yang diterima</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName, atau alamat e-mail</td></tr>
+  <tr><td>LDAP</td><td>uid atau alamat e-mail</td></tr>
+</table>
+<p>
+Klacks mencari orang tersebut dengan pengguna bind lalu memeriksa kata sandi ke direktori, sehingga
+nama login tidak harus sama dengan alamat e-mail.
+</p>
+
+<h4>Enkripsi</h4>
+<p>
+LDAP biasa pada port 389 mengirim kata sandi tanpa enkripsi; formulir menampilkan peringatan untuk penyedia LDAP
+tanpa SSL. Gunakan LDAPS ("Gunakan SSL", port 636) setiap kali direktori digunakan untuk login.
+</p>
+
+<h4>Active Directory: login hanya melalui LDAPS</h4>
+<p>
+Klacks mengautentikasi login ke Active Directory hanya melalui LDAPS (port 636). Tanpa SSL formulir menampilkan
+peringatan, tidak ada yang dapat login, dan tab Persetujuan login tetap tertutup. Tanpa SSL, impor klien dan
+uji koneksi hanya berfungsi jika Klacks berjalan langsung di Windows; di Docker (Linux) Active Directory
+memerlukan LDAPS untuk semuanya.
+</p>
+<ul>
+  <li>
+    <strong>Host:</strong> nama lengkap (FQDN) persis seperti yang tercantum di sertifikat domain controller,
+    mis. <code>dc01.example.local</code>. Alamat IP tidak berfungsi, karena pemeriksaan sertifikat
+    membandingkan nama.
+  </li>
+  <li>
+    <strong>Percayai CA:</strong> komputer yang menjalankan Klacks harus mempercayai otoritas sertifikat yang
+    menerbitkan sertifikat domain controller. Windows: impor sertifikat CA ke penyimpanan
+    <em>Otoritas Sertifikasi Akar Tepercaya (Trusted Root Certification Authorities)</em> milik komputer, mis. <code>certutil -addstore Root ca.cer</code>
+    (sebagai administrator).
+  </li>
+  <li>
+    <strong>Resolusi nama:</strong> jika FQDN tidak dapat di-resolve melalui DNS, tambahkan entri hosts
+    (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker:</strong> mount sertifikat CA sebagai file PEM ke dalam container API,
+    atur variabel lingkungan <code>LDAPTLS_CACERT</code> ke path-nya, dan tambahkan FQDN dengan
+    <code>extra_hosts</code> jika DNS tidak meresolusinya. Jika domain controller tidak mengirim sertifikat CA
+    (sertifikat self-signed), sertifikatnya sendiri sebagai file PEM berfungsi sebagai trust anchor.
+    Tanpa sertifikat tepercaya, koneksi ditolak dan dilaporkan sebagai kesalahan koneksi.
+  </li>
+  <li>
+    <strong>Akun bind:</strong> masukkan sebagai user principal name (UPN), mis.
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Akun yang diimpor</h4>
+<ul>
+  <li>Akun nonaktif dan akun sistem Active Directory tidak pernah diimpor dan tidak pernah ditampilkan dalam daftar.</li>
+  <li>
+    Kecualikan akun layanan dengan filter pengguna, mis. hanya anggota satu grup:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,15 +187,17 @@ Anda dapat menggunakan Synology NAS sebagai server LDAP. Dalam hal ini, Anda per
 paket "LDAP Server" atau container Docker dengan OpenLDAP.
 </p>
 <ul>
-  <li>Jenis penyedia: "Active Directory" (untuk autentikasi fallback)</li>
+  <li>Jenis penyedia: "LDAP" (bukan "Active Directory")</li>
   <li>Filter pengguna: (objectClass=inetOrgPerson)</li>
-  <li>Format DN pengguna: cn=username,ou=users,dc=example,dc=com</li>
+  <li>Pengguna login dengan uid atau alamat e-mail mereka</li>
+  <li>Utamakan LDAPS (port 636)</li>
 </ul>
 
 <h4>Menguji Koneksi</h4>
 <p>
-Gunakan tombol "Uji koneksi" untuk memverifikasi pengaturan.
-Jika koneksi berhasil, jumlah pengguna yang ditemukan dan beberapa contoh nama pengguna akan ditampilkan.
+Gunakan tombol "Uji koneksi" untuk memverifikasi konfigurasi. Tombol ini menampilkan jumlah akun aktif yang
+ditemukan filter pengguna (akun nonaktif dan akun sistem tidak dihitung) dan beberapa contoh nama pengguna.
+Tanda "+" setelah angka berarti server direktori berhenti pada batas hasilnya, sehingga masih ada akun lain.
 </p>
 
 <h4>Pemecahan Masalah</h4>
@@ -114,4 +207,6 @@ Jika koneksi berhasil, jumlah pengguna yang ditemukan dan beberapa contoh nama p
   <tr><td>Bind gagal</td><td>Periksa Bind DN dan kata sandi</td></tr>
   <tr><td>Pengguna tidak ditemukan</td><td>Periksa Basis DN dan filter pengguna</td></tr>
   <tr><td>Alamat tidak diimpor</td><td>OpenLDAP menggunakan "street" bukan "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>Aktifkan "Gunakan SSL" (port 636)</td></tr>
+  <tr><td>Koneksi gagal hanya dengan SSL</td><td>Masukkan host sebagai FQDN persis seperti di sertifikat dan buat komputer mempercayai CA</td></tr>
 </table>

@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Hittade användare",
   "settings.identity-provider.user-filter": "Användarfilter",
   "settings.identity-provider.user-info-url": "Användarinfo-URL",
-  "settings.identity-provider.warning.ad-requires-ssl": "Inloggning via Active Directory kräver en krypterad anslutning (LDAPS, port 636). Utan SSL kan Active Directory bara läsas för personalimport och anslutningstest; ingen kan logga in och fliken Godkännande av inloggning förblir stängd.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory accepterar inloggning endast via LDAPS: utan SSL kan ingen logga in och godkännandet av inloggning förblir stängt. Aktivera SSL (port 636) och ange värdnamnet exakt som i serverns certifikat (FQDN, inte en IP-adress).",
   "settings.identity-provider.warning.ldap-unencrypted": "Utan SSL skickas lösenord okrypterade till katalogservern. Aktivera SSL (LDAPS, port 636) där servern stöder det.",
   "settings.identityProviders": "Identitetsleverantör",
   "settings.imap": "Inkommande e-postserver (IMAP)",

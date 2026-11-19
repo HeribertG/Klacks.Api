@@ -62,6 +62,96 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>注意：使用OpenLDAP時，性別預設為「中性」，可手動修正。</em></p>
 
+<h4>透過目錄登入</h4>
+<p>
+啟用並儲存「用於認證」後，使用者即可使用其目錄密碼登入Klacks。
+不會自動授予任何人存取權限：管理員需在
+<strong>登入核准</strong>索引標籤上逐一核准使用者。
+</p>
+<ul>
+  <li>該索引標籤列出目錄帳戶（最多1000個；可使用搜尋來縮小清單範圍）。</li>
+  <li>
+    勾選某個帳戶會建立一個沒有角色、沒有密碼的新Klacks帳戶。現有的Klacks
+    帳戶絕不會被接管：如果該電子郵件地址已被某個Klacks帳戶使用，則該列無法
+    勾選。請先在使用者管理中刪除該帳戶或變更其電子郵件地址。
+  </li>
+  <li>
+    取消勾選會停用該Klacks帳戶；再次勾選會重新啟用，前提是該帳戶沒有角色。
+    仍然擁有角色的已停用帳戶需在使用者管理中重新啟用。
+  </li>
+  <li>
+    人員離職：有人離開時，請同時在Klacks中取消勾選。在目錄中停用該帳戶
+    會阻止新的登入，但已在執行的工作階段會持續有效，直至過期。
+  </li>
+  <li>在目錄中沒有電子郵件地址的帳戶無法被核准。</li>
+  <li>無法在此索引標籤上變更您自己的帳戶。</li>
+  <li>
+    目錄憑證正確但未獲核准的使用者會收到提示：該帳戶
+    尚未獲得核准，請聯絡管理員。
+  </li>
+</ul>
+
+<h4>登入名稱</h4>
+<table>
+  <tr><th>類型</th><th>可接受的登入名稱</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName、userPrincipalName或電子郵件地址</td></tr>
+  <tr><td>LDAP</td><td>uid或電子郵件地址</td></tr>
+</table>
+<p>
+Klacks使用繫結使用者查找該使用者，然後向目錄驗證密碼，因此
+登入名稱不必與電子郵件地址一致。
+</p>
+
+<h4>加密</h4>
+<p>
+389連接埠上的一般LDAP會以未加密方式傳送密碼；對於未啟用SSL的LDAP提供者，表單會顯示警告。
+只要目錄用於登入，請使用LDAPS（「使用SSL」，636連接埠）。
+</p>
+
+<h4>Active Directory：僅透過LDAPS登入</h4>
+<p>
+Klacks僅透過LDAPS（636連接埠）讓使用者登入Active Directory。沒有SSL時，表單會顯示警告，
+任何人都無法登入，登入核准索引標籤保持關閉。沒有SSL時，客戶匯入和連線測試
+僅在Klacks直接執行於Windows上時可用；在Docker（Linux）中，Active Directory的
+所有操作都需要LDAPS。
+</p>
+<ul>
+  <li>
+    <strong>主機：</strong>網域控制站憑證中所示的完整網域名稱（FQDN），
+    例如<code>dc01.example.local</code>。IP位址無法使用，因為憑證檢查會比對名稱。
+  </li>
+  <li>
+    <strong>信任CA：</strong>執行Klacks的電腦必須信任簽發網域控制站憑證的
+    憑證授權單位。Windows：將CA憑證匯入電腦的
+    <em>受信任的根憑證授權單位</em>存放區，例如<code>certutil -addstore Root ca.cer</code>
+    （以系統管理員身分）。
+  </li>
+  <li>
+    <strong>名稱解析：</strong>如果無法透過DNS解析該FQDN，請新增hosts項目
+    （Windows：<code>C:\Windows\System32\drivers\etc\hosts</code>）。
+  </li>
+  <li>
+    <strong>Docker：</strong>將CA憑證以PEM檔案形式掛載到API容器中，
+    將環境變數<code>LDAPTLS_CACERT</code>設定為其路徑，如果DNS無法解析，
+    則透過<code>extra_hosts</code>新增該FQDN。如果網域控制站不傳送CA
+    憑證（自我簽署憑證），則可將其自身的憑證以PEM檔案形式用作信任錨。
+    沒有受信任的憑證時，連線會被拒絕，並回報為連線錯誤。
+  </li>
+  <li>
+    <strong>繫結帳戶：</strong>請以使用者主體名稱（UPN）輸入，例如
+    <code>svc-klacks@example.local</code>。
+  </li>
+</ul>
+
+<h4>匯入哪些帳戶</h4>
+<ul>
+  <li>已停用的帳戶和Active Directory系統帳戶絕不會被匯入，也絕不會被列出。</li>
+  <li>
+    使用使用者篩選器排除服務帳戶，例如僅限某個群組的成員：
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,15 +186,17 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 或使用基於OpenLDAP的Docker容器。
 </p>
 <ul>
-  <li>提供者類型：「Active Directory」（用於備援認證）</li>
+  <li>提供者類型：「LDAP」（而非「Active Directory」）</li>
   <li>使用者篩選器：(objectClass=inetOrgPerson)</li>
-  <li>使用者DN格式：cn=username,ou=users,dc=example,dc=com</li>
+  <li>使用者以其uid或電子郵件地址登入</li>
+  <li>建議優先使用LDAPS（636連接埠）</li>
 </ul>
 
 <h4>測試連線</h4>
 <p>
-請使用「測試連線」按鈕來驗證設定。
-連線成功後，將顯示找到的使用者數量和一些範例使用者名稱。
+請使用「測試連線」按鈕來驗證設定。它會顯示使用者篩選器找到的作用中帳戶數量
+（已停用帳戶和系統帳戶不計入）以及一些範例使用者名稱。數字後面的「+」表示目錄伺服器在其結果上限處停止，
+即還有更多帳戶。
 </p>
 
 <h4>疑難排解</h4>
@@ -114,4 +206,6 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
   <tr><td>繫結失敗</td><td>請檢查繫結DN和密碼</td></tr>
   <tr><td>找不到使用者</td><td>請檢查基礎DN和使用者篩選器</td></tr>
   <tr><td>地址未匯入</td><td>OpenLDAP使用「street」而非「streetAddress」</td></tr>
+  <tr><td>"Strong authentication required"</td><td>啟用「使用SSL」（636連接埠）</td></tr>
+  <tr><td>僅在使用SSL時連線失敗</td><td>以與憑證完全一致的FQDN輸入主機，並讓電腦信任該CA</td></tr>
 </table>

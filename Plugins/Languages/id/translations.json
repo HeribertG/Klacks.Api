@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Pengguna ditemukan",
   "settings.identity-provider.user-filter": "Filter pengguna",
   "settings.identity-provider.user-info-url": "URL Info Pengguna",
-  "settings.identity-provider.warning.ad-requires-ssl": "Login melalui Active Directory memerlukan koneksi terenkripsi (LDAPS, port 636). Tanpa SSL, Active Directory hanya dapat dibaca untuk impor staf dan uji koneksi; tidak ada yang dapat login dan tab Persetujuan login tetap tertutup.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory hanya menerima login melalui LDAPS: tanpa SSL tidak ada yang dapat login dan tab Persetujuan login tetap tertutup. Aktifkan SSL (port 636) dan masukkan nama host persis seperti di sertifikat server (FQDN, bukan alamat IP).",
   "settings.identity-provider.warning.ldap-unencrypted": "Tanpa SSL, kata sandi dikirim ke server direktori tanpa enkripsi. Aktifkan SSL (LDAPS, port 636) di mana pun server mendukungnya.",
   "settings.identityProviders": "Identity Provider",
   "settings.imap": "Server email masuk (IMAP)",

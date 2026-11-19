@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "ผู้ใช้ที่พบ",
   "settings.identity-provider.user-filter": "ตัวกรองผู้ใช้",
   "settings.identity-provider.user-info-url": "URL ข้อมูลผู้ใช้",
-  "settings.identity-provider.warning.ad-requires-ssl": "การลงชื่อเข้าใช้ผ่าน Active Directory ต้องใช้การเชื่อมต่อที่เข้ารหัส (LDAPS, พอร์ต 636) หากไม่มี SSL จะอ่าน Active Directory ได้เฉพาะสำหรับการนำเข้าพนักงานและการทดสอบการเชื่อมต่อเท่านั้น ไม่มีใครลงชื่อเข้าใช้ได้ และแท็บการอนุมัติการลงชื่อเข้าใช้จะยังคงปิดอยู่",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory ยอมรับการลงชื่อเข้าใช้ผ่าน LDAPS เท่านั้น หากไม่มี SSL จะไม่มีใครลงชื่อเข้าใช้ได้ และการอนุมัติการลงชื่อเข้าใช้จะยังคงปิดอยู่ ให้เปิดใช้ SSL (พอร์ต 636) และป้อนชื่อโฮสต์ตรงตามที่อยู่ในใบรับรองของเซิร์ฟเวอร์ (FQDN ไม่ใช่ที่อยู่ IP)",
   "settings.identity-provider.warning.ldap-unencrypted": "หากไม่มี SSL รหัสผ่านจะถูกส่งไปยังเซิร์ฟเวอร์ไดเรกทอรีโดยไม่เข้ารหัส เปิดใช้ SSL (LDAPS, พอร์ต 636) ทุกครั้งที่เซิร์ฟเวอร์รองรับ",
   "settings.identityProviders": "ผู้ให้บริการยืนยันตัวตน",
   "settings.imap": "เซิร์ฟเวอร์อีเมลขาเข้า (IMAP)",

@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Fundne brugere",
   "settings.identity-provider.user-filter": "Brugerfilter",
   "settings.identity-provider.user-info-url": "Brugerinfo-URL",
-  "settings.identity-provider.warning.ad-requires-ssl": "Login via Active Directory kræver en krypteret forbindelse (LDAPS, port 636). Uden SSL kan Active Directory kun læses til medarbejderimport og forbindelsestest; ingen kan logge ind, og fanen Godkendelse af login forbliver lukket.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory accepterer kun login via LDAPS: uden SSL kan ingen logge ind, og godkendelsen af login forbliver lukket. Slå SSL til (port 636), og angiv værtsnavnet præcis som i servercertifikatet (FQDN, ikke en IP-adresse).",
   "settings.identity-provider.warning.ldap-unencrypted": "Uden SSL sendes adgangskoder ukrypteret til katalogserveren. Slå SSL (LDAPS, port 636) til, hvor serveren understøtter det.",
   "settings.identityProviders": "Identitetsudbydere",
   "settings.imap": "Indgående mailserver (IMAP)",

@@ -59,6 +59,97 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Nota: No OpenLDAP, o género é predefinido como "Neutro" e pode ser corrigido manualmente.</em></p>
 
+<h4>Início de sessão através do diretório</h4>
+<p>
+Quando "Utilizar para autenticação" está ativado e guardado, as pessoas podem iniciar sessão no Klacks com a sua
+palavra-passe do diretório. Ninguém obtém acesso automaticamente: o administrador aprova cada pessoa no separador
+<strong>Autorização de início de sessão</strong>.
+</p>
+<ul>
+  <li>O separador lista as contas do diretório (no máximo 1000; use a pesquisa para restringir a lista).</li>
+  <li>
+    Ao marcar uma conta, é criada uma nova conta Klacks sem função e sem palavra-passe. As contas Klacks existentes
+    nunca são assumidas: se o endereço de e-mail já for utilizado por uma conta Klacks, a linha não pode ser
+    marcada. Elimine primeiro essa conta ou altere o respetivo e-mail na gestão de utilizadores.
+  </li>
+  <li>
+    Ao retirar a marca, a conta Klacks é desativada; ao marcar novamente, é reativada, desde que não tenha função.
+    Uma conta desativada que ainda tenha funções é reativada na gestão de utilizadores.
+  </li>
+  <li>
+    Saída de colaboradores: quando alguém sai, retire também a marca no Klacks. Desativar a conta no
+    diretório bloqueia novos inícios de sessão, mas as sessões que já estão em curso continuam até expirarem.
+  </li>
+  <li>Uma conta sem endereço de e-mail no diretório não pode ser aprovada.</li>
+  <li>A sua própria conta não pode ser alterada neste separador.</li>
+  <li>
+    Uma pessoa com credenciais corretas do diretório, mas sem aprovação, recebe a mensagem de que a conta
+    não está aprovada e de que deve contactar o administrador.
+  </li>
+</ul>
+
+<h4>Nomes de início de sessão</h4>
+<table>
+  <tr><th>Tipo</th><th>Nomes de início de sessão aceites</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName ou endereço de e-mail</td></tr>
+  <tr><td>LDAP</td><td>uid ou endereço de e-mail</td></tr>
+</table>
+<p>
+O Klacks procura a pessoa com o utilizador de bind e depois verifica a palavra-passe no diretório, pelo que
+o nome de início de sessão não tem de coincidir com o endereço de e-mail.
+</p>
+
+<h4>Encriptação</h4>
+<p>
+O LDAP simples na porta 389 envia as palavras-passe sem encriptação; o formulário mostra um aviso para um fornecedor
+LDAP sem SSL. Utilize LDAPS ("Utilizar SSL", porta 636) sempre que o diretório for usado para o início de sessão.
+</p>
+
+<h4>Active Directory: início de sessão apenas através de LDAPS</h4>
+<p>
+O Klacks inicia sessão no Active Directory apenas através de LDAPS (porta 636). Sem SSL, o formulário mostra um aviso,
+ninguém pode iniciar sessão e o separador de autorização de início de sessão permanece fechado. Sem SSL, a importação
+de clientes e o teste de ligação só funcionam quando o Klacks é executado diretamente no Windows; no Docker (Linux),
+o Active Directory precisa de LDAPS para tudo.
+</p>
+<ul>
+  <li>
+    <strong>Host:</strong> o nome totalmente qualificado (FQDN) exatamente como consta no certificado do controlador
+    de domínio, por exemplo <code>dc01.example.local</code>. Um endereço IP não funciona, porque a verificação do
+    certificado compara o nome.
+  </li>
+  <li>
+    <strong>Confiar na CA:</strong> o computador que executa o Klacks tem de confiar na autoridade de certificação
+    que emitiu o certificado do controlador de domínio. Windows: importe o certificado da CA para o repositório
+    <em>Autoridades de Certificação de Raiz Fidedignas</em> do computador, por exemplo
+    <code>certutil -addstore Root ca.cer</code> (como administrador).
+  </li>
+  <li>
+    <strong>Resolução de nomes:</strong> se o FQDN não puder ser resolvido através do DNS, adicione uma entrada no
+    ficheiro hosts (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker:</strong> monte o certificado da CA como ficheiro PEM no contentor da API,
+    defina a variável de ambiente <code>LDAPTLS_CACERT</code> com o respetivo caminho e adicione o FQDN com
+    <code>extra_hosts</code> se o DNS não o resolver. Se o controlador de domínio não enviar um certificado de CA
+    (certificado autoassinado), o próprio certificado em ficheiro PEM serve como âncora de confiança.
+    Sem um certificado de confiança, a ligação é recusada e comunicada como erro de ligação.
+  </li>
+  <li>
+    <strong>Conta de bind:</strong> introduza-a como nome principal de utilizador (UPN), por exemplo
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Que contas são importadas</h4>
+<ul>
+  <li>As contas desativadas e as contas de sistema do Active Directory nunca são importadas nem listadas.</li>
+  <li>
+    Exclua as contas de serviço com o filtro de utilizadores, por exemplo apenas os membros de um grupo:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -90,13 +181,19 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 <h4>Usar Synology NAS como servidor LDAP</h4>
 <p>Pode usar um Synology NAS como servidor LDAP. Nesse caso, é necessário instalar o pacote "LDAP Server" ou um contentor Docker com OpenLDAP.</p>
 <ul>
-  <li>Tipo de fornecedor: "Active Directory" (para autenticação de fallback)</li>
+  <li>Tipo de fornecedor: "LDAP" (não "Active Directory")</li>
   <li>Filtro de utilizadores: (objectClass=inetOrgPerson)</li>
-  <li>Formato do DN do utilizador: cn=username,ou=users,dc=example,dc=com</li>
+  <li>Os utilizadores iniciam sessão com o uid ou o endereço de e-mail</li>
+  <li>Prefira LDAPS (porta 636)</li>
 </ul>
 
 <h4>Testar a ligação</h4>
-<p>Use o botão "Testar ligação" para verificar as configurações. Se a ligação for bem-sucedida, será apresentado o número de utilizadores encontrados e alguns nomes de utilizadores de exemplo.</p>
+<p>
+Use o botão "Testar ligação" para verificar a configuração. É apresentado o número de contas ativas que o
+filtro de utilizadores encontra (as contas desativadas e de sistema não são contadas) e alguns nomes de utilizadores
+de exemplo. Um "+" a seguir ao número significa que o servidor de diretório parou no seu limite de resultados,
+pelo que existem mais contas.
+</p>
 
 <h4>Resolução de problemas</h4>
 <table>
@@ -105,4 +202,6 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
   <tr><td>Bind falhado</td><td>Verifique o Bind DN e a palavra-passe</td></tr>
   <tr><td>Utilizadores não encontrados</td><td>Verifique o Base DN e o filtro de utilizadores</td></tr>
   <tr><td>Morada não importada</td><td>OpenLDAP usa "street" em vez de "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>Ative "Utilizar SSL" (porta 636)</td></tr>
+  <tr><td>A ligação falha apenas com SSL</td><td>Introduza o host como FQDN exatamente como no certificado e faça o computador confiar na CA</td></tr>
 </table>

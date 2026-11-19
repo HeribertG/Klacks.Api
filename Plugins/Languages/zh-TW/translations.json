@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "找到的使用者",
   "settings.identity-provider.user-filter": "使用者過濾器",
   "settings.identity-provider.user-info-url": "使用者資訊URL",
-  "settings.identity-provider.warning.ad-requires-ssl": "透過 Active Directory 登入需要加密連線（LDAPS，連接埠 636）。沒有 SSL 時，Active Directory 只能被讀取以用於員工匯入與連線測試；任何人都無法登入，「登入核准」索引標籤會保持關閉。",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory 僅接受透過 LDAPS 的登入：沒有 SSL 時，任何人都無法登入，「登入核准」索引標籤會保持關閉。請啟用 SSL（連接埠 636），並依伺服器憑證中的寫法輸入主機名稱（FQDN，而非 IP 位址）。",
   "settings.identity-provider.warning.ldap-unencrypted": "沒有 SSL 時，密碼會以未加密的方式傳送至目錄伺服器。只要伺服器支援，請啟用 SSL（LDAPS，連接埠 636）。",
   "settings.identityProviders": "身分識別提供者",
   "settings.imap": "收件伺服器（IMAP）",

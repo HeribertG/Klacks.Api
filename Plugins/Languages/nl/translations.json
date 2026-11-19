@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Gevonden gebruikers",
   "settings.identity-provider.user-filter": "Gebruikersfilter",
   "settings.identity-provider.user-info-url": "Gebruikersinformatie-URL",
-  "settings.identity-provider.warning.ad-requires-ssl": "Aanmelden via Active Directory vereist een versleutelde verbinding (LDAPS, poort 636). Zonder SSL kan Active Directory alleen worden gelezen voor de personeelsimport en de verbindingstest; niemand kan zich aanmelden en het tabblad Aanmeldgoedkeuring blijft gesloten.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory accepteert aanmeldingen alleen via LDAPS: zonder SSL kan niemand zich aanmelden en blijft het tabblad Aanmeldgoedkeuring gesloten. Schakel SSL in (poort 636) en voer de hostnaam precies in zoals in het servercertificaat (FQDN, geen IP-adres).",
   "settings.identity-provider.warning.ldap-unencrypted": "Zonder SSL worden wachtwoorden onversleuteld naar de directoryserver verzonden. Schakel SSL (LDAPS, poort 636) in waar de server dit ondersteunt.",
   "settings.identityProviders": "Identity providers",
   "settings.imap": "Inkomende mailserver (IMAP)",

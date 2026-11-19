@@ -62,6 +62,96 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Bemærk: For OpenLDAP sættes køn som standard til "Neutral" og kan rettes manuelt.</em></p>
 
+<h4>Login via kataloget</h4>
+<p>
+Når "Brug til autentificering" er slået til og gemt, kan folk logge ind i Klacks med deres adgangskode fra
+kataloget. Ingen får automatisk adgang: administratoren godkender hver enkelt person under fanen
+<strong>Godkendelse af login</strong>.
+</p>
+<ul>
+  <li>Fanen viser katalogkonti (højst 1000; brug søgningen til at indsnævre listen).</li>
+  <li>
+    Når du afkrydser en konto, oprettes der en ny Klacks-konto uden rolle og uden adgangskode. Eksisterende
+    Klacks-konti overtages aldrig: hvis e-mailadressen allerede bruges af en Klacks-konto, kan rækken ikke
+    afkrydses. Slet først den konto, eller ændr dens e-mailadresse i brugeradministrationen.
+  </li>
+  <li>
+    Når du fjerner afkrydsningen, deaktiveres Klacks-kontoen; afkrydses den igen, genaktiveres den, så længe den
+    ikke har nogen rolle. En deaktiveret konto, der stadig har roller, genaktiveres i brugeradministrationen.
+  </li>
+  <li>
+    Fratrædelse: når nogen forlader virksomheden, skal du også fjerne afkrydsningen i Klacks. Hvis kontoen
+    deaktiveres i kataloget, blokeres nye logins, men sessioner, der allerede kører, fortsætter, indtil de udløber.
+  </li>
+  <li>En konto uden e-mailadresse i kataloget kan ikke godkendes.</li>
+  <li>Din egen konto kan ikke ændres under denne fane.</li>
+  <li>
+    En person med korrekte katalogoplysninger, men uden godkendelse, får besked om, at kontoen ikke er godkendt,
+    og at personen skal kontakte administratoren.
+  </li>
+</ul>
+
+<h4>Loginnavne</h4>
+<table>
+  <tr><th>Type</th><th>Accepterede loginnavne</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName eller e-mailadresse</td></tr>
+  <tr><td>LDAP</td><td>uid eller e-mailadresse</td></tr>
+</table>
+<p>
+Klacks slår personen op med Bind-brugeren og kontrollerer derefter adgangskoden mod kataloget, så loginnavnet
+behøver ikke at svare til e-mailadressen.
+</p>
+
+<h4>Kryptering</h4>
+<p>
+Almindelig LDAP på port 389 sender adgangskoder ukrypteret; formularen viser en advarsel for en LDAP-udbyder
+uden SSL. Brug LDAPS ("Brug SSL", port 636), hver gang kataloget bruges til login.
+</p>
+
+<h4>Active Directory: login kun via LDAPS</h4>
+<p>
+Klacks logger kun personer ind i Active Directory via LDAPS (port 636). Uden SSL viser formularen en advarsel,
+ingen kan logge ind, og fanen til godkendelse af login forbliver lukket. Uden SSL fungerer klientimport og
+forbindelsestest kun, når Klacks kører direkte på Windows; i Docker (Linux) kræver Active Directory LDAPS til alt.
+</p>
+<ul>
+  <li>
+    <strong>Vært:</strong> det fuldt kvalificerede navn (FQDN) præcis som det står i domænecontrollerens
+    certifikat, f.eks. <code>dc01.example.local</code>. En IP-adresse virker ikke, fordi certifikatkontrollen
+    sammenligner navnet.
+  </li>
+  <li>
+    <strong>Stol på CA'en:</strong> den computer, der kører Klacks, skal stole på den certifikatudsteder, der har
+    udstedt domænecontrollerens certifikat. Windows: importér CA-certifikatet til computerens lager
+    <em>Betroede rodcertificeringsmyndigheder</em>, f.eks. <code>certutil -addstore Root ca.cer</code>
+    (som administrator).
+  </li>
+  <li>
+    <strong>Navneopløsning:</strong> hvis FQDN ikke kan opløses via DNS, skal du tilføje en hosts-post
+    (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker:</strong> monter CA-certifikatet som en PEM-fil i API-containeren, sæt miljøvariablen
+    <code>LDAPTLS_CACERT</code> til dens sti, og tilføj FQDN med <code>extra_hosts</code>, hvis DNS ikke opløser
+    det. Hvis domænecontrolleren ikke sender et CA-certifikat (selvsigneret certifikat), fungerer dens eget
+    certifikat som PEM-fil som tillidsanker. Uden et betroet certifikat afvises forbindelsen og rapporteres som en
+    forbindelsesfejl.
+  </li>
+  <li>
+    <strong>Bind-konto:</strong> angiv den som user principal name (UPN), f.eks.
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Hvilke konti importeres</h4>
+<ul>
+  <li>Deaktiverede konti og systemkonti i Active Directory importeres aldrig og vises aldrig.</li>
+  <li>
+    Udeluk servicekonti med brugerfilteret, f.eks. kun medlemmer af én gruppe:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,15 +186,17 @@ Du kan bruge en Synology NAS som LDAP-server. I dette tilfælde skal du installe
 pakken "LDAP Server" eller en Docker-container med OpenLDAP.
 </p>
 <ul>
-  <li>Udbydertype: "Active Directory" (til fallback-autentificering)</li>
+  <li>Udbydertype: "LDAP" (ikke "Active Directory")</li>
   <li>Brugerfilter: (objectClass=inetOrgPerson)</li>
-  <li>Bruger-DN format: cn=brugernavn,ou=users,dc=example,dc=com</li>
+  <li>Brugerne logger ind med deres uid eller e-mailadresse</li>
+  <li>Foretræk LDAPS (port 636)</li>
 </ul>
 
 <h4>Test af forbindelse</h4>
 <p>
-Brug knappen "Test forbindelse" for at bekræfte dine indstillinger.
-Ved vellykket forbindelse vises antallet af fundne brugere og nogle eksempelbrugernavne.
+Brug knappen "Test forbindelse" for at bekræfte konfigurationen. Den viser antallet af aktive konti, som
+brugerfilteret finder (deaktiverede konti og systemkonti tælles ikke med), og nogle eksempelbrugernavne. Et "+"
+efter tallet betyder, at katalogserveren stoppede ved sin resultatgrænse, så der er flere konti.
 </p>
 
 <h4>Fejlfinding</h4>
@@ -114,4 +206,6 @@ Ved vellykket forbindelse vises antallet af fundne brugere og nogle eksempelbrug
   <tr><td>Bind mislykkedes</td><td>Kontrollér Bind-DN og adgangskode</td></tr>
   <tr><td>Ingen brugere fundet</td><td>Kontrollér Basis-DN og brugerfilter</td></tr>
   <tr><td>Adresser importeres ikke</td><td>OpenLDAP bruger "street" i stedet for "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>Slå "Brug SSL" til (port 636)</td></tr>
+  <tr><td>Forbindelsen fejler kun med SSL</td><td>Angiv værten som FQDN præcis som i certifikatet, og få computeren til at stole på CA'en</td></tr>
 </table>

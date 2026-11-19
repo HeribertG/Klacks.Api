@@ -62,6 +62,98 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Huomautus: OpenLDAP:ssa sukupuoli on oletuksena "Neutraali" ja se voidaan korjata manuaalisesti.</em></p>
 
+<h4>Kirjautuminen hakemistopalvelun kautta</h4>
+<p>
+Kun "Käytä tunnistautumiseen" on otettu käyttöön ja tallennettu, henkilöt voivat kirjautua Klacksiin
+hakemistopalvelun salasanallaan. Kukaan ei saa pääsyä automaattisesti: ylläpitäjä hyväksyy jokaisen henkilön
+<strong>Kirjautumisen hyväksyntä</strong> -välilehdellä.
+</p>
+<ul>
+  <li>Välilehti luettelee hakemistotilit (enintään 1000; rajaa luetteloa haulla).</li>
+  <li>
+    Tilin valinta luo uuden Klacks-tilin ilman roolia ja ilman salasanaa. Olemassa olevia Klacks-tilejä ei
+    koskaan oteta haltuun: jos sähköpostiosoite on jo Klacks-tilin käytössä, riviä ei voi valita. Poista
+    ensin kyseinen tili tai vaihda sen sähköpostiosoite käyttäjähallinnassa.
+  </li>
+  <li>
+    Valinnan poistaminen poistaa Klacks-tilin käytöstä; uusi valinta ottaa sen uudelleen käyttöön, kunhan
+    tilillä ei ole roolia. Käytöstä poistettu tili, jolla on edelleen rooleja, otetaan uudelleen käyttöön
+    käyttäjähallinnassa.
+  </li>
+  <li>
+    Poistuvat henkilöt: kun joku lähtee, poista valinta myös Klacksissa. Tilin poistaminen käytöstä
+    hakemistossa estää uudet kirjautumiset, mutta jo käynnissä olevat istunnot jatkuvat, kunnes ne vanhenevat.
+  </li>
+  <li>Tiliä, jolla ei ole sähköpostiosoitetta hakemistossa, ei voi hyväksyä.</li>
+  <li>Omaa tiliä ei voi muuttaa tällä välilehdellä.</li>
+  <li>
+    Henkilö, jolla on oikeat hakemiston tunnukset mutta ei hyväksyntää, saa ilmoituksen, että tiliä ei ole
+    hyväksytty ja että hänen tulee ottaa yhteyttä ylläpitäjään.
+  </li>
+</ul>
+
+<h4>Kirjautumisnimet</h4>
+<table>
+  <tr><th>Tyyppi</th><th>Hyväksytyt kirjautumisnimet</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName tai sähköpostiosoite</td></tr>
+  <tr><td>LDAP</td><td>uid tai sähköpostiosoite</td></tr>
+</table>
+<p>
+Klacks hakee henkilön bind-käyttäjällä ja tarkistaa sitten salasanan hakemistopalvelusta, joten
+kirjautumisnimen ei tarvitse vastata sähköpostiosoitetta.
+</p>
+
+<h4>Salaus</h4>
+<p>
+Pelkkä LDAP portissa 389 lähettää salasanat salaamattomina; lomake näyttää varoituksen LDAP-tarjoajalle ilman
+SSL:ää. Käytä LDAPS:ää ("Käytä SSL:ää", portti 636) aina, kun hakemistoa käytetään kirjautumiseen.
+</p>
+
+<h4>Active Directory: kirjautuminen vain LDAPS:n kautta</h4>
+<p>
+Klacks kirjaa henkilöt sisään Active Directoryyn vain LDAPS:n kautta (portti 636). Ilman SSL:ää lomake näyttää
+varoituksen, kukaan ei voi kirjautua ja Kirjautumisen hyväksyntä -välilehti pysyy suljettuna. Ilman SSL:ää
+asiakastuonti ja yhteyden testaus toimivat vain, kun Klacks toimii suoraan Windows-ympäristössä; Docker-ympäristössä (Linux)
+Active Directory vaatii LDAPS:n kaikkeen.
+</p>
+<ul>
+  <li>
+    <strong>Isäntä:</strong> täysin määritelty nimi (FQDN) täsmälleen siinä muodossa kuin se on toimialueohjaimen
+    varmenteessa, esim. <code>dc01.example.local</code>. IP-osoite ei kelpaa, koska varmenteen tarkistus
+    vertaa nimeä.
+  </li>
+  <li>
+    <strong>Luota CA:han:</strong> Klacksia ajavan tietokoneen on luotettava varmentajaan, joka on myöntänyt
+    toimialueohjaimen varmenteen. Windows: tuo CA-varmenne tietokoneen
+    <em>Luotetut juurivarmentajat (Trusted Root Certification Authorities)</em> -varastoon, esim. <code>certutil -addstore Root ca.cer</code>
+    (järjestelmänvalvojana).
+  </li>
+  <li>
+    <strong>Nimenselvitys:</strong> jos FQDN-nimeä ei voi selvittää DNS:n kautta, lisää hosts-merkintä
+    (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker:</strong> liitä CA-varmenne PEM-tiedostona API-konttiin,
+    aseta ympäristömuuttuja <code>LDAPTLS_CACERT</code> osoittamaan sen polkuun ja lisää FQDN asetuksella
+    <code>extra_hosts</code>, jos DNS ei selvitä sitä. Jos toimialueohjain ei lähetä CA-varmennetta
+    (itse allekirjoitettu varmenne), sen oma varmenne PEM-tiedostona toimii luottamusankkurina.
+    Ilman luotettua varmennetta yhteys evätään ja siitä ilmoitetaan yhteysvirheenä.
+  </li>
+  <li>
+    <strong>Bind-tili:</strong> anna se käyttäjän päänimenä (UPN), esim.
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Mitkä tilit tuodaan</h4>
+<ul>
+  <li>Käytöstä poistettuja tilejä ja Active Directoryn järjestelmätilejä ei koskaan tuoda eikä luetteloida.</li>
+  <li>
+    Rajaa palvelutilit pois käyttäjäsuodattimella, esim. vain yhden ryhmän jäsenet:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,16 +188,18 @@ Synology NAS:ia voidaan käyttää LDAP-palvelimena. Tätä varten on asennettav
 "LDAP Server" -paketti tai Docker-kontti OpenLDAP:lla.
 </p>
 <ul>
-  <li>Tarjoajatyyppi: "Active Directory" (varatodennusta varten)</li>
+  <li>Tarjoajatyyppi: "LDAP" (ei "Active Directory")</li>
   <li>Käyttäjäsuodatin: (objectClass=inetOrgPerson)</li>
-  <li>Käyttäjä-DN-muoto: cn=käyttäjänimi,ou=users,dc=example,dc=com</li>
+  <li>Käyttäjät kirjautuvat uid-tunnuksellaan tai sähköpostiosoitteellaan</li>
+  <li>Suosi LDAPS:ää (portti 636)</li>
 </ul>
 
 <h4>Yhteyden testaaminen</h4>
 <p>
-Käytä "Testaa yhteys" -painiketta asetusten tarkistamiseen.
-Onnistuneen yhteyden yhteydessä näytetään löydettyjen käyttäjien määrä ja joitakin
-esimerkkikäyttäjänimiä.
+Käytä "Testaa yhteys" -painiketta asetusten tarkistamiseen. Se näyttää käyttäjäsuodattimen löytämien
+aktiivisten tilien määrän (käytöstä poistettuja tilejä ja järjestelmätilejä ei lasketa) sekä joitakin
+esimerkkikäyttäjänimiä. Määrän perässä oleva "+" tarkoittaa, että hakemistopalvelin pysähtyi tulosrajaansa,
+joten tilejä on enemmän.
 </p>
 
 <h4>Vianmääritys</h4>
@@ -115,4 +209,6 @@ esimerkkikäyttäjänimiä.
   <tr><td>Bind epäonnistui</td><td>Tarkista Bind DN ja salasana</td></tr>
   <tr><td>Käyttäjiä ei löytynyt</td><td>Tarkista Base DN ja käyttäjäsuodatin</td></tr>
   <tr><td>Osoitteita ei tuotu</td><td>OpenLDAP käyttää "street" eikä "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>Ota "Käytä SSL:ää" käyttöön (portti 636)</td></tr>
+  <tr><td>Yhteys epäonnistuu vain SSL:n kanssa</td><td>Anna isäntä FQDN-nimenä täsmälleen kuten varmenteessa ja anna tietokoneen luottaa CA:han</td></tr>
 </table>

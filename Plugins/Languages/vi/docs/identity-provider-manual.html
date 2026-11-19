@@ -62,6 +62,96 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Lưu ý: Trong OpenLDAP, giới tính mặc định là "Trung tính" và có thể được chỉnh sửa thủ công.</em></p>
 
+<h4>Đăng nhập qua thư mục</h4>
+<p>
+Khi "Dùng để xác thực" được bật và lưu, mọi người có thể đăng nhập vào Klacks bằng mật khẩu thư mục của họ.
+Không ai được cấp quyền truy cập tự động: quản trị viên phê duyệt từng người trên tab
+<strong>Phê duyệt đăng nhập</strong>.
+</p>
+<ul>
+  <li>Tab này liệt kê các tài khoản thư mục (tối đa 1000; hãy dùng ô tìm kiếm để thu hẹp danh sách).</li>
+  <li>
+    Việc đánh dấu một tài khoản sẽ tạo một tài khoản Klacks mới không có vai trò và không có mật khẩu. Các tài khoản
+    Klacks hiện có không bao giờ được tiếp nhận: nếu địa chỉ email đã được một tài khoản Klacks sử dụng, không thể
+    đánh dấu dòng đó. Trước tiên hãy xóa tài khoản đó hoặc đổi địa chỉ email của nó trong phần quản lý người dùng.
+  </li>
+  <li>
+    Bỏ dấu đánh dấu sẽ vô hiệu hóa tài khoản Klacks; đánh dấu lại sẽ kích hoạt lại tài khoản, miễn là tài khoản không có vai trò.
+    Một tài khoản bị vô hiệu hóa nhưng vẫn còn vai trò sẽ được kích hoạt lại trong phần quản lý người dùng.
+  </li>
+  <li>
+    Khi nhân viên nghỉ việc: khi ai đó rời đi, hãy bỏ dấu đánh dấu trong Klacks. Việc vô hiệu hóa tài khoản trong
+    thư mục chỉ chặn các lần đăng nhập mới, còn các phiên đang chạy vẫn tiếp tục cho đến khi hết hạn.
+  </li>
+  <li>Một tài khoản không có địa chỉ email trong thư mục không thể được phê duyệt.</li>
+  <li>Không thể thay đổi tài khoản của chính bạn trên tab này.</li>
+  <li>
+    Người có thông tin đăng nhập thư mục đúng nhưng chưa được phê duyệt sẽ nhận được thông báo rằng tài khoản
+    chưa được phê duyệt và cần liên hệ với quản trị viên.
+  </li>
+</ul>
+
+<h4>Tên đăng nhập</h4>
+<table>
+  <tr><th>Loại</th><th>Tên đăng nhập được chấp nhận</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName hoặc địa chỉ email</td></tr>
+  <tr><td>LDAP</td><td>uid hoặc địa chỉ email</td></tr>
+</table>
+<p>
+Klacks tra cứu người dùng bằng người dùng Bind rồi kiểm tra mật khẩu với thư mục, vì vậy
+tên đăng nhập không cần trùng với địa chỉ email.
+</p>
+
+<h4>Mã hóa</h4>
+<p>
+LDAP thuần trên cổng 389 gửi mật khẩu không được mã hóa; biểu mẫu hiển thị cảnh báo cho nhà cung cấp LDAP
+không có SSL. Hãy dùng LDAPS ("Sử dụng SSL", cổng 636) bất cứ khi nào thư mục được dùng để đăng nhập.
+</p>
+
+<h4>Active Directory: chỉ đăng nhập qua LDAPS</h4>
+<p>
+Klacks chỉ đăng nhập người dùng vào Active Directory qua LDAPS (cổng 636). Không có SSL, biểu mẫu hiển thị cảnh báo,
+không ai có thể đăng nhập và tab phê duyệt đăng nhập vẫn đóng. Không có SSL, việc nhập khách hàng và kiểm tra kết nối
+chỉ hoạt động khi Klacks chạy trực tiếp trên Windows; trong Docker (Linux), Active Directory cần LDAPS cho
+mọi thao tác.
+</p>
+<ul>
+  <li>
+    <strong>Host:</strong> tên miền đầy đủ (FQDN) đúng như trong chứng chỉ của bộ điều khiển miền,
+    ví dụ <code>dc01.example.local</code>. Địa chỉ IP không hoạt động, vì việc kiểm tra chứng chỉ so sánh tên.
+  </li>
+  <li>
+    <strong>Tin cậy CA:</strong> máy tính chạy Klacks phải tin cậy tổ chức phát hành chứng chỉ (CA) đã cấp
+    chứng chỉ của bộ điều khiển miền. Windows: nhập chứng chỉ CA vào kho
+    <em>Trusted Root Certification Authorities</em> của máy tính, ví dụ <code>certutil -addstore Root ca.cer</code>
+    (với quyền quản trị viên).
+  </li>
+  <li>
+    <strong>Phân giải tên:</strong> nếu không thể phân giải FQDN qua DNS, hãy thêm một mục hosts
+    (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker:</strong> gắn chứng chỉ CA dưới dạng tệp PEM vào container API,
+    đặt biến môi trường <code>LDAPTLS_CACERT</code> thành đường dẫn của tệp đó, và thêm FQDN bằng
+    <code>extra_hosts</code> nếu DNS không phân giải được. Nếu bộ điều khiển miền không gửi chứng chỉ CA
+    (chứng chỉ tự ký), chính chứng chỉ của nó dưới dạng tệp PEM có thể dùng làm điểm tin cậy.
+    Không có chứng chỉ được tin cậy, kết nối bị từ chối và được báo là lỗi kết nối.
+  </li>
+  <li>
+    <strong>Tài khoản Bind:</strong> nhập dưới dạng tên người dùng chính (UPN), ví dụ
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Những tài khoản nào được nhập</h4>
+<ul>
+  <li>Các tài khoản bị vô hiệu hóa và tài khoản hệ thống của Active Directory không bao giờ được nhập và không bao giờ được liệt kê.</li>
+  <li>
+    Loại trừ các tài khoản dịch vụ bằng bộ lọc người dùng, ví dụ chỉ các thành viên của một nhóm:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,16 +186,17 @@ Một NAS Synology có thể được sử dụng như máy chủ LDAP. Để l�
 "LDAP Server" hoặc một container Docker với OpenLDAP.
 </p>
 <ul>
-  <li>Loại nhà cung cấp: "Active Directory" (để xác thực dự phòng)</li>
+  <li>Loại nhà cung cấp: "LDAP" (không phải "Active Directory")</li>
   <li>Bộ lọc người dùng: (objectClass=inetOrgPerson)</li>
-  <li>Định dạng DN người dùng: cn=tên_người_dùng,ou=users,dc=example,dc=com</li>
+  <li>Người dùng đăng nhập bằng uid hoặc địa chỉ email của họ</li>
+  <li>Nên ưu tiên LDAPS (cổng 636)</li>
 </ul>
 
 <h4>Kiểm tra kết nối</h4>
 <p>
-Sử dụng nút "Kiểm tra kết nối" để xác minh cấu hình.
-Nếu kết nối thành công, số lượng người dùng tìm thấy và một số
-tên người dùng mẫu sẽ được hiển thị.
+Sử dụng nút "Kiểm tra kết nối" để xác minh cấu hình. Nút này hiển thị số lượng tài khoản đang hoạt động mà
+bộ lọc người dùng tìm thấy (tài khoản bị vô hiệu hóa và tài khoản hệ thống không được tính) cùng một số tên
+người dùng mẫu. Dấu "+" sau con số nghĩa là máy chủ thư mục đã dừng ở giới hạn kết quả của nó, tức là còn nhiều tài khoản hơn nữa.
 </p>
 
 <h4>Xử lý sự cố</h4>
@@ -115,4 +206,6 @@ tên người dùng mẫu sẽ được hiển thị.
   <tr><td>Bind thất bại</td><td>Kiểm tra Bind DN và mật khẩu</td></tr>
   <tr><td>Không tìm thấy người dùng</td><td>Kiểm tra Base DN và bộ lọc người dùng</td></tr>
   <tr><td>Địa chỉ không được nhập</td><td>OpenLDAP sử dụng "street" thay vì "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>Bật "Sử dụng SSL" (cổng 636)</td></tr>
+  <tr><td>Kết nối chỉ thất bại khi dùng SSL</td><td>Nhập host dưới dạng FQDN đúng như trong chứng chỉ và để máy tính tin cậy CA</td></tr>
 </table>

@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Nalezení uživatelé",
   "settings.identity-provider.user-filter": "Filtr uživatelů",
   "settings.identity-provider.user-info-url": "User Info URL",
-  "settings.identity-provider.warning.ad-requires-ssl": "Přihlášení přes Active Directory vyžaduje šifrované připojení (LDAPS, port 636). Bez SSL lze Active Directory pouze číst pro import zaměstnanců a test připojení; nikdo se nemůže přihlásit a karta Schválení přihlášení zůstane uzavřená.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory přijímá přihlášení pouze přes LDAPS: bez SSL se nikdo nemůže přihlásit a schválení přihlášení zůstane zavřené. Zapněte SSL (port 636) a zadejte název hostitele přesně tak, jak je v certifikátu serveru (FQDN, ne IP adresa).",
   "settings.identity-provider.warning.ldap-unencrypted": "Bez SSL se hesla odesílají na adresářový server nešifrovaně. Zapněte SSL (LDAPS, port 636), kdekoli to server podporuje.",
   "settings.identityProviders": "Poskytovatelé identity",
   "settings.imap": "Příchozí poštovní server (IMAP)",

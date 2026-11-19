@@ -62,6 +62,96 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>注意：使用OpenLDAP时，性别默认为"中性"，可手动修正。</em></p>
 
+<h4>通过目录登录</h4>
+<p>
+启用并保存"用于认证"后，用户即可使用其目录密码登录Klacks。
+不会自动授予任何人访问权限：管理员需在
+<strong>登录批准</strong>选项卡上逐个批准用户。
+</p>
+<ul>
+  <li>该选项卡列出目录账户（最多1000个；可使用搜索来缩小列表范围）。</li>
+  <li>
+    勾选某个账户会创建一个没有角色、没有密码的新Klacks账户。现有的Klacks
+    账户绝不会被接管：如果该电子邮件地址已被某个Klacks账户使用，则该行无法
+    勾选。请先在用户管理中删除该账户或更改其电子邮件地址。
+  </li>
+  <li>
+    取消勾选会停用该Klacks账户；再次勾选会重新启用，前提是该账户没有角色。
+    仍然拥有角色的已停用账户需在用户管理中重新启用。
+  </li>
+  <li>
+    人员离职：有人离开时，请同时在Klacks中取消勾选。在目录中禁用该账户
+    会阻止新的登录，但已在运行的会话会继续有效，直至过期。
+  </li>
+  <li>在目录中没有电子邮件地址的账户无法被批准。</li>
+  <li>无法在此选项卡上更改您自己的账户。</li>
+  <li>
+    目录凭据正确但未获批准的用户会收到提示：该账户
+    尚未获得批准，请联系管理员。
+  </li>
+</ul>
+
+<h4>登录名</h4>
+<table>
+  <tr><th>类型</th><th>可接受的登录名</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName、userPrincipalName或电子邮件地址</td></tr>
+  <tr><td>LDAP</td><td>uid或电子邮件地址</td></tr>
+</table>
+<p>
+Klacks使用绑定用户查找该用户，然后向目录校验密码，因此
+登录名无需与电子邮件地址一致。
+</p>
+
+<h4>加密</h4>
+<p>
+389端口上的普通LDAP会以未加密方式发送密码；对于未启用SSL的LDAP提供商，表单会显示警告。
+只要目录用于登录，请使用LDAPS（"使用SSL"，636端口）。
+</p>
+
+<h4>Active Directory：仅通过LDAPS登录</h4>
+<p>
+Klacks仅通过LDAPS（636端口）让用户登录Active Directory。没有SSL时，表单会显示警告，
+任何人都无法登录，登录批准选项卡保持关闭。没有SSL时，客户导入和连接测试
+仅在Klacks直接运行于Windows上时可用；在Docker（Linux）中，Active Directory的
+所有操作都需要LDAPS。
+</p>
+<ul>
+  <li>
+    <strong>主机：</strong>域控制器证书中所示的完全限定名称（FQDN），
+    例如<code>dc01.example.local</code>。IP地址无法使用，因为证书检查会比对名称。
+  </li>
+  <li>
+    <strong>信任CA：</strong>运行Klacks的计算机必须信任签发域控制器证书的
+    证书颁发机构。Windows：将CA证书导入计算机的
+    <em>受信任的根证书颁发机构</em>存储区，例如<code>certutil -addstore Root ca.cer</code>
+    （以管理员身份）。
+  </li>
+  <li>
+    <strong>名称解析：</strong>如果无法通过DNS解析该FQDN，请添加hosts条目
+    （Windows：<code>C:\Windows\System32\drivers\etc\hosts</code>）。
+  </li>
+  <li>
+    <strong>Docker：</strong>将CA证书以PEM文件形式挂载到API容器中，
+    将环境变量<code>LDAPTLS_CACERT</code>设置为其路径，如果DNS无法解析，
+    则通过<code>extra_hosts</code>添加该FQDN。如果域控制器不发送CA
+    证书（自签名证书），则可将其自身的证书以PEM文件形式用作信任锚。
+    没有受信任的证书时，连接会被拒绝，并报告为连接错误。
+  </li>
+  <li>
+    <strong>绑定账户：</strong>请以用户主体名称（UPN）输入，例如
+    <code>svc-klacks@example.local</code>。
+  </li>
+</ul>
+
+<h4>导入哪些账户</h4>
+<ul>
+  <li>已禁用的账户和Active Directory系统账户绝不会被导入，也绝不会被列出。</li>
+  <li>
+    使用用户过滤器排除服务账户，例如仅限某个组的成员：
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,15 +186,17 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 或使用基于OpenLDAP的Docker容器。
 </p>
 <ul>
-  <li>提供商类型："Active Directory"（用于回退认证）</li>
+  <li>提供商类型："LDAP"（而非"Active Directory"）</li>
   <li>用户过滤器：(objectClass=inetOrgPerson)</li>
-  <li>用户DN格式：cn=username,ou=users,dc=example,dc=com</li>
+  <li>用户使用其uid或电子邮件地址登录</li>
+  <li>建议优先使用LDAPS（636端口）</li>
 </ul>
 
 <h4>测试连接</h4>
 <p>
-请使用"测试连接"按钮来验证设置。
-连接成功后，将显示找到的用户数量和一些示例用户名。
+请使用"测试连接"按钮来验证设置。它会显示用户过滤器找到的活动账户数量
+（已禁用账户和系统账户不计入）以及一些示例用户名。数字后面的"+"表示目录服务器在其结果上限处停止，
+即还有更多账户。
 </p>
 
 <h4>故障排除</h4>
@@ -114,4 +206,6 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
   <tr><td>绑定失败</td><td>请检查绑定DN和密码</td></tr>
   <tr><td>找不到用户</td><td>请检查基础DN和用户过滤器</td></tr>
   <tr><td>地址未导入</td><td>OpenLDAP使用"street"而非"streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>启用"使用SSL"（636端口）</td></tr>
+  <tr><td>仅在使用SSL时连接失败</td><td>以与证书完全一致的FQDN输入主机，并让计算机信任该CA</td></tr>
 </table>

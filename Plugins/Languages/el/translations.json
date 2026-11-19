@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Βρέθηκαν χρήστες",
   "settings.identity-provider.user-filter": "Φίλτρο χρηστών",
   "settings.identity-provider.user-info-url": "URL πληροφοριών χρήστη",
-  "settings.identity-provider.warning.ad-requires-ssl": "Η σύνδεση μέσω Active Directory απαιτεί κρυπτογραφημένη σύνδεση (LDAPS, θύρα 636). Χωρίς SSL, το Active Directory μπορεί να διαβαστεί μόνο για την εισαγωγή προσωπικού και τη δοκιμή σύνδεσης· κανείς δεν μπορεί να συνδεθεί και η καρτέλα Έγκριση σύνδεσης παραμένει κλειστή.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Το Active Directory δέχεται συνδέσεις μόνο μέσω LDAPS: χωρίς SSL κανείς δεν μπορεί να συνδεθεί και η έγκριση σύνδεσης παραμένει κλειστή. Ενεργοποιήστε το SSL (θύρα 636) και εισαγάγετε το όνομα του host ακριβώς όπως στο πιστοποιητικό του διακομιστή (FQDN, όχι διεύθυνση IP).",
   "settings.identity-provider.warning.ldap-unencrypted": "Χωρίς SSL, οι κωδικοί πρόσβασης αποστέλλονται στον διακομιστή καταλόγου χωρίς κρυπτογράφηση. Ενεργοποιήστε το SSL (LDAPS, θύρα 636) όπου το υποστηρίζει ο διακομιστής.",
   "settings.identityProviders": "Πάροχοι ταυτότητας",
   "settings.imap": "Διακομιστής εισερχόμενης αλληλογραφίας (IMAP)",

@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "المستخدمون الموجودون",
   "settings.identity-provider.user-filter": "فلتر المستخدمين",
   "settings.identity-provider.user-info-url": "عنوان معلومات المستخدم",
-  "settings.identity-provider.warning.ad-requires-ssl": "يتطلب تسجيل الدخول عبر Active Directory اتصالًا مشفّرًا (LDAPS، المنفذ 636). بدون SSL لا يمكن قراءة Active Directory إلا لاستيراد الموظفين واختبار الاتصال؛ لا يمكن لأحد تسجيل الدخول وتبقى علامة تبويب الموافقة على تسجيل الدخول مغلقة.",
+  "settings.identity-provider.warning.ad-requires-ssl": "يقبل Active Directory تسجيل الدخول عبر LDAPS فقط: بدون SSL لا يمكن لأحد تسجيل الدخول وتبقى الموافقة على تسجيل الدخول مغلقة. فعّل SSL (المنفذ 636) وأدخل اسم المضيف تمامًا كما هو في شهادة الخادم (FQDN وليس عنوان IP).",
   "settings.identity-provider.warning.ldap-unencrypted": "بدون SSL تُرسَل كلمات المرور إلى خادم الدليل بدون تشفير. فعّل SSL (LDAPS، المنفذ 636) حيثما يدعمه الخادم.",
   "settings.identityProviders": "مزودو الهوية",
   "settings.imap": "خادم البريد الوارد (IMAP)",

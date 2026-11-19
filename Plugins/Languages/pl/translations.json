@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Znalezionych użytkowników",
   "settings.identity-provider.user-filter": "Filtr użytkowników",
   "settings.identity-provider.user-info-url": "URL informacji o użytkowniku",
-  "settings.identity-provider.warning.ad-requires-ssl": "Logowanie przez Active Directory wymaga szyfrowanego połączenia (LDAPS, port 636). Bez SSL Active Directory można odczytywać tylko na potrzeby importu pracowników i testu połączenia; nikt nie może się zalogować, a karta Zatwierdzenie logowania pozostaje zamknięta.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory akceptuje logowanie wyłącznie przez LDAPS: bez SSL nikt nie może się zalogować, a karta Zatwierdzenie logowania pozostaje zamknięta. Włącz SSL (port 636) i wpisz nazwę hosta dokładnie taką, jak w certyfikacie serwera (FQDN, nie adres IP).",
   "settings.identity-provider.warning.ldap-unencrypted": "Bez SSL hasła są wysyłane do serwera katalogowego bez szyfrowania. Włącz SSL (LDAPS, port 636) wszędzie tam, gdzie serwer to obsługuje.",
   "settings.identityProviders": "Dostawcy tożsamości",
   "settings.imap": "Serwer poczty przychodzącej (IMAP)",

@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "משתמשים שנמצאו",
   "settings.identity-provider.user-filter": "מסנן משתמשים",
   "settings.identity-provider.user-info-url": "כתובת URL למידע משתמש",
-  "settings.identity-provider.warning.ad-requires-ssl": "כניסה דרך Active Directory דורשת חיבור מוצפן (LDAPS, פורט 636). ללא SSL ניתן לקרוא את Active Directory רק לייבוא עובדים ולבדיקת החיבור; אף אחד לא יכול להיכנס והלשונית אישור כניסה נשארת סגורה.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory מקבל כניסות רק דרך LDAPS: ללא SSL אף אחד לא יכול להיכנס והלשונית אישור כניסה נשארת סגורה. יש להפעיל SSL (פורט 636) ולהזין את שם המארח בדיוק כפי שהוא באישור השרת (FQDN, לא כתובת IP).",
   "settings.identity-provider.warning.ldap-unencrypted": "ללא SSL, סיסמאות נשלחות לשרת הספרייה ללא הצפנה. הפעל SSL (LDAPS, פורט 636) בכל מקום שהשרת תומך בכך.",
   "settings.identityProviders": "ספקי זהות",
   "settings.imap": "שרת דואר נכנס (IMAP)",

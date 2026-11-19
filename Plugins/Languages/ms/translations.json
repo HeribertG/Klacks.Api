@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Pengguna ditemui",
   "settings.identity-provider.user-filter": "Penapis pengguna",
   "settings.identity-provider.user-info-url": "URL Maklumat Pengguna",
-  "settings.identity-provider.warning.ad-requires-ssl": "Log masuk melalui Active Directory memerlukan sambungan yang disulitkan (LDAPS, port 636). Tanpa SSL, Active Directory hanya boleh dibaca untuk import kakitangan dan ujian sambungan; tiada sesiapa boleh log masuk dan tab Kelulusan log masuk kekal tertutup.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory hanya menerima log masuk melalui LDAPS: tanpa SSL tiada sesiapa boleh log masuk dan tab Kelulusan log masuk kekal tertutup. Dayakan SSL (port 636) dan masukkan nama hos tepat seperti dalam sijil pelayan (FQDN, bukan alamat IP).",
   "settings.identity-provider.warning.ldap-unencrypted": "Tanpa SSL, kata laluan dihantar ke pelayan direktori tanpa disulitkan. Hidupkan SSL (LDAPS, port 636) di mana-mana sahaja pelayan menyokongnya.",
   "settings.identityProviders": "Penyedia Identiti",
   "settings.imap": "Pelayan Mel Masuk (IMAP)",

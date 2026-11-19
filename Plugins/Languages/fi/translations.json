@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Löydetyt käyttäjät",
   "settings.identity-provider.user-filter": "Käyttäjäsuodatin",
   "settings.identity-provider.user-info-url": "Käyttäjätiedot-URL",
-  "settings.identity-provider.warning.ad-requires-ssl": "Kirjautuminen Active Directoryn kautta vaatii salatun yhteyden (LDAPS, portti 636). Ilman SSL:ää Active Directorya voi lukea vain henkilöstön tuontia ja yhteyden testausta varten; kukaan ei voi kirjautua, ja Kirjautumisen hyväksyntä -välilehti pysyy suljettuna.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory hyväksyy kirjautumiset vain LDAPS:n kautta: ilman SSL:ää kukaan ei voi kirjautua ja Kirjautumisen hyväksyntä -välilehti pysyy suljettuna. Ota SSL käyttöön (portti 636) ja anna isäntänimi täsmälleen kuten palvelimen varmenteessa (FQDN, ei IP-osoite).",
   "settings.identity-provider.warning.ldap-unencrypted": "Ilman SSL:ää salasanat lähetetään hakemistopalvelimelle salaamattomina. Ota SSL (LDAPS, portti 636) käyttöön aina, kun palvelin tukee sitä.",
   "settings.identityProviders": "Identiteettipalveluntarjoajat",
   "settings.imap": "Saapuva postipalvelin (IMAP)",

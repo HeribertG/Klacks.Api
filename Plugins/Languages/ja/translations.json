@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "ユーザーが見つかりました",
   "settings.identity-provider.user-filter": "ユーザーフィルター",
   "settings.identity-provider.user-info-url": "ユーザー情報URL",
-  "settings.identity-provider.warning.ad-requires-ssl": "Active Directoryでサインインするには、暗号化された接続（LDAPS、ポート636）が必要です。SSLがない場合、Active Directoryはスタッフのインポートと接続テストのための読み取りにしか使えません。誰もサインインできず、「サインイン承認」タブは閉じたままになります。",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active DirectoryはLDAPSでのみサインインを受け付けます。SSLがない場合、誰もサインインできず、「サインイン承認」タブは閉じたままになります。SSL（ポート636）を有効にし、ホスト名をサーバー証明書に記載されているとおりに入力してください（FQDN。IPアドレスは不可）。",
   "settings.identity-provider.warning.ldap-unencrypted": "SSLがない場合、パスワードは暗号化されずにディレクトリサーバーへ送信されます。サーバーが対応している場合は、必ずSSL（LDAPS、ポート636）を有効にしてください。",
   "settings.identityProviders": "IDプロバイダー",
   "settings.imap": "受信メールサーバー(IMAP)",

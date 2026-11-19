@@ -62,6 +62,97 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Notă: Pentru OpenLDAP, genul implicit este „Neutru" și poate fi corectat manual.</em></p>
 
+<h4>Conectarea prin director</h4>
+<p>
+Când „Utilizare pentru autentificare" este activat și salvat, persoanele se pot conecta la Klacks cu parola lor din
+director. Nimeni nu primește acces automat: administratorul aprobă fiecare persoană în fila
+<strong>Aprobarea conectării</strong>.
+</p>
+<ul>
+  <li>Fila listează conturile din director (cel mult 1000; folosiți căutarea pentru a restrânge lista).</li>
+  <li>
+    Bifarea unui cont creează un cont Klacks nou, fără rol și fără parolă. Conturile Klacks existente nu sunt
+    preluate niciodată: dacă adresa de e-mail este deja folosită de un cont Klacks, rândul nu poate fi
+    bifat. Ștergeți mai întâi acel cont sau schimbați adresa lui de e-mail în administrarea utilizatorilor.
+  </li>
+  <li>
+    Eliminarea bifei dezactivează contul Klacks; o nouă bifare îl reactivează, atât timp cât nu are niciun rol.
+    Un cont dezactivat care are încă roluri se reactivează în administrarea utilizatorilor.
+  </li>
+  <li>
+    Plecarea angajaților: când cineva pleacă, eliminați bifa și în Klacks. Dezactivarea contului din
+    director blochează conectările noi, dar sesiunile deja pornite continuă până expiră.
+  </li>
+  <li>Un cont fără adresă de e-mail în director nu poate fi aprobat.</li>
+  <li>Propriul cont nu poate fi modificat în această filă.</li>
+  <li>
+    O persoană cu date de autentificare corecte din director, dar fără aprobare, primește mesajul că
+    contul nu este aprobat și că trebuie să contacteze administratorul.
+  </li>
+</ul>
+
+<h4>Nume de conectare</h4>
+<table>
+  <tr><th>Tip</th><th>Nume de conectare acceptate</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName sau adresă de e-mail</td></tr>
+  <tr><td>LDAP</td><td>uid sau adresă de e-mail</td></tr>
+</table>
+<p>
+Klacks caută persoana cu utilizatorul de legătură și apoi verifică parola în director, astfel că
+numele de conectare nu trebuie să coincidă cu adresa de e-mail.
+</p>
+
+<h4>Criptare</h4>
+<p>
+LDAP simplu pe portul 389 trimite parolele necriptat; formularul afișează un avertisment pentru un furnizor LDAP
+fără SSL. Folosiți LDAPS („Utilizare SSL", portul 636) ori de câte ori directorul este folosit pentru conectare.
+</p>
+
+<h4>Active Directory: conectare doar prin LDAPS</h4>
+<p>
+Klacks conectează persoanele la Active Directory doar prin LDAPS (portul 636). Fără SSL, formularul afișează un
+avertisment, nimeni nu se poate conecta, iar fila de aprobare a conectării rămâne închisă. Fără SSL, importul de
+clienți și testul de conexiune funcționează doar când Klacks rulează direct pe Windows; în Docker (Linux),
+Active Directory necesită LDAPS pentru toate funcțiile.
+</p>
+<ul>
+  <li>
+    <strong>Gazdă:</strong> numele complet calificat (FQDN), exact cum apare în certificatul controlerului
+    de domeniu, de exemplu <code>dc01.example.local</code>. O adresă IP nu funcționează, deoarece verificarea
+    certificatului compară numele.
+  </li>
+  <li>
+    <strong>Încrederea în CA:</strong> computerul pe care rulează Klacks trebuie să aibă încredere în autoritatea de
+    certificare care a emis certificatul controlerului de domeniu. Windows: importați certificatul CA în depozitul
+    <em>Trusted Root Certification Authorities</em> al computerului, de exemplu
+    <code>certutil -addstore Root ca.cer</code> (ca administrator).
+  </li>
+  <li>
+    <strong>Rezolvarea numelor:</strong> dacă FQDN-ul nu poate fi rezolvat prin DNS, adăugați o intrare în fișierul
+    hosts (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker:</strong> montați certificatul CA ca fișier PEM în containerul API,
+    setați variabila de mediu <code>LDAPTLS_CACERT</code> la calea lui și adăugați FQDN-ul cu
+    <code>extra_hosts</code> dacă DNS nu îl rezolvă. Dacă controlerul de domeniu nu trimite un certificat CA
+    (certificat autosemnat), propriul certificat ca fișier PEM funcționează ca ancoră de încredere.
+    Fără un certificat de încredere, conexiunea este refuzată și raportată ca eroare de conexiune.
+  </li>
+  <li>
+    <strong>Cont de legătură:</strong> introduceți-l ca nume principal de utilizator (UPN), de exemplu
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Ce conturi sunt importate</h4>
+<ul>
+  <li>Conturile dezactivate și conturile de sistem Active Directory nu sunt niciodată importate și nici listate.</li>
+  <li>
+    Excludeți conturile de serviciu cu filtrul de utilizatori, de exemplu doar membrii unui grup:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,15 +187,17 @@ Puteți utiliza un Synology NAS ca server LDAP. În acest caz, trebuie să insta
 pachetul „LDAP Server" sau un container Docker cu OpenLDAP.
 </p>
 <ul>
-  <li>Tip furnizor: „Active Directory" (pentru autentificare de rezervă)</li>
+  <li>Tip furnizor: „LDAP" (nu „Active Directory")</li>
   <li>Filtru utilizatori: (objectClass=inetOrgPerson)</li>
-  <li>Format DN utilizator: cn=username,ou=users,dc=example,dc=com</li>
+  <li>Utilizatorii se conectează cu uid sau cu adresa de e-mail</li>
+  <li>Preferați LDAPS (portul 636)</li>
 </ul>
 
 <h4>Testarea conexiunii</h4>
 <p>
-Utilizați butonul „Testare conexiune" pentru a verifica configurarea.
-La o conexiune reușită, se afișează numărul de utilizatori găsiți și câteva exemple de nume de utilizatori.
+Utilizați butonul „Testare conexiune" pentru a verifica configurarea. Se afișează numărul de conturi active pe care
+le găsește filtrul de utilizatori (conturile dezactivate și cele de sistem nu sunt numărate) și câteva exemple de nume
+de utilizatori. Un „+" după număr înseamnă că serverul de director s-a oprit la limita de rezultate, deci există mai multe conturi.
 </p>
 
 <h4>Depanare</h4>
@@ -114,4 +207,6 @@ La o conexiune reușită, se afișează numărul de utilizatori găsiți și câ
   <tr><td>Legătură eșuată</td><td>Verificați DN-ul de legătură și parola</td></tr>
   <tr><td>Utilizatori negăsiți</td><td>Verificați DN-ul de bază și filtrul de utilizatori</td></tr>
   <tr><td>Adresele nu se importă</td><td>OpenLDAP folosește „street" nu „streetAddress"</td></tr>
+  <tr><td>„Strong authentication required"</td><td>Activați „Utilizare SSL" (portul 636)</td></tr>
+  <tr><td>Conexiunea eșuează doar cu SSL</td><td>Introduceți gazda ca FQDN, exact ca în certificat, și faceți ca computerul să aibă încredere în CA</td></tr>
 </table>

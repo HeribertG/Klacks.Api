@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "Utilizadores encontrados",
   "settings.identity-provider.user-filter": "Filtro de utilizadores",
   "settings.identity-provider.user-info-url": "URL de informação do utilizador",
-  "settings.identity-provider.warning.ad-requires-ssl": "O início de sessão através do Active Directory requer uma ligação encriptada (LDAPS, porta 636). Sem SSL, o Active Directory só pode ser lido para a importação de pessoal e o teste de ligação; ninguém pode iniciar sessão e o separador Autorização de início de sessão permanece fechado.",
+  "settings.identity-provider.warning.ad-requires-ssl": "O Active Directory aceita inícios de sessão apenas através de LDAPS: sem SSL ninguém pode iniciar sessão e a autorização de início de sessão permanece fechada. Ative o SSL (porta 636) e introduza o nome do host exatamente como no certificado do servidor (FQDN, não um endereço IP).",
   "settings.identity-provider.warning.ldap-unencrypted": "Sem SSL, as palavras-passe são enviadas para o servidor de diretório sem encriptação. Ative o SSL (LDAPS, porta 636) sempre que o servidor o suporte.",
   "settings.identityProviders": "Fornecedores de identidade",
   "settings.imap": "Servidor de receção de e-mail (IMAP)",

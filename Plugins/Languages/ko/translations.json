@@ -3934,7 +3934,7 @@
   "settings.identity-provider.user-count": "발견된 사용자",
   "settings.identity-provider.user-filter": "사용자 필터",
   "settings.identity-provider.user-info-url": "사용자 정보 URL",
-  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory를 통한 로그인에는 암호화된 연결(LDAPS, 포트 636)이 필요합니다. SSL이 없으면 Active Directory는 직원 가져오기와 연결 테스트를 위해서만 읽을 수 있으며, 아무도 로그인할 수 없고 로그인 승인 탭은 닫힌 상태로 유지됩니다.",
+  "settings.identity-provider.warning.ad-requires-ssl": "Active Directory는 LDAPS를 통한 로그인만 허용합니다. SSL이 없으면 아무도 로그인할 수 없으며 로그인 승인 탭은 닫힌 상태로 유지됩니다. SSL(포트 636)을 활성화하고 호스트 이름을 서버 인증서와 정확히 동일하게 입력하세요(FQDN, IP 주소 아님).",
   "settings.identity-provider.warning.ldap-unencrypted": "SSL이 없으면 비밀번호가 암호화되지 않은 채 디렉터리 서버로 전송됩니다. 서버가 지원하는 경우 항상 SSL(LDAPS, 포트 636)을 켜십시오.",
   "settings.identityProviders": "ID 공급자",
   "settings.imap": "수신 메일 서버 (IMAP)",

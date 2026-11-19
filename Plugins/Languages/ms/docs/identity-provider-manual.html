@@ -62,6 +62,97 @@ Active Directory: (&amp;(objectClass=user)(objectCategory=person))
 
 <p><em>Nota: Untuk OpenLDAP, jantina lalai ialah "Neutral" dan boleh diperbetulkan secara manual.</em></p>
 
+<h4>Log masuk melalui direktori</h4>
+<p>
+Apabila "Guna untuk pengesahan" diaktifkan dan disimpan, pengguna boleh log masuk ke Klacks dengan kata laluan direktori
+mereka. Tiada sesiapa mendapat akses secara automatik: pentadbir meluluskan setiap orang pada tab
+<strong>Kelulusan log masuk</strong>.
+</p>
+<ul>
+  <li>Tab ini menyenaraikan akaun direktori (paling banyak 1000; gunakan carian untuk mengecilkan senarai).</li>
+  <li>
+    Menandakan satu akaun mencipta akaun Klacks baharu tanpa peranan dan tanpa kata laluan. Akaun Klacks sedia ada
+    tidak pernah diambil alih: jika alamat e-mel sudah digunakan oleh akaun Klacks, baris itu tidak boleh
+    ditandakan. Padam akaun tersebut atau tukar alamat e-melnya dalam pentadbiran pengguna terlebih dahulu.
+  </li>
+  <li>
+    Membuang tanda menyahaktifkan akaun Klacks; menandakannya semula mengaktifkannya semula, selagi akaun itu tidak
+    mempunyai peranan. Akaun yang dinyahaktifkan tetapi masih mempunyai peranan diaktifkan semula dalam pentadbiran
+    pengguna.
+  </li>
+  <li>
+    Penamatan perkhidmatan: apabila seseorang berhenti, buang juga tanda di Klacks. Menyahdayakan akaun dalam
+    direktori menyekat log masuk baharu, tetapi sesi yang sedang berjalan diteruskan sehingga tamat tempoh.
+  </li>
+  <li>Akaun tanpa alamat e-mel dalam direktori tidak boleh diluluskan.</li>
+  <li>Akaun anda sendiri tidak boleh diubah pada tab ini.</li>
+  <li>
+    Seseorang yang mempunyai bukti kelayakan direktori yang betul tetapi tanpa kelulusan akan menerima mesej bahawa
+    akaun itu belum diluluskan dan perlu menghubungi pentadbir.
+  </li>
+</ul>
+
+<h4>Nama log masuk</h4>
+<table>
+  <tr><th>Jenis</th><th>Nama log masuk yang diterima</th></tr>
+  <tr><td>Active Directory</td><td>sAMAccountName, userPrincipalName atau alamat e-mel</td></tr>
+  <tr><td>LDAP</td><td>uid atau alamat e-mel</td></tr>
+</table>
+<p>
+Klacks mencari orang itu dengan pengguna ikatan dan kemudian menyemak kata laluan terhadap direktori, jadi
+nama log masuk tidak perlu sama dengan alamat e-mel.
+</p>
+
+<h4>Penyulitan</h4>
+<p>
+LDAP biasa pada port 389 menghantar kata laluan tanpa penyulitan; borang memaparkan amaran untuk pembekal LDAP tanpa
+SSL. Gunakan LDAPS ("Guna SSL", port 636) setiap kali direktori digunakan untuk log masuk.
+</p>
+
+<h4>Active Directory: log masuk hanya melalui LDAPS</h4>
+<p>
+Klacks melog masukkan pengguna ke Active Directory hanya melalui LDAPS (port 636). Tanpa SSL, borang memaparkan amaran,
+tiada sesiapa boleh log masuk dan tab kelulusan log masuk kekal tertutup. Tanpa SSL, import klien dan ujian
+sambungan hanya berfungsi apabila Klacks berjalan terus pada Windows; dalam Docker (Linux), Active Directory
+memerlukan LDAPS untuk semua fungsi.
+</p>
+<ul>
+  <li>
+    <strong>Hos:</strong> nama yang layak sepenuhnya (FQDN) tepat seperti yang tertera dalam sijil pengawal domain,
+    cth. <code>dc01.example.local</code>. Alamat IP tidak berfungsi, kerana semakan sijil membandingkan nama.
+  </li>
+  <li>
+    <strong>Percayai CA:</strong> komputer yang menjalankan Klacks mesti mempercayai pihak berkuasa sijil yang
+    mengeluarkan sijil pengawal domain. Windows: import sijil CA ke dalam stor
+    <em>Trusted Root Certification Authorities</em> komputer, cth. <code>certutil -addstore Root ca.cer</code>
+    (sebagai pentadbir).
+  </li>
+  <li>
+    <strong>Resolusi nama:</strong> jika FQDN tidak dapat diselesaikan melalui DNS, tambahkan entri hosts
+    (Windows: <code>C:\Windows\System32\drivers\etc\hosts</code>).
+  </li>
+  <li>
+    <strong>Docker:</strong> lekapkan sijil CA sebagai fail PEM ke dalam kontena API,
+    tetapkan pemboleh ubah persekitaran <code>LDAPTLS_CACERT</code> kepada lokasinya, dan tambahkan FQDN dengan
+    <code>extra_hosts</code> jika DNS tidak menyelesaikannya. Jika pengawal domain tidak menghantar sijil CA
+    (sijil ditandatangani sendiri), sijilnya sendiri sebagai fail PEM berfungsi sebagai sauh kepercayaan.
+    Tanpa sijil yang dipercayai, sambungan ditolak dan dilaporkan sebagai ralat sambungan.
+  </li>
+  <li>
+    <strong>Akaun ikatan:</strong> masukkannya sebagai nama prinsipal pengguna (UPN), cth.
+    <code>svc-klacks@example.local</code>.
+  </li>
+</ul>
+
+<h4>Akaun yang diimport</h4>
+<ul>
+  <li>Akaun yang dinyahdayakan dan akaun sistem Active Directory tidak pernah diimport dan tidak pernah disenaraikan.</li>
+  <li>
+    Kecualikan akaun perkhidmatan dengan penapis pengguna, cth. hanya ahli satu kumpulan:
+    <code>(&amp;(objectCategory=person)(objectClass=user)(memberOf=CN=Klacks,OU=Groups,DC=example,DC=local))</code>
+  </li>
+</ul>
+
 <hr>
 
 <h3>OAuth2 / OpenID Connect</h3>
@@ -96,15 +187,18 @@ Anda boleh menggunakan Synology NAS sebagai pelayan LDAP. Dalam kes ini, anda pe
 pakej "Pelayan LDAP" atau kontena Docker dengan OpenLDAP.
 </p>
 <ul>
-  <li>Jenis pembekal: "Active Directory" (untuk pengesahan fallback)</li>
+  <li>Jenis pembekal: "LDAP" (bukan "Active Directory")</li>
   <li>Penapis pengguna: (objectClass=inetOrgPerson)</li>
-  <li>Format DN pengguna: cn=username,ou=users,dc=example,dc=com</li>
+  <li>Pengguna log masuk dengan uid atau alamat e-mel mereka</li>
+  <li>Utamakan LDAPS (port 636)</li>
 </ul>
 
 <h4>Menguji Sambungan</h4>
 <p>
-Gunakan butang "Uji Sambungan" untuk mengesahkan tetapan anda.
-Jika sambungan berjaya, bilangan pengguna yang ditemui dan beberapa contoh nama pengguna akan dipaparkan.
+Gunakan butang "Uji sambungan" untuk mengesahkan tetapan anda. Butang ini memaparkan bilangan akaun aktif yang
+ditemui oleh penapis pengguna (akaun yang dinyahdayakan dan akaun sistem tidak dikira) serta beberapa contoh nama
+pengguna. Tanda "+" selepas nombor bermakna pelayan direktori berhenti pada had hasilnya, jadi terdapat lebih
+banyak akaun.
 </p>
 
 <h4>Penyelesaian Masalah</h4>
@@ -114,4 +208,6 @@ Jika sambungan berjaya, bilangan pengguna yang ditemui dan beberapa contoh nama 
   <tr><td>Ikatan gagal</td><td>Semak DN ikatan dan kata laluan</td></tr>
   <tr><td>Pengguna tidak ditemui</td><td>Semak DN asas dan penapis pengguna</td></tr>
   <tr><td>Alamat tidak diimport</td><td>OpenLDAP menggunakan "street" bukan "streetAddress"</td></tr>
+  <tr><td>"Strong authentication required"</td><td>Dayakan "Guna SSL" (port 636)</td></tr>
+  <tr><td>Sambungan gagal hanya dengan SSL</td><td>Masukkan hos sebagai FQDN tepat seperti dalam sijil dan pastikan komputer mempercayai CA</td></tr>
 </table>
