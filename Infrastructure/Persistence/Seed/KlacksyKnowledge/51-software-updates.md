@@ -78,6 +78,9 @@ The card saves on its own; there is no save button.
 who asked for it. Note that it also lists operations of the self-hosted speech recognition, which
 shares the same record.
 
+The record can also show the kind **PostgresUpgrade**. That is the move of the database engine itself to a newer major
+version, not a new Klacks version (see "Database engine" in stage 3).
+
 <!-- level:effects -->
 
 ## Stage 3 — What actually happens
@@ -100,6 +103,16 @@ window is for.
 **And the window only applies to the automatic path.** Pressing install by hand starts immediately,
 whatever the window says. Anybody expecting the window to hold back a manual install will be
 surprised.
+
+**Database engine (PostgreSQL).** New installations come with PostgreSQL 19. An installation that still runs an older
+major version keeps working unchanged: a normal software update never touches the database engine. Moving the engine to a
+newer major version is a separate operation, recorded as **PostgresUpgrade**. It is started explicitly and only runs with a
+signed engine package; a package whose signature does not check out is refused before anything changes. While it runs, Klacks
+is stopped, so everyone signed in is disconnected, exactly as for an install. The data is copied into a new database
+cluster and compared with the old one (every table, the extensions, the indexes) before Klacks starts on it. The old
+database state is **not modified and not deleted**; it stays as the fallback. If anything fails, or the update is interrupted,
+Klacks returns to the old engine by itself and the record shows the operation as rolled back. The old state occupies disk
+space until it is removed by hand later; nothing removes it automatically.
 
 Only an administrator can reach any of this.
 
