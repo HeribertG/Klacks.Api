@@ -2942,6 +2942,45 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("llm_providers", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMPseudonym", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)")
+                        .HasColumnName("key");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer")
+                        .HasColumnName("kind");
+
+                    b.Property<int>("Ordinal")
+                        .HasColumnType("integer")
+                        .HasColumnName("ordinal");
+
+                    b.HasKey("Id")
+                        .HasName("pk_llm_pseudonyms");
+
+                    b.HasIndex("Kind", "Key")
+                        .IsUnique()
+                        .HasDatabaseName("ix_llm_pseudonyms_kind_key");
+
+                    b.HasIndex("Kind", "Ordinal")
+                        .IsUnique()
+                        .HasDatabaseName("ix_llm_pseudonyms_kind_ordinal");
+
+                    b.ToTable("llm_pseudonyms", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.LLMSyncNotification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -9152,6 +9191,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("availability_ranges");
 
+                    b.Property<string>("BlockedRanges")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("blocked_ranges");
+
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid")
                         .HasColumnName("client_id");
@@ -10263,6 +10307,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<int>("LockLevel")
                         .HasColumnType("integer")
                         .HasColumnName("lock_level");
+
+                    b.Property<Guid?>("MovedFromClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("moved_from_client_id");
 
                     b.Property<Guid?>("ReplaceClientId")
                         .HasColumnType("uuid")

@@ -2,7 +2,7 @@
 
 /// <summary>
 /// The tool-call steps both chat loops share between a model answer and the next iteration: keeping calls
-/// to the turn's toolset, injecting the values a forced recipe captured into the next step's parameters, and
+/// to the turn's toolset and rejecting calls that refer to an unknown pseudonym (PseudonymReferenceGuard), injecting the values a forced recipe captured into the next step's parameters, and
 /// formatting the results into the follow-up message.
 /// </summary>
 
@@ -20,8 +20,9 @@ internal static class ToolCallLoopSteps
     /// <param name="logger">The chat service's logger, so log categories stay unchanged</param>
     internal static List<LLMFunctionCall> InToolset(List<LLMFunctionCall> functionCalls, LLMContext context, ILogger logger)
     {
-        return ToolsetMembershipGuard.Apply(
+        var inToolset = ToolsetMembershipGuard.Apply(
             functionCalls, context, LLMLoopConstants.DefaultToolsetMembershipMode, logger);
+        return PseudonymReferenceGuard.Apply(inToolset, logger);
     }
 
     // Prompt-injection containment lives in ToolResultFormatter, shared with the turn replay and the

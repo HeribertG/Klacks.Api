@@ -151,6 +151,7 @@
   "explain_oauth_connections": "Tilslut et AI-værktøj via OAuth",
   "explain_office_pc_installation": "Installer Klacks: Klacks Store eller Microsoft Store",
   "explain_linux_installation": "Installér Klacks på Linux",
+  "explain_llm_pseudonymization": "Pseudonymisering før cloud-AI",
   "explain_scenario_variant_keys": "Forklar foreløbige vagter",
   "explain_placeholder_employees": "Forklar pladsholdere",
   "explain_autofill_staircase_start": "Forklar trappestarten",

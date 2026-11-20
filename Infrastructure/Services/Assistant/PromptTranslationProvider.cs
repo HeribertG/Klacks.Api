@@ -221,7 +221,8 @@ public class PromptTranslationProvider : IPromptTranslationProvider
                 CostPerInputToken = model.CostPerInputToken,
                 CostPerOutputToken = model.CostPerOutputToken,
                 ConversationHistory = [],
-                AvailableFunctions = []
+                AvailableFunctions = [],
+                IsKlacksAuthoredText = true
             };
 
             var response = await provider.ProcessAsync(request);

@@ -151,6 +151,7 @@
   "explain_oauth_connections": "AIツールをOAuthで接続",
   "explain_office_pc_installation": "Klacksのインストール: Klacks StoreかMicrosoft Store",
   "explain_linux_installation": "LinuxへのKlacksのインストール",
+  "explain_llm_pseudonymization": "クラウドAIの前の仮名化",
   "explain_scenario_variant_keys": "暫定シフトを説明",
   "explain_placeholder_employees": "仮従業員の説明",
   "explain_autofill_staircase_start": "階段型スタートを説明",

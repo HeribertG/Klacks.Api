@@ -287,6 +287,8 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IReadOnlyToolsetFilter, Klacks.Api.Application.Services.Assistant.ReadOnlyToolsetFilter>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IReadOnlyResearchService, Klacks.Api.Application.Services.Assistant.ReadOnlyResearchService>();
         services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();
+        services.AddScoped<ILLMPseudonymRepository, LLMPseudonymRepository>();
+        services.AddSingleton<IPseudonymMapSource, Klacks.Api.Infrastructure.Services.Assistant.Pseudonymization.PseudonymMapSource>();
         services.AddSingleton<Klacks.Api.Infrastructure.Security.IHostAddressResolver, Klacks.Api.Infrastructure.Security.DnsHostAddressResolver>();
         services.AddScoped<IProviderConnectivityTester, ProviderConnectivityTester>();
         services.AddScoped<IProviderWebDiscovery, ProviderWebDiscovery>();

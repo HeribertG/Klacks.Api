@@ -151,6 +151,7 @@
   "explain_oauth_connections": "Σύνδεση εργαλείου AI μέσω OAuth",
   "explain_office_pc_installation": "Εγκατάσταση Klacks: Klacks Store ή Microsoft Store",
   "explain_linux_installation": "Εγκατάσταση του Klacks σε Linux",
+  "explain_llm_pseudonymization": "Ψευδωνυμοποίηση πριν από το cloud AI",
   "explain_scenario_variant_keys": "Εξήγηση προσωρινών βαρδιών",
   "explain_placeholder_employees": "Εξήγηση των εικονικών εργαζομένων",
   "explain_autofill_staircase_start": "Εξήγηση της έναρξης σε σκάλα",

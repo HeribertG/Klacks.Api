@@ -1255,6 +1255,11 @@
     "用docker在服务器上安装klacks",
     "设置代码在哪里"
   ],
+  "explain_llm_pseudonymization": [
+    "姓名会发送给ai吗",
+    "个人数据会发送给openai吗",
+    "可以关闭假名化吗"
+  ],
   "explain_scenario_variant_keys": [
     "场景中的键是什么",
     "规划非约束性班次",

@@ -1261,6 +1261,11 @@
     "dockerでサーバーにklacksをインストール",
     "セットアップコードはどこ"
   ],
+  "explain_llm_pseudonymization": [
+    "名前はaiに送られますか",
+    "個人データはopenaiに送信されますか",
+    "仮名化を無効にできますか"
+  ],
   "explain_scenario_variant_keys": [
     "シナリオのキーとは何か",
     "確定していないシフトを計画する",

@@ -1255,6 +1255,11 @@
     "pasang klacks pada pelayan dengan docker",
     "di mana kod persediaan"
   ],
+  "explain_llm_pseudonymization": [
+    "adakah nama dihantar kepada ai",
+    "adakah data peribadi dihantar kepada openai",
+    "bolehkah pseudonimisasi dimatikan"
+  ],
   "explain_scenario_variant_keys": [
     "apa itu kunci dalam senario",
     "merancang syif yang tidak mengikat",

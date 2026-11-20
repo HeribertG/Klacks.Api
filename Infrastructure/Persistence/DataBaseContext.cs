@@ -228,6 +228,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<LLMUsage> LLMUsages { get; set; }
 
+    public DbSet<LLMPseudonym> LLMPseudonyms { get; set; }
+
     public DbSet<LLMConversation> LLMConversations { get; set; }
 
     public DbSet<LLMMessage> LLMMessages { get; set; }

@@ -1251,6 +1251,11 @@
     "docker로 서버에 klacks 설치",
     "설정 코드는 어디에 있나요"
   ],
+  "explain_llm_pseudonymization": [
+    "이름이 ai로 전송되나요",
+    "개인정보가 openai로 전송되나요",
+    "가명 처리를 끌 수 있나요"
+  ],
   "explain_scenario_variant_keys": [
     "시나리오의 키란 무엇인가요",
     "확정되지 않은 근무 계획하기",

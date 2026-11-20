@@ -1290,6 +1290,11 @@
     "instalacja klacks na serwerze z dockerem",
     "gdzie znajdę kod konfiguracji"
   ],
+  "explain_llm_pseudonymization": [
+    "czy imiona i nazwiska są wysyłane do ai",
+    "czy dane osobowe są wysyłane do openai",
+    "czy można wyłączyć pseudonimizację"
+  ],
   "explain_scenario_variant_keys": [
     "czym jest klucz w scenariuszu",
     "planowanie niewiążących zmian",

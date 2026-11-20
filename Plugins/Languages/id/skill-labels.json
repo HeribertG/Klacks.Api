@@ -151,6 +151,7 @@
   "explain_oauth_connections": "Menghubungkan alat AI dengan OAuth",
   "explain_office_pc_installation": "Instal Klacks: Klacks Store atau Microsoft Store",
   "explain_linux_installation": "Memasang Klacks di Linux",
+  "explain_llm_pseudonymization": "Pseudonimisasi sebelum AI cloud",
   "explain_scenario_variant_keys": "Jelaskan shift sementara",
   "explain_placeholder_employees": "Jelaskan karyawan virtual",
   "explain_autofill_staircase_start": "Jelaskan awal pola tangga",

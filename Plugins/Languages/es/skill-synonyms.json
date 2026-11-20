@@ -1286,6 +1286,11 @@
     "instalar klacks en un servidor con docker",
     "dónde encuentro el código de configuración"
   ],
+  "explain_llm_pseudonymization": [
+    "se envían los nombres a la ia",
+    "se envían datos personales a openai",
+    "se puede desactivar la seudonimización"
+  ],
   "explain_scenario_variant_keys": [
     "qué es una clave en el escenario",
     "planificar turnos no vinculantes",

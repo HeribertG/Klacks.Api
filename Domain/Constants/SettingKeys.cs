@@ -192,4 +192,10 @@ public static class SettingKeys
     public const string RouteMinTravelTimeByCar = "ROUTE_MIN_TRAVEL_TIME_BY_CAR";
     public const string RouteMinTravelTimeByBicycle = "ROUTE_MIN_TRAVEL_TIME_BY_BICYCLE";
     public const string RouteMinTravelTimeByFoot = "ROUTE_MIN_TRAVEL_TIME_BY_FOOT";
+
+    /// <summary>
+    /// Admin switch for the pseudonymisation of person data before a cloud language model. A missing row means on;
+    /// only an explicit "false" turns it off.
+    /// </summary>
+    public const string LlmPseudonymizationEnabled = "LLM_PSEUDONYMIZATION_ENABLED";
 }

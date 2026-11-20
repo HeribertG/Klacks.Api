@@ -1262,6 +1262,11 @@
     "asenna klacks palvelimelle dockerilla",
     "mistä löydän asennuskoodin"
   ],
+  "explain_llm_pseudonymization": [
+    "lähetetäänkö nimet tekoälylle",
+    "lähetetäänkö henkilötietoja openai:lle",
+    "voiko pseudonymisoinnin poistaa käytöstä"
+  ],
   "explain_scenario_variant_keys": [
     "mikä on avain skenaariossa",
     "suunnittele ei-sitovia vuoroja",

@@ -151,6 +151,7 @@
   "explain_oauth_connections": "ربط أداة ذكاء اصطناعي عبر OAuth",
   "explain_office_pc_installation": "تثبيت Klacks من متجر Klacks أو Microsoft Store",
   "explain_linux_installation": "تثبيت Klacks على Linux",
+  "explain_llm_pseudonymization": "الأسماء المستعارة قبل الذكاء الاصطناعي السحابي",
   "explain_scenario_variant_keys": "شرح المناوبات المؤقتة",
   "explain_placeholder_employees": "شرح الموظفين الوهميين",
   "explain_autofill_staircase_start": "شرح البدء على شكل درج",

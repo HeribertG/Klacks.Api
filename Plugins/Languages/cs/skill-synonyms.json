@@ -1290,6 +1290,11 @@
     "instalace klacks na server s dockerem",
     "kde najdu instalační kód"
   ],
+  "explain_llm_pseudonymization": [
+    "posílají se jména do ai",
+    "odesílají se osobní údaje do openai",
+    "lze pseudonymizaci vypnout"
+  ],
   "explain_scenario_variant_keys": [
     "co je klíč ve scénáři",
     "plánovat nezávazné směny",

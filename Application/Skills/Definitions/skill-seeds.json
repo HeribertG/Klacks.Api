@@ -1,5 +1,5 @@
 {
-  "version": 35,
+  "version": 36,
   "skills": [
     {
       "name": "get_current_time",
@@ -51370,6 +51370,96 @@
         "en": "Install Klacks on Linux",
         "fr": "Installer Klacks sous Linux",
         "it": "Installare Klacks su Linux"
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_llm_pseudonymization",
+      "area": "klacksy",
+      "description": "Explains how Klacks pseudonymises personal data before a request goes to a cloud language model: names, phone numbers, e-mail addresses, personnel numbers and birthdates become codes like MA-0017 and are put back afterwards. Covers default on, the exception for local models, the admin-only switch (no settings UI yet) and the limits. Use when asked whether names or personal data go to OpenAI or another AI, or whether the data are anonymous.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth, chosen by the KIND of question (not by the user's experience): 'short' = what is X / what does X mean / why does X exist (purpose only); 'elements' = how do I ... (steps, default); 'effects' = what happens if / consequences / what to watch out for / difference between two things / what is final. Only an explicit request for the short version or for every step overrides this. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerConfig": {
+        "memoryKey": "explain_llm_pseudonymization"
+      },
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "pseudonym"
+        ],
+        "de": [
+          "pseudonymisierung",
+          "datenschutz ki",
+          "namen an die ki"
+        ],
+        "en": [
+          "pseudonymisation",
+          "privacy ai",
+          "personal data llm"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "datenschutz ki",
+          "namen an openai",
+          "pseudonymisiert",
+          "pseudonymisierung",
+          "anonym",
+          "werden namen an die ki geschickt",
+          "werden personendaten an openai geschickt",
+          "kann ich die pseudonymisierung ausschalten",
+          "lokales modell ohne pseudonymisierung"
+        ],
+        "en": [
+          "privacy ai",
+          "names sent to openai",
+          "pseudonymised",
+          "pseudonymisation",
+          "anonymous",
+          "personal data llm",
+          "are names sent to the ai",
+          "is personal data sent to openai",
+          "can i turn off pseudonymisation",
+          "local model without pseudonymisation"
+        ],
+        "fr": [
+          "protection des données ia",
+          "noms envoyés à openai",
+          "pseudonymisation",
+          "les noms sont-ils envoyés à l'ia",
+          "désactiver la pseudonymisation"
+        ],
+        "it": [
+          "protezione dei dati ia",
+          "nomi inviati a openai",
+          "pseudonimizzazione",
+          "i nomi vengono inviati all'ia",
+          "disattivare la pseudonimizzazione"
+        ]
+      },
+      "labels": {
+        "de": "Pseudonymisierung bei Cloud-KI",
+        "en": "Pseudonymisation before cloud AI",
+        "fr": "Pseudonymisation avant l'IA cloud",
+        "it": "Pseudonimizzazione prima dell'IA cloud"
       },
       "version": 1
     },

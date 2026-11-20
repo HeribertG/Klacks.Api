@@ -69,6 +69,8 @@ to keep a page open.
 Because the model is a free choice, Klacksy can run on a model inside the company's own network. In
 that setup no personal record leaves the building — the deciding argument wherever staff data must
 not go to an external service.
+For cloud models Klacks additionally pseudonymises personal data before each request, on by default; models inside
+the installation are exempt because nothing leaves the house (see `explain_llm_pseudonymization`).
 
 ## Related skills
 

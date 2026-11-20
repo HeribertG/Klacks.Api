@@ -1275,6 +1275,11 @@
     "installer klacks på en server med docker",
     "hvor finder jeg opsætningskoden"
   ],
+  "explain_llm_pseudonymization": [
+    "sendes navne til ai'en",
+    "sendes personoplysninger til openai",
+    "kan pseudonymisering slås fra"
+  ],
   "explain_scenario_variant_keys": [
     "hvad er en nøgle i et scenarie",
     "planlæg ikke-bindende vagter",

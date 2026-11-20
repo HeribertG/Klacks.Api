@@ -1266,6 +1266,11 @@
     "memasang klacks di server dengan docker",
     "di mana kode penyiapan"
   ],
+  "explain_llm_pseudonymization": [
+    "apakah nama dikirim ke ai",
+    "apakah data pribadi dikirim ke openai",
+    "bisakah pseudonimisasi dimatikan"
+  ],
   "explain_scenario_variant_keys": [
     "apa itu kunci dalam skenario",
     "merencanakan shift yang tidak mengikat",

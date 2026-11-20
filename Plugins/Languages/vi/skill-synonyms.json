@@ -1258,6 +1258,11 @@
     "cài đặt klacks trên máy chủ bằng docker",
     "mã thiết lập ở đâu"
   ],
+  "explain_llm_pseudonymization": [
+    "tên có được gửi cho ai không",
+    "dữ liệu cá nhân có được gửi đến openai không",
+    "có thể tắt giả danh hóa không"
+  ],
   "explain_scenario_variant_keys": [
     "khóa trong kịch bản là gì",
     "lập kế hoạch ca làm chưa ràng buộc",

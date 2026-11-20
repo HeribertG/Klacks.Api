@@ -151,6 +151,7 @@
   "explain_oauth_connections": "透過 OAuth 連線 AI 工具",
   "explain_office_pc_installation": "安裝 Klacks：Klacks Store 或 Microsoft Store",
   "explain_linux_installation": "在 Linux 上安裝 Klacks",
+  "explain_llm_pseudonymization": "雲端 AI 之前的假名化",
   "explain_scenario_variant_keys": "說明暫定班次",
   "explain_placeholder_employees": "解釋佔位員工",
   "explain_autofill_staircase_start": "說明階梯式起始",

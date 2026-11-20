@@ -1282,6 +1282,11 @@
     "klacks op een server met docker installeren",
     "waar vind ik de installatiecode"
   ],
+  "explain_llm_pseudonymization": [
+    "worden namen naar de ai gestuurd",
+    "worden persoonsgegevens naar openai gestuurd",
+    "kan pseudonimisering worden uitgezet"
+  ],
   "explain_scenario_variant_keys": [
     "wat is een sleutel in een scenario",
     "niet-bindende diensten plannen",

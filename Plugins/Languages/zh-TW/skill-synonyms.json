@@ -1250,6 +1250,11 @@
     "用docker在伺服器上安裝klacks",
     "設定代碼在哪裡"
   ],
+  "explain_llm_pseudonymization": [
+    "姓名會傳送給ai嗎",
+    "個人資料會傳送給openai嗎",
+    "可以關閉假名化嗎"
+  ],
   "explain_scenario_variant_keys": [
     "情境中的鍵是什麼",
     "規劃非約束性班次",

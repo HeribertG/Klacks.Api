@@ -58,14 +58,22 @@ public class LLMFunctionCall
     public bool IsRejectedAfterNameAskBack { get; set; }
 
     /// <summary>
+    /// True when the call was rejected without running because an argument referred to a pseudonym code that does not
+    /// exist (PseudonymReferenceGuard): the model invented or altered a code, so no write may reach a guessed person.
+    /// Like IsRejectedRepeat it sets Success=false without being a skill failure.
+    /// </summary>
+    public bool IsRejectedUnknownPseudonym { get; set; }
+
+    /// <summary>
     /// True when the loop rejected the call without running it, whatever the reason: a repeat of a write, a skill
-    /// outside the toolset, a write after a completed recipe, or a write after a name ask-back. Such a call stored nothing and is no skill failure;
+    /// outside the toolset, a write after a completed recipe, a write after a name ask-back, or an invented pseudonym. Such a call stored nothing and is no skill failure;
     /// its result text is addressed to the model and must never reach the user. A call skipped by the user's stop
     /// is not part of this: it belongs to a stopped turn, which never reaches the consumers of this property.
     /// </summary>
     [JsonIgnore]
     public bool IsRejectedWithoutRunning =>
-        IsRejectedRepeat || IsRejectedOutsideToolset || IsRejectedByReadOnlyRecipeGuard || IsRejectedAfterNameAskBack;
+        IsRejectedRepeat || IsRejectedOutsideToolset || IsRejectedByReadOnlyRecipeGuard || IsRejectedAfterNameAskBack
+        || IsRejectedUnknownPseudonym;
 
     /// <summary>
     /// True when the skill's result was a navigation: the server only worked out where to go, and the page is

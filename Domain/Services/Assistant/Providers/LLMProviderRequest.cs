@@ -112,4 +112,11 @@ public class LLMProviderRequest
     /// do not support stop sequences ignore this field.
     /// </summary>
     public List<string>? StopSequences { get; set; }
+
+    /// <summary>
+    /// True when every text of the request is written by Klacks itself (prompt translation), not by users or from data.
+    /// The pseudonymisation then replaces single-word names only when capitalised like the stored name, so a German
+    /// word such as "kurz" in a fixed prompt segment is not taken for an employee named Kurz and stored in a translation.
+    /// </summary>
+    public bool IsKlacksAuthoredText { get; set; }
 }

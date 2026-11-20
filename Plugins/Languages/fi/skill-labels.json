@@ -151,6 +151,7 @@
   "explain_oauth_connections": "Tekoälytyökalun yhdistäminen OAuthilla",
   "explain_office_pc_installation": "Klacksin asennus: Klacks Store tai Microsoft Store",
   "explain_linux_installation": "Klacksin asentaminen Linuxiin",
+  "explain_llm_pseudonymization": "Pseudonymisointi ennen pilvitekoälyä",
   "explain_scenario_variant_keys": "Selitä alustavat vuorot",
   "explain_placeholder_employees": "Selitä paikanvaraajat",
   "explain_autofill_staircase_start": "Selitä porrasaloitus",
