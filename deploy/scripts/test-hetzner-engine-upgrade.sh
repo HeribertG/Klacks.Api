@@ -114,7 +114,7 @@ case "${args[0]}" in
     done
     case "$1" in
       config) echo "postgres $(cat "$S/hash_new")" ;;
-      up | stop)
+      up | stop | restart)
         echo "compose $*" >> "$S/mutations.log"
         if [ "$1" = "up" ] && [[ "$*" == *postgres* ]] && [ -f "$S/version_num.rollback" ]; then cp "$S/version_num.rollback" "$S/version_num"; fi
         ;;
@@ -341,6 +341,7 @@ check "database outage during the switch tolerated" out_has "Database not answer
 check "row counts verified for all three databases" bash -c "[ \$(grep -c 'PASS row counts' '$case_dir/out.txt') = 3 ]"
 check "auth smoke and api health" bash -c "grep -q 'PASS auth smoke' '$case_dir/out.txt' && grep -q 'PASS api health' '$case_dir/out.txt'"
 check "no rollback calls" bash -c "! grep -q 'compose up' '$S/mutations.log' 2> /dev/null"
+check "proxy restarted after the switch" mutation_has 'compose restart nginx-proxy'
 check "success marker written" bash -c "[[ \"\$(cat '$BACKUP_DIR/upgrade-succeeded')\" =~ ^[0-9]+\$ ]]"
 
 echo "-- upgrade: RolledBack by the updater"
@@ -359,6 +360,7 @@ echo 170010 > "$S/version_num.rollback"
 run --mode upgrade --confirm SWITCH-PG19
 check "exit 1 and manual rollback ran" bash -c "[ '$code' = 1 ] && grep -q 'ROLLBACK OK' '$case_dir/out.txt'"
 check "stopped updater and api, started postgres and api" bash -c "grep -q 'compose stop klacks-updater klacks-api' '$S/mutations.log' && grep -q 'compose up -d postgres' '$S/mutations.log' && grep -q 'compose up -d klacks-api klacks-updater' '$S/mutations.log'"
+check "proxy restarted after the rollback" mutation_has 'compose restart nginx-proxy'
 check ".env restored from .env.pre-pg19" bash -c "! grep -q KLACKS_POSTGRES_DATA_SUBDIR '$APPS_DIR/.env' && [ -f '$BACKUP_DIR'/env-before-rollback-* ]"
 check "engine operation row closed" bash -c "[ -e '$S/row_closed' ] || grep -q 'UPDATE update_history' '$S/calls.log'"
 

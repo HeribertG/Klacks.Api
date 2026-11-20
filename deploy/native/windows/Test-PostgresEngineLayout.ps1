@@ -131,10 +131,14 @@ function Get-FreeTcpPort {
 }
 
 function Invoke-Installer([string]$programRoot, [string]$dataRoot, [int]$httpPort) {
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $InstallScript -BundleZip $BundleZip -Version $Version `
-        -PostgresDirectory $PostgresDirectory -ProgramRoot $programRoot -DataRoot $dataRoot -HttpPort $httpPort `
-        -PostgresPort $InstallerPostgresPort -HealthTimeoutSeconds $InstallerHealthTimeoutSeconds -AllowUnsignedUpdates -NoServices | Out-Host
-    return $LASTEXITCODE
+    $arguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$InstallScript`"", '-BundleZip', "`"$BundleZip`"",
+        '-Version', $Version, '-PostgresDirectory', "`"$PostgresDirectory`"", '-ProgramRoot', "`"$programRoot`"",
+        '-DataRoot', "`"$dataRoot`"", '-HttpPort', $httpPort, '-PostgresPort', $InstallerPostgresPort,
+        '-HealthTimeoutSeconds', $InstallerHealthTimeoutSeconds, '-AllowUnsignedUpdates', '-NoServices')
+    $process = Start-Process -FilePath 'powershell.exe' -ArgumentList $arguments -NoNewWindow -PassThru
+    $null = $process.Handle
+    $process.WaitForExit()
+    return $process.ExitCode
 }
 
 function Test-LayoutResolution([string]$root) {

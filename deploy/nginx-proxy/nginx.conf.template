@@ -113,13 +113,20 @@ http {
     # location block may declare its own access_log, or it would bypass the redaction.
     access_log /var/log/nginx/access.log redacted;
 
+    # Docker's embedded DNS. "resolve" re-resolves the service names while nginx runs: a recreated
+    # klacks-api or klacks-ui container (app update, PostgreSQL engine upgrade or rollback) can come
+    # back with a new address, and a name resolved only at startup then answers 502 until restart.
+    resolver 127.0.0.11 valid=10s ipv6=off;
+
     upstream klacks-ui {
-        server klacks-ui:80;
+        zone klacks-ui 64k;
+        server klacks-ui:80 resolve;
         keepalive 32;
     }
 
     upstream klacks-api {
-        server klacks-api:5000;
+        zone klacks-api 64k;
+        server klacks-api:5000 resolve;
         keepalive 32;
     }
 
@@ -147,9 +154,10 @@ http {
     # a push still only reaches the clients hanging on the instance that sent it.
     #
     # upstream klacks-api {
+    #     zone klacks-api 64k;
     #     ip_hash;
-    #     server klacks-api:5000;
-    #     server klacks-api-2:5000;
+    #     server klacks-api:5000 resolve;
+    #     server klacks-api-2:5000 resolve;
     #     keepalive 32;
     # }
 

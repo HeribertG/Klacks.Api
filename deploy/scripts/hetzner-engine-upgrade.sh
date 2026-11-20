@@ -74,6 +74,7 @@ PROJECT="${COMPOSE_PROJECT:-apps}"
 PG_CONTAINER="${PG_CONTAINER:-klacks-postgres}"
 API_CONTAINER="${API_CONTAINER:-klacks-api}"
 UPDATER_CONTAINER="${UPDATER_CONTAINER:-klacks-updater}"
+PROXY_SERVICE="${PROXY_SERVICE:-nginx-proxy}"
 PG_USER="${PG_USER:-admin}"
 APP_DB="${APP_DB:-Klacks}"
 BACKUP_DIR="${BACKUP_DIR:-/root/backups/pg19-switch}"
@@ -653,6 +654,12 @@ compose_cmd() {
   docker compose --project-name "$PROJECT" --project-directory "$APPS_DIR" --env-file "$ENV_FILE" -f "$APPS_DIR/docker-compose.yml" "$@"
 }
 
+# A recreated klacks-api can come back with a new address; nginx resolved the old one at startup and answers 502
+# until it restarts (same reason as the proxy restart in deploy.yml).
+restart_proxy() {
+  if compose_cmd restart "$PROXY_SERVICE"; then pass "proxy" "$PROXY_SERVICE restarted (re-resolves klacks-api)"; else warn "proxy" "restart of $PROXY_SERVICE failed, restart it by hand (the database upgrade is not affected)"; fi
+}
+
 do_rollback() {
   [ ! -e "$BACKUP_DIR/cleanup-done" ] || die "cleanup was already done, the old cluster is gone: rollback is impossible (last resort: $RESET_SCRIPT restores the golden dump)"
   [ -f "$APPS_DIR/.env.pre-pg19" ] || die "$APPS_DIR/.env.pre-pg19 not found, nothing to restore"
@@ -668,6 +675,7 @@ do_rollback() {
   wait_until "$PG_READY_WAIT_SECONDS" pg_ready || die "old postgres did not become ready; last resort: $RESET_SCRIPT (restores the golden dump)"
   psql_db "$APP_DB" "UPDATE update_history SET status = $STATUS_ROLLED_BACK, completed_at = now(), message = 'Rolled back manually by hetzner-engine-upgrade rollback' WHERE operation_type = $OPERATION_TYPE_POSTGRES_UPGRADE AND $STATUS_ACTIVE_SQL" || log "could not close the engine operation row"
   compose_cmd up -d "$API_CONTAINER" "$UPDATER_CONTAINER"
+  restart_proxy
   verify_old_engine_back || die "rollback verification failed: ${FAILS[*]}"
   log "ROLLBACK OK: PostgreSQL $from_major is running again."
 }
@@ -719,12 +727,14 @@ mode_upgrade() {
   case "$result" in
     "$STATUS_SUCCEEDED")
       log "Operation $op_id Succeeded, verifying."
+      restart_proxy
       verify_upgraded || die "the upgrade reported Succeeded but verification failed: ${FAILS[*]}. Decide on 'rollback' (data written since the switch would be lost)."
       date +%s > "$BACKUP_DIR/$UPGRADE_MARKER_NAME"
       log "UPGRADE OK: PostgreSQL $to_major is live. The old cluster stays for rollback until 'cleanup'."
       ;;
     "$STATUS_FAILED" | "$STATUS_ROLLED_BACK" | "$STATUS_CANCELLED")
       log "Operation $op_id ended with status $result; the updater kept or restored the old engine."
+      restart_proxy
       verify_old_engine_back || true
       die "the engine upgrade did not complete (status $result); old engine check: ${FAILS[*]:-ok}"
       ;;

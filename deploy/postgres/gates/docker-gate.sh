@@ -320,6 +320,7 @@ cmd_snapshot() {
   require GATE_STATE_DIR
   snapshot_rows > "$GATE_STATE_DIR/$label-rows.txt"
   psql_file "$KLACKS_DATABASE" snapshot-knn.sql | tr -d '\r' > "$GATE_STATE_DIR/$label-knn.txt"
+  psql_query "$KLACKS_DATABASE" 'SELECT type, count(*) FROM settings GROUP BY type ORDER BY type;' | tr -d '\r' > "$GATE_STATE_DIR/$label-settings-types.txt"
   [ "$(grep -c '^knn|' "$GATE_STATE_DIR/$label-knn.txt")" = "$KNN_LIST_COUNT" ] || fail "Snapshot $label has no $KNN_LIST_COUNT KNN lists."
   note "Snapshot $label: $(grep -c '|rows|' "$GATE_STATE_DIR/$label-rows.txt") tables."
 }
@@ -337,6 +338,7 @@ cmd_compare() {
   require GATE_STATE_DIR
   local a="$GATE_STATE_DIR/$before-rows.txt" b="$GATE_STATE_DIR/$after-rows.txt"
   if ! diff <(comparable_rows "$a") <(comparable_rows "$b"); then
+    diff "$GATE_STATE_DIR/$before-settings-types.txt" "$GATE_STATE_DIR/$after-settings-types.txt" || true
     fail "Row counts differ between $before and $after (see diff above)."
   fi
   diff <(grep '|rows|' "$a") <(grep '|rows|' "$b") || note 'Differences above are in volatile tables only (logged, not compared).'
@@ -536,6 +538,7 @@ cmd_diagnostics() {
   set +e
   mkdir -p "$dir"
   docker ps -a --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}' > "$dir/docker-ps.txt" 2>&1
+  docker ps -q | xargs -r docker inspect --format '{{.Name}} {{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' >> "$dir/docker-ps.txt" 2>&1
   [ -d "${GATE_INSTALL_DIR:-}" ] && compose logs --no-color --timestamps > "$dir/compose.log" 2>&1
   docker exec "$UPDATER_CONTAINER" sh -c "ls -la $JOURNAL_DIR; for f in $JOURNAL_DIR/journal*.json; do echo \"== \$f\"; cat \"\$f\"; done" \
     > "$dir/journal.txt" 2>&1
