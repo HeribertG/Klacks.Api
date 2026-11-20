@@ -47,6 +47,7 @@ case "${args[0]}" in
         done
         case "$sql" in
           "SHOW server_version_num") cat "$S/version_num" ;;
+          *datcollate*) cat "$S/locales" ;;
           *"FROM pg_database"*) cat "$S/databases" ;;
           *"FROM pg_roles"*) cat "$S/roles" ;;
           *"extname ||"*) cat "$S/extensions" ;;
@@ -122,7 +123,7 @@ case "${args[0]}" in
   logs) cat "$S/updater_log" ;;
   image) echo "docker $*" >> "$S/mutations.log" ;;
   pull) exit 0 ;;
-  run) cat "$S/old_pg_version" ;;
+  run) if [[ " $* " == *" --entrypoint locale "* ]]; then cat "$S/image_locales"; else cat "$S/old_pg_version"; fi ;;
   *) echo "unexpected docker: $*" >> "$S/unexpected.log"; exit 1 ;;
 esac
 FAKE
@@ -171,6 +172,8 @@ new_case() { # resets state, apps dir and fakes to the green baseline
   echo 170010 > "$S/version_num"
   echo 190000 > "$S/version_num.after"
   printf 'Klacks\nklacks_diag\nklacks_telemetry\n' > "$S/databases"
+  printf 'Klacks|c|en_US.utf8|en_US.utf8\nklacks_diag|c|C|C\nklacks_telemetry|c|C.UTF-8|C.UTF-8\n' > "$S/locales"
+  printf 'C\nC.utf8\nPOSIX\nen_US.utf8\n' > "$S/image_locales"
   echo admin > "$S/roles"
   printf 'pg_trgm 1.6\nvector 0.8.5\n' > "$S/extensions"
   echo 2 > "$S/extension_count"
@@ -260,8 +263,17 @@ echo "-- preflight failures"
 fail_case() { # name expected-text, after the mutation done by the caller
   check "$1" bash -c "[ '$code' = 1 ] && grep -q -e 'FAIL $2' '$case_dir/out.txt' && ! grep -q 'PREFLIGHT OK' '$case_dir/out.txt'"
 }
-new_case window; export HEU_NOW_UTC=02:00; run --mode preflight; fail_case "inside the blocked window" "time window"
-new_case reserve; export HEU_NOW_UTC=00:40; run --mode preflight; fail_case "reserve before the window" "time window"
+new_case window; export HEU_NOW_UTC=02:00; run --mode preflight; fail_case "inside the nightly reset window" "time window"
+new_case resetstart; export HEU_NOW_UTC=01:50; run --mode preflight; fail_case "01:50 is the start of the reset window" "time window"
+new_case resetend; export HEU_NOW_UTC=02:30; run --mode preflight; check "preflight at 02:30 is allowed" bash -c "[ '$code' = 0 ]"
+new_case preflightreserve; export HEU_NOW_UTC=00:40; run --mode preflight; check "preflight alone at 00:40 is allowed" bash -c "[ '$code' = 0 ]"
+new_case reserve; export HEU_NOW_UTC=00:40; run --mode upgrade --confirm SWITCH-PG19
+check "upgrade keeps the reserve before the window" bash -c "[ '$code' = 1 ] && grep -q 'FAIL time window' '$case_dir/out.txt' && [ ! -e '$S/enqueue.args' ]"
+new_case upgradewindow; export HEU_NOW_UTC=03:00; run --mode upgrade --confirm SWITCH-PG19
+check "upgrade blocked inside 01:15-04:00" bash -c "[ '$code' = 1 ] && grep -q 'FAIL time window' '$case_dir/out.txt' && [ ! -e '$S/enqueue.args' ]"
+new_case locale; printf 'Klacks|c|de_CH.utf8|de_CH.utf8\n' > "$S/locales"; run --mode preflight; fail_case "database locale missing in the new image" "locales"
+new_case localespelling; printf 'Klacks|c|en_US.UTF-8|en_US.UTF-8\n' > "$S/locales"; run --mode preflight; check "UTF-8 spelling matches utf8 of locale -a" bash -c "[ '$code' = 0 ] && grep -q 'PASS locales' '$case_dir/out.txt'"
+new_case localeunreadable; : > "$S/locales"; run --mode preflight; fail_case "unreadable database locales" "locales"
 new_case before; export HEU_NOW_UTC=00:20; run --mode preflight; check "00:20 is allowed" bash -c "[ '$code' = 0 ]"
 new_case after; export HEU_NOW_UTC=04:00; run --mode preflight; check "04:00 is allowed" bash -c "[ '$code' = 0 ]"
 new_case disk; export HEU_FAKE_DF_KB=$((2 * 1024 * 1024)); run --mode preflight; fail_case "less than 5 GB free" "disk"

@@ -5,7 +5,8 @@
 # run ON the server as root by .github/workflows/hetzner-engine-upgrade.yml through hetzner-engine-upgrade-remote.sh.
 # The upgrade itself is done by the updater (operation type 4, see PLAN-b contract); this script prepares, starts, watches
 # and verifies it. Modes:
-#   preflight          checks plus backups (pg_dumpall gzip, copy of .env); changes nothing running (may pull the :19 image)
+#   preflight          checks plus backups (pg_dumpall gzip, copy of .env); changes nothing running (may pull the :19 image);
+#                      on its own it only avoids the nightly reset (01:50-02:30 UTC), as part of upgrade the whole window
 #   upgrade            preflight, suspend the nightly reset cron, enqueue the signed operation, wait, verify
 #   rollback           manual return to the old engine (restore .env.pre-pg19, start the old cluster); only before cleanup
 #   regenerate-golden  rebuild the playground golden dump from PostgreSQL 19 (after a successful upgrade)
@@ -27,6 +28,9 @@ fi
 
 readonly BLOCK_START_MINUTES=$((1 * 60 + 15))
 readonly BLOCK_END_MINUTES=$((4 * 60))
+readonly RESET_BLOCK_START_MINUTES=$((1 * 60 + 50))
+readonly RESET_BLOCK_END_MINUTES=$((2 * 60 + 30))
+readonly -a ALWAYS_AVAILABLE_LOCALES=(c posix c.utf8)
 readonly UPGRADE_RESERVE_MINUTES=45
 readonly MIN_FREE_GB=5
 readonly CAPABILITY_MAX_AGE_MINUTES=30
@@ -181,6 +185,17 @@ window_blocked() { # reserve_minutes
   [ "$now" -ge $((BLOCK_START_MINUTES - $1)) ] && [ "$now" -lt "$BLOCK_END_MINUTES" ]
 }
 
+reset_window_blocked() {
+  local now
+  now="$(now_minutes)"
+  [ "$now" -ge "$RESET_BLOCK_START_MINUTES" ] && [ "$now" -lt "$RESET_BLOCK_END_MINUTES" ]
+}
+
+normalize_locale() { # name; lower case, "utf-8" -> "utf8" (the spelling of locale -a)
+  local name="${1,,}"
+  printf '%s' "${name//utf-8/utf8}"
+}
+
 container_running() { [ "$(docker inspect --format '{{.State.Running}}' "$1" 2> /dev/null || true)" = "true" ]; }
 
 pg_major() {
@@ -315,6 +330,40 @@ check_window() { # reserve_minutes
     fail "time window" "now is inside the blocked window 01:15-04:00 UTC (reset cron 02:00, maintenance 03:30, dump 03:45) or closer than $1 min to its start"
   else
     pass "time window" "outside 01:15-04:00 UTC with $1 min reserve"
+  fi
+}
+
+check_reset_window() {
+  if reset_window_blocked; then
+    fail "time window" "now is inside the nightly reset window 01:50-02:30 UTC"
+  else
+    pass "time window" "outside the nightly reset window 01:50-02:30 UTC (an upgrade additionally needs 01:15-04:00 UTC free)"
+  fi
+}
+
+check_locales() { # every libc locale of the migrated databases must exist in the new image (CREATE DATABASE fails otherwise)
+  local rows available db provider collate ctype missing="" name
+  rows="$(psql_q postgres "SELECT datname || '|' || datlocprovider || '|' || datcollate || '|' || datctype FROM pg_database WHERE NOT datistemplate AND datallowconn AND datname <> 'postgres' ORDER BY 1")"
+  if [ -z "$rows" ]; then
+    fail "locales" "cannot read the locales of the databases"
+    return 0
+  fi
+  if ! available="$(docker run --rm --network none --entrypoint locale "$engine_image" -a 2> /dev/null)"; then
+    fail "locales" "cannot list the locales of $engine_image"
+    return 0
+  fi
+  available="$(printf '%s\n' "${ALWAYS_AVAILABLE_LOCALES[@]}" "$available" | while IFS= read -r name; do normalize_locale "$name"; echo; done)"
+  while IFS='|' read -r db provider collate ctype; do
+    [ -n "$db" ] || continue
+    log "Database $db: provider $provider, LC_COLLATE $collate, LC_CTYPE $ctype"
+    for name in "$collate" "$ctype"; do
+      grep -qxF -- "$(normalize_locale "$name")" <<< "$available" || missing="$missing $db:$name"
+    done
+  done <<< "$rows"
+  if [ -z "$missing" ]; then
+    pass "locales" "every database locale exists in $engine_image"
+  else
+    fail "locales" "missing in $engine_image:$missing"
   fi
 }
 
@@ -464,7 +513,7 @@ check_release_dependent() {
 }
 
 run_preflight() {
-  check_window "$UPGRADE_RESERVE_MINUTES"
+  if [ "$mode" = preflight ]; then check_reset_window; else check_window "$UPGRADE_RESERVE_MINUTES"; fi
   if crontab -l 2> /dev/null | grep -q "^${CRON_MARKER}"; then
     warn "reset cron" "crontab still has lines marked '${CRON_MARKER}' from an interrupted run: the nightly reset is suspended"
   fi
@@ -472,6 +521,7 @@ run_preflight() {
   check_database_state
   check_signing_key
   check_compose
+  check_locales
   check_release_dependent
   if [ "${#FAILS[@]}" -eq 0 ]; then
     take_snapshots

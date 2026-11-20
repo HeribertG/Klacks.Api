@@ -211,6 +211,17 @@ Back up `.env` again after the upgrade: an installer run on a `.env` without the
 `KLACKS_POSTGRES_*` lines, or with lines naming an older folder than the newest database in the
 volume, stops instead of guessing which folder is current.
 
+**A leftover `pg<major>` folder** (for example `pg19` after a manual rollback of a finished upgrade, or after an
+interrupted attempt the updater cannot prove it created): the updater and the installer stop instead of overwriting or
+deleting it ("contact Klacks support"). Such a folder can hold everything entered after a switch, so first make sure
+`.env` names the old folder and the old database runs, then save the leftover folder and remove it (Linux, project
+`klacks`, leftover `pg19`, old folder `pgdata`):
+```bash
+sudo grep -qx 'KLACKS_POSTGRES_DATA_SUBDIR=pgdata' .env   && sudo docker run --rm -v klacks_postgres_data:/pgvolume -v "$PWD":/backup alpine:3.20      sh -c 'tar czf /backup/pg19-leftover.tar.gz -C /pgvolume pg19 && rm -rf /pgvolume/pg19'
+```
+Then the upgrade can be started again. If you are unsure which folder holds your current data, contact Klacks support
+before deleting anything.
+
 **Cleaning up:** the old folder and the dumps stay in the volume until you remove them. Once the new
 version has run without problems for some days, take a fresh backup and delete them. `pgdata` is the
 live database of every installation that was never upgraded, so the command below (Linux, project

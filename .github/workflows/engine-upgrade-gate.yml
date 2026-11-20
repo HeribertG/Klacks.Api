@@ -62,10 +62,10 @@ env:
   FILLER_ROWS_KILL: '1500000'
   FILLER_ROWS_DEFAULT: '20000'
   FAULT_PHASE: 'Restored'
-  # Plan section 3 (W3b) expects Failed (3) for a wrong artifact hash. The Klacks.Updater executor checks the hash in
-  # PrepareArtifactAsync, after Accepted, and reverts: RolledBack (4) with an archived journal. Both are accepted; the
-  # "nothing changed" checks (AssertRollback) run either way.
-  BAD_HASH_EXPECTED_STATUS: '3,4'
+  # Wrong artifact hash: the Klacks.Updater executor checks the hash in PrepareArtifactAsync, after Accepted, and reverts
+  # with nothing changed, so the row ends RolledBack (4) with an archived journal (orchestrator decision 2026-11-20; plan
+  # section 3 said Failed). The "nothing changed" checks (AssertRollback) still run.
+  BAD_HASH_EXPECTED_STATUS: '4'
   BAD_HASH_INPUT: 'klacks-engine-upgrade-gate-bad-hash'
   GATE_ADMIN_EMAIL: 'engine.gate@example.com'
   DOTNET_VERSION: '10.0.x'
