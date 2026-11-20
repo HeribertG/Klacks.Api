@@ -595,7 +595,7 @@ verify_upgraded() {
 
   if api_healthy_within "$HEALTH_WAIT_SECONDS"; then
     pass "api health" "healthy"
-    version="$(api_exec_curl /api/Version 2> /dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin).get("VersionString", "?"))' 2> /dev/null || echo unreadable)"
+    version="$(api_exec_curl /api/Version 2> /dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print("{}.{}.{}".format(d["major"], d["minor"], d["patch"]))' 2> /dev/null || echo unreadable)"
     log "API version: $version"
     code="$(api_exec_curl /api/backend/Update/Status -o /dev/null -w '%{http_code}' 2> /dev/null || true)"
     if [ "$code" = "$EXPECTED_AUTH_CODE" ]; then pass "auth smoke" "a protected endpoint answers $EXPECTED_AUTH_CODE without a token"; else fail "auth smoke" "a protected endpoint answered '$code', expected $EXPECTED_AUTH_CODE"; fi

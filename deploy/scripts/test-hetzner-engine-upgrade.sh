@@ -88,7 +88,7 @@ case "${args[0]}" in
         url="${rest[$((${#rest[@]} - 1))]}"
         case "$url" in
           */health) [ -f "$S/api_unhealthy" ] && exit 22; exit 0 ;;
-          */api/Version) echo '{"VersionString":"1.0.79"}' ;;
+          */api/Version) echo '{"major":1,"minor":0,"patch":79}' ;;
           */api/backend/Update/Status) cat "$S/auth_code" ;;
         esac
         ;;
@@ -333,6 +333,7 @@ touch "$S/outage_once"
 run --mode upgrade --confirm SWITCH-PG19
 check "exit 0" test "$code" = 0
 check "UPGRADE OK" out_has "UPGRADE OK"
+check "API version read from major.minor.patch" out_has "API version: 1.0.79"
 check "enqueue arguments" bash -c "grep -q -e '--from 17 --to 19' -e \"--ref $IMAGE\" '$S/enqueue.args' && grep -q -e \"--sha $DIGEST\" -e \"--sig $sig\" '$S/enqueue.args' && grep -q 'requested-by hetzner-engine-upgrade:test' '$S/enqueue.args' && grep -q 'psql -U admin -d Klacks' '$S/enqueue.args'"
 check ".env.pre-pg19 is the pre-switch .env" bash -c "cmp -s '$APPS_DIR/.env.pre-pg19' '$BACKUP_DIR'/env-pre-switch-* && ! grep -q KLACKS_POSTGRES_DATA_SUBDIR '$APPS_DIR/.env.pre-pg19' && [ \"\$(stat -c %a '$APPS_DIR/.env.pre-pg19')\" = 600 ]"
 check "reset cron suspended during the run" bash -c "grep -q '^#PG19-SWITCH# 0 2 ' '$S/cron.during' && grep -q '^30 3 ' '$S/cron.during'"
