@@ -145,6 +145,11 @@ function Test-Login {
     Write-Note 'Seeded admin signed in.'
 }
 
+function Suspend-ErpImport {
+    Invoke-GateQuery $KlacksDatabase "INSERT INTO settings (id, type, value) VALUES (gen_random_uuid(), 'ERP_IMPORT_NEXT_RUN_UTC', '2099-01-01T00:00:00.0000000Z') ON CONFLICT (type) DO UPDATE SET value = EXCLUDED.value;" | Out-Null
+    Write-Note 'ERP import scheduler parked (next run 2099; its first run would add a setting and the default drop point).'
+}
+
 function Disable-AutoUpdate {
     Invoke-GateQuery $KlacksDatabase "UPDATE settings SET value = 'False' WHERE type = 'UPDATE_AUTO_ENABLED';" | Out-Null
     Write-Note 'Automatic app updates switched off (the gate must be the only one queueing operations).'
@@ -302,6 +307,7 @@ function Invoke-Seed {
         $rows = if ($database -eq $FillerDatabase) { Get-RequiredEnv 'GATE_FILLER_ROWS' } else { '0' }
         Invoke-GateSqlFile $database 'seed-side-database.sql' @("filler_rows=$rows") | Write-Host
     }
+    Suspend-ErpImport
     Disable-AutoUpdate
 }
 

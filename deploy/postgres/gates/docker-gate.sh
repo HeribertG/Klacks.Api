@@ -164,6 +164,13 @@ run_installer() {
   (cd "$GATE_INSTALL_DIR" && sudo bash ./install.sh </dev/null 2>&1) | sed -E "s/($SETUP_CODE_LINE_MARKER +)[A-Z0-9-]+/\1***/" | tee "$log"
 }
 
+# The hourly ERP import writes its first next-run setting and the default drop point at the first full hour; inside the
+# snapshot window that reads as a changed row count. A next run far in the future keeps it idle during the gate.
+suspend_erp_import() {
+  psql_query "$KLACKS_DATABASE" "INSERT INTO settings (id, type, value) VALUES (gen_random_uuid(), 'ERP_IMPORT_NEXT_RUN_UTC', '2099-01-01T00:00:00.0000000Z') ON CONFLICT (type) DO UPDATE SET value = EXCLUDED.value;" >/dev/null
+  note 'ERP import scheduler parked (next run 2099).'
+}
+
 disable_auto_update() {
   psql_query "$KLACKS_DATABASE" "UPDATE settings SET value = 'False' WHERE type = 'UPDATE_AUTO_ENABLED';" >/dev/null
   note 'Automatic app updates switched off (the gate must be the only one queueing operations).'
@@ -285,6 +292,7 @@ cmd_seed() {
     [ "$database" = "$FILLER_DATABASE" ] && rows="$GATE_FILLER_ROWS"
     psql_file "$database" seed-side-database.sql -v "filler_rows=$rows"
   done
+  suspend_erp_import
   disable_auto_update
 }
 
