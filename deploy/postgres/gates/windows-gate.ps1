@@ -548,3 +548,4 @@ switch ($Action) {
     'RestartServices' { Invoke-RestartServices }
     'Diagnostics' { Invoke-Diagnostics }
 }
+exit 0
