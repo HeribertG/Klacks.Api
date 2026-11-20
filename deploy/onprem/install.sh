@@ -357,6 +357,9 @@ step "Pulling images..."
 docker compose pull
 step "Starting the stack..."
 docker compose up -d
+# compose leaves an unchanged proxy running with the nginx.conf it rendered at its start; a restart renders the
+# current template and resolves the API address again (a re-run may have recreated klacks-api).
+docker compose restart nginx-proxy >/dev/null || warn "Restarting the proxy failed; if Klacks answers 502, run: docker compose restart nginx-proxy"
 
 step "Waiting for the API to become healthy (first run migrates + seeds the database)..."
 HEALTHY=false

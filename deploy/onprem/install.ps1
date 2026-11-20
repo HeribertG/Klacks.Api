@@ -374,6 +374,8 @@ if ($LASTEXITCODE -ne 0) { Stop-Install "Pulling the images failed (see above). 
 Write-Step "Starting the stack..."
 docker compose up -d
 if ($LASTEXITCODE -ne 0) { Stop-Install "Starting the stack failed (see above). Check: docker compose logs" }
+docker compose restart nginx-proxy | Out-Null
+if ($LASTEXITCODE -ne 0) { Write-Warn "Restarting the proxy failed; if Klacks answers 502, run: docker compose restart nginx-proxy" }
 
 # --- 9. Wait for health ------------------------------------------------------
 Write-Step "Waiting for the API to become healthy (first run migrates + seeds the database)..."
