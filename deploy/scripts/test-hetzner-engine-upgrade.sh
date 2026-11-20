@@ -47,6 +47,7 @@ case "${args[0]}" in
         done
         case "$sql" in
           "SHOW server_version_num") cat "$S/version_num" ;;
+          *"datlocprovider ||"*) echo 'ERROR: operator is not unique: text || "char"' >&2; exit 1 ;;
           *datcollate*) cat "$S/locales" ;;
           *"FROM pg_database"*) cat "$S/databases" ;;
           *"FROM pg_roles"*) cat "$S/roles" ;;
@@ -273,6 +274,7 @@ new_case upgradewindow; export HEU_NOW_UTC=03:00; run --mode upgrade --confirm S
 check "upgrade blocked inside 01:15-04:00" bash -c "[ '$code' = 1 ] && grep -q 'FAIL time window' '$case_dir/out.txt' && [ ! -e '$S/enqueue.args' ]"
 new_case locale; printf 'Klacks|c|de_CH.utf8|de_CH.utf8\n' > "$S/locales"; run --mode preflight; fail_case "database locale missing in the new image" "locales"
 new_case localespelling; printf 'Klacks|c|en_US.UTF-8|en_US.UTF-8\n' > "$S/locales"; run --mode preflight; check "UTF-8 spelling matches utf8 of locale -a" bash -c "[ '$code' = 0 ] && grep -q 'PASS locales' '$case_dir/out.txt'"
+new_case localebuiltin; printf 'en_US.utf8\n' > "$S/image_locales"; printf 'Klacks|c|C.UTF-8|POSIX\n' > "$S/locales"; run --mode preflight; check "C, C.UTF-8 and POSIX count as available" bash -c "[ '$code' = 0 ] && grep -q 'PASS locales' '$case_dir/out.txt'"
 new_case localeunreadable; : > "$S/locales"; run --mode preflight; fail_case "unreadable database locales" "locales"
 new_case before; export HEU_NOW_UTC=00:20; run --mode preflight; check "00:20 is allowed" bash -c "[ '$code' = 0 ]"
 new_case after; export HEU_NOW_UTC=04:00; run --mode preflight; check "04:00 is allowed" bash -c "[ '$code' = 0 ]"

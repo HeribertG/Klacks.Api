@@ -343,7 +343,7 @@ check_reset_window() {
 
 check_locales() { # every libc locale of the migrated databases must exist in the new image (CREATE DATABASE fails otherwise)
   local rows available db provider collate ctype missing="" name
-  rows="$(psql_q postgres "SELECT datname || '|' || datlocprovider || '|' || datcollate || '|' || datctype FROM pg_database WHERE NOT datistemplate AND datallowconn AND datname <> 'postgres' ORDER BY 1")"
+  rows="$(psql_q postgres "SELECT datname || '|' || datlocprovider::text || '|' || datcollate || '|' || datctype FROM pg_database WHERE NOT datistemplate AND datallowconn AND datname <> 'postgres' ORDER BY 1")"
   if [ -z "$rows" ]; then
     fail "locales" "cannot read the locales of the databases"
     return 0
