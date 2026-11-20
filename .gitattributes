@@ -64,3 +64,4 @@
 
 # Shell scripts copied into Linux images must keep LF endings even in a Windows checkout.
 deploy/postgres/*.sh text eol=lf
+deploy/postgres/gates/*.sh text eol=lf

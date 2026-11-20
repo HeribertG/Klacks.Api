@@ -1,0 +1,515 @@
+# .github/workflows/engine-upgrade-gate.yml for Klacks.Api
+#
+# Upgrade gate for the PostgreSQL engine upgrade of the Klacks updater (operation type 4, dump/restore, old cluster kept).
+# A released installation (baseline, PostgreSQL 17) is upgraded by a candidate updater (input updater_ref) to the engine
+# pinned in deploy/postgres/engine.json, on both platforms, and checked by the gate itself (deploy/postgres/gates):
+#   Linux (Docker on-prem):   success, fail-after-restore (fault injection), kill-during-restore (docker kill + recovery),
+#                             fresh-install (candidate bundle, PostgreSQL 19 from the start)
+#   Windows (office PC):      success, fail-after-restore, kill-during-restore (taskkill + recovery), bad-hash (wrong
+#                             artifact hash, nothing may change)
+#   Windows layout:           deploy/native/windows/Test-PostgresEngineLayout.ps1 incl. its installer part
+# Success asserts row counts per table (counted by the gate), identical exact KNN top-10 lists for 20 probes, an HNSW
+# index scan with recall@10 >= 0.9, extensions, index validity, the kept old cluster and the platform switches; rollback
+# asserts PostgreSQL 17 active, data unchanged and the layout restored. Docker scenarios also re-run install.sh.
+#
+# Signing: every job that queues an engine upgrade generates its own throw-away RSA key pair in one step, signs the row
+# there with deploy/postgres/gates/sign-engine-row.sh and deletes the private key before the step ends (only repository
+# scripts and openssl run in that step). The candidate updater trusts that public key only (compose override /
+# klacks.native.json); the production signing secret is never used here. The API keeps the vendor key.
+#
+# Prerequisites on the dispatched ref: parametrised on-prem compose (KLACKS_POSTGRES_IMAGE), deploy/postgres/engine.json
+# and the published engine release; on Klacks.Updater the commit updater_ref with its ghcr image :sha-<commit>.
+# Dispatch: gh workflow run engine-upgrade-gate.yml --ref main -f updater_ref=<commit>
+
+name: Engine upgrade gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      updater_ref:
+        description: 'Klacks.Updater commit (full SHA, short SHA, branch or tag) to test; its image :sha-<commit> must exist'
+        required: true
+      baseline_version:
+        description: 'Released Klacks version installed first (PostgreSQL 17 baseline)'
+        required: false
+        default: '1.0.78'
+      platform:
+        description: 'Which platforms to run'
+        type: choice
+        options: [both, linux, windows]
+        default: both
+      scenario:
+        description: 'Run one scenario only (fix loops); all = every scenario of the chosen platforms'
+        type: choice
+        options: [all, success, fail-after-restore, kill-during-restore, fresh-install, bad-hash]
+        default: all
+
+concurrency:
+  group: engine-upgrade-gate-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  UPDATER_REPOSITORY: 'HeribertG/Klacks.Updater'
+  UPDATER_IMAGE: 'ghcr.io/heribertg/klacks-updater'
+  RELEASE_DOWNLOAD_BASE: 'https://github.com/HeribertG/Klacks.Api/releases/download'
+  ENGINE_PIN: 'deploy/postgres/engine.json'
+  ONPREM_COMPOSE: 'deploy/onprem/docker-compose.yml'
+  LAYOUT_TEST: 'deploy/native/windows/Test-PostgresEngineLayout.ps1'
+  GATE_FROM_MAJOR: '17'
+  FILLER_ROWS_KILL: '1500000'
+  FILLER_ROWS_DEFAULT: '20000'
+  FAULT_PHASE: 'Restored'
+  # Plan section 3 (W3b) expects Failed (3) for a wrong artifact hash. The Klacks.Updater executor checks the hash in
+  # PrepareArtifactAsync, after Accepted, and reverts: RolledBack (4) with an archived journal. Both are accepted; the
+  # "nothing changed" checks (AssertRollback) run either way.
+  BAD_HASH_EXPECTED_STATUS: '3,4'
+  BAD_HASH_INPUT: 'klacks-engine-upgrade-gate-bad-hash'
+  GATE_ADMIN_EMAIL: 'engine.gate@example.com'
+  DOTNET_VERSION: '10.0.x'
+
+jobs:
+  prepare:
+    name: prepare (inputs, engine artifact, prerequisites)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      updater_sha: ${{ steps.updater.outputs.sha }}
+      baseline_version: ${{ steps.inputs.outputs.baseline_version }}
+      to_major: ${{ steps.engine.outputs.major }}
+      expected_vector: ${{ steps.engine.outputs.pgvector }}
+      engine_image: ${{ steps.engine.outputs.image }}
+      engine_digest: ${{ steps.engine.outputs.digest }}
+      bundle_url: ${{ steps.engine.outputs.bundle_url }}
+      bundle_sha256: ${{ steps.engine.outputs.bundle_sha256 }}
+      linux_matrix: ${{ steps.matrix.outputs.linux }}
+      windows_matrix: ${{ steps.matrix.outputs.windows }}
+      run_linux: ${{ steps.matrix.outputs.run_linux }}
+      run_windows: ${{ steps.matrix.outputs.run_windows }}
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate inputs
+        id: inputs
+        env:
+          UPDATER_REF: ${{ inputs.updater_ref }}
+          BASELINE_VERSION: ${{ inputs.baseline_version }}
+        run: |
+          set -euo pipefail
+          [[ "$UPDATER_REF" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]{0,99}$ ]] || { echo "::error::updater_ref '$UPDATER_REF' is not a commit, branch or tag name."; exit 1; }
+          [[ "$BASELINE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::baseline_version '$BASELINE_VERSION' is not X.Y.Z."; exit 1; }
+          echo "baseline_version=$BASELINE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve the candidate updater
+        id: updater
+        env:
+          UPDATER_REF: ${{ inputs.updater_ref }}
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/updater"
+          git init -q "$work"
+          git -C "$work" fetch -q --depth 1 -- "https://github.com/$UPDATER_REPOSITORY" "$UPDATER_REF" \
+            || { echo "::error::Klacks.Updater has no commit, branch or tag '$UPDATER_REF' (a short SHA must be fetchable; prefer the full SHA)."; exit 1; }
+          sha="$(git -C "$work" rev-parse FETCH_HEAD)"
+          [[ "$sha" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::Could not resolve '$UPDATER_REF' to a commit."; exit 1; }
+          docker buildx imagetools inspect "$UPDATER_IMAGE:sha-$sha" >/dev/null \
+            || { echo "::error::$UPDATER_IMAGE:sha-$sha does not exist (Build & Push of Klacks.Updater not finished or failed)."; exit 1; }
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Candidate updater $sha ($UPDATER_IMAGE:sha-$sha)"
+
+      - name: Prerequisites on this ref
+        run: |
+          set -euo pipefail
+          missing=''
+          [ -f "$ENGINE_PIN" ] || missing="$missing $ENGINE_PIN (engine pin, W3a)"
+          grep -q 'KLACKS_POSTGRES_IMAGE' "$ONPREM_COMPOSE" || missing="$missing $ONPREM_COMPOSE without KLACKS_POSTGRES_IMAGE (W2)"
+          [ -f "$LAYOUT_TEST" ] || missing="$missing $LAYOUT_TEST (W1b)"
+          [ -z "$missing" ] || { echo "::error::This ref lacks:$missing"; exit 1; }
+
+      - name: Resolve the engine artifact
+        id: engine
+        run: |
+          set -euo pipefail
+          major="$(jq -r '.major' "$ENGINE_PIN")"
+          version="$(jq -r '.version' "$ENGINE_PIN")"
+          pgvector="$(jq -r '.pgvector' "$ENGINE_PIN")"
+          image="$(jq -r '.image' "$ENGINE_PIN")"
+          suffix="$(jq -r '.releaseSuffix // ""' "$ENGINE_PIN")"
+          [[ "$major" =~ ^[0-9]+$ && "$version" =~ ^[0-9]+\.[0-9]+$ && "$pgvector" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::$ENGINE_PIN is malformed."; exit 1; }
+          [[ "$image" =~ ^[a-z0-9./-]+:[A-Za-z0-9._-]+$ ]] || { echo "::error::$ENGINE_PIN image '$image' is not repo:tag."; exit 1; }
+          [[ "$suffix" =~ ^(-r[0-9]+)?$ ]] || { echo "::error::$ENGINE_PIN releaseSuffix '$suffix' is not empty or -rN."; exit 1; }
+          [ "$major" -gt "$GATE_FROM_MAJOR" ] || { echo "::error::The pinned engine $major is not newer than $GATE_FROM_MAJOR."; exit 1; }
+
+          digest="$(docker buildx imagetools inspect "$image" --format '{{json .Manifest}}' | jq -r '.digest')"
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo "::error::Could not read the index digest of $image."; exit 1; }
+
+          tag="postgres-engine-$version-pgvector$pgvector$suffix"
+          zip="klacks-postgres-$version-win-x64.zip"
+          url="$RELEASE_DOWNLOAD_BASE/$tag/$zip"
+          download="$RUNNER_TEMP/engine"
+          mkdir -p "$download"
+          curl -fsSL --retry 3 -o "$download/$zip" "$url" || { echo "::error::Engine bundle $url is not downloadable (postgres-engine-artifact.yml not run?)."; exit 1; }
+          bundle_sha="$(sha256sum "$download/$zip" | cut -d' ' -f1)"
+          entry_sha="$(curl -fsSL --retry 3 "$RELEASE_DOWNLOAD_BASE/$tag/klacks-postgres-$version-win-x64.json" | jq -r '.sha256')"
+          [ "$entry_sha" = "$bundle_sha" ] || { echo "::error::The release entry names sha256 $entry_sha, the downloaded bundle is $bundle_sha."; exit 1; }
+
+          {
+            echo "major=$major"
+            echo "pgvector=$pgvector"
+            echo "image=$image"
+            echo "digest=$digest"
+            echo "bundle_url=$url"
+            echo "bundle_sha256=$bundle_sha"
+          } >> "$GITHUB_OUTPUT"
+          echo "Engine $version (pgvector $pgvector): $image@$digest, $url ($bundle_sha)"
+
+      - name: Scenario matrix
+        id: matrix
+        env:
+          PLATFORM: ${{ inputs.platform }}
+          SCENARIO: ${{ inputs.scenario }}
+        run: |
+          set -euo pipefail
+          # shellcheck disable=SC2016 # $s, $f and $e are jq variables, not shell expansions
+          entry() {
+            local filler="$FILLER_ROWS_DEFAULT"
+            [ "$1" = kill-during-restore ] && filler="$FILLER_ROWS_KILL"
+            jq -nc --arg s "$1" --arg f "$2" --arg e "$3" --arg r "$filler" '{scenario:$s,fault:$f,expected:$e,filler:$r}'
+          }
+          linux="$( { entry success '' 2; entry fail-after-restore "$FAULT_PHASE" 4; entry kill-during-restore '' 4; entry fresh-install '' ''; } | jq -sc .)"
+          windows="$( { entry success '' 2; entry fail-after-restore "$FAULT_PHASE" 4; entry kill-during-restore '' 4; entry bad-hash '' "$BAD_HASH_EXPECTED_STATUS"; } | jq -sc .)"
+          # shellcheck disable=SC2016 # jq program
+          filter='if $s == "all" then . else map(select(.scenario == $s)) end'
+          linux="$(jq -c --arg s "$SCENARIO" "$filter" <<<"$linux")"
+          windows="$(jq -c --arg s "$SCENARIO" "$filter" <<<"$windows")"
+          run_linux=false; run_windows=false
+          if [ "$PLATFORM" != windows ] && [ "$(jq length <<<"$linux")" -gt 0 ]; then run_linux=true; fi
+          if [ "$PLATFORM" != linux ] && [ "$(jq length <<<"$windows")" -gt 0 ]; then run_windows=true; fi
+          {
+            echo "linux={\"include\":$linux}"
+            echo "windows={\"include\":$windows}"
+            echo "run_linux=$run_linux"
+            echo "run_windows=$run_windows"
+          } >> "$GITHUB_OUTPUT"
+          echo "Linux: $linux"
+          echo "Windows: $windows"
+
+  linux:
+    name: docker (${{ matrix.scenario }})
+    needs: prepare
+    if: needs.prepare.outputs.run_linux == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.linux_matrix) }}
+    env:
+      GATE_REPO_DIR: ${{ github.workspace }}/Klacks.Api
+      GATE_BASELINE_VERSION: ${{ needs.prepare.outputs.baseline_version }}
+      GATE_UPDATER_SHA: ${{ needs.prepare.outputs.updater_sha }}
+      GATE_FAULT_PHASE: ${{ matrix.fault }}
+      GATE_TO_MAJOR: ${{ needs.prepare.outputs.to_major }}
+      GATE_EXPECTED_VECTOR: ${{ needs.prepare.outputs.expected_vector }}
+      GATE_ENGINE_REF: ${{ needs.prepare.outputs.engine_image }}
+      GATE_ENGINE_SHA: ${{ needs.prepare.outputs.engine_digest }}
+      GATE_FILLER_ROWS: ${{ matrix.filler }}
+      SCENARIO: ${{ matrix.scenario }}
+      EXPECTED_STATUS: ${{ matrix.expected }}
+      DRIVER: Klacks.Api/deploy/postgres/gates/docker-gate.sh
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: Klacks.Api
+
+      - name: Runner preparation
+        run: |
+          set -euo pipefail
+          # The precheck wants max(2 GB, 3 x database size) free next to the images, the models and both clusters.
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+          docker version --format 'Docker {{.Server.Version}}'
+          docker compose version
+          mkdir -p "$RUNNER_TEMP/gate-state"
+          {
+            echo "GATE_STATE_DIR=$RUNNER_TEMP/gate-state"
+            echo "GATE_PUBLIC_KEY_FILE=$RUNNER_TEMP/gate-public.pem"
+            echo "GATE_SIGNATURE_FILE=$RUNNER_TEMP/gate-signature.txt"
+          } >> "$GITHUB_ENV"
+          password="Gate-$(openssl rand -hex 12)!"
+          echo "::add-mask::$password"
+          echo "GATE_ADMIN_PASSWORD=$password" >> "$GITHUB_ENV"
+          if [ "$SCENARIO" = fresh-install ]; then
+            echo "GATE_INSTALL_DIR=$HOME/klacks-fresh/onprem" >> "$GITHUB_ENV"
+          else
+            echo "GATE_INSTALL_DIR=$HOME/klacks-gate/onprem" >> "$GITHUB_ENV"
+          fi
+
+      # Only repository scripts and openssl run here; the private key never leaves this step.
+      - name: Throw-away signing key and signed row
+        run: |
+          set -euo pipefail
+          umask 077
+          key_dir="$(mktemp -d)"
+          trap 'rm -rf "$key_dir"' EXIT
+          openssl genrsa -out "$key_dir/private.pem" 3072 2>/dev/null
+          openssl rsa -in "$key_dir/private.pem" -pubout -out "$GATE_PUBLIC_KEY_FILE" 2>/dev/null
+          bash Klacks.Api/deploy/postgres/gates/sign-engine-row.sh --key "$key_dir/private.pem" --public-key "$GATE_PUBLIC_KEY_FILE" \
+            --to "$GATE_TO_MAJOR" --ref "$GATE_ENGINE_REF" --sha "$GATE_ENGINE_SHA" > "$GATE_SIGNATURE_FILE"
+          echo "Signed $GATE_ENGINE_REF@$GATE_ENGINE_SHA for PostgreSQL $GATE_TO_MAJOR with a key generated in this job."
+
+      - name: Baseline install (released on-prem bundle, PostgreSQL 17)
+        if: matrix.scenario != 'fresh-install'
+        run: bash "$DRIVER" install-baseline
+
+      - name: Candidate installer and updater
+        if: matrix.scenario != 'fresh-install'
+        run: bash "$DRIVER" apply-candidate
+
+      - name: Seed, calibrate and snapshot
+        if: matrix.scenario != 'fresh-install'
+        run: |
+          set -euo pipefail
+          bash "$DRIVER" seed
+          bash "$DRIVER" calibrate
+          bash "$DRIVER" snapshot before
+
+      - name: Queue the engine upgrade
+        if: matrix.scenario != 'fresh-install'
+        run: bash "$DRIVER" enqueue
+
+      - name: Kill the updater during the restore
+        if: matrix.scenario == 'kill-during-restore'
+        run: bash "$DRIVER" kill-during-restore
+
+      - name: Wait for the result
+        if: matrix.scenario != 'fresh-install'
+        run: bash "$DRIVER" wait-terminal "$EXPECTED_STATUS"
+
+      - name: Upgrade assertions
+        if: matrix.scenario == 'success'
+        run: bash "$DRIVER" assert-success
+
+      - name: Rollback assertions
+        if: matrix.scenario == 'fail-after-restore' || matrix.scenario == 'kill-during-restore'
+        run: bash "$DRIVER" assert-rollback
+
+      - name: Data unchanged (row counts, extensions, indexes, exact KNN)
+        if: matrix.scenario != 'fresh-install'
+        run: |
+          set -euo pipefail
+          bash "$DRIVER" snapshot after
+          bash "$DRIVER" compare before after
+
+      - name: compose down and up again
+        if: matrix.scenario != 'fresh-install'
+        env:
+          RESTART_MAJOR: ${{ matrix.scenario == 'success' && needs.prepare.outputs.to_major || env.GATE_FROM_MAJOR }}
+        run: bash "$DRIVER" restart-stack "$RESTART_MAJOR"
+
+      - name: Installer re-run keeps postgres
+        if: matrix.scenario != 'fresh-install'
+        run: bash "$DRIVER" installer-rerun
+
+      - name: Fresh install (candidate bundle, new engine from the start)
+        if: matrix.scenario == 'fresh-install'
+        run: bash "$DRIVER" fresh-install
+
+      - name: Collect diagnostics
+        if: failure() || cancelled()
+        run: bash "$DRIVER" diagnostics "$RUNNER_TEMP/diagnostics"
+
+      - name: Upload diagnostics
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-gate-docker-${{ matrix.scenario }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/diagnostics
+          if-no-files-found: ignore
+          retention-days: 14
+
+  windows:
+    name: windows (${{ matrix.scenario }})
+    needs: prepare
+    if: needs.prepare.outputs.run_windows == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.windows_matrix) }}
+    env:
+      GATE_REPO_DIR: ${{ github.workspace }}\Klacks.Api
+      GATE_UPDATER_DIR: ${{ github.workspace }}\Klacks.Updater
+      GATE_BASELINE_VERSION: ${{ needs.prepare.outputs.baseline_version }}
+      GATE_FAULT_PHASE: ${{ matrix.fault }}
+      GATE_TO_MAJOR: ${{ needs.prepare.outputs.to_major }}
+      GATE_EXPECTED_VECTOR: ${{ needs.prepare.outputs.expected_vector }}
+      GATE_ENGINE_REF: ${{ needs.prepare.outputs.bundle_url }}
+      GATE_FILLER_ROWS: ${{ matrix.filler }}
+      SCENARIO: ${{ matrix.scenario }}
+      EXPECTED_STATUS: ${{ matrix.expected }}
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: Klacks.Api
+
+      - name: Checkout Klacks.Updater (candidate)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          repository: HeribertG/Klacks.Updater
+          ref: ${{ needs.prepare.outputs.updater_sha }}
+          path: Klacks.Updater
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Gate paths
+        shell: powershell
+        run: |
+          foreach ($entry in @(
+              "GATE_STATE_DIR=$env:RUNNER_TEMP\gate-state",
+              "GATE_WORK_DIR=$env:RUNNER_TEMP\gate-work",
+              "GATE_PUBLIC_KEY_FILE=$env:RUNNER_TEMP\gate-public.pem",
+              "GATE_SIGNATURE_FILE=$env:RUNNER_TEMP\gate-signature.txt")) {
+            $entry | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          }
+
+      - name: Artifact hash of this scenario
+        shell: bash
+        env:
+          BUNDLE_SHA256: ${{ needs.prepare.outputs.bundle_sha256 }}
+        run: |
+          set -euo pipefail
+          sha="$BUNDLE_SHA256"
+          if [ "$SCENARIO" = bad-hash ]; then
+            sha="$(printf '%s' "$BAD_HASH_INPUT" | sha256sum | cut -d' ' -f1)"
+            echo "bad-hash: the row names $sha instead of the real bundle hash $BUNDLE_SHA256."
+          fi
+          echo "GATE_ENGINE_SHA=$sha" >> "$GITHUB_ENV"
+
+      # Only repository scripts and openssl run here; the private key never leaves this step.
+      - name: Throw-away signing key and signed row
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          key_dir="$(mktemp -d)"
+          trap 'rm -rf "$key_dir"' EXIT
+          public_key="$(cygpath -u "$GATE_PUBLIC_KEY_FILE")"
+          signature="$(cygpath -u "$GATE_SIGNATURE_FILE")"
+          openssl genrsa -out "$key_dir/private.pem" 3072 2>/dev/null
+          openssl rsa -in "$key_dir/private.pem" -pubout -out "$public_key" 2>/dev/null
+          bash Klacks.Api/deploy/postgres/gates/sign-engine-row.sh --key "$key_dir/private.pem" --public-key "$public_key" \
+            --to "$GATE_TO_MAJOR" --ref "$GATE_ENGINE_REF" --sha "$GATE_ENGINE_SHA" > "$signature"
+          echo "Signed $GATE_ENGINE_REF ($GATE_ENGINE_SHA) for PostgreSQL $GATE_TO_MAJOR with a key generated in this job."
+
+      - name: Baseline install (released office-PC package, PostgreSQL 17)
+        shell: powershell
+        run: '& .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action InstallBaseline'
+
+      - name: Candidate updater
+        shell: powershell
+        run: '& .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action ApplyCandidate'
+
+      - name: Seed, calibrate and snapshot
+        shell: powershell
+        run: |
+          & .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action Seed
+          & .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action Calibrate
+          & .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action Snapshot -Label before
+
+      - name: Queue the engine upgrade
+        shell: powershell
+        run: '& .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action Enqueue'
+
+      - name: Kill the updater during the restore
+        if: matrix.scenario == 'kill-during-restore'
+        shell: powershell
+        run: '& .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action KillDuringRestore'
+
+      - name: Wait for the result
+        shell: powershell
+        run: '& .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action WaitTerminal -Expected $env:EXPECTED_STATUS'
+
+      - name: Upgrade assertions
+        if: matrix.scenario == 'success'
+        shell: powershell
+        run: '& .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action AssertSuccess'
+
+      - name: Rollback assertions (nothing changed)
+        if: matrix.scenario != 'success'
+        shell: powershell
+        run: '& .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action AssertRollback'
+
+      - name: Data unchanged (row counts, extensions, indexes, exact KNN)
+        shell: powershell
+        run: |
+          & .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action Snapshot -Label after
+          & .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action Compare -Label before -OtherLabel after
+
+      - name: Restart all services
+        shell: powershell
+        run: '& .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action RestartServices'
+
+      - name: Collect diagnostics
+        if: failure() || cancelled()
+        shell: powershell
+        run: '& .\Klacks.Api\deploy\postgres\gates\windows-gate.ps1 -Action Diagnostics -Directory "$env:RUNNER_TEMP\diagnostics"'
+
+      - name: Upload diagnostics
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-gate-windows-${{ matrix.scenario }}-${{ github.run_id }}
+          path: ${{ runner.temp }}\diagnostics
+          if-no-files-found: ignore
+          retention-days: 14
+
+  windows-layout:
+    name: windows (installer engine layout)
+    needs: prepare
+    if: needs.prepare.outputs.run_windows == 'true' && (inputs.scenario == 'all' || inputs.scenario == 'success')
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      BASELINE_VERSION: ${{ needs.prepare.outputs.baseline_version }}
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: Klacks.Api
+
+      - name: Released office-PC package (bundle and PostgreSQL)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $zip = Join-Path $env:RUNNER_TEMP 'office-pc.zip'
+          & curl.exe -fsSL --retry 3 -o $zip "$env:RELEASE_DOWNLOAD_BASE/v$env:BASELINE_VERSION/klacks-office-pc-win-x64.zip"
+          if ($LASTEXITCODE -ne 0) { throw 'Download of the office-PC package failed.' }
+          $target = Join-Path $env:RUNNER_TEMP 'office-pc'
+          New-Item -ItemType Directory -Force -Path $target | Out-Null
+          & tar.exe -xf $zip -C $target
+          if ($LASTEXITCODE -ne 0) { throw 'Could not unpack the office-PC package.' }
+          $manifest = Get-ChildItem -Recurse -Filter 'package.json' $target | Select-Object -First 1
+          $package = Get-Content -Raw $manifest.FullName | ConvertFrom-Json
+          "LAYOUT_BUNDLE=$(Join-Path $manifest.DirectoryName $package.bundle)" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          "LAYOUT_VERSION=$($package.version)" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          "LAYOUT_POSTGRES=$(Join-Path $manifest.DirectoryName 'pgsql')" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+
+      - name: Test-PostgresEngineLayout.ps1 (layout and installer part)
+        shell: powershell
+        run: |
+          & .\Klacks.Api\deploy\native\windows\Test-PostgresEngineLayout.ps1 -BundleZip $env:LAYOUT_BUNDLE -Version $env:LAYOUT_VERSION -PostgresDirectory $env:LAYOUT_POSTGRES
+          if ($LASTEXITCODE -ne 0) { throw "Test-PostgresEngineLayout.ps1 failed ($LASTEXITCODE)." }
