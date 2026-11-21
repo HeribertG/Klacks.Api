@@ -1,7 +1,8 @@
 # .github/workflows/native-office-pc-check.yml for Klacks.Api
 #
 # Manual, read-only check of the public office-PC download: the rolling prerelease office-pc must serve the given
-# release (title names it, ZIP and setup EXE carry the same SHA-256 digests as on v<version>). Same script as the
+# release (title names it, ZIP and setup EXE carry the same SHA-256 digests as on v<version>; the fail-soft win-arm64 ZIP
+# and EXE may lag one version and are only a warning while unpublished). Same script as the
 # verify-office-pc job of native-windows.yml, which runs it automatically at the end of every stable release.
 # Changes nothing; a red result means the download is stale (repair: re-run all jobs of that native release run).
 
@@ -21,6 +22,8 @@ env:
   ROLLING_TAG: 'office-pc'
   PACKAGE_FILE: 'klacks-office-pc-win-x64.zip'
   INSTALLER_FILE: 'Klacks-Setup-win-x64.exe'
+  PACKAGE_FILE_ARM64: 'klacks-office-pc-win-arm64.zip'
+  INSTALLER_FILE_ARM64: 'Klacks-Setup-win-arm64.exe'
 
 jobs:
   verify:
@@ -37,4 +40,4 @@ jobs:
       - name: office-pc serves this release
         run: |
           bash deploy/native/verify-rolling-download.sh "$GITHUB_REPOSITORY" "$VERSION" "$ROLLING_TAG" \
-            "$PACKAGE_FILE" "$INSTALLER_FILE"
+            "$PACKAGE_FILE" "$INSTALLER_FILE" --may-lag "$PACKAGE_FILE_ARM64" --may-lag "$INSTALLER_FILE_ARM64"

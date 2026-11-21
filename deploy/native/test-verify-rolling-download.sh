@@ -4,7 +4,8 @@
 # Local checks for verify-rolling-download.sh against a stub gh that serves canned release listings (no network, no
 # GitHub writes): the green case, a newer rolling release, and every stale case - wrong or missing title version, EXE or
 # ZIP from another build, an asset missing on either release, a digest that is missing for good (bounded re-reads,
-# VERIFY_DIGEST_RETRY_SECONDS=0) or arrives on the second read. Run: bash deploy/native/test-verify-rolling-download.sh
+# VERIFY_DIGEST_RETRY_SECONDS=0) or arrives on the second read. The --may-lag (win-arm64) cases: same version, one version
+# behind, never published, published but not on office-pc, two versions behind, and a failed release listing. Run: bash deploy/native/test-verify-rolling-download.sh
 
 set -euo pipefail
 
@@ -14,6 +15,13 @@ readonly ROLLING='office-pc'
 readonly VERSION='1.0.49'
 readonly ZIP='klacks-office-pc-win-x64.zip'
 readonly EXE='Klacks-Setup-win-x64.exe'
+readonly ARM_ZIP='klacks-office-pc-win-arm64.zip'
+readonly ARM_EXE='Klacks-Setup-win-arm64.exe'
+readonly ARM_ZIP_SHA='sha256:dddd'
+readonly ARM_EXE_SHA='sha256:eeee'
+readonly ARM_PREV_ZIP_SHA='sha256:1111'
+readonly ARM_PREV_EXE_SHA='sha256:2222'
+readonly PREVIOUS='1.0.48'
 readonly ZIP_SHA='sha256:aaaa'
 readonly EXE_SHA='sha256:bbbb'
 readonly OLD_SHA='sha256:0000'
@@ -29,6 +37,10 @@ mkdir -p "$work/bin"
 cat > "$work/bin/gh" <<'STUB'
 #!/usr/bin/env bash
 tag="${2##*/}"
+if [ "$tag" = releases ] && [ "$3" = --paginate ]; then
+  [ -f "$FIXTURES/releases.txt" ] || { echo "gh: Not Found (HTTP 404)" >&2; exit 1; }
+  cat "$FIXTURES/releases.txt"; exit 0
+fi
 [ "$1" = api ] && [ -f "$FIXTURES/$tag.tsv" ] || { echo "gh: Not Found (HTTP 404)" >&2; exit 1; }
 reads=$(( $(cat "$FIXTURES/$tag.reads" 2>/dev/null || echo 0) + 1 ))
 echo "$reads" > "$FIXTURES/$tag.reads"
@@ -38,6 +50,7 @@ STUB
 chmod +x "$work/bin/gh"
 
 failures=0
+lag_args=()
 
 listing() {
   printf 'title\t%s\n' "$1"
@@ -55,7 +68,7 @@ run_case() {
   [ -z "$version_listing" ] || printf '%s' "$version_listing" > "$fixtures/v${VERSION}.tsv"
   local actual=0
   FIXTURES="$fixtures" PATH="$work/bin:$PATH" GITHUB_STEP_SUMMARY="$fixtures/summary.md" VERIFY_DIGEST_RETRY_SECONDS=0 \
-    bash "$SCRIPT" "$REPO" "$VERSION" "$ROLLING" "$ZIP" "$EXE" > "$fixtures/out.txt" 2>&1 || actual=$?
+    bash "$SCRIPT" "$REPO" "$VERSION" "$ROLLING" "$ZIP" "$EXE" "${lag_args[@]}" > "$fixtures/out.txt" 2>&1 || actual=$?
   if [ "$actual" -ne "$expected" ]; then
     echo "FAIL ${name}: exit ${actual}, expected ${expected}"; cat "$fixtures/out.txt"; failures=$((failures + 1)); return
   fi
@@ -89,6 +102,45 @@ run_case digest-arrives-on-second-read "$EXIT_OK" "$exe_without_digest" "$good_v
   "$good_rolling" "$SECOND_READ" "$SECOND_READ"
 run_case version-release-unreadable "$EXIT_STALE" "$good_rolling" "" "Reading release v${VERSION}"
 run_case rolling-release-unreadable "$EXIT_STALE" "" "" "Reading release ${ROLLING}"
+
+# Writes extra fixtures of one case before run_case: the release listing and the previous release v${PREVIOUS}.
+lag_fixtures() {
+  local name="$1" releases="$2" previous_listing="$3"
+  mkdir -p "$work/$name"
+  [ -z "$releases" ] || tr ' ' '\n' <<< "$releases" > "$work/$name/releases.txt"
+  [ -z "$previous_listing" ] || printf '%s' "$previous_listing" > "$work/$name/v${PREVIOUS}.tsv"
+}
+
+lag_args=(--may-lag "$ARM_ZIP" --may-lag "$ARM_EXE")
+all_releases="v1.0.47 v${PREVIOUS} v${VERSION} v1.0.50-rc1 native-dryrun-1 office-pc"
+arm_version="$(listing "v${VERSION}" "$ZIP" "$ZIP_SHA" "$EXE" "$EXE_SHA" "$ARM_ZIP" "$ARM_ZIP_SHA" "$ARM_EXE" "$ARM_EXE_SHA")"
+arm_previous="$(listing "v${PREVIOUS}" "$ZIP" "$OLD_SHA" "$EXE" "$OLD_SHA" "$ARM_ZIP" "$ARM_PREV_ZIP_SHA" "$ARM_EXE" "$ARM_PREV_EXE_SHA")"
+x64_previous="$(listing "v${PREVIOUS}" "$ZIP" "$OLD_SHA" "$EXE" "$OLD_SHA")"
+
+run_case arm64-same-version "$EXIT_OK"   "$(listing "Office PC package ${VERSION}" "$ZIP" "$ZIP_SHA" "$EXE" "$EXE_SHA" "$ARM_ZIP" "$ARM_ZIP_SHA" "$ARM_EXE" "$ARM_EXE_SHA")"   "$arm_version" "${ROLLING} serves ${VERSION}"
+
+lag_fixtures arm64-lags-one-version "$all_releases" "$arm_previous"
+run_case arm64-lags-one-version "$EXIT_OK"   "$(listing "Office PC package ${VERSION}" "$ZIP" "$ZIP_SHA" "$EXE" "$EXE_SHA" "$ARM_ZIP" "$ARM_PREV_ZIP_SHA" "$ARM_EXE" "$ARM_PREV_EXE_SHA")"   "$good_version" "lags one version (serves v${PREVIOUS})"
+
+lag_fixtures arm64-not-published-yet "$all_releases" "$x64_previous"
+run_case arm64-not-published-yet "$EXIT_OK" "$good_rolling" "$good_version" "${ARM_EXE} is not published yet"
+
+lag_fixtures arm64-first-release "v${VERSION}" ""
+run_case arm64-first-release "$EXIT_OK" "$good_rolling" "$good_version" "${ARM_ZIP} is not published yet"
+
+lag_fixtures arm64-published-not-swapped "$all_releases" "$x64_previous"
+run_case arm64-published-not-swapped "$EXIT_STALE" "$good_rolling" "$arm_version" "${ARM_ZIP} is missing on ${ROLLING}"
+
+lag_fixtures arm64-previous-not-swapped "$all_releases" "$arm_previous"
+run_case arm64-previous-not-swapped "$EXIT_STALE" "$good_rolling" "$good_version" "although v${VERSION} or v${PREVIOUS} publishes it"
+
+lag_fixtures arm64-lags-two-versions "$all_releases" "$arm_previous"
+run_case arm64-lags-two-versions "$EXIT_STALE"   "$(listing "Office PC package ${VERSION}" "$ZIP" "$ZIP_SHA" "$EXE" "$EXE_SHA" "$ARM_ZIP" "$OLD_SHA" "$ARM_EXE" "$ARM_PREV_EXE_SHA")"   "$good_version" "${ARM_ZIP} on ${ROLLING} (${OLD_SHA}) is neither"
+
+run_case arm64-release-listing-fails "$EXIT_STALE" "$good_rolling" "$good_version" "Listing the releases of ${REPO} failed"
+
+lag_fixtures arm64-does-not-hide-stale-x64 "$all_releases" "$arm_previous"
+run_case arm64-does-not-hide-stale-x64 "$EXIT_STALE"   "$(listing "Office PC package ${VERSION}" "$ZIP" "$OLD_SHA" "$EXE" "$EXE_SHA" "$ARM_ZIP" "$ARM_ZIP_SHA" "$ARM_EXE" "$ARM_EXE_SHA")"   "$arm_version" "${ZIP} on ${ROLLING}"
 
 if [ "$failures" -gt 0 ]; then
   echo "${failures} case(s) failed"

@@ -3,7 +3,8 @@
 #
 # Tests publish-store-download.sh without a server: ssh and scp are replaced by local stubs, the "public URL" is a local
 # python http.server (a redirecting path answers 302). Covers first placement, re-run with the same file, refusal to
-# replace a different file, a corrupted upload, a missing public file, a redirecting public URL, and that no temporary
+# replace a different file, a corrupted upload, a missing public file, a redirecting public URL, the win-arm64 setup next
+# to the win-x64 one in the same version folder, refusal of a file name the store does not serve, and that no temporary
 # upload is left behind.
 #
 # Usage: test-publish-store-download.sh   (needs bash, python3, curl, sha256sum)
@@ -100,6 +101,19 @@ STORE_PUBLIC_BASE_URL="http://127.0.0.1:${PORT}/missing" expect "missing public 
 STORE_PUBLIC_BASE_URL="http://127.0.0.1:${PORT}/redirect" expect "redirecting public URL fails" 1 bash "$SCRIPT" "$exe" 1.0.69
 
 expect "malformed version is a usage error" 2 bash "$SCRIPT" "$exe" latest
+
+arm_exe="$work/Klacks-Setup-win-arm64.exe"
+echo arm > "$arm_exe"
+expect "places the arm64 setup" 0 bash "$SCRIPT" "$arm_exe" "$VERSION"
+check "arm64 setup sits next to the x64 one" cmp -s "$arm_exe" "$work/srv/windows/${VERSION}/Klacks-Setup-win-arm64.exe"
+check "x64 setup is untouched by the arm64 placement" grep -qx first "$placed"
+echo arm-changed > "$arm_exe"
+expect "different arm64 file is refused" 1 bash "$SCRIPT" "$arm_exe" "$VERSION"
+
+other_exe="$work/Klacks-Setup-win-x86.exe"
+echo other > "$other_exe"
+expect "file name the store does not serve is a usage error" 2 bash "$SCRIPT" "$other_exe" 1.0.70
+check "unserved file name is not placed" test ! -e "$work/srv/windows/1.0.70"
 check "no temporary upload is left" test -z "$(find "$work/srv" -name '.incoming-*')"
 
 if [ "$failures" -ne 0 ]; then

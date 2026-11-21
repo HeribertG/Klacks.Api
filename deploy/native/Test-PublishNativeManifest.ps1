@@ -1,7 +1,8 @@
 # Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 #
-# Local checks for Publish-NativeManifest.ps1: a valid entry merges and leaves every Docker field untouched; a wrong
-# hash, URL, version, RID or signature fails before anything is written. Run: pwsh deploy/native/Test-PublishNativeManifest.ps1
+# Local checks for Publish-NativeManifest.ps1: a valid entry merges and leaves every Docker field untouched, an entry of
+# the other RID (win-x64 / win-arm64) stays as it was, so both RIDs can be merged one after the other; a wrong hash, URL,
+# version, RID or signature fails before anything is written. Run: pwsh deploy/native/Test-PublishNativeManifest.ps1
 
 #Requires -Version 7
 
@@ -11,9 +12,10 @@ $work = Join-Path ([IO.Path]::GetTempPath()) "publish-native-test-$([guid]::NewG
 New-Item -ItemType Directory -Force -Path $work | Out-Null
 $failures = 0
 
-function New-Case($name, [scriptblock]$mutate, [bool]$expectSuccess, [string]$expectedError = '') {
+function New-Case($name, [scriptblock]$mutate, [bool]$expectSuccess, [string]$expectedError = '', [string]$rid = 'win-x64',
+    [string[]]$expectedRids = @('win-x64')) {
     $version = '1.0.43'
-    $url = "https://github.com/HeribertG/Klacks.Api/releases/download/v$version/klacks-$version-win-x64.zip"
+    $url = "https://github.com/HeribertG/Klacks.Api/releases/download/v$version/klacks-$version-$rid.zip"
     $bundle = Join-Path $work "$name.zip"
     [IO.File]::WriteAllBytes($bundle, [byte[]](1..64))
     $sha = (Get-FileHash -Algorithm SHA256 $bundle).Hash.ToLowerInvariant()
@@ -21,7 +23,7 @@ function New-Case($name, [scriptblock]$mutate, [bool]$expectSuccess, [string]$ex
     $signature = [Convert]::ToBase64String($script:rsa.SignData($payload, [Security.Cryptography.HashAlgorithmName]::SHA256, [Security.Cryptography.RSASignaturePadding]::Pkcs1))
     $case = [ordered]@{
         Version = $version; Url = $url; Bundle = $bundle
-        Entry = [ordered]@{ rid = 'win-x64'; bundleUrl = $url; sha256 = $sha; signature = $signature }
+        Entry = [ordered]@{ rid = $rid; bundleUrl = $url; sha256 = $sha; signature = $signature }
         Manifest = '{"channel":"Stable","latestVersion":"1.0.43","minUpgradableFrom":"1.0.0","releasedAt":"2026-10-14T08:00:00Z","containsMigrations":true,"artifacts":{"docker":{"apiImage":"ghcr.io/heribertg/klacks-api:1.0.43","uiImage":"ghcr.io/heribertg/klacks-ui:1.0.43","sha256":"sha256:abc"}},"signature":"DOCKER+SIG/=="}'
     }
     & $mutate $case
@@ -31,7 +33,7 @@ function New-Case($name, [scriptblock]$mutate, [bool]$expectSuccess, [string]$ex
     $succeeded = $true
     try {
         & $publish -ManifestPath $manifestPath -EntryPath $entryPath -BundlePath $case.Bundle -PublicKeyPath $script:publicKeyPath `
-            -Version $case.Version -ExpectedBundleUrl $case.Url -OutputPath $outPath | Out-Null
+            -Version $case.Version -ExpectedBundleUrl $case.Url -OutputPath $outPath -Rid $rid | Out-Null
     }
     catch { $succeeded = $false; $message = $_.Exception.Message }
     if ($succeeded -ne $expectSuccess) {
@@ -46,7 +48,11 @@ function New-Case($name, [scriptblock]$mutate, [bool]$expectSuccess, [string]$ex
     }
     if ($expectSuccess) {
         $merged = Get-Content -Raw $outPath | ConvertFrom-Json -DateKind String
-        if ($merged.artifacts.native.Count -ne 1 -or $merged.artifacts.native[0].rid -ne 'win-x64' -or
+        $mergedRids = @($merged.artifacts.native | ForEach-Object { $_.rid })
+        $kept = @($merged.artifacts.native | Where-Object { $_.rid -ne $rid })
+        $added = @($merged.artifacts.native | Where-Object { $_.rid -eq $rid })
+        if (($mergedRids -join ',') -cne ($expectedRids -join ',') -or $added.Count -ne 1 -or $added[0].sha256 -ne $case.Entry.sha256 -or
+            @($kept | Where-Object { $_.bundleUrl -ne 'kept' }).Count -ne 0 -or
             $merged.signature -ne 'DOCKER+SIG/==' -or $merged.artifacts.docker.sha256 -ne 'sha256:abc' -or
             $merged.releasedAt -ne '2026-10-14T08:00:00Z' -or -not (Get-Content -Raw $outPath).Contains('"DOCKER+SIG/=="')) {
             $script:failures++; Write-Host "FAIL $name (merged content)" -ForegroundColor Red; return
@@ -61,6 +67,11 @@ Set-Content $script:publicKeyPath $script:rsa.ExportSubjectPublicKeyInfoPem()
 try {
     New-Case 'valid' { } $true
     New-Case 'existing-native-replaced' { param($c) $c.Manifest = $c.Manifest.Replace('"artifacts":{', '"artifacts":{"native":[{"rid":"win-x64","bundleUrl":"old","sha256":"old","signature":"old"}],') } $true
+    $otherEntry = '"artifacts":{"native":[{"rid":"OTHER","bundleUrl":"kept","sha256":"kept","signature":"kept"}],'
+    New-Case 'x64-keeps-arm64' { param($c) $c.Manifest = $c.Manifest.Replace('"artifacts":{', $otherEntry.Replace('OTHER', 'win-arm64')) } $true '' 'win-x64' @('win-arm64', 'win-x64')
+    New-Case 'arm64-keeps-x64' { param($c) $c.Manifest = $c.Manifest.Replace('"artifacts":{', $otherEntry.Replace('OTHER', 'win-x64')) } $true '' 'win-arm64' @('win-x64', 'win-arm64')
+    New-Case 'arm64-replaces-arm64' { param($c) $c.Manifest = $c.Manifest.Replace('"artifacts":{', '"artifacts":{"native":[{"rid":"win-x64","bundleUrl":"kept","sha256":"kept","signature":"kept"},{"rid":"win-arm64","bundleUrl":"old","sha256":"old","signature":"old"}],') } $true '' 'win-arm64' @('win-x64', 'win-arm64')
+    New-Case 'arm64-entry-as-x64' { param($c) $c.Entry.rid = 'win-arm64' } $false 'Entry RID'
     New-Case 'wrong-sha' { param($c) $c.Entry.sha256 = ('0' * 64) } $false 'Downloaded bundle has SHA-256'
     New-Case 'uppercase-sha' { param($c) $c.Entry.sha256 = $c.Entry.sha256.ToUpperInvariant() } $false 'lowercase hex'
     New-Case 'latest-url' { param($c) $c.Entry.bundleUrl = 'https://github.com/HeribertG/Klacks.Api/releases/latest/download/klacks-1.0.43-win-x64.zip' } $false 'Entry URL'

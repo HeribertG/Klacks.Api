@@ -20,9 +20,21 @@
 #                    red when office-pc does not serve this release's ZIP and setup EXE (deploy/native/verify-rolling-download.sh).
 # Callers: native-windows-gate.yml (workflow_dispatch) and native-release.yml (v* tags). Callers pass secrets: inherit.
 # The job package-arm64 builds the signed win-arm64 bundle and klacks-office-pc-win-arm64.zip natively on windows-11-arm
-# (docs/plans/native-arm64-office-pc-2026-11-21.md, AP3/AP4): PostgreSQL comes from the signed engine release of
-# deploy/postgres/engine.json, never from a build in this run. It is fail-soft (continue-on-error) and no other job needs
-# it, so it never changes what the win-x64 jobs build, test or publish; its payload is only uploaded as an artifact.
+# (docs/plans/native-arm64-office-pc-2026-11-21.md, AP3-AP6): PostgreSQL comes from the signed engine release of
+# deploy/postgres/engine.json, never from a build in this run. install-arm64 installs that package natively,
+# installer-build-arm64 turns it into the signed Klacks-Setup-win-arm64.exe and installer-arm64 installs that setup.
+# win-arm64 is fail-soft: the arm64 jobs run with continue-on-error, no win-x64 job needs them, and each reports success
+# only through its job output green (set by its last step). publish (release and release-dry-run, never gate) adds the
+# arm64 files, the win-arm64 entry of artifacts.native (merged in the same job right after win-x64, one stable.json upload)
+# and the arm64 rolling assets only when those outputs say green; otherwise it publishes win-x64 exactly as without arm64.
+# publish waits for the arm64 jobs on purpose (stable.json is uploaded once, with both RIDs): in the worst case (a long
+# windows-11-arm queue) that delays the win-x64 publish, it never blocks it. verify-office-pc, in contrast, is
+# deliberately blocking for arm64: it turns the run red when an arm64 office-pc asset lags two or more versions
+# (verify-rolling-download.sh --may-lag tolerates one).
+# Making the arm64 legs blocking (dropping continue-on-error, so a red arm64 leg turns the run red): only after the first
+# release run in which package (win-arm64), install (arm64-native), installer (build and sign, win-arm64) and
+# installer (arm64-native) were all green and its stable.json carried both RIDs. Even then the win-x64 publish keeps
+# depending on the win-x64 jobs only.
 
 name: Native Windows (reusable)
 
@@ -54,6 +66,14 @@ env:
   ROLLING_TAG: 'office-pc'
   ROLLING_STAGED_FILE: 'klacks-office-pc-win-x64.next.zip'
   ROLLING_PREVIOUS_FILE: 'klacks-office-pc-win-x64.previous.zip'
+  ARM64_PAYLOAD_ARTIFACT: 'native-release-payload-win-arm64'
+  ARM64_INSTALLER_ARTIFACT: 'native-installer-win-arm64'
+  PACKAGE_FILE_ARM64: 'klacks-office-pc-win-arm64.zip'
+  INSTALLER_FILE_ARM64: 'Klacks-Setup-win-arm64.exe'
+  ROLLING_STAGED_FILE_ARM64: 'klacks-office-pc-win-arm64.next.zip'
+  ROLLING_PREVIOUS_FILE_ARM64: 'klacks-office-pc-win-arm64.previous.zip'
+  ROLLING_INSTALLER_STAGED_FILE_ARM64: 'Klacks-Setup-win-arm64.next.exe'
+  ROLLING_INSTALLER_PREVIOUS_FILE_ARM64: 'Klacks-Setup-win-arm64.previous.exe'
 
 jobs:
   ui:
@@ -314,14 +334,16 @@ jobs:
             package/${{ env.PACKAGE_FILE }}
           retention-days: 14
 
-  # win-arm64 bundle and office-PC package, built natively on Windows 11 on ARM. Fail-soft and needed by no job until the
-  # arm64 install, installer and publish legs exist (plan AP5/AP6); it uploads native-release-payload-win-arm64 only.
+  # win-arm64 bundle and office-PC package, built natively on Windows 11 on ARM. Fail-soft: only the arm64 jobs need it,
+  # and they start only when its output green is 'true'.
   package-arm64:
     name: package (win-arm64)
     needs: ui
     runs-on: windows-11-arm
     continue-on-error: true
     timeout-minutes: 90
+    outputs:
+      green: ${{ steps.green.outputs.green }}
     env:
       VERSION: ${{ needs.ui.outputs.version }}
       RID: 'win-arm64'
@@ -486,13 +508,18 @@ jobs:
       - name: Upload arm64 payload
         uses: actions/upload-artifact@v4
         with:
-          name: native-release-payload-win-arm64
+          name: ${{ env.ARM64_PAYLOAD_ARTIFACT }}
           path: |
             bundle/klacks-${{ env.VERSION }}-win-arm64.zip
             bundle/klacks-${{ env.VERSION }}-win-arm64.json
-            package/klacks-office-pc-win-arm64.zip
+            package/${{ env.PACKAGE_FILE_ARM64 }}
           if-no-files-found: error
           retention-days: 14
+
+      - name: Report green
+        id: green
+        shell: bash
+        run: echo "green=true" >> "$GITHUB_OUTPUT"
 
   # Builds Klacks-Setup-win-x64.exe from the office-PC package that package built (the one install tests) and has Inno Setup
   # sign the setup and its uninstaller with the Certum cloud certificate. A job of its own: the SimplySign seed of the
@@ -871,10 +898,387 @@ jobs:
           if (Test-Path "$env:ProgramData\Klacks") { throw 'The data directory is still present after /REMOVEDATA.' }
           if (Test-Path "$env:ProgramFiles\Klacks") { throw 'The program directory is still present.' }
 
+  # Builds Klacks-Setup-win-arm64.exe from the arm64 office-PC package and signs setup and uninstaller like
+  # installer-build. It needs installer-build so that the two signing jobs never queue for certum-signing at the same
+  # time (a third pending job in a concurrency group cancels the pending one). The arm64 path of
+  # New-KlacksOfficePackage.ps1 reads deploy/postgres/engine.json and verifies the signed engine again, hence the second
+  # sparse-checkout folder. Fail-soft (see the header).
+  installer-build-arm64:
+    name: installer (build and sign, win-arm64)
+    needs: [ui, package-arm64, installer-build]
+    if: ${{ !cancelled() && needs.ui.result == 'success' && needs.package-arm64.outputs.green == 'true' }}
+    runs-on: windows-2025
+    continue-on-error: true
+    environment: certum-signing
+    permissions:
+      contents: read
+    concurrency:
+      group: certum-signing
+      cancel-in-progress: false
+    timeout-minutes: 45
+    outputs:
+      green: ${{ steps.green.outputs.green }}
+    env:
+      VERSION: ${{ needs.ui.outputs.version }}
+      RID: 'win-arm64'
+      CERTUM_CERT_SHA1: ${{ vars.CERTUM_CERT_SHA1 }}
+      CERTUM_TIMESTAMP_URL: ${{ vars.CERTUM_TIMESTAMP_URL }}
+    steps:
+      - name: Checkout Klacks.Api (packaging scripts)
+        uses: actions/checkout@v4
+        with:
+          path: Klacks.Api
+          sparse-checkout: |
+            deploy/native
+            deploy/postgres
+          persist-credentials: false
+
+      - name: Download arm64 payload
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARM64_PAYLOAD_ARTIFACT }}
+          path: payload
+
+      - name: Unpack arm64 office-PC package
+        shell: pwsh
+        run: |
+          $officePc = Join-Path $env:RUNNER_TEMP 'office-pc'
+          Expand-Archive "payload/package/$env:PACKAGE_FILE_ARM64" -DestinationPath $officePc
+          $package = Get-Content -Raw (Join-Path $officePc 'package.json') | ConvertFrom-Json
+          if ($package.rid -ne $env:RID) { throw "The package is for '$($package.rid)', expected $env:RID." }
+          $redist = Get-AuthenticodeSignature (Join-Path $officePc 'vc_redist.arm64.exe')
+          if ($redist.Status -ne 'Valid' -or $redist.SignerCertificate.Subject -notlike '*O=Microsoft Corporation*') {
+            throw "vc_redist.arm64.exe is not signed by Microsoft ($($redist.Status))."
+          }
+          Add-Content -Path $env:GITHUB_ENV -Value "OFFICE_PC=$officePc"
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          $iscc = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+          if (-not $iscc -and -not (Test-Path (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'))) {
+            choco install innosetup --version 6.7.3 --no-progress -y
+            if ($LASTEXITCODE -ne 0) { throw "choco install innosetup failed with $LASTEXITCODE." }
+          }
+
+      - name: Install verified SimplySign Desktop
+        shell: pwsh
+        run: '& Klacks.Api/deploy/native/windows/signing/Install-SimplySignDesktop.ps1'
+
+      - name: Set up Certum SimplySign
+        id: certum
+        uses: jay0lee/certum-cloud-code-sign@a3324503499c49090869856eeeecfe95fb613d87 # v1
+        with:
+          username: ${{ secrets.CERTUM_USERNAME }}
+          totp_secret: ${{ secrets.CERTUM_TOTP_SECRET }}
+          cert_sha1: ${{ vars.CERTUM_CERT_SHA1 }}
+
+      # PostgreSQL is not taken from the unpacked package: the win-arm64 path downloads the signed engine of
+      # deploy/postgres/engine.json and checks RID, URL, signature and SHA-256 before it is used.
+      - name: Build and sign arm64 setup installer
+        shell: pwsh
+        env:
+          SIGNTOOL: ${{ steps.certum.outputs.signtool-path }}
+        run: |
+          $sign = '$q' + $env:SIGNTOOL + '$q sign /sha1 ' + $env:CERTUM_CERT_SHA1 + ' /fd sha256 /tr ' + $env:CERTUM_TIMESTAMP_URL + ' /td sha256 $f'
+          & Klacks.Api/deploy/native/windows/New-KlacksOfficePackage.ps1 -Rid $env:RID `
+            -BundleZip "$env:OFFICE_PC/klacks-$env:VERSION-$env:RID.zip" -BundleEntry "payload/bundle/klacks-$env:VERSION-$env:RID.json" `
+            -Version $env:VERSION -VcRedistPath "$env:OFFICE_PC/vc_redist.arm64.exe" `
+            -PublicKeyPath "$env:OFFICE_PC/update-public-key.pem" -OutputDirectory installer-out -BuildInstaller -SignToolCommand $sign
+
+      - name: Verify arm64 setup signature
+        shell: pwsh
+        env:
+          SIGNTOOL: ${{ steps.certum.outputs.signtool-path }}
+        run: |
+          & Klacks.Api/deploy/native/windows/signing/Assert-CodeSignature.ps1 -Path "installer-out/$env:INSTALLER_FILE_ARM64" `
+            -Thumbprint $env:CERTUM_CERT_SHA1 -SignToolPath $env:SIGNTOOL
+
+      - name: Tear down SimplySign session
+        if: always()
+        uses: jay0lee/certum-cloud-code-sign/teardown@a3324503499c49090869856eeeecfe95fb613d87 # v1
+
+      - name: Upload arm64 setup installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARM64_INSTALLER_ARTIFACT }}
+          path: installer-out/${{ env.INSTALLER_FILE_ARM64 }}
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Report green
+        id: green
+        shell: bash
+        run: echo "green=true" >> "$GITHUB_OUTPUT"
+
+  # Installs the arm64 office-PC package natively on Windows 11 on ARM (Installieren.cmd, service mode) and checks that
+  # every running Klacks service process is an arm64 binary (PE machine 0xAA64, no emulation), health, services, UI,
+  # login, customer defaults, restart and uninstall: the subset of install that is architecture-relevant. Fail-soft.
+  install-arm64:
+    name: install (arm64-native)
+    needs: [ui, package-arm64]
+    if: ${{ !cancelled() && needs.ui.result == 'success' && needs.package-arm64.outputs.green == 'true' }}
+    runs-on: windows-11-arm
+    continue-on-error: true
+    timeout-minutes: 120
+    outputs:
+      green: ${{ steps.green.outputs.green }}
+    env:
+      VERSION: ${{ needs.ui.outputs.version }}
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          path: Klacks.Api
+
+      - name: Download arm64 payload
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARM64_PAYLOAD_ARTIFACT }}
+          path: payload
+
+      - name: Install Klacks from the arm64 package (Installieren.cmd, Windows PowerShell 5.1)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Write-Host "OS architecture: $env:PROCESSOR_ARCHITECTURE / $((Get-CimInstance Win32_OperatingSystem).OSArchitecture)"
+          $target = Join-Path $env:RUNNER_TEMP ('Test Ordner ' + [char]0x00C4)
+          Expand-Archive -Path "payload\package\$env:PACKAGE_FILE_ARM64" -DestinationPath $target
+          $env:KLACKS_NO_PAUSE = '1'
+          $exitCode = (Start-Process -FilePath (Join-Path $target 'Installieren.cmd') -Wait -PassThru -NoNewWindow).ExitCode
+          Get-ChildItem $target -Filter 'Klacks-Installationsbericht-*.txt' | ForEach-Object { Get-Content $_.FullName }
+          if ($exitCode -ne 0) { throw "Installieren.cmd exited with $exitCode." }
+          $config = Get-Content -Raw "$env:ProgramData\Klacks\config\klacks.native.json" | ConvertFrom-Json
+          if (-not $config.Update.SignaturePublicKey) { throw 'The installation has no update signature key.' }
+          $vc = 'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM64', 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM64' |
+            ForEach-Object { Get-ItemProperty -Path $_ -ErrorAction SilentlyContinue } | Where-Object { $_.Installed -eq 1 }
+          if (-not $vc) { throw 'The arm64 Visual C++ runtime is not registered after the installation.' }
+
+      - name: Check services, UI, login and setup status
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $base = "http://127.0.0.1:$env:HTTP_PORT"
+          $deadline = (Get-Date).AddMinutes(30)
+          $healthy = $false
+          while ((Get-Date) -lt $deadline -and -not $healthy) {
+            try { $healthy = (Invoke-WebRequest -UseBasicParsing "$base/internal/health/deep" -TimeoutSec 10).StatusCode -eq 200 } catch { }
+            if (-not $healthy) { Start-Sleep -Seconds 5 }
+          }
+          if (-not $healthy) { throw 'Klacks is not healthy after 30 minutes.' }
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
+            $status = (Get-Service -Name $name).Status
+            Write-Host "$name : $status"
+            if ($status -ne 'Running') { throw "Service $name is $status." }
+          }
+          $stt = Get-Service -Name KlacksStt -ErrorAction SilentlyContinue
+          if (-not $stt) { throw 'Service KlacksStt is not registered.' }
+          if ($stt.StartType -ne 'Disabled') { throw "Service KlacksStt start type is $($stt.StartType), expected Disabled." }
+          $index = Invoke-WebRequest -UseBasicParsing "$base/"
+          if ($index.Content -notmatch '<app-root') { throw 'The UI index is not served.' }
+          $login = Invoke-RestMethod -Method Post -ContentType 'application/json' -Uri "$base/api/backend/Accounts/LoginUser" `
+            -Body (@{ email = $env:SEED_ADMIN_EMAIL; password = $env:SEED_ADMIN_PASSWORD } | ConvertTo-Json)
+          if (-not $login.token) { throw 'Login with the seeded admin returned no token.' }
+          $status = Invoke-RestMethod -Uri "$base/api/backend/Setup/Status" -Headers @{ Authorization = "Bearer $($login.token)" }
+          if (-not $status.requiresOwnAdmin) { throw 'Setup/Status does not require the own admin account.' }
+          Write-Host 'Services, UI, login and setup status OK.'
+
+      # The executable of every running service process (and of every postgres.exe that pg_ctl started) must be arm64;
+      # an x64 binary would run through emulation and pass every functional check. KlacksStt is disabled by design, so
+      # only its registered binary is checked.
+      - name: Running service processes are arm64 (PE 0xAA64)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function Get-PeMachine([string]$path) {
+            $header = New-Object byte[] 4096
+            $stream = [IO.File]::OpenRead($path)
+            try { [void]$stream.Read($header, 0, $header.Length) } finally { $stream.Dispose() }
+            return [BitConverter]::ToUInt16($header, [BitConverter]::ToInt32($header, 0x3C) + 4)
+          }
+          $modules = @()
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
+            $service = Get-CimInstance Win32_Service -Filter "Name='$name'"
+            if (-not $service.ProcessId) { throw "Service $name has no running process." }
+            $modules += [pscustomobject]@{ Name = $name; Path = (Get-CimInstance Win32_Process -Filter "ProcessId=$($service.ProcessId)").ExecutablePath }
+          }
+          # Only the postgres.exe processes of the Klacks engine (next to the KlacksPostgres service binary), not of a
+          # PostgreSQL that the runner image may bring along.
+          $pgBin = Split-Path -Parent ($modules | Where-Object Name -eq 'KlacksPostgres').Path
+          $postgres = @(Get-CimInstance Win32_Process -Filter "Name='postgres.exe'" | Where-Object { $_.ExecutablePath -like "$pgBin\*" })
+          if (-not $postgres) { throw "No postgres.exe process is running from $pgBin." }
+          foreach ($process in $postgres) { $modules += [pscustomobject]@{ Name = "postgres.exe ($($process.ProcessId))"; Path = $process.ExecutablePath } }
+          $sttPath = (Get-CimInstance Win32_Service -Filter "Name='KlacksStt'").PathName
+          $modules += [pscustomobject]@{ Name = 'KlacksStt (registered)'; Path = $(if ($sttPath -match '^"([^"]+)"') { $Matches[1] } else { ($sttPath -split ' ')[0] }) }
+          foreach ($module in $modules) {
+            $machine = Get-PeMachine $module.Path
+            Write-Host ('{0}: {1} machine 0x{2:X4}' -f $module.Name, $module.Path, $machine)
+            if ($machine -ne 0xAA64) { throw ('{0} runs {1}, which is not an arm64 binary.' -f $module.Name, $module.Path) }
+          }
+
+      - name: Customer defaults (no Playground, public store, no demo data)
+        shell: powershell
+        run: |
+          & Klacks.Api/deploy/native/windows/Assert-KlacksCustomerDefaults.ps1 -BaseUrl "http://127.0.0.1:$env:HTTP_PORT"
+
+      - name: Restart Klacks
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $service = Get-Service -Name Klacks
+          $service.Stop()
+          $service.WaitForStatus('Stopped', [TimeSpan]::FromMinutes(2))
+          $exitCode = (Get-CimInstance Win32_Service -Filter "Name='Klacks'").ExitCode
+          if ($exitCode -ne 0) { throw "A requested stop ended with exit code $exitCode." }
+          $service.Start()
+          $deadline = (Get-Date).AddMinutes(15)
+          while ((Get-Date) -lt $deadline) {
+            try { if ((Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$env:HTTP_PORT/internal/health/deep" -TimeoutSec 10).StatusCode -eq 200) { Write-Host 'Healthy after restart.'; exit 0 } } catch { }
+            Start-Sleep -Seconds 5
+          }
+          throw 'Klacks is not healthy after a restart.'
+
+      - name: Diagnostics report
+        if: always()
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path diagnostics | Out-Null
+          & .\Klacks.Api\deploy\native\windows\Get-KlacksDiagnostics.ps1 -ReportDirectory (Resolve-Path diagnostics).Path
+          Copy-Item -Recurse -ErrorAction SilentlyContinue "$env:ProgramData\Klacks\logs" diagnostics\logs
+
+      - name: Uninstall
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & .\Klacks.Api\deploy\native\windows\Uninstall-Klacks.ps1 -RemoveData
+          if ($LASTEXITCODE -ne 0) { throw "Uninstall-Klacks.ps1 exited with $LASTEXITCODE." }
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater', 'KlacksStt') {
+            if (Get-Service -Name $name -ErrorAction SilentlyContinue) { throw "Service $name is still registered." }
+          }
+          if (Test-Path "$env:ProgramData\Klacks") { throw 'The data directory is still present after -RemoveData.' }
+
+      - name: Report green
+        id: green
+        shell: bash
+        run: echo "green=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostics-arm64-native
+          path: diagnostics
+          retention-days: 14
+
+  # Installs Klacks-Setup-win-arm64.exe silently on Windows 11 on ARM: services, health, login, arm64 API process,
+  # signatures of setup and uninstaller, customer defaults and silent uninstall. Fail-soft.
+  installer-arm64:
+    name: installer (arm64-native)
+    needs: [ui, installer-build-arm64]
+    if: ${{ !cancelled() && needs.ui.result == 'success' && needs.installer-build-arm64.outputs.green == 'true' }}
+    runs-on: windows-11-arm
+    continue-on-error: true
+    timeout-minutes: 120
+    outputs:
+      green: ${{ steps.green.outputs.green }}
+    env:
+      VERSION: ${{ needs.ui.outputs.version }}
+    steps:
+      - name: Download arm64 setup installer
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARM64_INSTALLER_ARTIFACT }}
+          path: payload
+
+      - name: Install Klacks silently (Setup.exe, arm64)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = "payload\$env:INSTALLER_FILE_ARM64"
+          if (-not (Test-Path $exe)) { throw "$env:INSTALLER_FILE_ARM64 is missing." }
+          $log = Join-Path $env:RUNNER_TEMP 'setup.log'
+          $exitCode = (Start-Process -FilePath (Resolve-Path $exe).Path -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/LOG=$log" -Wait -PassThru).ExitCode
+          Get-ChildItem "$env:ProgramData\Klacks\logs" -Filter 'Installationsbericht-*.txt' -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName }
+          if ($exitCode -ne 0) { Get-Content $log -Tail 40; throw "Setup exited with $exitCode." }
+          if (-not (Test-Path "$env:ProgramFiles\Klacks Setup\unins000.exe")) { throw 'The uninstaller is missing.' }
+          $entry = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue | Where-Object DisplayName -eq 'Klacks'
+          if (-not $entry) { throw 'Klacks is not listed under Apps & Features.' }
+
+      - name: Check services, health, login and arm64 API process
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $base = "http://127.0.0.1:$env:HTTP_PORT"
+          $deadline = (Get-Date).AddMinutes(30)
+          $healthy = $false
+          while ((Get-Date) -lt $deadline -and -not $healthy) {
+            try { $healthy = (Invoke-WebRequest -UseBasicParsing "$base/internal/health/deep" -TimeoutSec 10).StatusCode -eq 200 } catch { }
+            if (-not $healthy) { Start-Sleep -Seconds 5 }
+          }
+          if (-not $healthy) { throw 'Klacks is not healthy.' }
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater') {
+            $status = (Get-Service -Name $name).Status
+            if ($status -ne 'Running') { throw "Service $name is $status." }
+          }
+          $stt = Get-Service -Name KlacksStt -ErrorAction SilentlyContinue
+          if (-not $stt) { throw 'Service KlacksStt is not registered.' }
+          if ($stt.StartType -ne 'Disabled') { throw "Service KlacksStt start type is $($stt.StartType), expected Disabled." }
+          $apiProcessId = (Get-CimInstance Win32_Service -Filter "Name='Klacks'").ProcessId
+          $api = (Get-CimInstance Win32_Process -Filter "ProcessId=$apiProcessId").ExecutablePath
+          $header = New-Object byte[] 4096
+          $stream = [IO.File]::OpenRead($api)
+          try { [void]$stream.Read($header, 0, $header.Length) } finally { $stream.Dispose() }
+          $machine = [BitConverter]::ToUInt16($header, [BitConverter]::ToInt32($header, 0x3C) + 4)
+          Write-Host ('Klacks: {0} machine 0x{1:X4}' -f $api, $machine)
+          if ($machine -ne 0xAA64) { throw "The Klacks service runs $api, which is not an arm64 binary." }
+          $login = Invoke-RestMethod -Method Post -ContentType 'application/json' -Uri "$base/api/backend/Accounts/LoginUser" `
+            -Body (@{ email = $env:SEED_ADMIN_EMAIL; password = $env:SEED_ADMIN_PASSWORD } | ConvertTo-Json)
+          if (-not $login.token) { throw 'Login with the seeded admin returned no token.' }
+          Write-Host 'Services, health, login and arm64 API process OK.'
+
+      - name: Checkout Klacks.Api (check scripts)
+        uses: actions/checkout@v4
+        with:
+          path: Klacks.Api
+          sparse-checkout: deploy/native
+
+      - name: Setup and uninstaller are signed
+        shell: powershell
+        env:
+          CERTUM_CERT_SHA1: ${{ vars.CERTUM_CERT_SHA1 }}
+        run: |
+          & Klacks.Api/deploy/native/windows/signing/Assert-CodeSignature.ps1 -Thumbprint $env:CERTUM_CERT_SHA1 `
+            -Path "payload\$env:INSTALLER_FILE_ARM64", "$env:ProgramFiles\Klacks Setup\unins000.exe"
+
+      - name: Customer defaults (no Playground, public store, no demo data)
+        shell: powershell
+        run: |
+          & Klacks.Api/deploy/native/windows/Assert-KlacksCustomerDefaults.ps1 -BaseUrl "http://127.0.0.1:$env:HTTP_PORT"
+
+      - name: Uninstall silently (unins000.exe)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $uninstaller = "$env:ProgramFiles\Klacks Setup\unins000.exe"
+          $log = Join-Path $env:RUNNER_TEMP 'uninstall.log'
+          $exitCode = (Start-Process -FilePath $uninstaller -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/REMOVEDATA', "/LOG=$log" -Wait -PassThru).ExitCode
+          if ($exitCode -ne 0) { Get-Content $log -Tail 40 -ErrorAction SilentlyContinue; throw "Uninstaller exited with $exitCode." }
+          foreach ($name in 'KlacksPostgres', 'Klacks', 'KlacksUpdater', 'KlacksStt') {
+            if (Get-Service -Name $name -ErrorAction SilentlyContinue) { throw "Service $name is still registered." }
+          }
+          if (Test-Path "$env:ProgramData\Klacks") { throw 'The data directory is still present after /REMOVEDATA.' }
+          if (Test-Path "$env:ProgramFiles\Klacks") { throw 'The program directory is still present.' }
+
+      - name: Report green
+        id: green
+        shell: bash
+        run: echo "green=true" >> "$GITHUB_OUTPUT"
+
   publish:
     name: publish (${{ inputs.mode }})
-    needs: [ui, package, install, installer]
-    # always(): a red installer leg must not stop the ZIP release; the ZIP prerequisites are checked explicitly.
+    needs: [ui, package, install, installer, package-arm64, install-arm64, installer-build-arm64, installer-arm64]
+    # always(): a red installer leg must not stop the ZIP release; the ZIP prerequisites are checked explicitly. The arm64
+    # jobs are listed only so that publish waits for them; none of them appears in this condition (fail-soft).
     if: ${{ always() && inputs.mode != 'gate' && needs.ui.result == 'success' && needs.package.result == 'success' && needs.install.result == 'success' }}
     runs-on: ubuntu-latest
     # deploy.yml needs about 77 min from the tag to stable.json (v1.0.41, v1.0.42); the wait below allows 150 min.
@@ -885,6 +1289,8 @@ jobs:
       VERSION: ${{ needs.ui.outputs.version }}
       MODE: ${{ inputs.mode }}
       GH_TOKEN: ${{ github.token }}
+      ARM64_ZIP_GREEN: ${{ needs.install-arm64.outputs.green == 'true' }}
+      ARM64_EXE_GREEN: ${{ needs.installer-arm64.outputs.green == 'true' }}
     steps:
       - name: Checkout Klacks.Api
         uses: actions/checkout@v4
@@ -950,6 +1356,41 @@ jobs:
           cmp back/package.zip "payload/package/${PACKAGE_FILE}"
           unzip -p back/package.zip "klacks-${VERSION}-win-x64.zip" | cmp - back/bundle.zip
 
+      # win-arm64, fail-soft: every arm64 step below runs only after its win-x64 counterpart, only when the arm64 jobs
+      # reported green, and with continue-on-error, so a red arm64 step never stops or changes the win-x64 publish.
+      - name: Download arm64 payload
+        id: arm64-payload
+        timeout-minutes: 15
+        if: ${{ env.ARM64_ZIP_GREEN == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARM64_PAYLOAD_ARTIFACT }}
+          path: payload-arm64
+
+      - name: Upload arm64 bundle and package
+        timeout-minutes: 15
+        id: arm64-upload
+        if: ${{ steps.arm64-payload.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          tag="${{ steps.target.outputs.tag }}"
+          bundle="klacks-${VERSION}-win-arm64.zip"
+          gh release upload "$tag" -R "$GITHUB_REPOSITORY" --clobber \
+            "payload-arm64/bundle/${bundle}" "payload-arm64/package/${PACKAGE_FILE_ARM64}"
+          mkdir -p back-arm64
+          if [ "$MODE" = release ]; then
+            curl -fsSL --max-time 600 "${RELEASE_DOWNLOAD_BASE}/v${VERSION}/${bundle}" -o back-arm64/bundle.zip
+            curl -fsSL --max-time 600 "${RELEASE_DOWNLOAD_BASE}/v${VERSION}/${PACKAGE_FILE_ARM64}" -o back-arm64/package.zip
+          else
+            gh release download "$tag" -R "$GITHUB_REPOSITORY" -p "$bundle" -O back-arm64/bundle.zip
+            gh release download "$tag" -R "$GITHUB_REPOSITORY" -p "$PACKAGE_FILE_ARM64" -O back-arm64/package.zip
+          fi
+          cmp back-arm64/bundle.zip "payload-arm64/bundle/${bundle}"
+          cmp back-arm64/package.zip "payload-arm64/package/${PACKAGE_FILE_ARM64}"
+          unzip -p back-arm64/package.zip "$bundle" | cmp - back-arm64/bundle.zip
+
       - name: Merge native entry into stable.json
         shell: pwsh
         run: |
@@ -960,14 +1401,55 @@ jobs:
             -OutputPath merged-stable.json
           Get-Content merged-stable.json
 
+      # Serial on purpose: the win-arm64 entry is merged into the win-x64 result of the step above (Publish-NativeManifest.ps1
+      # keeps entries of other RIDs), and stable.json is uploaded once below. Parallel --clobber uploads would drop an entry.
+      - name: Merge arm64 entry into stable.json
+        timeout-minutes: 15
+        id: arm64-merge
+        if: ${{ steps.arm64-upload.outcome == 'success' }}
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          Remove-Item -ErrorAction SilentlyContinue merged-stable-arm64.json
+          & ./deploy/native/Publish-NativeManifest.ps1 -Rid win-arm64 -ManifestPath merged-stable.json `
+            -EntryPath "payload-arm64/bundle/klacks-$env:VERSION-win-arm64.json" -BundlePath back-arm64/bundle.zip `
+            -PublicKeyPath (Join-Path $env:RUNNER_TEMP 'update-public-key.pem') -Version $env:VERSION `
+            -ExpectedBundleUrl "$env:RELEASE_DOWNLOAD_BASE/v$env:VERSION/klacks-$env:VERSION-win-arm64.zip" `
+            -OutputPath merged-stable-arm64.json
+          Get-Content merged-stable-arm64.json
+
+      # Uses the two-RID file only when the arm64 merge succeeded AND everything except the win-arm64 entry equals the
+      # win-x64 result; otherwise the win-x64 result is published exactly as without arm64. Output arm64=true only when the
+      # published stable.json carries the win-arm64 entry: the arm64 rolling swaps depend on it (same order as win-x64,
+      # office-pc never serves a package that the release manifest lacks).
       - name: Publish stable.json
+        id: stable
+        env:
+          ARM64_MERGED: ${{ steps.arm64-merge.outcome == 'success' }}
         run: |
           set -euo pipefail
           tag="${{ steps.target.outputs.tag }}"
-          mkdir -p out && cp merged-stable.json out/stable.json
+          source=merged-stable.json
+          if [ "$ARM64_MERGED" = true ]; then
+            if jq -e --slurpfile x64 merged-stable.json \
+                '(.artifacts.native | map(select(.rid != "win-arm64"))) == ($x64[0].artifacts.native | map(select(.rid != "win-arm64")))
+                 and (del(.artifacts.native) == ($x64[0] | del(.artifacts.native)))
+                 and ([.artifacts.native[] | select(.rid == "win-arm64")] | length) == 1' merged-stable-arm64.json > /dev/null; then
+              source=merged-stable-arm64.json
+            else
+              echo "::warning::The win-arm64 merge changed more than its own entry; stable.json is published with win-x64 only."
+            fi
+          fi
+          if [ "$source" = merged-stable.json ]; then
+            echo "::notice::stable.json for ${VERSION} carries no new win-arm64 entry (arm64 legs red or skipped)."
+          else
+            echo "::notice::stable.json for ${VERSION} carries win-x64 and win-arm64."
+          fi
+          mkdir -p out && cp "$source" out/stable.json
           gh release upload "$tag" out/stable.json -R "$GITHUB_REPOSITORY" --clobber
           gh release download "$tag" -R "$GITHUB_REPOSITORY" -p stable.json -O published-stable.json --clobber
-          cmp published-stable.json merged-stable.json
+          cmp published-stable.json "$source"
+          if [ "$source" = merged-stable-arm64.json ]; then echo "arm64=true" >> "$GITHUB_OUTPUT"; fi
 
       - name: Rolling office-PC download
         id: rolling
@@ -1045,6 +1527,28 @@ jobs:
           fi
           echo "Rolling download ${rolling}/${PACKAGE_FILE} serves ${VERSION}."
 
+      # Own staged/previous names; the title of the rolling release stays the business of the win-x64 step above.
+      - name: Rolling office-PC download (arm64)
+        timeout-minutes: 15
+        if: ${{ steps.stable.outputs.arm64 == 'true' }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          rolling="${{ steps.rolling.outputs.tag }}"
+          current=$(gh release view "$rolling" -R "$GITHUB_REPOSITORY" --json name -q .name | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+$' || true)
+          if [ -n "$current" ] && [ "$current" != "$VERSION" ] \
+             && [ "$(printf '%s\n%s\n' "$current" "$VERSION" | sort -V | tail -1)" = "$current" ]; then
+            echo "::notice::${rolling} already serves ${current}, newer than ${VERSION}; arm64 package left unchanged."
+            exit 0
+          fi
+          if [ "$MODE" != release ]; then
+            mkdir -p rolling-arm64-placeholder
+            echo placeholder > "rolling-arm64-placeholder/${PACKAGE_FILE_ARM64}"
+            gh release upload "$rolling" "rolling-arm64-placeholder/${PACKAGE_FILE_ARM64}" -R "$GITHUB_REPOSITORY" --clobber
+          fi
+          bash deploy/native/swap-rolling-asset.sh "$GITHUB_REPOSITORY" "$rolling" "payload-arm64/package/${PACKAGE_FILE_ARM64}" \
+            "$PACKAGE_FILE_ARM64" "$ROLLING_STAGED_FILE_ARM64" "$ROLLING_PREVIOUS_FILE_ARM64"
+
       - name: Download setup installer
         id: setup
         if: ${{ needs.installer.result == 'success' }}
@@ -1083,6 +1587,44 @@ jobs:
           bash deploy/native/swap-rolling-asset.sh "$GITHUB_REPOSITORY" "$rolling" "$exe" \
             "$INSTALLER_FILE" "$ROLLING_INSTALLER_STAGED_FILE" "$ROLLING_INSTALLER_PREVIOUS_FILE"
 
+      - name: Download arm64 setup installer
+        id: setup-arm64
+        timeout-minutes: 15
+        if: ${{ env.ARM64_EXE_GREEN == 'true' && steps.stable.outputs.arm64 == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARM64_INSTALLER_ARTIFACT }}
+          path: installer-arm64
+
+      - name: Publish arm64 setup installer
+        timeout-minutes: 15
+        if: ${{ steps.setup-arm64.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          exe="installer-arm64/${INSTALLER_FILE_ARM64}"
+          [ -f "$exe" ] || { echo "::warning::${INSTALLER_FILE_ARM64} is not in the artifact"; exit 1; }
+          tag="${{ steps.target.outputs.tag }}"
+          rolling="${{ steps.rolling.outputs.tag }}"
+          gh release upload "$tag" "$exe" -R "$GITHUB_REPOSITORY" --clobber
+          mkdir -p setup-arm64-back
+          gh release download "$tag" -R "$GITHUB_REPOSITORY" -p "$INSTALLER_FILE_ARM64" -O setup-arm64-back/version.exe --clobber
+          cmp setup-arm64-back/version.exe "$exe"
+          current=$(gh release view "$rolling" -R "$GITHUB_REPOSITORY" --json name -q .name | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+$' || true)
+          if [ -n "$current" ] && [ "$current" != "$VERSION" ] \
+             && [ "$(printf '%s\n%s\n' "$current" "$VERSION" | sort -V | tail -1)" = "$current" ]; then
+            echo "::notice::${rolling} already serves ${current}, newer than ${VERSION}; arm64 setup installer left unchanged."
+            exit 0
+          fi
+          if [ "$MODE" != release ]; then
+            mkdir -p setup-arm64-placeholder
+            echo placeholder > "setup-arm64-placeholder/${INSTALLER_FILE_ARM64}"
+            gh release upload "$rolling" "setup-arm64-placeholder/${INSTALLER_FILE_ARM64}" -R "$GITHUB_REPOSITORY" --clobber
+          fi
+          bash deploy/native/swap-rolling-asset.sh "$GITHUB_REPOSITORY" "$rolling" "$exe" \
+            "$INSTALLER_FILE_ARM64" "$ROLLING_INSTALLER_STAGED_FILE_ARM64" "$ROLLING_INSTALLER_PREVIOUS_FILE_ARM64"
+
       - name: Upload publish evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -1091,6 +1633,7 @@ jobs:
           path: |
             current-stable.json
             merged-stable.json
+            merged-stable-arm64.json
             published-stable.json
           if-no-files-found: ignore
           retention-days: 14
@@ -1114,6 +1657,7 @@ jobs:
   # download (ZIP and EXE on office-pc) does not serve this release, e.g. after a red installer job or a failed swap;
   # the download itself is left on the last good version. Runs whenever the version is known, also when publish was
   # skipped or failed, so the summary always states what the download serves. A newer rolling title is not an error.
+  # The fail-soft win-arm64 ZIP and EXE may lag one version (--may-lag); they are a warning until first published.
   verify-office-pc:
     name: verify office-PC download
     needs: [ui, publish]
@@ -1132,7 +1676,7 @@ jobs:
       - name: office-pc serves this release
         run: |
           bash deploy/native/verify-rolling-download.sh "$GITHUB_REPOSITORY" "$VERSION" "$ROLLING_TAG" \
-            "$PACKAGE_FILE" "$INSTALLER_FILE"
+            "$PACKAGE_FILE" "$INSTALLER_FILE" --may-lag "$PACKAGE_FILE_ARM64" --may-lag "$INSTALLER_FILE_ARM64"
 
   # Microsoft Store package URL (release mode only): places the setup of this release, exactly as published on the
   # version release v<version>, once on the store server (/root/apps/downloads/windows/<version>/) and checks that
@@ -1187,3 +1731,44 @@ jobs:
           trap 'rm -f "$key"' EXIT
           printf '%s\n' "$SSH_KEY" > "$key"
           STORE_SSH_KEY_FILE="$key" bash deploy/native/publish-store-download.sh "store/${INSTALLER_FILE}" "$VERSION"
+
+      # win-arm64, fail-soft and only when this release published the arm64 setup (write-once like win-x64). Until
+      # Klacks.Marketplace serves Klacks-Setup-win-arm64.exe the public check fails; the placed file stays and a re-run of
+      # this job after the Marketplace deploy completes it.
+      - name: Download the published arm64 setup
+        id: store-arm64
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          digest=$(gh release view "v${VERSION}" -R "$GITHUB_REPOSITORY" --json assets \
+            -q ".assets[] | select(.name == \"${INSTALLER_FILE_ARM64}\") | .digest // \"none\"")
+          if [ -z "$digest" ]; then
+            echo "::notice::v${VERSION} has no ${INSTALLER_FILE_ARM64}; nothing to place."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          gh release download "v${VERSION}" -R "$GITHUB_REPOSITORY" -p "$INSTALLER_FILE_ARM64" -O "store/${INSTALLER_FILE_ARM64}"
+          actual="sha256:$(sha256sum "store/${INSTALLER_FILE_ARM64}" | cut -d' ' -f1)"
+          if [ "$digest" != none ] && [ "$digest" != "$actual" ]; then
+            echo "::error::Downloaded ${INSTALLER_FILE_ARM64} (${actual}) does not match the release digest (${digest})."
+            exit 1
+          fi
+          echo "present=true" >> "$GITHUB_OUTPUT"
+
+      - name: Place arm64 setup on the store server
+        if: ${{ steps.store-arm64.outputs.present == 'true' }}
+        continue-on-error: true
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          STORE_SSH_HOST: ${{ secrets.SSH_HOST }}
+          STORE_SSH_USER: ${{ secrets.SSH_USERNAME }}
+          STORE_SSH_PORT: ${{ secrets.SSH_PORT || 22 }}
+          STORE_DOWNLOAD_ROOT: '/root/apps/downloads'
+          STORE_PUBLIC_BASE_URL: 'https://klacks-software.ch/store/api/downloads'
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/store-ssh-key"
+          trap 'rm -f "$key"' EXIT
+          printf '%s\n' "$SSH_KEY" > "$key"
+          STORE_SSH_KEY_FILE="$key" bash deploy/native/publish-store-download.sh "store/${INSTALLER_FILE_ARM64}" "$VERSION"

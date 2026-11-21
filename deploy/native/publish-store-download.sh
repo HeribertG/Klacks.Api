@@ -6,7 +6,9 @@
 # <public base>/windows/<version>/<file name> without a redirect. The Microsoft Store rejects a submission whose binary
 # changes behind its URL, so an existing file is never replaced: same SHA-256 = nothing to do, different SHA-256 = error.
 # The upload lands in a temporary name first and is moved into place with mv -n (atomic on the same file system).
-# Afterwards the public URL is downloaded and compared byte for byte.
+# Afterwards the public URL is downloaded and compared byte for byte. Only the setup names Klacks.Marketplace serves
+# (InstallerDownload.WindowsSetupFileNames: Klacks-Setup-win-x64.exe, Klacks-Setup-win-arm64.exe) are accepted, so a
+# misnamed file is never placed for good behind a URL that answers 404.
 #
 # Usage: publish-store-download.sh <exe> <version>
 # Environment: STORE_SSH_HOST, STORE_SSH_USER, STORE_SSH_KEY_FILE, STORE_SSH_PORT (default 22),
@@ -22,6 +24,7 @@ readonly EXIT_FAILED=1
 readonly EXIT_USAGE=2
 readonly VERSION_PATTERN='^[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}$'
 readonly PLATFORM_FOLDER='windows'
+readonly ALLOWED_FILE_NAMES=('Klacks-Setup-win-x64.exe' 'Klacks-Setup-win-arm64.exe')
 readonly DEFAULT_SSH_PORT=22
 readonly DEFAULT_VERIFY_ATTEMPTS=6
 readonly DEFAULT_VERIFY_RETRY_SECONDS=20
@@ -53,6 +56,14 @@ for name in STORE_SSH_HOST STORE_SSH_USER STORE_SSH_KEY_FILE STORE_DOWNLOAD_ROOT
 done
 
 file_name="$(basename "$exe")"
+allowed=""
+for candidate in "${ALLOWED_FILE_NAMES[@]}"; do
+  if [ "$file_name" = "$candidate" ]; then allowed=yes; fi
+done
+if [ -z "$allowed" ]; then
+  echo "::error::'${file_name}' is not a setup name the store serves (${ALLOWED_FILE_NAMES[*]})." >&2
+  exit "$EXIT_USAGE"
+fi
 sha="$(sha256sum "$exe" | cut -d' ' -f1)"
 port="${STORE_SSH_PORT:-$DEFAULT_SSH_PORT}"
 target_dir="${STORE_DOWNLOAD_ROOT}/${PLATFORM_FOLDER}/${version}"
