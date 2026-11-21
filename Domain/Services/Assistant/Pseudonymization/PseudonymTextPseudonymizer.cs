@@ -5,7 +5,8 @@
 /// characters (tool results arrive as JSON whose default encoder writes "Müller" as Müller and "+41" as +41,
 /// so a match on the escaped form would miss exactly where most person data stands); field rules on JSON (personnel
 /// number to its P token, birthdate to an age) and on a "#4711" reference to a known personnel number (also the "(#4711)" suffix of name candidate lists); pattern values;
-/// finally known names, longest phrase first, on Unicode word boundaries.
+/// known street addresses (street and house number, before names, so "Rue Pierre Fatio 12" is not split by the first
+/// name "Pierre"); finally known names, longest phrase first, on Unicode word boundaries.
 /// </summary>
 
 using System.Globalization;
@@ -43,6 +44,7 @@ public static partial class PseudonymTextPseudonymizer
         var result = DecodeJsonEscapes(text);
         result = ApplyFieldRules(result, map, usedBaseTokens, today);
         result = ReplacePatternValues(result, map);
+        result = ReplaceStreets(result, map);
         return ReplaceNames(result, map, usedBaseTokens, requireCapitalSingleWord);
     }
 
@@ -125,6 +127,26 @@ public static partial class PseudonymTextPseudonymizer
 
             builder.Append(text, position, match.Index - position).Append(token);
             map.MarkEmitted(token);
+            position = match.Index + match.Length;
+        }
+
+        return builder.Append(text, position, text.Length - position).ToString();
+    }
+
+    private static string ReplaceStreets(string text, PseudonymMap map)
+    {
+        var matches = PseudonymStreets.Find(text, map.Dictionary);
+        if (matches.Count == 0)
+        {
+            return text;
+        }
+
+        var builder = new StringBuilder(text.Length);
+        var position = 0;
+        foreach (var match in matches)
+        {
+            builder.Append(text, position, match.Index - position).Append(match.Phrase.Token);
+            map.MarkEmitted(match.Phrase.Token);
             position = match.Index + match.Length;
         }
 

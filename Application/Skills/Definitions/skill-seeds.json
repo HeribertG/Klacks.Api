@@ -1,5 +1,5 @@
 {
-  "version": 36,
+  "version": 37,
   "skills": [
     {
       "name": "get_current_time",
@@ -51376,7 +51376,7 @@
     {
       "name": "explain_llm_pseudonymization",
       "area": "klacksy",
-      "description": "Explains how Klacks pseudonymises personal data before a request goes to a cloud language model: names, phone numbers, e-mail addresses, personnel numbers and birthdates become codes like MA-0017 and are put back afterwards. Covers default on, the exception for local models, the admin-only switch (no settings UI yet) and the limits. Use when asked whether names or personal data go to OpenAI or another AI, or whether the data are anonymous.",
+      "description": "Explains how Klacks pseudonymises personal data before a request goes to a cloud language model: names, street and house number (postcode and town stay), phone numbers, e-mail addresses, personnel numbers and birthdates become codes like MA-0017 and are put back afterwards. Covers default on, the local-model exception, the admin-only switch (no settings UI yet) and the limits. Use when asked whether names, addresses or personal data go to OpenAI or another AI, or whether the data are anonymous.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -51426,7 +51426,8 @@
           "werden namen an die ki geschickt",
           "werden personendaten an openai geschickt",
           "kann ich die pseudonymisierung ausschalten",
-          "lokales modell ohne pseudonymisierung"
+          "lokales modell ohne pseudonymisierung",
+          "werden adressen an die ki geschickt"
         ],
         "en": [
           "privacy ai",
@@ -51438,7 +51439,8 @@
           "are names sent to the ai",
           "is personal data sent to openai",
           "can i turn off pseudonymisation",
-          "local model without pseudonymisation"
+          "local model without pseudonymisation",
+          "are addresses sent to the ai"
         ],
         "fr": [
           "protection des données ia",
@@ -51461,7 +51463,7 @@
         "fr": "Pseudonymisation avant l'IA cloud",
         "it": "Pseudonimizzazione prima dell'IA cloud"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_personal_access_tokens",

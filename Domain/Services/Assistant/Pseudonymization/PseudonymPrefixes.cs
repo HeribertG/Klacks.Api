@@ -16,6 +16,7 @@ public static class PseudonymPrefixes
     public const string Name = "NAME";
     public const string Phone = "TEL";
     public const string Mail = "MAIL";
+    public const string Address = "ADR";
 
     private static readonly IReadOnlyDictionary<PseudonymKind, string> ByKind = new Dictionary<PseudonymKind, string>
     {
@@ -24,7 +25,8 @@ public static class PseudonymPrefixes
         [PseudonymKind.User] = User,
         [PseudonymKind.Name] = Name,
         [PseudonymKind.Phone] = Phone,
-        [PseudonymKind.Mail] = Mail
+        [PseudonymKind.Mail] = Mail,
+        [PseudonymKind.Address] = Address
     };
 
     private static readonly IReadOnlyDictionary<string, PseudonymKind> ByPrefix =

@@ -174,7 +174,7 @@ public static partial class PseudonymRestorer
     }
 
     [GeneratedRegex(
-        @"(?<![\p{L}\p{N}])(?<prefix>NAME|MAIL|TEL|MA|KL|BE)(?:-(?<num>\d{1,8})|(?<num>\d{4,8}))(?!\d)(?:-(?<var>[A-Za-z]\d?)(?![\p{L}\p{N}]))?",
+        @"(?<![\p{L}\p{N}])(?<prefix>NAME|MAIL|TEL|ADR|MA|KL|BE)(?:-(?<num>\d{1,8})|(?<num>\d{4,8}))(?!\d)(?:-(?<var>[A-Za-z]\d?)(?![\p{L}\p{N}]))?",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     internal static partial Regex TokenPattern();
 }

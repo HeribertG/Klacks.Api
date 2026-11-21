@@ -9,5 +9,6 @@ public enum PseudonymKind
     User = 2,
     Name = 3,
     Phone = 4,
-    Mail = 5
+    Mail = 5,
+    Address = 6
 }

@@ -5,10 +5,13 @@
 /// whether it points to one person or is ambiguous, and lists the keys that need a stable number. <see cref="Bind"/>
 /// turns it into the dictionary once the numbers are allocated. A phrase that names exactly one client wins over users
 /// of the same name, because users and employees are often the same human; two or more clients (or, without a client,
-/// two or more users) make the phrase an ambiguous NAME pseudonym.
+/// two or more users) make the phrase an ambiguous NAME pseudonym. Street lines with a house number become ADR
+/// pseudonyms keyed by the address id; a street that several addresses share (a household, a common workplace) takes
+/// the token of the address with the lowest id, since the token restores to the street text and names nobody.
 /// </summary>
 /// <param name="persons">Clients (all types, deleted ones included) and users</param>
 /// <param name="knownPhoneNumbers">Phone values of the communication table, matched even without a leading 0 or +</param>
+/// <param name="addresses">Street lines of the client addresses (deleted ones included)</param>
 
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
@@ -22,13 +25,18 @@ public sealed class PseudonymVocabulary
     private readonly Dictionary<string, List<PseudonymNameCandidate>> _candidates = new(StringComparer.Ordinal);
     private readonly Dictionary<int, PseudonymPerson?> _idNumbers = new();
     private readonly HashSet<string> _knownPhoneTails = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, List<PseudonymStreetCandidate>> _streetCandidates = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _streetHouseNumbers = new(StringComparer.Ordinal);
 
     private PseudonymVocabulary(List<PseudonymPerson> persons)
     {
         _persons = persons;
     }
 
-    public static PseudonymVocabulary Create(IEnumerable<PseudonymPerson> persons, IEnumerable<string> knownPhoneNumbers)
+    public static PseudonymVocabulary Create(
+        IEnumerable<PseudonymPerson> persons,
+        IEnumerable<string> knownPhoneNumbers,
+        IEnumerable<PseudonymAddress> addresses)
     {
         var vocabulary = new PseudonymVocabulary(persons.ToList());
         foreach (var person in vocabulary._persons)
@@ -45,6 +53,11 @@ public sealed class PseudonymVocabulary
             }
         }
 
+        foreach (var address in addresses)
+        {
+            vocabulary.AddAddress(address);
+        }
+
         return vocabulary;
     }
 
@@ -59,6 +72,11 @@ public sealed class PseudonymVocabulary
                 {
                     keys.Add(new PseudonymKey(PseudonymKind.Name, AmbiguousKey(AmbiguousRepresentative(candidates))));
                 }
+            }
+
+            foreach (var candidates in _streetCandidates.Values)
+            {
+                keys.Add(new PseudonymKey(PseudonymKind.Address, StreetRepresentative(candidates).EntityKey));
             }
 
             return keys;
@@ -109,7 +127,19 @@ public sealed class PseudonymVocabulary
             reverse[nameToken] = nameSurface;
         }
 
-        return new PseudonymDictionary(phrases, reverse, legend, idNumberTokens, _knownPhoneTails);
+        var streets = new Dictionary<string, PseudonymPhrase>(StringComparer.Ordinal);
+        foreach (var (key, candidates) in _streetCandidates)
+        {
+            var representative = StreetRepresentative(candidates);
+            var baseToken = new PseudonymToken(
+                PseudonymKind.Address, ordinals[new PseudonymKey(PseudonymKind.Address, representative.EntityKey)]);
+            var token = (baseToken with { Variant = representative.Variant }).ToString();
+            streets[key] = new PseudonymPhrase(token, baseToken.ToString(), representative.Surface);
+            reverse[token] = representative.Surface;
+        }
+
+        return new PseudonymDictionary(
+            phrases, reverse, legend, idNumberTokens, _knownPhoneTails, streets, _streetHouseNumbers);
     }
 
     private static PseudonymToken BaseToken(PseudonymPerson person, IReadOnlyDictionary<PseudonymKey, int> ordinals) =>
@@ -147,6 +177,46 @@ public sealed class PseudonymVocabulary
             _idNumbers[idNumber] = _idNumbers.ContainsKey(idNumber) ? null : person;
         }
     }
+
+    private void AddAddress(PseudonymAddress address)
+    {
+        foreach (var (variant, line) in AddressLines(address))
+        {
+            var parsed = PseudonymStreets.Parse(line);
+            if (parsed == null)
+            {
+                continue;
+            }
+
+            var candidate = new PseudonymStreetCandidate(address.EntityKey, variant, parsed.Surface);
+            _streetHouseNumbers.Add(parsed.HouseNumber);
+            foreach (var key in parsed.Keys)
+            {
+                if (!_streetCandidates.TryGetValue(key, out var list))
+                {
+                    list = new List<PseudonymStreetCandidate>();
+                    _streetCandidates[key] = list;
+                }
+
+                list.Add(candidate);
+            }
+        }
+    }
+
+    private static IEnumerable<(string? Variant, string? Line)> AddressLines(PseudonymAddress address)
+    {
+        yield return (null, address.Street);
+        yield return (PseudonymizationConstants.Street2Variant, address.Street2);
+        yield return (PseudonymizationConstants.Street3Variant, address.Street3);
+        yield return (PseudonymizationConstants.AddressLine1Variant, address.AddressLine1);
+        yield return (PseudonymizationConstants.AddressLine2Variant, address.AddressLine2);
+    }
+
+    private static PseudonymStreetCandidate StreetRepresentative(List<PseudonymStreetCandidate> candidates) =>
+        candidates
+            .OrderBy(candidate => candidate.EntityKey, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.Variant ?? string.Empty, StringComparer.Ordinal)
+            .First();
 
     private static PseudonymNameCandidate? Resolve(List<PseudonymNameCandidate> candidates)
     {

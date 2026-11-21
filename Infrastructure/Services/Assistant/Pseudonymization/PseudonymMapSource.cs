@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Singleton cache of the pseudonym dictionary. Every call reads a cheap fingerprint of clients, communications and
-/// users (no time-to-live: a name entered a second ago must not leave in plain text) and rebuilds the dictionary when it
+/// Singleton cache of the pseudonym dictionary. Every call reads a cheap fingerprint of clients, communications,
+/// addresses and users (no time-to-live: a name entered a second ago must not leave in plain text) and rebuilds the dictionary when it
 /// changed. Database access goes through a fresh scope per call, never a captured DbContext; rebuilding is serialised
 /// within the process.
 /// </summary>
@@ -50,13 +50,14 @@ public sealed class PseudonymMapSource : IPseudonymMapSource
             var stopwatch = Stopwatch.StartNew();
             var persons = await repository.LoadPersonsAsync(cancellationToken);
             var phones = await repository.LoadPhoneNumbersAsync(cancellationToken);
-            var vocabulary = PseudonymVocabulary.Create(persons, phones);
+            var addresses = await repository.LoadAddressesAsync(cancellationToken);
+            var vocabulary = PseudonymVocabulary.Create(persons, phones, addresses);
             var ordinals = await repository.EnsureOrdinalsAsync(vocabulary.RequiredKeys, cancellationToken);
             var dictionary = vocabulary.Bind(ordinals);
             _cached = new CachedDictionary(signature, dictionary);
             _logger.LogInformation(
-                "Pseudonym dictionary built: {PersonCount} people, {PhraseCount} name phrases in {ElapsedMs} ms",
-                persons.Count, dictionary.PhraseCount, stopwatch.ElapsedMilliseconds);
+                "Pseudonym dictionary built: {PersonCount} people, {PhraseCount} name phrases, {StreetCount} street keys in {ElapsedMs} ms",
+                persons.Count, dictionary.PhraseCount, dictionary.StreetCount, stopwatch.ElapsedMilliseconds);
             return dictionary;
         }
         finally

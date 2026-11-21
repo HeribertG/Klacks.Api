@@ -48,6 +48,11 @@ public sealed class PseudonymMap
 
     public PseudonymDictionary Dictionary { get; }
 
+    /// <summary>
+    /// True once the forward pass wrote any pseudonym into the request, so the legend is added.
+    /// </summary>
+    public bool HasEmitted => _emitted.Count > 0;
+
     public bool TryGetPatternToken(PseudonymKind kind, string value, out string token)
     {
         if (_patternOrdinals.TryGetValue(new PseudonymKey(kind, value), out var ordinal))

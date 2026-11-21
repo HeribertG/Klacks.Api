@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// EF-backed implementation of ILLMPseudonymRepository: reads clients, users and phone numbers for the pseudonym
-/// dictionary and allocates the stable numbers of people and ambiguous names in llm_pseudonyms (next free number per kind, unique per kind and key
+/// EF-backed implementation of ILLMPseudonymRepository: reads clients, users, phone numbers and address street lines for
+/// the pseudonym dictionary and allocates the stable numbers of people, addresses and ambiguous names in llm_pseudonyms (next free number per kind, unique per kind and key
 /// and per kind and number).
 /// </summary>
 
@@ -21,6 +21,7 @@ public class LLMPseudonymRepository : ILLMPseudonymRepository
         "SELECT concat_ws('|', " +
         "(SELECT count(*) FROM client), (SELECT max(coalesce(update_time, create_time)) FROM client), " +
         "(SELECT count(*) FROM communication), (SELECT max(coalesce(update_time, create_time)) FROM communication), " +
+        "(SELECT count(*) FROM address), (SELECT max(coalesce(update_time, create_time)) FROM address), " +
         "(SELECT count(*) FROM \"AspNetUsers\"), " +
         "(SELECT md5(string_agg(coalesce(concurrency_stamp, ''), ',' ORDER BY id)) FROM \"AspNetUsers\")) AS \"Value\"";
 
@@ -81,6 +82,21 @@ public class LLMPseudonymRepository : ILLMPseudonymRepository
             .Select(c => c.Value)
             .Distinct()
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<PseudonymAddress>> LoadAddressesAsync(CancellationToken cancellationToken = default)
+    {
+        var addresses = await _context.Address
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(a => a.Street != string.Empty || a.Street2 != string.Empty || a.Street3 != string.Empty
+                || a.AddressLine1 != string.Empty || a.AddressLine2 != string.Empty)
+            .Select(a => new { a.Id, a.Street, a.Street2, a.Street3, a.AddressLine1, a.AddressLine2 })
+            .ToListAsync(cancellationToken);
+
+        return addresses
+            .Select(a => new PseudonymAddress(a.Id.ToString(), a.Street, a.Street2, a.Street3, a.AddressLine1, a.AddressLine2))
+            .ToList();
     }
 
     public async Task<IReadOnlyDictionary<PseudonymKey, int>> EnsureOrdinalsAsync(
