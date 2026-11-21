@@ -335,7 +335,7 @@ jobs:
       - name: Architecture rules of the installer (Windows PowerShell 5.1)
         shell: powershell
         run: |
-          & .\Klacks.Api\deploy\native\windows\Test-PackageArchitecture.ps1
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Klacks.Api\deploy\native\windows\Test-PackageArchitecture.ps1
           if ($LASTEXITCODE -ne 0) { throw "Test-PackageArchitecture.ps1 failed ($LASTEXITCODE)." }
 
       - name: Checkout Klacks.Plugin.Contracts
