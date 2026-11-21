@@ -23,18 +23,15 @@
 # (docs/plans/native-arm64-office-pc-2026-11-21.md, AP3-AP6): PostgreSQL comes from the signed engine release of
 # deploy/postgres/engine.json, never from a build in this run. install-arm64 installs that package natively,
 # installer-build-arm64 turns it into the signed Klacks-Setup-win-arm64.exe and installer-arm64 installs that setup.
-# win-arm64 is fail-soft: the arm64 jobs run with continue-on-error, no win-x64 job needs them, and each reports success
-# only through its job output green (set by its last step). publish (release and release-dry-run, never gate) adds the
+# win-arm64 is blocking since 1.0.80 (the first release run with all four arm64 jobs green and both RIDs in stable.json):
+# a red arm64 job turns the run red. No win-x64 job needs them, and each reports success only through its job output green
+# (set by its last step), so a red arm64 leg still never holds back the win-x64 publish. publish (release and release-dry-run, never gate) adds the
 # arm64 files, the win-arm64 entry of artifacts.native (merged in the same job right after win-x64, one stable.json upload)
 # and the arm64 rolling assets only when those outputs say green; otherwise it publishes win-x64 exactly as without arm64.
 # publish waits for the arm64 jobs on purpose (stable.json is uploaded once, with both RIDs): in the worst case (a long
 # windows-11-arm queue) that delays the win-x64 publish, it never blocks it. verify-office-pc, in contrast, is
 # deliberately blocking for arm64: it turns the run red when an arm64 office-pc asset lags two or more versions
 # (verify-rolling-download.sh --may-lag tolerates one).
-# Making the arm64 legs blocking (dropping continue-on-error, so a red arm64 leg turns the run red): only after the first
-# release run in which package (win-arm64), install (arm64-native), installer (build and sign, win-arm64) and
-# installer (arm64-native) were all green and its stable.json carried both RIDs. Even then the win-x64 publish keeps
-# depending on the win-x64 jobs only.
 
 name: Native Windows (reusable)
 
@@ -334,13 +331,12 @@ jobs:
             package/${{ env.PACKAGE_FILE }}
           retention-days: 14
 
-  # win-arm64 bundle and office-PC package, built natively on Windows 11 on ARM. Fail-soft: only the arm64 jobs need it,
+  # win-arm64 bundle and office-PC package, built natively on Windows 11 on ARM. Blocking: only the arm64 jobs need it,
   # and they start only when its output green is 'true'.
   package-arm64:
     name: package (win-arm64)
     needs: ui
     runs-on: windows-11-arm
-    continue-on-error: true
     timeout-minutes: 90
     outputs:
       green: ${{ steps.green.outputs.green }}
@@ -902,13 +898,12 @@ jobs:
   # installer-build. It needs installer-build so that the two signing jobs never queue for certum-signing at the same
   # time (a third pending job in a concurrency group cancels the pending one). The arm64 path of
   # New-KlacksOfficePackage.ps1 reads deploy/postgres/engine.json and verifies the signed engine again, hence the second
-  # sparse-checkout folder. Fail-soft (see the header).
+  # sparse-checkout folder. Blocking (see the header).
   installer-build-arm64:
     name: installer (build and sign, win-arm64)
     needs: [ui, package-arm64, installer-build]
     if: ${{ !cancelled() && needs.ui.result == 'success' && needs.package-arm64.outputs.green == 'true' }}
     runs-on: windows-2025
-    continue-on-error: true
     environment: certum-signing
     permissions:
       contents: read
@@ -1013,13 +1008,12 @@ jobs:
 
   # Installs the arm64 office-PC package natively on Windows 11 on ARM (Installieren.cmd, service mode) and checks that
   # every running Klacks service process is an arm64 binary (PE machine 0xAA64, no emulation), health, services, UI,
-  # login, customer defaults, restart and uninstall: the subset of install that is architecture-relevant. Fail-soft.
+  # login, customer defaults, restart and uninstall: the subset of install that is architecture-relevant. Blocking.
   install-arm64:
     name: install (arm64-native)
     needs: [ui, package-arm64]
     if: ${{ !cancelled() && needs.ui.result == 'success' && needs.package-arm64.outputs.green == 'true' }}
     runs-on: windows-11-arm
-    continue-on-error: true
     timeout-minutes: 120
     outputs:
       green: ${{ steps.green.outputs.green }}
@@ -1171,13 +1165,12 @@ jobs:
           retention-days: 14
 
   # Installs Klacks-Setup-win-arm64.exe silently on Windows 11 on ARM: services, health, login, arm64 API process,
-  # signatures of setup and uninstaller, customer defaults and silent uninstall. Fail-soft.
+  # signatures of setup and uninstaller, customer defaults and silent uninstall. Blocking.
   installer-arm64:
     name: installer (arm64-native)
     needs: [ui, installer-build-arm64]
     if: ${{ !cancelled() && needs.ui.result == 'success' && needs.installer-build-arm64.outputs.green == 'true' }}
     runs-on: windows-11-arm
-    continue-on-error: true
     timeout-minutes: 120
     outputs:
       green: ${{ steps.green.outputs.green }}
@@ -1278,7 +1271,7 @@ jobs:
     name: publish (${{ inputs.mode }})
     needs: [ui, package, install, installer, package-arm64, install-arm64, installer-build-arm64, installer-arm64]
     # always(): a red installer leg must not stop the ZIP release; the ZIP prerequisites are checked explicitly. The arm64
-    # jobs are listed only so that publish waits for them; none of them appears in this condition (fail-soft).
+    # jobs are listed only so that publish waits for them; none of them appears in this condition.
     if: ${{ always() && inputs.mode != 'gate' && needs.ui.result == 'success' && needs.package.result == 'success' && needs.install.result == 'success' }}
     runs-on: ubuntu-latest
     # deploy.yml needs about 77 min from the tag to stable.json (v1.0.41, v1.0.42); the wait below allows 150 min.
