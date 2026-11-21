@@ -25,6 +25,10 @@ public class OpenAiTtsService : ITtsProvider
 
     public string ProviderId => TtsProviderConstants.OpenAi;
 
+    public string MediaType => TtsProviderConstants.MpegMediaType;
+
+    public bool ChunksInternally => false;
+
     public OpenAiTtsService(
         IHttpClientFactory httpClientFactory,
         ITtsApiKeyResolver apiKeyResolver,

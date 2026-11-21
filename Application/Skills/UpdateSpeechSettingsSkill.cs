@@ -6,14 +6,16 @@
 /// which voice it speaks with, and how it reacts when someone talks over it. API keys are written
 /// here as well but are never read back by the matching read skill. The engine value "local" selects the
 /// installed self-hosted speech recognition and is stored as its custom provider id; it is refused while the
-/// local engine is not installed and enabled, before anything is written.
+/// local engine is not installed and enabled, before anything is written. The TTS provider value "local" selects the
+/// installed local voice (Supertonic 3 in Klacks.Stt), is stored in its canonical lower-case spelling and is refused
+/// while ASSISTANT_TTS_LOCAL_BASE_URL is not set.
 /// </summary>
 /// <param name="sttEngine">Engine that turns speech into text; "local" selects the installed local speech recognition.</param>
 /// <param name="transcriptionModel">Model the engine transcribes with.</param>
 /// <param name="transcriptionPrompt">Hint text that steers the transcription towards house vocabulary.</param>
 /// <param name="enhancementEnabled">Whether the raw transcript is cleaned up afterwards.</param>
 /// <param name="outputMode">How the assistant answers: in writing, spoken, or both.</param>
-/// <param name="ttsProvider">Service that speaks the answers.</param>
+/// <param name="ttsProvider">Service that speaks the answers; "local" selects the installed local voice.</param>
 /// <param name="ttsVoice">Voice the answers are spoken in.</param>
 /// <param name="silenceThresholdMs">Milliseconds of silence that end an utterance.</param>
 /// <param name="bargeInEnabled">Whether talking over the assistant interrupts it.</param>
@@ -42,9 +44,13 @@ namespace Klacks.Api.Application.Skills;
 public class UpdateSpeechSettingsSkill : SettingsWriterSkillBase
 {
     private const string SttEngineParameter = "sttEngine";
+    private const string TtsProviderParameter = "ttsProvider";
+    private const string LocalVoiceNotInstalledMessage =
+        "Install the local voice first: an administrator accepts its licence and installs it in the speech settings.";
     private const string LocalEngineNotInstalledMessage =
         "Install the local speech recognition first (install_whisper_plugin).";
 
+    private readonly ISettingsRepository _settingsRepository;
     private readonly ICustomSttProviderResolver _customSttProviderResolver;
     private readonly IPlaygroundMode _playgroundMode;
 
@@ -56,6 +62,7 @@ public class UpdateSpeechSettingsSkill : SettingsWriterSkillBase
         IPlaygroundMode playgroundMode)
         : base(settingsRepository, unitOfWork, encryptionService)
     {
+        _settingsRepository = settingsRepository;
         _customSttProviderResolver = customSttProviderResolver;
         _playgroundMode = playgroundMode;
     }
@@ -77,7 +84,7 @@ public class UpdateSpeechSettingsSkill : SettingsWriterSkillBase
         CollectText(pending, parameters, "transcriptionPrompt", Settings.ASSISTANT_TRANSCRIPTION_PROMPT);
         CollectBoolean(pending, parameters, "enhancementEnabled", Settings.ASSISTANT_ENHANCEMENT_ENABLED);
         CollectText(pending, parameters, "outputMode", Settings.ASSISTANT_OUTPUT_MODE);
-        CollectText(pending, parameters, "ttsProvider", Settings.ASSISTANT_TTS_PROVIDER);
+        CollectText(pending, parameters, TtsProviderParameter, Settings.ASSISTANT_TTS_PROVIDER);
         CollectText(pending, parameters, "ttsVoice", Settings.ASSISTANT_TTS_VOICE);
         CollectInteger(pending, parameters, "silenceThresholdMs", Settings.ASSISTANT_SILENCE_THRESHOLD_MS);
         CollectBoolean(pending, parameters, "bargeInEnabled", Settings.ASSISTANT_BARGE_IN_ENABLED);
@@ -94,7 +101,31 @@ public class UpdateSpeechSettingsSkill : SettingsWriterSkillBase
             return SkillResult.Error(LocalEngineNotInstalledMessage);
         }
 
+        if (!await EnsureLocalVoiceInstalledAsync(pending))
+        {
+            return SkillResult.Error(LocalVoiceNotInstalledMessage);
+        }
+
         return await PersistAsync(pending, "Speech settings");
+    }
+
+    private async Task<bool> EnsureLocalVoiceInstalledAsync(List<PendingSetting> pending)
+    {
+        var index = pending.FindIndex(p => p.ParameterName == TtsProviderParameter
+            && string.Equals(p.Value, TtsProviderConstants.Local, StringComparison.OrdinalIgnoreCase));
+        if (index < 0)
+        {
+            return true;
+        }
+
+        var baseUrl = await _settingsRepository.GetSetting(Settings.ASSISTANT_TTS_LOCAL_BASE_URL);
+        if (string.IsNullOrWhiteSpace(baseUrl?.Value))
+        {
+            return false;
+        }
+
+        pending[index] = pending[index] with { Value = TtsProviderConstants.Local };
+        return true;
     }
 
     private async Task<bool> TryMapLocalEngineAsync(List<PendingSetting> pending, CancellationToken cancellationToken)

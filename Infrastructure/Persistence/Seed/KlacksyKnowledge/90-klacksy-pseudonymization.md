@@ -32,7 +32,7 @@ Before a request goes to a cloud language model, Klacks replaces personal data w
 
 - **Notes are the user's responsibility, not Klacks'.** Klacks is for planning only, and notes are meant for planning matters only: health or medical details, AHV numbers and bank details do not belong in them; Klacks has no fields for them and does not look for them. Apart from known names and the values listed above, a note goes along as written.
 - **Not covered:** unknown names (relatives, doctors, external people in mails), typos, names shorter than 3 letters, street addresses (planned for later), images. A request with an image is refused while pseudonymisation is active.
-- **Voice output** (text-to-speech, default Microsoft Edge TTS) receives the restored answer with real names; cloud speech recognition receives the audio.
+- **Voice output** with a cloud provider (default Microsoft Edge TTS, also OpenAI, ElevenLabs, Google) receives the restored answer with real names; cloud and browser speech recognition receive the audio. The **local voice** (speech output "local") and the local speech recognition keep text and audio inside the installation. They are an additional offer for the admin to choose: nothing switches automatically, and the speech settings show a hint while pseudonymisation is on and a cloud service is chosen. See `explain_klacksy_speech_setup`.
 - **MCP and personal access token clients** receive tool results directly, without pseudonyms.
 - Pseudonymised data are still personal data under GDPR and the Swiss revDSG: a data processing agreement with the provider stays necessary.
 - The model may answer slightly less well: it cannot infer anything from a name. A short gender legend keeps the grammar right.

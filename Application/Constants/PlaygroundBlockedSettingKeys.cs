@@ -6,7 +6,7 @@ namespace Klacks.Api.Application.Constants;
 
 /// <summary>
 /// Setting keys that must not be written on the public Playground: the DeepL key, every STT and TTS provider key and
-/// the STT engine / TTS provider choice, plus the update channel and the pinned update version (the demo admin must not
+/// the STT engine / TTS provider choice, the local voice address and its licence consent keys, plus the update channel and the pinned update version (the demo admin must not
 /// steer which release an updater would install), and the four OAuth connection settings (the demo admin must not change the trusted redirect list). Voice, output mode, thresholds, transcription model and all other settings
 /// are deliberately not listed because the UI and the app write them in normal operation.
 /// </summary>
@@ -24,6 +24,10 @@ public static class PlaygroundBlockedSettingKeys
         Settings.ASSISTANT_TTS_API_KEY_OPENAI,
         Settings.ASSISTANT_TTS_API_KEY_ELEVENLABS,
         Settings.ASSISTANT_TTS_API_KEY_GOOGLE,
+        Settings.ASSISTANT_TTS_LOCAL_BASE_URL,
+        Settings.ASSISTANT_TTS_LOCAL_LICENSE_ACCEPTED_BY,
+        Settings.ASSISTANT_TTS_LOCAL_LICENSE_ACCEPTED_AT,
+        Settings.ASSISTANT_TTS_LOCAL_LICENSE_VERSION,
         Settings.UPDATE_PINNED_VERSION,
         Settings.UPDATE_CHANNEL,
         SettingKeys.OAuthConnectionsMode,

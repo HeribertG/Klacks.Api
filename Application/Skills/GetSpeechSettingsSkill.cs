@@ -5,6 +5,7 @@
 /// and flag, output mode, TTS provider and voice, silence threshold, barge-in flag. For API
 /// keys it returns only whether a key is configured, never the key itself. When the stored engine is the
 /// installed self-hosted speech recognition it is reported as "local" together with the installed engine alias.
+/// LocalTtsInstalled tells whether the local voice (TTS provider "local") is installed.
 /// </summary>
 /// <param name="settingsRepository">Reads the stored speech settings</param>
 /// <param name="customSttProviderResolver">Resolves the stored custom engine id to the enabled local provider</param>
@@ -52,6 +53,7 @@ public class GetSpeechSettingsSkill : BaseSkillImplementation
         var openAiTtsKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_TTS_API_KEY_OPENAI);
         var elevenLabsTtsKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_TTS_API_KEY_ELEVENLABS);
         var googleTtsKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_TTS_API_KEY_GOOGLE);
+        var localTtsBaseUrl = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_TTS_LOCAL_BASE_URL);
 
         var (reportedEngine, localEngine) = await ResolveEngineAsync(sttEngine?.Value, cancellationToken);
 
@@ -64,6 +66,7 @@ public class GetSpeechSettingsSkill : BaseSkillImplementation
             OutputMode = outputMode?.Value ?? "",
             TtsProvider = ttsProvider?.Value ?? "",
             TtsVoice = ttsVoice?.Value ?? "",
+            LocalTtsInstalled = !string.IsNullOrWhiteSpace(localTtsBaseUrl?.Value),
             SilenceThresholdMs = silenceThreshold?.Value ?? "",
             BargeInEnabled = bargeInEnabled?.Value ?? "",
             HasSttApiKey = !string.IsNullOrWhiteSpace(sttApiKey?.Value),

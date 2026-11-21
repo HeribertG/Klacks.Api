@@ -11,6 +11,7 @@
 /// Writing one of the incoming-server keys can make the inbox page appear or disappear, so the
 /// navigation target snapshot is marked stale afterwards — without it the chat fast-path would keep
 /// the old answer for up to its TTL.
+/// A server-managed key (ServerManagedSettingKeys) is refused with 403 before anything is read or written.
 /// </summary>
 /// <param name="request">Contains the setting with its key (Type) and the new value</param>
 
@@ -55,6 +56,8 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
 
         public async Task<Domain.Models.Settings.Settings?> Handle(PutCommand request, CancellationToken cancellationToken)
         {
+            await ServerManagedSettingWriteGuard.EnsureWritableAsync(_settingsRepository, request.model);
+
             if (_encryptionService.IsServerOnlySettingType(request.model.Type) && request.model.Value == SettingsMasking.MaskedValue)
             {
                 return await _settingsRepository.GetSetting(request.model.Type);

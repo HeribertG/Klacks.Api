@@ -78,6 +78,7 @@
 		<EmbeddedResource Include="Infrastructure\Persistence\Seed\Dumps\*.sql" />
 		<Content Remove="Application\Services\ClientImport\Resources\client-import-header-synonyms.json" />
 		<EmbeddedResource Include="Application\Services\ClientImport\Resources\client-import-header-synonyms.json" LogicalName="Klacks.Api.ClientImport.HeaderSynonyms.json" />
+		<EmbeddedResource Include="Infrastructure\Resources\openrail-m-supertonic3.txt" LogicalName="Klacks.Api.LocalTts.OpenRailMSupertonic3.txt" />
 	</ItemGroup>
 
 	<ItemGroup>

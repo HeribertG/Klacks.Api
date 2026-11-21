@@ -23,6 +23,10 @@ public class ElevenLabsTtsService : ITtsProvider
 
     public string ProviderId => TtsProviderConstants.ElevenLabs;
 
+    public string MediaType => TtsProviderConstants.MpegMediaType;
+
+    public bool ChunksInternally => false;
+
     public ElevenLabsTtsService(
         IHttpClientFactory httpClientFactory,
         ITtsApiKeyResolver apiKeyResolver,

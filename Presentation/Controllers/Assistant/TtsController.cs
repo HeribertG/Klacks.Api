@@ -2,12 +2,17 @@
 
 /// <summary>
 /// Controller for text-to-speech synthesis endpoints.
-/// Routes synthesis requests to the appropriate ITtsProvider based on ProviderId.
+/// Routes synthesis requests to the appropriate ITtsProvider based on ProviderId. The audio carries the provider's media
+/// type; a provider that chunks internally (local) gets the whole text in one call, and an empty answer from it means
+/// "no audio" (204, e.g. a language the local voice does not speak). Other providers get sentence-boundary chunks whose
+/// audio is concatenated. A busy provider answers 503 and passes its Retry-After delay on.
 /// </summary>
 /// <param name="ttsProviders">All registered ITtsProvider implementations</param>
 /// <param name="playgroundMode">Tells whether the instance is the Playground, where the provider is always Edge</param>
 /// <param name="logger">Logger for diagnostics and error tracking</param>
+using System.Globalization;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Playground;
 using Klacks.Api.Domain.Services.Assistant;
@@ -109,6 +114,12 @@ public class TtsController : ControllerBase
                 return BadRequest("Text cannot be empty");
             }
 
+            if (provider.ChunksInternally)
+            {
+                var audio = await provider.SynthesizeAsync(spokenText, voiceId, locale, ct);
+                return audio.Length == 0 ? NoContent() : File(audio, provider.MediaType);
+            }
+
             var chunks = TtsTextChunker.Split(spokenText, TtsProviderConstants.SynthesisChunkLength);
 
             using var audioStream = new MemoryStream();
@@ -123,7 +134,16 @@ public class TtsController : ControllerBase
                 audioStream.Write(chunkAudio, 0, chunkAudio.Length);
             }
 
-            return File(audioStream.ToArray(), "audio/mpeg");
+            return File(audioStream.ToArray(), provider.MediaType);
+        }
+        catch (TtsProviderBusyException ex)
+        {
+            if (ex.RetryAfter is { } retryAfter)
+            {
+                Response.Headers.RetryAfter = ((long)Math.Ceiling(retryAfter.TotalSeconds)).ToString(CultureInfo.InvariantCulture);
+            }
+
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, "Text-to-speech provider is busy");
         }
         catch (Exception ex)
         {

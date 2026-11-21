@@ -44,7 +44,9 @@ Instead of typing, you can speak; instead of reading, you can listen. Two indepe
 
 - **Speech recognition** (de: "Spracherkennung") turns what you say into text. The browser can do
   this for free, or an external service can do it better.
-- **Speech output** (de: "Sprachausgabe Anbieter") reads answers aloud. One option needs no account.
+- **Speech output** (de: "Sprachausgabe Anbieter") reads answers aloud. Microsoft Edge is the default and needs
+  no account; OpenAI, ElevenLabs and Google need a key. A **local voice** (de: "Lokal (im Haus)", en: "Local
+  (on-premises)") can be added: it speaks inside the installation, so no text goes to a cloud service.
 
 **The spoken language is not set here** — it follows the language of the interface. There is also no
 speed control.
@@ -79,6 +81,19 @@ playback. To avoid the assistant's own voice triggering it, the threshold is rai
 and speech must persist for a good fraction of a second before the interruption is taken as meant —
 a cough will not stop it. It works most reliably with a headset or with a service that recognises
 speech continuously. If the microphone cannot be opened, the answer simply plays through.
+
+### The local voice
+
+- An **additional offer**: nothing is removed. Edge stays the default, the cloud services stay selectable, and
+  Klacks never switches to the local voice by itself, not even with pseudonymisation on. The admin decides.
+- **Installation (admins only)**: the speech settings show the full licence of the voice model (Supertonic 3 by
+  Supertone, BigScience OpenRAIL-M; about 130 MB). Only after ticking the consent and pressing the button is the model
+  downloaded and installed. Who accepted and when is recorded. The model is not part of Klacks.
+- Selectable only once installed. Ten voices: five female, five male.
+- Limits: **Maltese has no local voice**. With "local" chosen, a Maltese answer stays silent, and if the voice is
+  unreachable the answer stays silent too; Klacks never falls back to a cloud service behind the admin's back. The
+  first sound takes longer than with Edge, more so on weak office PCs.
+- Every voice, local or cloud, is a **computer-generated voice**; the settings say so under the voice choice.
 
 <!-- level:effects -->
 
@@ -119,3 +134,5 @@ limit Klacks answers with "too many requests" until the minute is over.
 - "Er versteht den Nachnamen immer falsch."
 - "Kann ich ihn unterbrechen, während er spricht?"
 - "Er schickt ab, bevor ich zu Ende gesprochen habe."
+- "Kann Klacksy ohne Cloud sprechen?"
+- "Can the voice run locally?"

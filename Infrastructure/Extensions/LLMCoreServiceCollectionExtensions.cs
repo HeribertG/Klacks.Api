@@ -338,6 +338,13 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<ITtsProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.ElevenLabsTtsService>());
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.GoogleTtsService>();
         services.AddScoped<ITtsProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.GoogleTtsService>());
+        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.LocalTtsService>();
+        services.AddScoped<ITtsProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.LocalTtsService>());
+        services.AddHttpClient(
+            Klacks.Api.Application.Constants.LocalTtsConstants.HttpClientName,
+            client => client.Timeout = Klacks.Api.Application.Constants.LocalTtsConstants.RequestTimeout);
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Assistant.ILocalTtsLicenseText,
+            Klacks.Api.Infrastructure.Services.Assistant.EmbeddedLocalTtsLicenseText>();
         services.AddScoped<ITranscriptionEnhancerService, TranscriptionEnhancerService>();
     }
 

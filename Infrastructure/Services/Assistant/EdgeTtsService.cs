@@ -63,6 +63,10 @@ public class EdgeTtsService : ITtsProvider
 
     public string ProviderId => TtsProviderConstants.Edge;
 
+    public string MediaType => TtsProviderConstants.MpegMediaType;
+
+    public bool ChunksInternally => false;
+
     public EdgeTtsService(ILogger<EdgeTtsService> logger)
     {
         _logger = logger;

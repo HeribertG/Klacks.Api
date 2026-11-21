@@ -28,6 +28,10 @@ public class GoogleTtsService : ITtsProvider
 
     public string ProviderId => TtsProviderConstants.Google;
 
+    public string MediaType => TtsProviderConstants.MpegMediaType;
+
+    public bool ChunksInternally => false;
+
     public GoogleTtsService(
         IHttpClientFactory httpClientFactory,
         ITtsApiKeyResolver apiKeyResolver,

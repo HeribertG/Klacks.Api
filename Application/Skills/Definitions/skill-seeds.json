@@ -46687,7 +46687,7 @@
         },
         {
           "name": "ttsProvider",
-          "description": "Service that speaks the answers",
+          "description": "Service that speaks the answers: edge (default), openai, elevenlabs, google-tts or local (the installed local voice, only after an administrator installed it)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -46837,7 +46837,7 @@
         "fr": "Modifier les paramètres vocaux",
         "it": "Modifica le impostazioni vocali"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "list_skill_relations",
