@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Artifacts of one release: the Docker images and the native bundles per runtime identifier.
-/// OnPremWindows is the original name of the native list and is still read for older manifests.
+/// OnPremWindows is the original name of the native list and is still read for older manifests. Postgres is the signed
+/// database engine for the separate engine upgrade; it is null in manifests that offer none.
 /// </summary>
 
 namespace Klacks.Api.Domain.Models.Update;
@@ -14,4 +15,6 @@ public class UpdateArtifacts
     public List<OnPremArtifact> Native { get; set; } = new();
 
     public List<OnPremArtifact> OnPremWindows { get; set; } = new();
+
+    public PostgresEngineArtifact? Postgres { get; set; }
 }

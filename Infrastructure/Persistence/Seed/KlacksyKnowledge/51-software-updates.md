@@ -114,6 +114,15 @@ database state is **not modified and not deleted**; it stays as the fallback. If
 Klacks returns to the old engine by itself and the record shows the operation as rolled back. The old state occupies disk
 space until it is removed by hand later; nothing removes it automatically.
 
+**Starting the engine upgrade.** An administrator starts it on this card (Settings › Software Updates), which shows the
+PostgreSQL major version in use. The start button only appears when the release offers a newer, signed engine for
+this installation (Docker or the native package) **and** the updater running beside Klacks reports that it can carry
+out an engine upgrade. The updater confirms this regularly; when no recent confirmation is there, the button stays away. It
+also stays away while any other update operation is queued or running. Any newer major can be the target, not only the
+next one. Starting it disconnects everyone signed in, just like an install, and the old database state is kept as the
+automatic fallback described above. A queued engine upgrade that the updater has not picked up within 30 minutes is not
+run; it ends as failed with the note that the request expired, and the administrator simply starts it again.
+
 Only an administrator can reach any of this.
 
 **On the office PC (Windows package), this card is the only way to a newer version.** Running a newer

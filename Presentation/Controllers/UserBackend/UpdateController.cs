@@ -3,7 +3,8 @@
 /// <summary>
 /// Admin-only read-side of the auto-update domain: current status, audit history and cancelling a
 /// queued operation. Behaviour configuration is read/written through the generic settings endpoints
-/// (UPDATE_* keys); execution (trigger/rollback) is added with the manifest reader and updater.
+/// (UPDATE_* keys). Trigger, Rollback and EngineUpgrade queue a row for the out-of-process updater and answer 409 with
+/// the reason when nothing was queued.
 /// </summary>
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Update;
@@ -59,6 +60,14 @@ public class UpdateController : BaseController
     public async Task<ActionResult<UpdateTriggerResult>> Trigger()
     {
         var result = await _mediator.Send(new TriggerUpdateCommand(CurrentUserId()));
+        return result.Enqueued ? Ok(result) : Conflict(result);
+    }
+
+    [BlockedOnPlayground]
+    [HttpPost("EngineUpgrade")]
+    public async Task<ActionResult<EngineUpgradeTriggerResult>> EngineUpgrade()
+    {
+        var result = await _mediator.Send(new TriggerEngineUpgradeCommand(CurrentUserId()));
         return result.Enqueued ? Ok(result) : Conflict(result);
     }
 

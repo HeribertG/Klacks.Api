@@ -1,0 +1,11 @@
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
+
+namespace Klacks.Api.Domain.Interfaces.Update;
+
+/// <summary>
+/// Reads the major version of the PostgreSQL server Klacks is connected to (server_version_num / 10000).
+/// </summary>
+public interface IDatabaseEngineVersionReader
+{
+    Task<int> GetMajorVersionAsync(CancellationToken cancellationToken = default);
+}

@@ -13,4 +13,12 @@ public class UpdateStatusResult
     public UpdateHistoryItem? ActiveOperation { get; set; }
 
     public UpdateHistoryItem? LastOperation { get; set; }
+
+    public int CurrentMajor { get; set; }
+
+    public int? AvailableMajor { get; set; }
+
+    public bool CanStartEngineUpgrade { get; set; }
+
+    public string? EngineUpgradeBlockedReason { get; set; }
 }
