@@ -1,8 +1,10 @@
 # Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 #
-# Tests build-engine-artifact.ps1 (packing, layout, entry; the smoke test needs real PostgreSQL binaries and runs only in
-# postgres-engine-artifact.yml) and sign-engine-entry.ps1 (sign, verify, refusal of a tampered entry, a key of another
-# pair and a payload of another major). Uses a fake engine tree and a throw-away RSA key; nothing leaves the temp folder.
+# Tests build-engine-artifact.ps1 (packing, layout, entry, the layout checks of -SmokeArchive; the smoke test needs real
+# PostgreSQL binaries and runs only in the engine artifact workflows), engine-code-signature.ps1 (plan, refusal of unsigned
+# files, of another PE machine and of a non-PE file; real signing needs the Certum certificate and runs only in
+# postgres-engine-artifact-arm64.yml) and sign-engine-entry.ps1 (sign, verify, refusal of a tampered entry, a key of
+# another pair and a payload of another major). Uses a fake engine tree and a throw-away RSA key; nothing leaves the temp folder.
 #
 # Usage: pwsh -File Test-EngineArtifactScripts.ps1
 
@@ -23,9 +25,9 @@ function Assert-That {
 }
 
 function Assert-Throws {
-    param([string]$Name, [scriptblock]$Action)
+    param([string]$Name, [scriptblock]$Action, [string]$MessagePattern = '')
     $threw = $false
-    try { & $Action | Out-Null } catch { $threw = $true }
+    try { & $Action | Out-Null } catch { $threw = (-not $MessagePattern) -or ($_.Exception.Message -match $MessagePattern); if (-not $threw) { Write-Host "  ($($_.Exception.Message))" } }
     if ($threw) { Write-Host "PASS $Name" } else { Write-Host "FAIL $Name"; $script:failures++ }
 }
 
@@ -80,10 +82,60 @@ try {
     Assert-Throws 'BundleUrl of another file name is refused' {
         & $build -PostgresDirectory $engine -Major 19 -Version '19.0' -PgvectorVersion '0.8.7' -BundleUrl 'https://example.invalid/x.zip' -OutputDirectory (Join-Path $work 'out4') -SkipSmoke
     }
+    Assert-Throws 'SmokeArchive with another file name is refused' {
+        $renamed = Join-Path $work 'klacks-postgres-19.0-win-arm64.zip'
+        Copy-Item $zip $renamed
+        & $build -SmokeArchive $renamed -Major 19 -Version '19.0' -PgvectorVersion '0.8.7'
+    } -MessagePattern 'must be named'
+
+    Assert-Throws 'SmokeArchive without the required files is refused before any smoke run' {
+        $badRoot = Join-Path $work 'bad-layout'
+        New-Item -ItemType Directory -Force -Path (Join-Path $badRoot 'bin'), (Join-Path $badRoot 'lib'), (Join-Path $badRoot 'share') | Out-Null
+        Set-Content -LiteralPath (Join-Path $badRoot 'bin\postgres.exe') -Value 'fake'
+        $badZip = Join-Path $work 'bad\klacks-postgres-19.0-win-x64.zip'
+        New-Item -ItemType Directory -Force -Path (Split-Path $badZip) | Out-Null
+        [IO.Compression.ZipFile]::CreateFromDirectory($badRoot, $badZip)
+        & $build -SmokeArchive $badZip -Major 19 -Version '19.0' -PgvectorVersion '0.8.7'
+    } -MessagePattern 'ZIP lacks'
+
+
     Remove-Item -Force (Join-Path $engine 'lib\vector.dll')
     Assert-Throws 'missing vector.dll is refused' {
         & $build -PostgresDirectory $engine -Major 19 -Version '19.0' -PgvectorVersion '0.8.7' -BundleUrl $url -OutputDirectory (Join-Path $work 'out5') -SkipSmoke
     }
+
+    $peRoot = Join-Path $work 'pe-engine'
+    function New-FakePe {
+        param([string]$Path, [uint16]$Machine)
+        $bytes = [byte[]]::new(512)
+        $bytes[0] = 0x4D; $bytes[1] = 0x5A
+        [BitConverter]::GetBytes([int]0x80).CopyTo($bytes, 0x3C)
+        $bytes[0x80] = 0x50; $bytes[0x81] = 0x45
+        [BitConverter]::GetBytes($Machine).CopyTo($bytes, 0x84)
+        [BitConverter]::GetBytes([uint16]0x20B).CopyTo($bytes, 0x98)
+        [BitConverter]::GetBytes([uint32]16).CopyTo($bytes, 0x98 + 108)
+        New-Item -ItemType Directory -Force -Path (Split-Path $Path) | Out-Null
+        [IO.File]::WriteAllBytes($Path, $bytes)
+    }
+    $codeSign = Join-Path $PSScriptRoot 'engine-code-signature.ps1'
+    New-FakePe (Join-Path $peRoot 'bin\postgres.exe') 0xAA64
+    New-FakePe (Join-Path $peRoot 'lib\vector.dll') 0xAA64
+    Set-Content -LiteralPath (Join-Path $peRoot 'lib\readme.txt') -Value 'not a PE file, not scanned'
+    $plan = @(& $codeSign -Root $peRoot -Mode Plan 6>$null)
+    Assert-That 'code signing plan lists every unsigned PE file in bin and lib' {
+        $plan.Count -eq 2 -and @($plan | Where-Object Action -ne 'Sign').Count -eq 0
+    }
+    Assert-Throws 'unsigned PE files fail the signature check' {
+        & $codeSign -Root $peRoot -Mode Assert -Thumbprint ('A' * 40) -ExpectedMachine 0xAA64 6>$null
+    } -MessagePattern '2 PE file\(s\) failed'
+    New-FakePe (Join-Path $peRoot 'bin\x64tool.exe') 0x8664
+    $machineReport = & { try { & $codeSign -Root $peRoot -Mode Assert -Thumbprint ('A' * 40) -ExpectedMachine 0xAA64 6>&1 } catch { } } | Out-String
+    Assert-That 'a PE file of another machine is reported' { $machineReport -match 'x64tool\.exe: machine 0x8664, expected 0xAA64' }
+    Assert-Throws 'a non-PE .dll stops the plan' {
+        Set-Content -LiteralPath (Join-Path $peRoot 'lib\fake.dll') -Value 'text'
+        & $codeSign -Root $peRoot -Mode Plan 6>$null
+    } -MessagePattern 'not a PE file'
+    Assert-Throws 'Assert needs a SHA-1 thumbprint' { & $codeSign -Root $peRoot -Mode Assert -Thumbprint 'abc' } -MessagePattern 'Thumbprint'
 
     $rsa = [Security.Cryptography.RSA]::Create(2048)
     $other = [Security.Cryptography.RSA]::Create(2048)

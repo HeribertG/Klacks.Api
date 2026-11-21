@@ -1,0 +1,462 @@
+# .github/workflows/postgres-engine-artifact-arm64.yml for Klacks.Api
+#
+# Builds the native Windows ARM64 PostgreSQL engine bundle klacks-postgres-<version>-win-arm64.zip from source
+# (deploy/postgres/win-arm64/build-pg-arm64.ps1 with the pins of deploy/postgres/win-arm64/pins.json: PostgreSQL tarball and
+# pgvector commit by hash, vcpkg baseline for zlib/ICU/OpenSSL/lz4/zstd, MSVC toolset, meson/ninja by hash, app-local arm64
+# CRT), Authenticode-signs every PE file in bin and lib with the Certum cloud certificate, smoke-tests exactly the signed ZIP
+# on ARM64 again, signs its manifest entry with the release signing key and publishes ZIP + entry to the prerelease
+# postgres-engine-<version>-pgvector<pgvector><native.win-arm64.releaseSuffix> (never latest). deploy.yml picks the entry up
+# through New-EngineManifestBlock.sh, which reads every RID of deploy/postgres/engine.json and drops a missing or broken
+# arm64 entry alone.
+#
+# A workflow of its own next to postgres-engine-artifact.yml (win-x64) on purpose: that one also runs on pushes to main that
+# touch engine.json, and the arm64 build plus the Certum signing must never start from a merge. This one runs only by hand.
+#
+# Jobs and powers, each on a fresh machine:
+#   build          windows-11-arm, read-only token, no secret: runs the third-party code (sources, vcpkg, MSVC, meson test,
+#                  pgvector installcheck, smoke) and uploads the unsigned ZIP.
+#   codesign       windows-2025, environment certum-signing: unpacks the ZIP outside the workspace, signs every PE file
+#                  without an embedded signature (deploy/postgres/engine-code-signature.ps1; the Microsoft-signed CRT stays),
+#                  checks all signatures and repacks with build-engine-artifact.ps1 -SkipSmoke. Executes none of the files.
+#   smoke          windows-11-arm, no secret: checks signatures and PE machine 0xAA64 of the signed ZIP and smoke-tests that
+#                  exact file (build-engine-artifact.ps1 -SmokeArchive).
+#   sign-manifest  ubuntu, holds UPDATE_SIGNATURE_PRIVATE_KEY_B64: recomputes the ZIP hash and signs the entry.
+#   publish        ubuntu, write token, no secret: draft release, upload both assets, publish, then verify anonymously.
+# All jobs run on main only. Published assets are never replaced: when the release exists with the ZIP it is only verified;
+# a rebuild needs a new native.win-arm64.releaseSuffix in engine.json. A tag that exists without the arm64 ZIP stops the run.
+name: PostgreSQL engine artifact (win-arm64)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: postgres-engine-artifact-arm64
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  RID: win-arm64
+  ARM64_PIN_FILE: deploy/postgres/win-arm64/pins.json
+  BUILD_ROOT: 'C:\pgarm64'
+  PE_MACHINE_ARM64: '0xAA64'
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-11-arm
+    timeout-minutes: 180
+    outputs:
+      state: ${{ steps.existing.outputs.state }}
+      major: ${{ steps.pin.outputs.major }}
+      version: ${{ steps.pin.outputs.version }}
+      pgvector: ${{ steps.pin.outputs.pgvector }}
+      tag: ${{ steps.pin.outputs.tag }}
+      zip: ${{ steps.pin.outputs.zip }}
+      entry: ${{ steps.pin.outputs.entry }}
+      url: ${{ steps.pin.outputs.url }}
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Read pin
+        id: pin
+        shell: pwsh
+        run: |
+          $pin = Get-Content -Raw deploy/postgres/engine.json | ConvertFrom-Json
+          if ([string]$pin.major -cnotmatch '^[0-9]+\z') { throw "engine.json major '$($pin.major)' is not a number." }
+          if ($pin.version -cnotmatch '^[0-9]+\.[0-9]+\z') { throw "engine.json version '$($pin.version)' is not <major>.<minor>." }
+          if ($pin.version.Split('.')[0] -ne [string]$pin.major) { throw 'engine.json version does not belong to its major.' }
+          if ($pin.pgvector -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+\z') { throw "engine.json pgvector '$($pin.pgvector)' is not X.Y.Z." }
+          $native = $pin.native.$env:RID
+          if ($null -eq $native) { throw "engine.json has no native.$env:RID entry." }
+          if ($native.buildPins -cne $env:ARM64_PIN_FILE) { throw "engine.json native.$env:RID.buildPins must be $env:ARM64_PIN_FILE." }
+          $suffix = if ($null -eq $native.releaseSuffix) { '' } else { [string]$native.releaseSuffix }
+          if ($suffix -cnotmatch '^(-r[0-9]+)?\z') { throw "engine.json native.$env:RID.releaseSuffix '$suffix' is not empty or -rN." }
+          $x64Suffix = [string]$pin.native.'win-x64'.releaseSuffix
+          if ($suffix -ceq $x64Suffix) { throw "native.$env:RID.releaseSuffix equals the win-x64 one: both RIDs would share one release tag." }
+          $build = Get-Content -Raw $env:ARM64_PIN_FILE | ConvertFrom-Json
+          if ($build.postgresql.version -cne $pin.version) { throw "pins.json builds PostgreSQL $($build.postgresql.version), engine.json pins $($pin.version)." }
+          if ($build.postgresql.sha256 -cne $native.postgresSourceSha256) { throw 'pins.json and engine.json name different PostgreSQL source hashes.' }
+          if ($build.pgvector.version -cne $pin.pgvector) { throw "pins.json builds pgvector $($build.pgvector.version), engine.json pins $($pin.pgvector)." }
+          if ($build.pgvector.commit -cne $native.pgvectorCommit) { throw 'pins.json and engine.json name different pgvector commits.' }
+          $tag = "postgres-engine-$($pin.version)-pgvector$($pin.pgvector)$suffix"
+          $zip = "klacks-postgres-$($pin.version)-$env:RID.zip"
+          $entry = "klacks-postgres-$($pin.version)-$env:RID.json"
+          $lines = @(
+            "major=$($pin.major)", "version=$($pin.version)", "pgvector=$($pin.pgvector)", "tag=$tag", "zip=$zip", "entry=$entry",
+            "url=https://github.com/${env:GITHUB_REPOSITORY}/releases/download/$tag/$zip"
+          )
+          $lines | Add-Content -Path $env:GITHUB_OUTPUT
+          $lines | ForEach-Object { Write-Host $_ }
+
+      - name: Look for an existing release
+        id: existing
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.pin.outputs.tag }}
+          ZIP: ${{ steps.pin.outputs.zip }}
+        run: |
+          $releases = gh release list --repo $env:GITHUB_REPOSITORY --limit 1000 --json tagName,isDraft | ConvertFrom-Json
+          $found = @($releases | Where-Object { $_.tagName -ceq $env:TAG -and -not $_.isDraft })
+          $state = 'none'
+          if ($found.Count -gt 0) {
+            $assets = @((gh release view $env:TAG --repo $env:GITHUB_REPOSITORY --json assets | ConvertFrom-Json).assets.name)
+            if ($assets -cnotcontains $env:ZIP) { throw "Release $($env:TAG) exists without $($env:ZIP); pick another native.$env:RID.releaseSuffix." }
+            $state = 'published'
+          }
+          "state=$state" | Add-Content -Path $env:GITHUB_OUTPUT
+          Write-Host "Release ${env:TAG}: $state"
+
+      - name: Set up native ARM64 Python
+        id: python
+        if: steps.existing.outputs.state != 'published'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          architecture: arm64
+
+      # Probes the machine and the pinned MSVC toolset before anything is downloaded: a runner image without the toolset
+      # fails here within seconds and names the toolsets it has.
+      - name: Preflight (MSVC toolset)
+        if: steps.existing.outputs.state != 'published'
+        shell: pwsh
+        run: |
+          & deploy/postgres/win-arm64/build-pg-arm64.ps1 -WorkDir $env:BUILD_ROOT -From Preflight -To Preflight
+
+      # Restored and saved around the dependency step (not by the post step of actions/cache, which saves only when the
+      # whole job succeeds), so a failure later in the build does not cost the roughly 20 minutes of vcpkg again.
+      - name: Restore vcpkg binary cache
+        id: vcpkg-cache
+        if: steps.existing.outputs.state != 'published'
+        uses: actions/cache/restore@v4
+        with:
+          path: C:\pgarm64\vcpkg-cache
+          key: pg-arm64-vcpkg-${{ hashFiles('deploy/postgres/win-arm64/pins.json') }}
+
+      - name: Fetch sources and tools, build dependencies
+        if: steps.existing.outputs.state != 'published'
+        shell: pwsh
+        env:
+          PG_ARM64_PYTHON: ${{ steps.python.outputs.python-path }}
+        run: |
+          & deploy/postgres/win-arm64/build-pg-arm64.ps1 -WorkDir $env:BUILD_ROOT -From Fetch -To Deps
+
+      - name: Save vcpkg binary cache
+        if: steps.existing.outputs.state != 'published' && steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: C:\pgarm64\vcpkg-cache
+          key: pg-arm64-vcpkg-${{ hashFiles('deploy/postgres/win-arm64/pins.json') }}
+
+      - name: Build, test and verify PostgreSQL + pgvector
+        if: steps.existing.outputs.state != 'published'
+        shell: pwsh
+        env:
+          PG_ARM64_PYTHON: ${{ steps.python.outputs.python-path }}
+        run: |
+          & deploy/postgres/win-arm64/build-pg-arm64.ps1 -WorkDir $env:BUILD_ROOT -From Configure -To Smoke
+
+      - name: Pack engine and smoke test the unsigned ZIP
+        if: steps.existing.outputs.state != 'published'
+        shell: pwsh
+        env:
+          MAJOR: ${{ steps.pin.outputs.major }}
+          VERSION: ${{ steps.pin.outputs.version }}
+          PGVECTOR: ${{ steps.pin.outputs.pgvector }}
+          BUNDLE_URL: ${{ steps.pin.outputs.url }}
+        run: |
+          & deploy/postgres/build-engine-artifact.ps1 -PostgresDirectory (Join-Path $env:BUILD_ROOT 'pgsql') -Rid $env:RID `
+            -Major ([int]$env:MAJOR) -Version $env:VERSION -PgvectorVersion $env:PGVECTOR -BundleUrl $env:BUNDLE_URL -OutputDirectory unsigned
+
+      - name: Upload build logs
+        if: always() && steps.existing.outputs.state != 'published'
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-arm64-build-logs
+          path: C:\pgarm64\logs
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload unsigned bundle
+        if: steps.existing.outputs.state != 'published'
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-arm64-unsigned
+          path: unsigned/${{ steps.pin.outputs.zip }}
+          if-no-files-found: error
+          retention-days: 3
+
+  codesign:
+    needs: build
+    if: github.ref == 'refs/heads/main' && needs.build.outputs.state != 'published'
+    runs-on: windows-2025
+    environment: certum-signing
+    concurrency:
+      group: certum-signing
+      cancel-in-progress: false
+    timeout-minutes: 90
+    env:
+      CERTUM_CERT_SHA1: ${{ vars.CERTUM_CERT_SHA1 }}
+      CERTUM_TIMESTAMP_URL: ${{ vars.CERTUM_TIMESTAMP_URL }}
+    steps:
+      - name: Checkout Klacks.Api (packing and signing scripts)
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            deploy/postgres
+            deploy/native/windows/signing
+          persist-credentials: false
+
+      - name: Download unsigned bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: engine-arm64-unsigned
+          path: unsigned
+
+      # Unpacked outside the workspace so that no entry can overwrite the checked-out scripts.
+      - name: Unpack and plan
+        shell: pwsh
+        env:
+          ZIP: ${{ needs.build.outputs.zip }}
+        run: |
+          $engine = Join-Path $env:RUNNER_TEMP 'engine'
+          Expand-Archive (Join-Path 'unsigned' $env:ZIP) -DestinationPath $engine
+          & deploy/postgres/engine-code-signature.ps1 -Root $engine -Mode Plan | Out-Null
+          Add-Content -Path $env:GITHUB_ENV -Value "ENGINE_DIR=$engine"
+
+      - name: Install verified SimplySign Desktop
+        shell: pwsh
+        run: '& deploy/native/windows/signing/Install-SimplySignDesktop.ps1'
+
+      - name: Set up Certum SimplySign
+        id: certum
+        uses: jay0lee/certum-cloud-code-sign@a3324503499c49090869856eeeecfe95fb613d87 # v1
+        with:
+          username: ${{ secrets.CERTUM_USERNAME }}
+          totp_secret: ${{ secrets.CERTUM_TOTP_SECRET }}
+          cert_sha1: ${{ vars.CERTUM_CERT_SHA1 }}
+
+      - name: Sign PE files
+        shell: pwsh
+        env:
+          SIGNTOOL: ${{ steps.certum.outputs.signtool-path }}
+        run: |
+          & deploy/postgres/engine-code-signature.ps1 -Root $env:ENGINE_DIR -Mode Sign -SignToolPath $env:SIGNTOOL `
+            -Thumbprint $env:CERTUM_CERT_SHA1 -TimestampUrl $env:CERTUM_TIMESTAMP_URL -ExpectedMachine ([Convert]::ToInt32($env:PE_MACHINE_ARM64, 16))
+
+      - name: Tear down SimplySign session
+        if: always()
+        uses: jay0lee/certum-cloud-code-sign/teardown@a3324503499c49090869856eeeecfe95fb613d87 # v1
+
+      - name: Repack signed engine
+        shell: pwsh
+        env:
+          MAJOR: ${{ needs.build.outputs.major }}
+          VERSION: ${{ needs.build.outputs.version }}
+          PGVECTOR: ${{ needs.build.outputs.pgvector }}
+          BUNDLE_URL: ${{ needs.build.outputs.url }}
+        run: |
+          & deploy/postgres/build-engine-artifact.ps1 -PostgresDirectory $env:ENGINE_DIR -Rid $env:RID -SkipSmoke `
+            -Major ([int]$env:MAJOR) -Version $env:VERSION -PgvectorVersion $env:PGVECTOR -BundleUrl $env:BUNDLE_URL -OutputDirectory codesigned
+
+      - name: Upload code-signed bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-arm64-codesigned
+          path: codesigned/
+          if-no-files-found: error
+          retention-days: 3
+
+  smoke:
+    needs: [build, codesign]
+    if: github.ref == 'refs/heads/main' && needs.build.outputs.state != 'published'
+    runs-on: windows-11-arm
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: deploy/postgres
+          persist-credentials: false
+
+      - name: Download code-signed bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: engine-arm64-codesigned
+          path: codesigned
+
+      - name: Check entry, signatures and PE machine
+        shell: pwsh
+        env:
+          CERTUM_CERT_SHA1: ${{ vars.CERTUM_CERT_SHA1 }}
+          ZIP: ${{ needs.build.outputs.zip }}
+          ENTRY: ${{ needs.build.outputs.entry }}
+          URL: ${{ needs.build.outputs.url }}
+        run: |
+          $zipPath = Join-Path 'codesigned' $env:ZIP
+          $entry = Get-Content -Raw (Join-Path 'codesigned' $env:ENTRY) | ConvertFrom-Json
+          if ($entry.rid -cne $env:RID) { throw "The entry names RID '$($entry.rid)'." }
+          if ($entry.bundleUrl -cne $env:URL) { throw "The entry names URL '$($entry.bundleUrl)', expected '$($env:URL)'." }
+          $sha = (Get-FileHash -Algorithm SHA256 $zipPath).Hash.ToLowerInvariant()
+          if ($sha -cne $entry.sha256) { throw "The ZIP has SHA-256 $sha, the entry says $($entry.sha256)." }
+          $engine = Join-Path $env:RUNNER_TEMP 'engine'
+          Expand-Archive $zipPath -DestinationPath $engine
+          & deploy/postgres/engine-code-signature.ps1 -Root $engine -Mode Assert -Thumbprint $env:CERTUM_CERT_SHA1 `
+            -ExpectedMachine ([Convert]::ToInt32($env:PE_MACHINE_ARM64, 16))
+
+      - name: Smoke test the signed ZIP
+        shell: pwsh
+        env:
+          MAJOR: ${{ needs.build.outputs.major }}
+          VERSION: ${{ needs.build.outputs.version }}
+          PGVECTOR: ${{ needs.build.outputs.pgvector }}
+          ZIP: ${{ needs.build.outputs.zip }}
+        run: |
+          & deploy/postgres/build-engine-artifact.ps1 -SmokeArchive (Join-Path 'codesigned' $env:ZIP) -Rid $env:RID `
+            -Major ([int]$env:MAJOR) -Version $env:VERSION -PgvectorVersion $env:PGVECTOR
+
+  sign-manifest:
+    needs: [build, smoke]
+    if: >-
+      ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.build.result == 'success'
+      && (needs.build.outputs.state == 'published' || needs.smoke.result == 'success') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download code-signed bundle
+        if: needs.build.outputs.state != 'published'
+        uses: actions/download-artifact@v4
+        with:
+          name: engine-arm64-codesigned
+          path: codesigned
+
+      - name: Sign manifest entry and derive public key
+        shell: pwsh
+        env:
+          PRIV_B64: ${{ secrets.UPDATE_SIGNATURE_PRIVATE_KEY_B64 }}
+          STATE: ${{ needs.build.outputs.state }}
+          MAJOR: ${{ needs.build.outputs.major }}
+          ZIP: ${{ needs.build.outputs.zip }}
+          ENTRY: ${{ needs.build.outputs.entry }}
+          URL: ${{ needs.build.outputs.url }}
+        run: |
+          if (-not $env:PRIV_B64) { throw 'UPDATE_SIGNATURE_PRIVATE_KEY_B64 secret is not set.' }
+          New-Item -ItemType Directory -Force -Path signed | Out-Null
+          $key = Join-Path $env:RUNNER_TEMP 'update_priv.pem'
+          try {
+            [IO.File]::WriteAllBytes($key, [Convert]::FromBase64String($env:PRIV_B64))
+            $rsa = [Security.Cryptography.RSA]::Create()
+            try {
+              $rsa.ImportFromPem((Get-Content -Raw $key))
+              [IO.File]::WriteAllText('signed/update-public-key.pem', $rsa.ExportSubjectPublicKeyInfoPem())
+            }
+            finally { $rsa.Dispose() }
+            if ($env:STATE -ne 'published') {
+              $entryPath = Join-Path 'codesigned' $env:ENTRY
+              $zipPath = Join-Path 'codesigned' $env:ZIP
+              $entry = Get-Content -Raw $entryPath | ConvertFrom-Json
+              if ($entry.rid -cne $env:RID) { throw "The unsigned entry names RID '$($entry.rid)'." }
+              if ($entry.bundleUrl -cne $env:URL) { throw "The unsigned entry names URL '$($entry.bundleUrl)', expected '$($env:URL)'." }
+              $actual = (Get-FileHash -Algorithm SHA256 $zipPath).Hash.ToLowerInvariant()
+              if ($actual -cne $entry.sha256) { throw "The ZIP has SHA-256 $actual, the unsigned entry says $($entry.sha256)." }
+              & deploy/postgres/sign-engine-entry.ps1 -EntryPath $entryPath -Major ([int]$env:MAJOR) -SigningKeyPath $key
+              Copy-Item $entryPath (Join-Path 'signed' $env:ENTRY)
+              Copy-Item $zipPath (Join-Path 'signed' $env:ZIP)
+            }
+          }
+          finally {
+            Remove-Item -Force -ErrorAction SilentlyContinue $key
+          }
+
+      - name: Upload signed bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-arm64-signed
+          path: signed/
+          if-no-files-found: error
+          retention-days: 3
+
+  publish:
+    needs: [build, sign-manifest]
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.sign-manifest.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download signed bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: engine-arm64-signed
+          path: signed
+
+      - name: Publish prerelease
+        if: needs.build.outputs.state != 'published'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.build.outputs.tag }}
+          VERSION: ${{ needs.build.outputs.version }}
+          ZIP: ${{ needs.build.outputs.zip }}
+          ENTRY: ${{ needs.build.outputs.entry }}
+        run: |
+          $releases = gh release list --repo $env:GITHUB_REPOSITORY --limit 1000 --json tagName,isDraft | ConvertFrom-Json
+          $leftover = @($releases | Where-Object { $_.tagName -ceq $env:TAG })
+          if ($leftover.Count -gt 0) {
+            if (-not $leftover[0].isDraft) { throw "Release $($env:TAG) was published meanwhile, nothing is replaced." }
+            Write-Host 'Deleting the draft of a dead run.'
+            gh release delete $env:TAG --repo $env:GITHUB_REPOSITORY --yes
+            if ($LASTEXITCODE -ne 0) { throw 'Could not delete the leftover draft.' }
+          }
+          $notes = "PostgreSQL $($env:VERSION) with pgvector, built from source for Windows ARM64 (pins: deploy/postgres/win-arm64/pins.json), every PE file Authenticode-signed. Engine bundle for the Klacks updater; the signed manifest entry sits next to the ZIP. Never replace these assets: a rebuild is a new release with -rN in native.win-arm64.releaseSuffix of deploy/postgres/engine.json."
+          gh release create $env:TAG --repo $env:GITHUB_REPOSITORY --draft --prerelease --latest=false --target $env:GITHUB_SHA `
+            --title "PostgreSQL engine $($env:VERSION) + pgvector (win-arm64)" --notes $notes
+          if ($LASTEXITCODE -ne 0) { throw 'gh release create failed.' }
+          gh release upload $env:TAG (Join-Path 'signed' $env:ZIP) (Join-Path 'signed' $env:ENTRY) --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { throw 'gh release upload failed.' }
+          gh release edit $env:TAG --repo $env:GITHUB_REPOSITORY --draft=false --prerelease --latest=false
+          if ($LASTEXITCODE -ne 0) { throw 'gh release edit failed.' }
+
+      - name: Verify the published release anonymously
+        shell: pwsh
+        env:
+          TAG: ${{ needs.build.outputs.tag }}
+          ZIP: ${{ needs.build.outputs.zip }}
+          ENTRY: ${{ needs.build.outputs.entry }}
+          URL: ${{ needs.build.outputs.url }}
+          MAJOR: ${{ needs.build.outputs.major }}
+          STATE: ${{ needs.build.outputs.state }}
+        run: |
+          $verify = Join-Path $env:RUNNER_TEMP 'verify'
+          New-Item -ItemType Directory -Force -Path $verify | Out-Null
+          $base = "https://github.com/${env:GITHUB_REPOSITORY}/releases/download/$($env:TAG)"
+          $zip = Join-Path $verify $env:ZIP
+          $entryFile = Join-Path $verify $env:ENTRY
+          Invoke-WebRequest -UseBasicParsing -Uri "$base/$($env:ZIP)" -OutFile $zip -MaximumRetryCount 5 -RetryIntervalSec 15
+          Invoke-WebRequest -UseBasicParsing -Uri "$base/$($env:ENTRY)" -OutFile $entryFile -MaximumRetryCount 5 -RetryIntervalSec 15
+          $entry = Get-Content -Raw $entryFile | ConvertFrom-Json
+          if ($entry.rid -cne $env:RID) { throw "Published entry RID is '$($entry.rid)'." }
+          if ($entry.bundleUrl -cne $env:URL) { throw "Published entry URL is '$($entry.bundleUrl)'." }
+          $sha = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
+          if ($sha -cne $entry.sha256) { throw "Downloaded ZIP has SHA-256 $sha, the entry says $($entry.sha256)." }
+          if ($env:STATE -ne 'published') {
+            $local = (Get-FileHash -Algorithm SHA256 (Join-Path 'signed' $env:ZIP)).Hash.ToLowerInvariant()
+            if ($local -cne $sha) { throw "The published ZIP ($sha) differs from the built one ($local)." }
+          }
+          & deploy/postgres/sign-engine-entry.ps1 -EntryPath $entryFile -Major ([int]$env:MAJOR) -PublicKeyPath 'signed/update-public-key.pem' -Verify
+          Write-Host "Engine release $($env:TAG) verified (SHA-256 $sha)."

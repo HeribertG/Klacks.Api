@@ -6,22 +6,27 @@
 # Writes the manifest entry { rid, bundleUrl, sha256, signature } with an EMPTY signature next to the ZIP; the signature
 # is added by sign-engine-entry.ps1 in a separate step, so no key is present while third-party binaries run.
 #
-# Parameters: PostgresDirectory = EDB pgsql folder with pgvector installed; Major / Version / PgvectorVersion = values of
-# deploy/postgres/engine.json; BundleUrl = public download URL of the ZIP (the signature binds it); OutputDirectory =
-# where ZIP and entry are written; Rid = runtime identifier; SkipSmoke = pack only (structure checks still run).
+# Second mode (-SmokeArchive): checks the layout of an already packed ZIP and smoke-tests exactly that file, without packing
+# or writing an entry. Used for the win-arm64 ZIP after code signing, which runs on another machine than the smoke test.
+#
+# Parameters: PostgresDirectory = pgsql folder with pgvector installed (EDB for win-x64, the own build for win-arm64);
+# Major / Version / PgvectorVersion = values of deploy/postgres/engine.json; BundleUrl = public download URL of the ZIP (the
+# signature binds it); OutputDirectory = where ZIP and entry are written; Rid = runtime identifier; SkipSmoke = pack only
+# (structure checks still run); SmokeArchive = existing ZIP to check and smoke-test instead of packing.
 
 #Requires -Version 7
 
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = 'Pack')]
 param(
-    [Parameter(Mandatory)][string]$PostgresDirectory,
+    [Parameter(Mandatory, ParameterSetName = 'Pack')][string]$PostgresDirectory,
     [Parameter(Mandatory)][int]$Major,
     [Parameter(Mandatory)][string]$Version,
     [Parameter(Mandatory)][string]$PgvectorVersion,
-    [Parameter(Mandatory)][string]$BundleUrl,
-    [Parameter(Mandatory)][string]$OutputDirectory,
+    [Parameter(Mandatory, ParameterSetName = 'Pack')][string]$BundleUrl,
+    [Parameter(Mandatory, ParameterSetName = 'Pack')][string]$OutputDirectory,
     [string]$Rid = 'win-x64',
-    [switch]$SkipSmoke
+    [Parameter(ParameterSetName = 'Pack')][switch]$SkipSmoke,
+    [Parameter(Mandatory, ParameterSetName = 'SmokeArchive')][string]$SmokeArchive
 )
 
 $ErrorActionPreference = 'Stop'
@@ -42,26 +47,42 @@ if ($Version -cnotmatch '^[0-9]+\.[0-9]+\z') { throw "Version '$Version' is not 
 if ($PgvectorVersion -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+\z') { throw "PgvectorVersion '$PgvectorVersion' is not X.Y.Z." }
 if ($Version.Split('.')[0] -ne [string]$Major) { throw "Version '$Version' does not belong to major $Major." }
 
-foreach ($relative in $RequiredFiles) {
-    if (-not (Test-Path -LiteralPath (Join-Path $PostgresDirectory $relative))) {
-        throw "'$relative' is missing below '$PostgresDirectory'."
-    }
-}
-$controlText = Get-Content -Raw -LiteralPath (Join-Path $PostgresDirectory 'share\extension\vector.control')
-if ($controlText -notmatch "default_version\s*=\s*'$([regex]::Escape($PgvectorVersion))'") {
-    throw "vector.control does not carry default_version '$PgvectorVersion'."
-}
-
 $zipName = "klacks-postgres-$Version-$Rid.zip"
 $entryName = "klacks-postgres-$Version-$Rid.json"
-if (-not $BundleUrl.EndsWith("/$zipName", [StringComparison]::Ordinal)) { throw "BundleUrl must end with /$zipName." }
-
 $work = Join-Path ([IO.Path]::GetTempPath()) ("klacks-pg-engine-" + [Guid]::NewGuid().ToString('N'))
-$staging = Join-Path $work 'staging'
-New-Item -ItemType Directory -Force -Path $staging, $OutputDirectory | Out-Null
-$zipPath = Join-Path (Resolve-Path $OutputDirectory) $zipName
-$entryPath = Join-Path (Resolve-Path $OutputDirectory) $entryName
-if (Test-Path $zipPath) { Remove-Item -Force $zipPath }
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+function Assert-ZipLayout {
+    param([string]$Archive)
+    $entries = [IO.Compression.ZipFile]::OpenRead($Archive)
+    try {
+        $topLevel = $entries.Entries | ForEach-Object { $_.FullName.Split('/')[0] } | Sort-Object -Unique
+        if (($topLevel -join ',') -cne ($PackedParts -join ',')) { throw "ZIP root holds '$($topLevel -join ',')', expected '$($PackedParts -join ',')'." }
+        foreach ($relative in $RequiredFiles) {
+            if (-not ($entries.Entries | Where-Object { $_.FullName -ceq $relative.Replace('\', '/') })) { throw "ZIP lacks $relative." }
+        }
+    }
+    finally {
+        $entries.Dispose()
+    }
+}
+
+if ($PSCmdlet.ParameterSetName -eq 'SmokeArchive') {
+    if ([IO.Path]::GetFileName($SmokeArchive) -cne $zipName) { throw "SmokeArchive must be named $zipName." }
+    Assert-ZipLayout -Archive $SmokeArchive
+}
+else {
+    foreach ($relative in $RequiredFiles) {
+        if (-not (Test-Path -LiteralPath (Join-Path $PostgresDirectory $relative))) {
+            throw "'$relative' is missing below '$PostgresDirectory'."
+        }
+    }
+    $controlText = Get-Content -Raw -LiteralPath (Join-Path $PostgresDirectory 'share\extension\vector.control')
+    if ($controlText -notmatch "default_version\s*=\s*'$([regex]::Escape($PgvectorVersion))'") {
+        throw "vector.control does not carry default_version '$PgvectorVersion'."
+    }
+    if (-not $BundleUrl.EndsWith("/$zipName", [StringComparison]::Ordinal)) { throw "BundleUrl must end with /$zipName." }
+}
 
 function Invoke-Native {
     param([string]$FilePath, [string[]]$Arguments)
@@ -153,24 +174,30 @@ function Invoke-Smoke {
     }
 }
 
-Add-Type -AssemblyName System.IO.Compression.FileSystem
+if ($PSCmdlet.ParameterSetName -eq 'SmokeArchive') {
+    try {
+        New-Item -ItemType Directory -Force -Path $work | Out-Null
+        Invoke-Smoke -Archive (Resolve-Path -LiteralPath $SmokeArchive).Path
+        Write-Host "Smoke test passed for $zipName (SHA-256 $((Get-FileHash -Algorithm SHA256 -LiteralPath $SmokeArchive).Hash.ToLowerInvariant()))."
+    }
+    finally {
+        if (Test-Path $work) { Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $work }
+    }
+    return
+}
+
+$staging = Join-Path $work 'staging'
+New-Item -ItemType Directory -Force -Path $staging, $OutputDirectory | Out-Null
+$zipPath = Join-Path (Resolve-Path $OutputDirectory) $zipName
+$entryPath = Join-Path (Resolve-Path $OutputDirectory) $entryName
+if (Test-Path $zipPath) { Remove-Item -Force $zipPath }
+
 try {
     foreach ($part in $PackedParts) {
         Copy-Item -Recurse -LiteralPath (Join-Path $PostgresDirectory $part) -Destination (Join-Path $staging $part)
     }
     [IO.Compression.ZipFile]::CreateFromDirectory($staging, $zipPath, [IO.Compression.CompressionLevel]::Optimal, $false)
-
-    $entries = [IO.Compression.ZipFile]::OpenRead($zipPath)
-    try {
-        $topLevel = $entries.Entries | ForEach-Object { $_.FullName.Split('/')[0] } | Sort-Object -Unique
-        if (($topLevel -join ',') -cne ($PackedParts -join ',')) { throw "ZIP root holds '$($topLevel -join ',')', expected '$($PackedParts -join ',')'." }
-        foreach ($relative in $RequiredFiles) {
-            if (-not ($entries.Entries | Where-Object { $_.FullName -ceq $relative.Replace('\', '/') })) { throw "ZIP lacks $relative." }
-        }
-    }
-    finally {
-        $entries.Dispose()
-    }
+    Assert-ZipLayout -Archive $zipPath
 
     $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $zipPath).Hash.ToLowerInvariant()
     if (-not $SkipSmoke) { Invoke-Smoke -Archive $zipPath }

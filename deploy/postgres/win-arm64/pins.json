@@ -1,0 +1,46 @@
+{
+  "comment": "Pins for the native win-arm64 PostgreSQL + pgvector build (build-pg-arm64.ps1). Every download is verified against these values.",
+  "postgresql": {
+    "version": "19.0",
+    "url": "https://ftp.postgresql.org/pub/source/v19.0/postgresql-19.0.tar.bz2",
+    "sha256": "a89fd70efbad6a08c7dbed8d4872e3af30170d9e5ca9dc7906523be95b4e692d",
+    "sha256Source": "https://ftp.postgresql.org/pub/source/v19.0/postgresql-19.0.tar.bz2.sha256"
+  },
+  "pgvector": {
+    "version": "0.8.7",
+    "repo": "https://github.com/pgvector/pgvector.git",
+    "tag": "v0.8.7",
+    "commit": "f37c13f68b57d2c3472b2214fbcff699d6d34876"
+  },
+  "vcpkg": {
+    "repo": "https://github.com/microsoft/vcpkg.git",
+    "commit": "eb890efcc08f8daafa202c584e88217a92240222",
+    "commitDate": "2026-11-20T23:19:00Z",
+    "triplet": "arm64-windows-release",
+    "ports": ["zlib", "openssl", "icu", "lz4", "zstd", "pkgconf"]
+  },
+  "python": {
+    "requirements": [
+      { "name": "meson", "version": "1.12.1", "sha256": "930bc7542cbd9f57009e182fd014eba48cf1a0180a7b9006d2d32d8f168d8b02" },
+      { "name": "ninja", "version": "1.13.2", "sha256": "1db9852e528efa7702f5123969f86678663e46d57ff28ab13f5fd84d64a85fb1" }
+    ]
+  },
+  "winflexbison": {
+    "version": "2.5.25",
+    "url": "https://github.com/lexxmark/winflexbison/releases/download/v2.5.25/win_flex_bison-2.5.25.zip",
+    "sha256": "8d324b62be33604b2c45ad1dd34ab93d722534448f55a16ca7292de32b6ac135",
+    "sha256Source": "TOFU: the release publishes no digest; hash taken from the first download on 2026-11-21"
+  },
+  "strawberryPerl": {
+    "version": "5.42.3.1",
+    "url": "https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54231_64bit/strawberry-perl-5.42.3.1-64bit-portable.zip",
+    "sha256": "6a081a811781c30aca51dbc036afd93092af91e3297901f02c17043795a10690",
+    "sha256Source": "GitHub release asset digest"
+  },
+  "msvc": {
+    "vcvarsVer": "14.51",
+    "toolsetObserved": "14.51.36231",
+    "redistObserved": "14.51.36231",
+    "windowsSdkObserved": "10.0.26100.0"
+  }
+}

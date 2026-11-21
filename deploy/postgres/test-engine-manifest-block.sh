@@ -4,9 +4,11 @@
 # Tests New-EngineManifestBlock.sh and Merge-EngineManifestBlock.sh without network or Docker: the "release" is a local
 # python http.server, the Docker digest is passed in. Covers a valid Docker + native block (signatures verified
 # independently with openssl against the byte-exact payload), a missing native entry, a bad signature, a SHA-256 mismatch,
-# a wrong bundle URL, a native entry signed for another major, an invalid digest (no output file), an invalid engine.json,
-# and the merge (fields outside artifacts.postgres unchanged, incomplete block and missing artifacts refused, manifest
-# untouched on failure).
+# a wrong bundle URL, a native entry signed for another major, two RIDs (win-x64 and win-arm64 on their own release tags,
+# both adopted in engine.json order; a broken or missing arm64 entry drops alone and leaves the block byte identical to a
+# win-x64-only pin; a broken x64 entry leaves arm64), an invalid digest (no output file), an invalid engine.json, and the
+# merge (fields outside artifacts.postgres unchanged, incomplete block and missing artifacts refused, manifest untouched on
+# failure).
 #
 # Usage: test-engine-manifest-block.sh   (needs bash, jq, openssl, curl, sha256sum, python3)
 
@@ -20,6 +22,9 @@ readonly BASE="http://127.0.0.1:$PORT"
 readonly TAG='postgres-engine-19.0-pgvector0.8.7'
 readonly ZIP='klacks-postgres-19.0-win-x64.zip'
 readonly ENTRY='klacks-postgres-19.0-win-x64.json'
+readonly ARM_TAG='postgres-engine-19.0-pgvector0.8.7-r2'
+readonly ARM_ZIP='klacks-postgres-19.0-win-arm64.zip'
+readonly ARM_ENTRY='klacks-postgres-19.0-win-arm64.json'
 readonly DIGEST='sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
 work="$(mktemp -d)"
 server_pid=""
@@ -42,8 +47,9 @@ openssl genrsa -out "$work/other.pem" 2048 2> /dev/null
 
 cat > "$work/engine.json" <<'JSON'
 { "major": 19, "version": "19.0", "pgvector": "0.8.7", "image": "ghcr.io/heribertg/klacks-postgres:19",
-  "windowsBinariesUrl": "https://example.invalid/pg.zip", "releaseSuffix": "" }
+  "native": { "win-x64": { "windowsBinariesUrl": "https://example.invalid/pg.zip", "releaseSuffix": "" } } }
 JSON
+jq '.native["win-arm64"] = {"postgresSourceSha256": "00", "releaseSuffix": "-r2"}' "$work/engine.json" > "$work/engine-two.json"
 
 independent_sign() { printf 'klacks-postgres-engine\n%s\n%s\n%s' "$2" "$3" "$4" | openssl dgst -sha256 -sign "$1" | base64 -w0; }
 independent_verify() { # pubkey major ref sha sig
@@ -65,11 +71,17 @@ head -c 4096 /dev/urandom > "$work/srv/$TAG/$ZIP"
 zip_sha="$(sha256sum "$work/srv/$TAG/$ZIP" | cut -d' ' -f1)"
 good_url="$BASE/$TAG/$ZIP"
 
-write_entry() { # signature_key major sha url
-  local sig
+write_entry() { # signature_key major sha url [rid tag entry]
+  local sig rid="${5:-win-x64}" tag="${6:-$TAG}" entry="${7:-$ENTRY}"
   sig="$(independent_sign "$1" "$2" "$4" "$3")"
-  jq -n --arg url "$4" --arg sha "$3" --arg sig "$sig" '{rid: "win-x64", bundleUrl: $url, sha256: $sha, signature: $sig}' > "$work/srv/$TAG/$ENTRY"
+  jq -n --arg rid "$rid" --arg url "$4" --arg sha "$3" --arg sig "$sig" '{rid: $rid, bundleUrl: $url, sha256: $sha, signature: $sig}' > "$work/srv/$tag/$entry"
 }
+
+mkdir -p "$work/srv/$ARM_TAG"
+head -c 4096 /dev/urandom > "$work/srv/$ARM_TAG/$ARM_ZIP"
+arm_sha="$(sha256sum "$work/srv/$ARM_TAG/$ARM_ZIP" | cut -d' ' -f1)"
+arm_url="$BASE/$ARM_TAG/$ARM_ZIP"
+write_arm_entry() { write_entry "$1" 19 "$2" "$3" "${4:-win-arm64}" "$ARM_TAG" "$ARM_ENTRY"; }
 
 python3 - "$PORT" "$work/srv" <<'PY' &
 import http.server, sys, os
@@ -83,6 +95,7 @@ server_pid=$!
 sleep 1
 
 run_block() { "$BLOCK_SCRIPT" --engine-json "$work/engine.json" --private-key "$work/key.pem" --docker-digest "$DIGEST" --release-base "$BASE" --out "$work/block.json"; }
+run_block_two() { "$BLOCK_SCRIPT" --engine-json "$work/engine-two.json" --private-key "$work/key.pem" --docker-digest "$DIGEST" --release-base "$BASE" --out "$work/block-two.json"; }
 
 echo "-- valid docker + native"
 write_entry "$work/key.pem" 19 "$zip_sha" "$good_url"
@@ -125,6 +138,42 @@ write_entry "$work/key.pem" 19 "$zip_sha" "$BASE/latest/download/$ZIP"
 rm -f "$work/block.json"
 check "wrong URL: native discarded" bash -c "'$BLOCK_SCRIPT' --engine-json '$work/engine.json' --private-key '$work/key.pem' --docker-digest '$DIGEST' --release-base '$BASE' --out '$work/block.json' && jq -e '.native == []' '$work/block.json'"
 
+echo "-- two RIDs (win-x64, win-arm64 on its own release tag)"
+write_entry "$work/key.pem" 19 "$zip_sha" "$good_url"
+run_block > /dev/null 2>&1
+cp "$work/block.json" "$work/block-x64-only.json"
+write_arm_entry "$work/key.pem" "$arm_sha" "$arm_url"
+rm -f "$work/block-two.json"
+check "two RIDs: script succeeds" run_block_two
+check "two RIDs: both adopted in engine.json order" jq -e '.native | length == 2 and .[0].rid == "win-x64" and .[1].rid == "win-arm64"' "$work/block-two.json"
+check "two RIDs: arm64 entry fields" jq -e '.native[1].bundleUrl == "'"$arm_url"'" and .native[1].sha256 == "'"$arm_sha"'" and (.native[1] | keys == ["bundleUrl","rid","sha256","signature"])' "$work/block-two.json"
+check "two RIDs: arm64 signature verifies independently" independent_verify "$work/pub.pem" 19 "$arm_url" "$arm_sha" "$(jq -r '.native[1].signature' "$work/block-two.json")"
+check "two RIDs: x64 entry identical to the x64-only block" bash -c "[ \"\$(jq -c '.native[0]' '$work/block-two.json')\" = \"\$(jq -c '.native[0]' '$work/block-x64-only.json')\" ]"
+
+write_arm_entry "$work/other.pem" "$arm_sha" "$arm_url"
+rm -f "$work/block-two.json"
+check "arm64 bad signature: script succeeds" run_block_two
+check "arm64 bad signature: block byte identical to x64-only pin" cmp -s "$work/block-two.json" "$work/block-x64-only.json"
+
+write_arm_entry "$work/key.pem" "$arm_sha" "$arm_url" "win-x64"
+rm -f "$work/block-two.json"
+check "arm64 entry naming another RID: dropped alone" bash -c "'$BLOCK_SCRIPT' --engine-json '$work/engine-two.json' --private-key '$work/key.pem' --docker-digest '$DIGEST' --release-base '$BASE' --out '$work/block-two.json' && cmp -s '$work/block-two.json' '$work/block-x64-only.json'"
+
+write_arm_entry "$work/key.pem" "$arm_sha" "$arm_url"
+mv "$work/srv/$ARM_TAG/$ARM_ZIP" "$work/arm-zip.bak"
+rm -f "$work/block-two.json"
+check "arm64 ZIP missing: dropped alone" bash -c "'$BLOCK_SCRIPT' --engine-json '$work/engine-two.json' --private-key '$work/key.pem' --docker-digest '$DIGEST' --release-base '$BASE' --out '$work/block-two.json' && cmp -s '$work/block-two.json' '$work/block-x64-only.json'"
+mv "$work/arm-zip.bak" "$work/srv/$ARM_TAG/$ARM_ZIP"
+
+rm "$work/srv/$ARM_TAG/$ARM_ENTRY"
+rm -f "$work/block-two.json"
+check "arm64 release not published: dropped alone" bash -c "'$BLOCK_SCRIPT' --engine-json '$work/engine-two.json' --private-key '$work/key.pem' --docker-digest '$DIGEST' --release-base '$BASE' --out '$work/block-two.json' && cmp -s '$work/block-two.json' '$work/block-x64-only.json'"
+
+write_arm_entry "$work/key.pem" "$arm_sha" "$arm_url"
+write_entry "$work/other.pem" 19 "$zip_sha" "$good_url"
+rm -f "$work/block-two.json"
+check "x64 broken: arm64 stays alone" bash -c "'$BLOCK_SCRIPT' --engine-json '$work/engine-two.json' --private-key '$work/key.pem' --docker-digest '$DIGEST' --release-base '$BASE' --out '$work/block-two.json' && jq -e '.native | length == 1 and .[0].rid == \"win-arm64\"' '$work/block-two.json'"
+
 echo "-- skip-native"
 write_entry "$work/key.pem" 19 "$zip_sha" "$good_url"
 rm -f "$work/block.json"
@@ -136,8 +185,14 @@ check "invalid digest fails" bash -c "! '$BLOCK_SCRIPT' --engine-json '$work/eng
 check "invalid digest: no output file" bash -c "[ ! -e '$work/block.json' ]"
 jq '.major = 18' "$work/engine.json" > "$work/engine-bad.json"
 check "image tag not matching major fails" bash -c "! '$BLOCK_SCRIPT' --engine-json '$work/engine-bad.json' --private-key '$work/key.pem' --docker-digest '$DIGEST' --release-base '$BASE' --out '$work/block.json'"
-jq '.releaseSuffix = "-latest"' "$work/engine.json" > "$work/engine-bad.json"
+jq '.native["win-x64"].releaseSuffix = "-latest"' "$work/engine.json" > "$work/engine-bad.json"
 check "invalid releaseSuffix fails" bash -c "! '$BLOCK_SCRIPT' --engine-json '$work/engine-bad.json' --private-key '$work/key.pem' --docker-digest '$DIGEST' --release-base '$BASE' --out '$work/block.json'"
+jq '.native["win-arm64"] = {"releaseSuffix": "-latest"}' "$work/engine.json" > "$work/engine-bad.json"
+check "invalid arm64 releaseSuffix fails" bash -c "! '$BLOCK_SCRIPT' --engine-json '$work/engine-bad.json' --private-key '$work/key.pem' --docker-digest '$DIGEST' --release-base '$BASE' --out '$work/block.json'"
+jq '.native["linux-x64"] = {"releaseSuffix": ""}' "$work/engine.json" > "$work/engine-bad.json"
+check "unknown RID fails" bash -c "! '$BLOCK_SCRIPT' --engine-json '$work/engine-bad.json' --private-key '$work/key.pem' --docker-digest '$DIGEST' --release-base '$BASE' --out '$work/block.json'"
+jq 'del(.native)' "$work/engine.json" > "$work/engine-bad.json"
+check "missing native object fails" bash -c "! '$BLOCK_SCRIPT' --engine-json '$work/engine-bad.json' --private-key '$work/key.pem' --docker-digest '$DIGEST' --release-base '$BASE' --out '$work/block.json'"
 check "garbage private key fails" bash -c "echo nope > '$work/garbage.pem'; ! '$BLOCK_SCRIPT' --engine-json '$work/engine.json' --private-key '$work/garbage.pem' --docker-digest '$DIGEST' --skip-native --out '$work/block.json'"
 check "still no output file" bash -c "[ ! -e '$work/block.json' ]"
 

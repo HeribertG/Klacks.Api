@@ -139,10 +139,11 @@ jobs:
           version="$(jq -r '.version' "$ENGINE_PIN")"
           pgvector="$(jq -r '.pgvector' "$ENGINE_PIN")"
           image="$(jq -r '.image' "$ENGINE_PIN")"
-          suffix="$(jq -r '.releaseSuffix // ""' "$ENGINE_PIN")"
+          suffix="$(jq -r '.native["win-x64"].releaseSuffix // ""' "$ENGINE_PIN")"
           [[ "$major" =~ ^[0-9]+$ && "$version" =~ ^[0-9]+\.[0-9]+$ && "$pgvector" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::$ENGINE_PIN is malformed."; exit 1; }
           [[ "$image" =~ ^[a-z0-9./-]+:[A-Za-z0-9._-]+$ ]] || { echo "::error::$ENGINE_PIN image '$image' is not repo:tag."; exit 1; }
-          [[ "$suffix" =~ ^(-r[0-9]+)?$ ]] || { echo "::error::$ENGINE_PIN releaseSuffix '$suffix' is not empty or -rN."; exit 1; }
+          jq -e '.native["win-x64"] | type == "object"' "$ENGINE_PIN" > /dev/null || { echo "::error::$ENGINE_PIN has no native.win-x64 entry."; exit 1; }
+          [[ "$suffix" =~ ^(-r[0-9]+)?$ ]] || { echo "::error::$ENGINE_PIN native.win-x64.releaseSuffix '$suffix' is not empty or -rN."; exit 1; }
           [ "$major" -gt "$GATE_FROM_MAJOR" ] || { echo "::error::The pinned engine $major is not newer than $GATE_FROM_MAJOR."; exit 1; }
 
           digest="$(docker buildx imagetools inspect "$image" --format '{{json .Manifest}}' | jq -r '.digest')"

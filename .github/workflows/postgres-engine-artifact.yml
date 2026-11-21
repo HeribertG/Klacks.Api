@@ -15,7 +15,7 @@
 # Everything comes from deploy/postgres/engine.json (the single pin; PostgresEnginePinGuardTests keeps Dockerfile, native-windows.yml
 # and the compose files consistent). Trigger: a change of the pin or of this workflow, or a manual run. Published assets are never
 # replaced: when the release already exists it is only verified (anonymous download, SHA-256, signature); a rebuild needs a new
-# releaseSuffix (-r2) in engine.json. A release created by this workflow stays a draft until both assets are uploaded, so there is
+# releaseSuffix (-r2) under native.win-x64 in engine.json. A release created by this workflow stays a draft until both assets are uploaded, so there is
 # never a public release with a partial asset set; a leftover draft of a dead run is deleted and rebuilt.
 name: PostgreSQL engine artifact
 
@@ -64,16 +64,18 @@ jobs:
           if ($pin.version -cnotmatch '^[0-9]+\.[0-9]+\z') { throw "engine.json version '$($pin.version)' is not <major>.<minor>." }
           if ($pin.version.Split('.')[0] -ne [string]$pin.major) { throw 'engine.json version does not belong to its major.' }
           if ($pin.pgvector -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+\z') { throw "engine.json pgvector '$($pin.pgvector)' is not X.Y.Z." }
-          if ($pin.windowsBinariesUrl -cnotmatch '^https://get\.enterprisedb\.com/postgresql/[A-Za-z0-9._-]+\.zip\z') { throw 'engine.json windowsBinariesUrl is not an EDB binaries ZIP.' }
-          if ($pin.windowsBinariesSha256 -cnotmatch '^[0-9a-f]{64}\z') { throw 'engine.json windowsBinariesSha256 is not 64 lowercase hex characters.' }
-          $suffix = if ($null -eq $pin.releaseSuffix) { '' } else { [string]$pin.releaseSuffix }
-          if ($suffix -cnotmatch '^(-r[0-9]+)?\z') { throw "engine.json releaseSuffix '$suffix' is not empty or -rN." }
+          $native = $pin.native.'win-x64'
+          if ($null -eq $native) { throw 'engine.json has no native.win-x64 entry.' }
+          if ($native.windowsBinariesUrl -cnotmatch '^https://get\.enterprisedb\.com/postgresql/[A-Za-z0-9._-]+\.zip\z') { throw 'engine.json native.win-x64.windowsBinariesUrl is not an EDB binaries ZIP.' }
+          if ($native.windowsBinariesSha256 -cnotmatch '^[0-9a-f]{64}\z') { throw 'engine.json native.win-x64.windowsBinariesSha256 is not 64 lowercase hex characters.' }
+          $suffix = if ($null -eq $native.releaseSuffix) { '' } else { [string]$native.releaseSuffix }
+          if ($suffix -cnotmatch '^(-r[0-9]+)?\z') { throw "engine.json native.win-x64.releaseSuffix '$suffix' is not empty or -rN." }
           $tag = "postgres-engine-$($pin.version)-pgvector$($pin.pgvector)$suffix"
           $zip = "klacks-postgres-$($pin.version)-win-x64.zip"
           $entry = "klacks-postgres-$($pin.version)-win-x64.json"
           $lines = @(
-            "major=$($pin.major)", "version=$($pin.version)", "pgvector=$($pin.pgvector)", "binaries_url=$($pin.windowsBinariesUrl)",
-            "binaries_sha256=$($pin.windowsBinariesSha256)", "tag=$tag", "zip=$zip", "entry=$entry",
+            "major=$($pin.major)", "version=$($pin.version)", "pgvector=$($pin.pgvector)", "binaries_url=$($native.windowsBinariesUrl)",
+            "binaries_sha256=$($native.windowsBinariesSha256)", "tag=$tag", "zip=$zip", "entry=$entry",
             "url=https://github.com/${env:GITHUB_REPOSITORY}/releases/download/$tag/$zip"
           )
           $lines | Add-Content -Path $env:GITHUB_OUTPUT
@@ -253,7 +255,7 @@ jobs:
             gh release delete $env:TAG --repo $env:GITHUB_REPOSITORY --yes
             if ($LASTEXITCODE -ne 0) { throw 'Could not delete the leftover draft.' }
           }
-          $notes = "PostgreSQL $($env:VERSION) (EDB binaries) with pgvector for Windows x64. Engine bundle for the Klacks updater; the signed manifest entry sits next to the ZIP. Never replace these assets: a rebuild is a new release with -rN in releaseSuffix of deploy/postgres/engine.json."
+          $notes = "PostgreSQL $($env:VERSION) (EDB binaries) with pgvector for Windows x64. Engine bundle for the Klacks updater; the signed manifest entry sits next to the ZIP. Never replace these assets: a rebuild is a new release with -rN in native.win-x64.releaseSuffix of deploy/postgres/engine.json."
           gh release create $env:TAG --repo $env:GITHUB_REPOSITORY --draft --prerelease --latest=false --target $env:GITHUB_SHA `
             --title "PostgreSQL engine $($env:VERSION) + pgvector" --notes $notes
           if ($LASTEXITCODE -ne 0) { throw 'gh release create failed.' }
