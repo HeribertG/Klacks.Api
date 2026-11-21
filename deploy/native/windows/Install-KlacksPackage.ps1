@@ -1,8 +1,8 @@
 # Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 #
-# Entry point of the office-PC package (klacks-office-pc-win-x64.zip): checks the bundle against package.json, removes
+# Entry point of the office-PC package (klacks-office-pc-win-x64.zip or -win-arm64.zip): checks the bundle against package.json, removes
 # the download mark of the extracted files and runs Install-Klacks.ps1 with the PostgreSQL, Visual C++ runtime and
-# update key that ship in the package. Everything it prints goes into a report next to the package (USB stick), or to
+# update key that ship in the package (vc_redist.x64.exe or vc_redist.arm64.exe, after the rid in package.json). Everything it prints goes into a report next to the package (USB stick), or to
 # the desktop when the package folder is read-only. Started by Installieren.cmd; asks for administrator rights
 # itself, asks for the country whose region profile Klacks applies (holidays, time zone, working-time rules; the PC's
 # own country is the default) unless -Region is given, and waits for Enter at the end. KLACKS_NO_PAUSE (CI) skips
@@ -149,12 +149,13 @@ try {
     }
     Write-Host "Region profile: $(if ($Region) { $Region.ToUpperInvariant() } else { 'none' })"
 
+    $vcRedistName = if ($package.rid -eq 'win-arm64') { 'vc_redist.arm64.exe' } else { 'vc_redist.x64.exe' }
     $arguments = @{
         BundleZip           = $bundle
         Version             = $package.version
         PostgresDirectory   = (Join-Path $packageRoot 'pgsql')
         UpdatePublicKeyPath = (Join-Path $packageRoot 'update-public-key.pem')
-        VcRedistPath        = (Join-Path $packageRoot 'vc_redist.x64.exe')
+        VcRedistPath        = (Join-Path $packageRoot $vcRedistName)
         HttpPort            = $HttpPort
     }
     if ($Region) { $arguments.Region = $Region }

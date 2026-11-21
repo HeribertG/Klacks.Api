@@ -10,6 +10,8 @@
 #                 ui/       Angular browser build (index.html)
 #                 updater/  Klacks.Updater publish output (only with -UpdaterProject)
 #                 stt/      Klacks.Stt publish output, the local speech recognition service (only with -SttProject)
+# Before the ZIP is written, Assert-PeMachine.ps1 checks that every PE file of app/, updater/ and stt/ matches the machine
+# of -Rid (win-x64 0x8664, win-arm64 0xAA64, or pure IL); a mismatch throws and no entry is written.
 #
 # Example:
 #   pwsh deploy/native/build-native-bundle.ps1 -Rid win-x64 -Version 1.0.40 `
@@ -80,6 +82,8 @@ try {
         dotnet publish $SttProject -c Release -r $Rid --self-contained true -o (Join-Path $staging 'stt') | Out-Host
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish of the speech recognition service failed ($LASTEXITCODE)." }
     }
+
+    & (Join-Path $PSScriptRoot 'Assert-PeMachine.ps1') -Root $staging -Rid $Rid
 
     Copy-Item -Recurse -Path $UiDist -Destination (Join-Path $staging 'ui')
 

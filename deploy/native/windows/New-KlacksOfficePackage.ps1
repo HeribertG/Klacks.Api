@@ -1,15 +1,22 @@
 # Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 #
-# Builds the office-PC package klacks-office-pc-win-x64.zip from a signed native bundle: bundle (unchanged bytes),
+# Builds the office-PC package klacks-office-pc-<rid>.zip from a signed native bundle: bundle (unchanged bytes),
 # PostgreSQL with pgvector (bin, lib, share only), the Visual C++ redistributable, the public update key, the install
-# scripts and the launcher. The file name is fixed so releases/latest/download/klacks-office-pc-win-x64.zip always
-# serves the newest package. Used by .github/workflows/native-windows.yml.
+# scripts and the launcher. The file name is fixed per runtime identifier so
+# releases/latest/download/klacks-office-pc-win-x64.zip always serves the newest package. Used by
+# .github/workflows/native-windows.yml.
 #
-# Parameters: BundleZip/BundleEntry = output of build-native-bundle.ps1; PostgresDirectory = EDB pgsql folder with
-# pgvector installed; VcRedistPath = vc_redist.x64.exe; PublicKeyPath = PEM of the update signing key.
-# -BuildInstaller additionally compiles Klacks-Setup-win-x64.exe from the same staging folder with Inno Setup
-# (installer\Klacks.iss); IsccPath defaults to ISCC.exe on PATH or the Inno Setup 6 install folders. SignToolCommand is
-# an optional Inno SignTool command line (e.g. 'signtool sign ... $f'); when given, the setup and uninstaller are signed.
+# Parameters: Rid = win-x64 (default) or win-arm64; BundleZip/BundleEntry = output of build-native-bundle.ps1 for that Rid;
+# PostgresDirectory = EDB pgsql folder with pgvector installed (win-x64 only); VcRedistPath = vc_redist.x64.exe or
+# vc_redist.arm64.exe (the ONNX runtime of the API needs it on both); PublicKeyPath = PEM of the update signing key.
+# win-arm64 never builds PostgreSQL: it takes the signed engine ZIP of the engine release named by
+# deploy/postgres/engine.json (native.win-arm64.releaseSuffix), downloaded unless EngineZip/EngineEntry name local copies,
+# and only uses it when the entry names win-arm64 and the expected URL, its signature verifies with PublicKeyPath
+# (sign-engine-entry.ps1 -Verify) and the ZIP has the SHA-256 of the entry. deploy/postgres is only read for win-arm64.
+# -BuildInstaller additionally compiles Klacks-Setup-<rid>.exe from the same staging folder with Inno Setup
+# (installer\Klacks.iss /DArch=x64|arm64); IsccPath defaults to ISCC.exe on PATH or the Inno Setup 6 install folders.
+# SignToolCommand is an optional Inno SignTool command line (e.g. 'signtool sign ... $f'); when given, the setup and
+# uninstaller are signed.
 
 #Requires -Version 7
 
@@ -18,26 +25,33 @@ param(
     [Parameter(Mandatory)][string]$BundleZip,
     [Parameter(Mandatory)][string]$BundleEntry,
     [Parameter(Mandatory)][ValidatePattern('^\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$')][string]$Version,
-    [Parameter(Mandatory)][string]$PostgresDirectory,
+    [string]$PostgresDirectory = '',
     [Parameter(Mandatory)][string]$VcRedistPath,
     [Parameter(Mandatory)][string]$PublicKeyPath,
     [Parameter(Mandatory)][string]$OutputDirectory,
     [switch]$BuildInstaller,
     [string]$IsccPath = '',
-    [string]$SignToolCommand = ''
+    [string]$SignToolCommand = '',
+    [ValidateSet('win-x64', 'win-arm64')][string]$Rid = 'win-x64',
+    [string]$EngineZip = '',
+    [string]$EngineEntry = ''
 )
 
 $ErrorActionPreference = 'Stop'
 
-$PackageFileName = 'klacks-office-pc-win-x64.zip'
-$Rid = 'win-x64'
+$Arch = $Rid.Substring('win-'.Length)
+$PackageFileName = "klacks-office-pc-$Rid.zip"
+$VcRedistFileName = "vc_redist.$Arch.exe"
 $PostgresParts = @('bin', 'lib', 'share')
 $Scripts = @('Install-Klacks.ps1', 'Install-KlacksPackage.ps1', 'Uninstall-Klacks.ps1', 'Get-KlacksDiagnostics.ps1')
 $PackageTemplates = @('Installieren.cmd', 'LIESMICH.txt', 'README.txt')
 $InstallerScript = Join-Path $PSScriptRoot 'installer\Klacks.iss'
 $RegionsIncludeName = 'Regions.generated.inc'
 $RegionProfilePrefix = 'app/deploy/onprem/regions/'
-$InstallerFileName = 'Klacks-Setup-win-x64.exe'
+$InstallerFileName = "Klacks-Setup-$Rid.exe"
+$EngineJsonPath = Join-Path $PSScriptRoot '..\..\postgres\engine.json'
+$EngineEntryScript = Join-Path $PSScriptRoot '..\..\postgres\sign-engine-entry.ps1'
+$EngineReleaseBase = 'https://github.com/HeribertG/Klacks.Api/releases/download'
 $InnoSetupFolders = @(
     (Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6'),
     (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6'),
@@ -105,8 +119,51 @@ function New-RegionsInclude([string]$BundlePath, [string]$TargetPath) {
     Write-Host "Wizard countries: $(@($regions).Count)"
 }
 
+# Signed PostgreSQL engine of deploy/postgres/engine.json for $Rid, extracted below $TargetDirectory. Same release and file
+# names as New-EngineManifestBlock.sh; nothing is extracted before RID, URL, signature and SHA-256 are verified.
+function Expand-SignedEngine([string]$TargetDirectory) {
+    $pin = Get-Content -Raw $EngineJsonPath | ConvertFrom-Json
+    $native = $pin.native.$Rid
+    if (-not $native) { throw "deploy/postgres/engine.json has no native entry for $Rid." }
+    $tag = "postgres-engine-$($pin.version)-pgvector$($pin.pgvector)$($native.releaseSuffix)"
+    $baseName = "klacks-postgres-$($pin.version)-$Rid"
+    $expectedUrl = "$EngineReleaseBase/$tag/$baseName.zip"
+    $download = Join-Path $TargetDirectory 'download'
+    New-Item -ItemType Directory -Force -Path $download | Out-Null
+    $entryPath = $EngineEntry
+    $zipPath = $EngineZip
+    if (-not $entryPath) {
+        $entryPath = Join-Path $download "$baseName.json"
+        Invoke-WebRequest -UseBasicParsing -Uri "$EngineReleaseBase/$tag/$baseName.json" -OutFile $entryPath
+    }
+    $entry = Get-Content -Raw $entryPath | ConvertFrom-Json
+    if ($entry.rid -ne $Rid) { throw "The engine entry is for '$($entry.rid)', the package is $Rid." }
+    if ($entry.bundleUrl -ne $expectedUrl) { throw "The engine entry names '$($entry.bundleUrl)', expected '$expectedUrl'." }
+    & $EngineEntryScript -EntryPath $entryPath -Major ([int]$pin.major) -PublicKeyPath $PublicKeyPath -Verify
+    if (-not $zipPath) {
+        $zipPath = Join-Path $download "$baseName.zip"
+        Invoke-WebRequest -UseBasicParsing -Uri $expectedUrl -OutFile $zipPath
+    }
+    $engineSha = (Get-FileHash -Algorithm SHA256 $zipPath).Hash.ToLowerInvariant()
+    if ($engineSha -ne $entry.sha256) { throw "The engine ZIP has SHA-256 $engineSha, the signed entry names $($entry.sha256)." }
+    $engineRoot = Join-Path $TargetDirectory 'pgsql'
+    Expand-Archive -Path $zipPath -DestinationPath $engineRoot
+    Write-Host "PostgreSQL engine: $tag/$baseName.zip (SHA-256 $engineSha, signature verified)"
+    return $engineRoot
+}
+
 foreach ($required in @($BundleZip, $BundleEntry, $VcRedistPath, $PublicKeyPath)) {
     if (-not (Test-Path $required)) { throw "Missing input '$required'." }
+}
+$engineWork = ''
+if ($Rid -eq 'win-x64') {
+    if (-not $PostgresDirectory) { throw 'win-x64 needs -PostgresDirectory (EDB pgsql folder with pgvector).' }
+}
+else {
+    if ($PostgresDirectory) { throw "$Rid takes the signed engine release, not -PostgresDirectory." }
+    if ([bool]$EngineZip -ne [bool]$EngineEntry) { throw 'Pass -EngineZip and -EngineEntry together.' }
+    $engineWork = Join-Path ([IO.Path]::GetTempPath()) "klacks-engine-$([guid]::NewGuid().ToString('N'))"
+    $PostgresDirectory = Expand-SignedEngine $engineWork
 }
 if (-not (Test-Path (Join-Path $PostgresDirectory 'lib\vector.dll'))) { throw "pgvector (lib\vector.dll) is missing below '$PostgresDirectory'." }
 
@@ -124,7 +181,7 @@ try {
     foreach ($part in $PostgresParts) {
         Copy-Item -Recurse (Join-Path $PostgresDirectory $part) (Join-Path $staging "pgsql\$part")
     }
-    Copy-Item $VcRedistPath (Join-Path $staging 'vc_redist.x64.exe')
+    Copy-Item $VcRedistPath (Join-Path $staging $VcRedistFileName)
     Copy-Item $PublicKeyPath (Join-Path $staging 'update-public-key.pem')
     foreach ($script in $Scripts) {
         Copy-Item (Join-Path $PSScriptRoot $script) (Join-Path $staging "scripts\$script")
@@ -149,7 +206,7 @@ try {
         $installedBytes = Get-InstalledProgramBytes $BundleZip (Join-Path $staging 'pgsql')
         Write-Host "Installed size: $([math]::Round($installedBytes / 1MB)) MB"
         $isccArguments = @('/Q', "/DVersion=$Version", "/DVersionCore=$versionCore", "/DSourceDir=$staging", "/DOutputDir=$absoluteOutput",
-            "/DInstalledSizeBytes=$installedBytes")
+            "/DInstalledSizeBytes=$installedBytes", "/DArch=$Arch")
         if ($SignToolCommand) { $isccArguments += @('/DSign', "/Ssigntool=$SignToolCommand") }
         $isccArguments += $InstallerScript
         & $iscc @isccArguments
@@ -161,6 +218,7 @@ try {
 }
 finally {
     if (Test-Path $staging) { Remove-Item -Recurse -Force $staging }
+    if ($engineWork -and (Test-Path $engineWork)) { Remove-Item -Recurse -Force $engineWork }
 }
 
 Write-Host "Package: $packagePath ($([math]::Round((Get-Item $packagePath).Length / 1MB)) MB)"

@@ -1,19 +1,22 @@
 ﻿; Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 ;
-; Inno Setup wrapper of the office-PC installation: one Klacks-Setup-win-x64.exe instead of a ZIP with Installieren.cmd.
+; Inno Setup wrapper of the office-PC installation: one Klacks-Setup-win-<arch>.exe instead of a ZIP with Installieren.cmd.
 ; It only asks for the country, runs scripts\Install-KlacksPackage.ps1 hidden and shows its progress; all installation
 ; logic stays in the PowerShell scripts (proven by the native Windows gate). Uninstall runs Uninstall-Klacks.ps1 hidden
 ; and keeps the database unless the user agrees (or /REMOVEDATA is given). If that script fails or cannot be started,
 ; the uninstallation is aborted before Inno removes anything, so Klacks stays listed under installed apps and can be
 ; uninstalled again; the script's report is kept as {app}\Deinstallationsbericht-*.txt.
 ;
-; Defines (iscc /D...): Version = x.y.z[-suffix], VersionCore = x.y.z (defaults to Version), SourceDir = package staging folder (as built by New-KlacksOfficePackage.ps1),
-; OutputDir = target folder, InstalledSizeBytes = size shown under installed apps (unpacked bundle plus PostgreSQL; data is not counted), Sign = sign setup and uninstaller (needs /Ssigntool=<command>), TestStub = dev build that needs no administrator rights (never shipped).
+; Defines (iscc /D...): Arch = x64 (default) or arm64, the architecture of the package in SourceDir; Version = x.y.z[-suffix], VersionCore = x.y.z (defaults to Version), SourceDir = package staging folder (as built by New-KlacksOfficePackage.ps1),
+; OutputDir = target folder, InstalledSizeBytes = size shown under installed apps (unpacked bundle plus PostgreSQL; data is not counted), Sign = sign setup and uninstaller (needs /Ssigntool=<command>), TestStub = dev build that needs no administrator rights and reads the program root from /PROGRAMROOT= (never shipped).
 ;
 ; Silent use:  Klacks-Setup-win-x64.exe /VERYSILENT /SUPPRESSMSGBOXES /REGION=CH /PORT=5180 /LOG=setup.log
 ;              unins000.exe /VERYSILENT [/REMOVEDATA]
 ; Exit code 0 = Klacks installed (it may still be starting), 1 = installation failed (report path in the log) or refused
-; because another version is already installed (updates go through the updater; reason in the /LOG).
+; because another version or another architecture is already installed (updates go through the updater; reason in the
+; /LOG). The arm64 setup only starts on Windows on ARM (ArchitecturesAllowed); the x64 setup also runs there (emulation).
+; Architecture lock: an installation whose current\app\Klacks.Api.exe has another PE machine than this setup is refused,
+; in both directions; Install-Klacks.ps1 checks the same again.
 ; Uninstaller exit code 0 = Klacks removed, non-zero = not removed (Klacks stays registered; see the uninstall report).
 
 #ifndef Version
@@ -21,6 +24,18 @@
 #endif
 #ifndef VersionCore
   #define VersionCore Version
+#endif
+#ifndef Arch
+  #define Arch "x64"
+#endif
+#if Arch == "x64"
+  #define ArchAllowed "x64compatible"
+  #define ArchMachine "$8664"
+#elif Arch == "arm64"
+  #define ArchAllowed "arm64"
+  #define ArchMachine "$AA64"
+#else
+  #error Pass /DArch=x64 or /DArch=arm64
 #endif
 #ifndef SourceDir
   #error Pass /DSourceDir=<package staging folder>
@@ -42,8 +57,10 @@
 #endif
 #ifdef TestStub
   #define PowerShellExe "{sysnative}\WindowsPowerShell\v1.0\powershell.exe"
+  #define ProgramRoot "{param:PROGRAMROOT|{commonpf64}\Klacks}"
 #else
   #define PowerShellExe "{sys}\WindowsPowerShell\v1.0\powershell.exe"
+  #define ProgramRoot "{commonpf64}\Klacks"
 #endif
 #define RegionsInclude SourcePath + "Regions.generated.inc"
 
@@ -63,8 +80,8 @@ DefaultDirName={autopf}\Klacks Setup
 #else
 PrivilegesRequired=admin
 DefaultDirName={commonpf64}\Klacks Setup
-ArchitecturesAllowed=x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed={#ArchAllowed}
+ArchitecturesInstallIn64BitMode={#ArchAllowed}
 #endif
 MinVersion=10.0
 #ifdef Sign
@@ -72,7 +89,7 @@ SignTool=signtool
 SignedUninstaller=yes
 #endif
 OutputDir={#OutputDir}
-OutputBaseFilename=Klacks-Setup-win-x64
+OutputBaseFilename=Klacks-Setup-win-{#Arch}
 Compression=lzma2/fast
 SolidCompression=no
 WizardStyle=modern
@@ -104,6 +121,8 @@ english.AskRemoveData=Also delete the database, settings and backups of Klacks?%
 english.NewerInstalled=Klacks %1 is already on this computer. This setup contains the older version %2 and will not replace it.
 english.OlderInstalled=Klacks %1 is already installed on this computer. This setup contains the newer version %2 and does not install it over the existing one.%n%nPlease update Klacks from within Klacks: Settings > Software Updates > Update now. Your data is backed up before the update.
 english.InvalidParameter=Invalid value for /%1.
+english.OtherArchitectureInstalled=Klacks is already installed on this computer for %1 processors. This setup contains Klacks for %2 and does not install it over the existing installation.%n%nKeep using the %1 setup, or back up your data, uninstall Klacks and then install this setup.
+english.UnreadableInstallation=The installed Klacks program %1 cannot be read, so its architecture is unknown. The setup does not change anything.
 english.UninstallFailed=Klacks could not be removed completely. It stays in the list of installed apps so that you can start the uninstallation again from there.%n%nPlease restart the computer and then start the uninstallation again.
 english.UninstallFailedReport=If it fails again, please send the uninstallation report to your contact person:
 english.UninstallFailedContact=If it fails again, please contact your contact person.
@@ -121,6 +140,8 @@ german.AskRemoveData=Sollen auch die Datenbank, die Einstellungen und die Sicher
 german.NewerInstalled=Klacks %1 liegt bereits auf diesem Computer. Dieses Setup enthält die ältere Version %2 und ersetzt sie nicht.
 german.OlderInstalled=Klacks %1 ist auf diesem Computer bereits installiert. Dieses Setup enthält die neuere Version %2 und installiert sie nicht darüber.%n%nBitte aktualisieren Sie Klacks in Klacks selbst: Einstellungen > Software-Updates > Jetzt aktualisieren. Vor dem Update werden Ihre Daten gesichert.
 german.InvalidParameter=Ungültiger Wert für /%1.
+german.OtherArchitectureInstalled=Klacks ist auf diesem Computer bereits für %1-Prozessoren installiert. Dieses Setup enthält Klacks für %2 und installiert es nicht über die bestehende Installation.%n%nVerwenden Sie weiterhin das %1-Setup, oder sichern Sie Ihre Daten, deinstallieren Sie Klacks und installieren Sie danach dieses Setup.
+german.UnreadableInstallation=Das installierte Klacks-Programm %1 kann nicht gelesen werden, daher ist seine Architektur unbekannt. Das Setup ändert nichts.
 german.UninstallFailed=Klacks konnte nicht vollständig entfernt werden. Klacks bleibt in der Liste der installierten Apps, damit Sie die Deinstallation dort erneut starten können.%n%nBitte starten Sie den Computer neu und starten Sie die Deinstallation danach noch einmal.
 german.UninstallFailedReport=Falls es wieder nicht klappt, senden Sie bitte den Deinstallationsbericht an Ihre Ansprechperson:
 german.UninstallFailedContact=Falls es wieder nicht klappt, wenden Sie sich bitte an Ihre Ansprechperson.
@@ -160,6 +181,10 @@ const
   MinPort = 1024;
   MaxPort = 65535;
   ExitCodeInstallFailed = 1;
+  PackageMachine = {#ArchMachine};
+  MachineX64 = $8664;
+  MachineArm64 = $AA64;
+  PeHeaderOffsetPosition = $3C;
 
 function SetTimer(Window: LongWord; EventId: LongWord; Elapse: LongWord; TimerProc: LongWord): LongWord;
   external 'SetTimer@user32.dll stdcall';
@@ -298,7 +323,7 @@ var
   Root: String;
 begin
   Result := '';
-  Root := ExpandConstant('{commonpf64}\Klacks\versions\');
+  Root := ExpandConstant('{#ProgramRoot}\versions\');
   if FindFirst(Root + '*', Find) then
   try
     repeat
@@ -311,11 +336,80 @@ begin
   end;
 end;
 
+function ByteAt(const Data: AnsiString; Offset: Integer): Integer;
+begin
+  Result := Ord(Data[Offset + 1]);
+end;
+
+{ PE machine of a file (e.g. $8664, $AA64), or -1 when it cannot be read or is no PE file. }
+function ReadPeMachine(const FileName: String): Integer;
+var
+  Data: AnsiString;
+  Size, PeOffset: Integer;
+begin
+  Result := -1;
+  if not LoadStringFromFile(FileName, Data) then
+  begin
+    Log('Cannot read ' + FileName);
+    Exit;
+  end;
+  Size := Length(Data);
+  if (Size < 64) or (ByteAt(Data, 0) <> $4D) or (ByteAt(Data, 1) <> $5A) then
+    Exit;
+  PeOffset := ByteAt(Data, PeHeaderOffsetPosition) + ByteAt(Data, PeHeaderOffsetPosition + 1) * $100 +
+    ByteAt(Data, PeHeaderOffsetPosition + 2) * $10000;
+  if (PeOffset <= 0) or (PeOffset + 6 > Size) then
+    Exit;
+  if (ByteAt(Data, PeOffset) <> $50) or (ByteAt(Data, PeOffset + 1) <> $45) or (ByteAt(Data, PeOffset + 2) <> 0) or
+    (ByteAt(Data, PeOffset + 3) <> 0) then
+    Exit;
+  Result := ByteAt(Data, PeOffset + 4) + ByteAt(Data, PeOffset + 5) * $100;
+end;
+
+function MachineName(Machine: Integer): String;
+begin
+  if Machine = MachineX64 then
+    Result := 'x64'
+  else if Machine = MachineArm64 then
+    Result := 'arm64'
+  else
+    Result := Format('0x%.4x', [Machine]);
+end;
+
+{ Architecture lock: an existing installation keeps its architecture (an emulated x64 installation on Windows on ARM
+  stays x64). An unreadable program file counts as a conflict (fail closed). }
+function ArchitectureMatches: Boolean;
+var
+  InstalledExe: String;
+  Installed: Integer;
+begin
+  Result := True;
+  InstalledExe := ExpandConstant('{#ProgramRoot}\current\app\Klacks.Api.exe');
+  if not FileExists(InstalledExe) then
+    Exit;
+  Installed := ReadPeMachine(InstalledExe);
+  if Installed < 0 then
+  begin
+    Log('Architecture lock: ' + InstalledExe + ' is unreadable.');
+    SuppressibleMsgBox(FmtMessage(CustomMessage('UnreadableInstallation'), [InstalledExe]), mbError, MB_OK, IDOK);
+    Result := False;
+  end
+  else if Installed <> PackageMachine then
+  begin
+    Log('Architecture lock: installed ' + MachineName(Installed) + ', this setup ' + MachineName(PackageMachine) + '.');
+    SuppressibleMsgBox(FmtMessage(CustomMessage('OtherArchitectureInstalled'), [MachineName(Installed), MachineName(PackageMachine)]),
+      mbError, MB_OK, IDOK);
+    Result := False;
+  end;
+end;
+
 function InitializeSetup: Boolean;
 var
   Installed: String;
 begin
-  Result := True;
+  Result := ArchitectureMatches;
+  if not Result then
+    Exit;
   Installed := HighestInstalledVersion;
   if Installed = '' then
     Exit;

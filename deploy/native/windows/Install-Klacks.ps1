@@ -5,6 +5,11 @@
 # service KlacksStt (registered Disabled; the updater enables and starts it when the user installs the Parakeet engine).
 # Re-running it is safe: existing secrets, the database cluster and installed versions are kept, and a half-configured
 # KlacksStt registration is completed (same steps and values as the updater's WindowsSttServiceRegistrar).
+# Architecture: the package architecture is the PE machine of app\Klacks.Api.exe in the bundle (x64 or arm64). Before
+# anything is changed, Assert-SupportedWindows refuses an arm64 package on a PC without an ARM64 processor (an x64 package
+# still runs on Windows on ARM through emulation), and an existing installation whose current\app\Klacks.Api.exe has
+# another machine stops the run: switching architectures is a new installation, never an install over the old one.
+# The Visual C++ runtime check and vc_redist follow the package architecture.
 # The Inno Setup installer only copies the payload and calls this script elevated; everything up to the service
 # registration can be run without administrator rights via -NoServices, which starts PostgreSQL and the API as plain
 # processes instead (development and CI smoke tests).
@@ -75,10 +80,16 @@ $AuthenticatedUsersSid = 'S-1-5-11'
 $AllowedHosts = 'localhost;127.0.0.1'
 # Same as the Docker image: the database never follows the PC's zone, the company zone lives in Klacks.
 $PostgresTimeZone = 'UTC'
-# vc_redist.x64 registers itself here; depending on the installer version under the 64-bit or the WOW6432Node view.
-$VcRuntimeKeys = @(
-    'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\X64',
-    'HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64')
+# vc_redist.<arch> registers itself below these keys (subkey x64 or arm64); depending on the installer version under the
+# 64-bit or the WOW6432Node view.
+$VcRuntimeKeyRoots = @(
+    'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes',
+    'HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes')
+# PE machine of a package (app\Klacks.Api.exe) -> architecture name; Win32_Processor.Architecture values of the PC.
+$PackageArchitectures = @{ 0x8664 = 'x64'; 0xAA64 = 'arm64' }
+$ProcessorArchitectureArm64 = 12
+$ApiExecutableEntry = 'app/Klacks.Api.exe'
+$PeHeaderBytes = 4096
 # 1638: a newer version is already installed; 3010: installed, a restart is pending.
 $VcRedistSuccessCodes = @(0, 1638, 3010)
 
@@ -312,12 +323,67 @@ function Select-FreePort([int]$firstPort, [int]$count) {
     throw "No free port for PostgreSQL between $firstPort and $($firstPort + $count - 1)."
 }
 
-function Test-VcRuntime {
-    foreach ($key in $VcRuntimeKeys) {
-        $entry = Get-ItemProperty -Path $key -ErrorAction SilentlyContinue
+function Test-VcRuntime([string]$architecture) {
+    foreach ($root in $VcRuntimeKeyRoots) {
+        $entry = Get-ItemProperty -Path (Join-Path $root $architecture) -ErrorAction SilentlyContinue
         if ($entry -and $entry.Installed -eq 1) { return $true }
     }
     return $false
+}
+
+# PE machine (e.g. 0x8664, 0xAA64) from the first bytes of a stream; throws when it is no PE file.
+function Read-PeMachine([System.IO.Stream]$stream, [string]$name) {
+    $header = New-Object byte[] $PeHeaderBytes
+    $read = 0
+    while ($read -lt $header.Length) {
+        $count = $stream.Read($header, $read, $header.Length - $read)
+        if ($count -le 0) { break }
+        $read += $count
+    }
+    if ($read -lt 64 -or $header[0] -ne 0x4D -or $header[1] -ne 0x5A) { throw "'$name' is not a Windows program file." }
+    $peOffset = [BitConverter]::ToInt32($header, 0x3C)
+    if ($peOffset -le 0 -or $peOffset + 6 -gt $read -or [BitConverter]::ToUInt32($header, $peOffset) -ne 0x4550) {
+        throw "'$name' is not a Windows program file."
+    }
+    return [int][BitConverter]::ToUInt16($header, $peOffset + 4)
+}
+
+function Get-ArchitectureName([int]$machine, [string]$name) {
+    if (-not $PackageArchitectures.ContainsKey($machine)) { throw ("'{0}' has the unsupported machine type 0x{1:X4}." -f $name, $machine) }
+    return $PackageArchitectures[$machine]
+}
+
+# Architecture of the package: machine of app/Klacks.Api.exe inside the bundle ZIP.
+function Get-BundleArchitecture([string]$bundlePath) {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $zip = [System.IO.Compression.ZipFile]::OpenRead($bundlePath)
+    try {
+        $entry = $zip.Entries | Where-Object { $_.FullName.Replace('\', '/') -eq $ApiExecutableEntry } | Select-Object -First 1
+        if (-not $entry) { throw "The bundle '$bundlePath' contains no $ApiExecutableEntry." }
+        $stream = $entry.Open()
+        try { $machine = Read-PeMachine $stream $ApiExecutableEntry } finally { $stream.Dispose() }
+    }
+    finally {
+        $zip.Dispose()
+    }
+    return Get-ArchitectureName $machine $ApiExecutableEntry
+}
+
+# Architecture of an installed Klacks.Api.exe; an unreadable file stops the run (fail closed).
+function Get-InstalledArchitecture([string]$apiExe) {
+    $stream = [System.IO.File]::OpenRead($apiExe)
+    try { $machine = Read-PeMachine $stream $apiExe } finally { $stream.Dispose() }
+    return Get-ArchitectureName $machine $apiExe
+}
+
+# Refuses a package the processor of this PC cannot run: arm64 needs an ARM64 processor; x64 runs on x64 and, through
+# emulation, on Windows on ARM. Win32_Processor reports the real processor, also from an emulated process.
+function Assert-SupportedWindows([string]$packageArchitecture) {
+    if ($packageArchitecture -ne 'arm64') { return }
+    $processor = [int](Get-CimInstance Win32_Processor | Select-Object -First 1).Architecture
+    if ($processor -ne $ProcessorArchitectureArm64) {
+        throw "This Klacks package is built for arm64 processors, but this PC reports processor architecture $processor. Use the x64 package (klacks-office-pc-win-x64.zip or Klacks-Setup-win-x64.exe) instead. Nothing was changed."
+    }
 }
 
 function Wait-Healthy($url, $timeoutSeconds, $process, $serviceName) {
@@ -351,6 +417,17 @@ $logDirectory = Join-Path $DataRoot 'logs'
 $backupDirectory = Join-Path $DataRoot 'backups'
 $secretsFile = Join-Path $configDirectory $SecretsFileName
 $configFile = Join-Path $configDirectory $ConfigFileName
+
+$packageArchitecture = Get-BundleArchitecture $BundleZip
+Write-Step "Package architecture: $packageArchitecture"
+Assert-SupportedWindows $packageArchitecture
+$installedApiExe = Join-Path $currentLink 'app\Klacks.Api.exe'
+if (Test-Path -LiteralPath $installedApiExe) {
+    $installedArchitecture = Get-InstalledArchitecture $installedApiExe
+    if ($installedArchitecture -ne $packageArchitecture) {
+        throw "The Klacks installation in $ProgramRoot runs on $installedArchitecture, this package is built for $packageArchitecture. An installation cannot change its architecture: keep using the $installedArchitecture package, or back up the data, uninstall Klacks and install the $packageArchitecture package. Nothing was changed."
+    }
+}
 
 # Switching "current" to another version is the updater's job (backup, migration, health gate, rollback); installing over
 # a different active version would leave "current" on the old one and silently keep running it.
@@ -412,17 +489,17 @@ if (-not $UpdatePublicKeyPath) {
 }
 
 # --- 1b. Microsoft Visual C++ runtime (PostgreSQL and pgvector are MSVC builds) ----------------------------------
-if (Test-VcRuntime) {
-    Write-Step 'Microsoft Visual C++ runtime is installed'
+if (Test-VcRuntime $packageArchitecture) {
+    Write-Step "Microsoft Visual C++ runtime ($packageArchitecture) is installed"
 }
 elseif ($VcRedistPath) {
-    Write-Step 'Installing the Microsoft Visual C++ runtime'
+    Write-Step "Installing the Microsoft Visual C++ runtime ($packageArchitecture)"
     $vcProcess = Start-Process -FilePath $VcRedistPath -ArgumentList '/install', '/quiet', '/norestart' -Wait -PassThru
     if ($VcRedistSuccessCodes -notcontains $vcProcess.ExitCode) { throw "vc_redist exited with $($vcProcess.ExitCode)." }
-    if (-not (Test-VcRuntime)) { throw 'The Microsoft Visual C++ runtime is still missing after vc_redist.' }
+    if (-not (Test-VcRuntime $packageArchitecture)) { throw "The Microsoft Visual C++ runtime ($packageArchitecture) is still missing after vc_redist." }
 }
 else {
-    Write-Warning 'The Microsoft Visual C++ runtime (x64) is not installed; PostgreSQL will not start without it.'
+    Write-Warning "The Microsoft Visual C++ runtime ($packageArchitecture) is not installed; PostgreSQL or the AI search may not start without it."
 }
 
 # --- 2. Secrets (generated once, kept on re-run) -------------------------------------------------------------------
