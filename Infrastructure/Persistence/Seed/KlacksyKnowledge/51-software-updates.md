@@ -126,8 +126,11 @@ run; it ends as failed with the note that the request expired, and the administr
 Only an administrator can reach any of this.
 
 **On the office PC (Windows package), this card is the only way to a newer version.** Running a newer
-Windows setup (Klacks-Setup-win-x64.exe) over an existing installation is refused with the message
-that Klacks is already installed and should be updated under Software Updates. Running the setup of
+Windows setup (Klacks-Setup-win-x64.exe, or Klacks-Setup-win-arm64.exe for Windows on ARM) over an existing installation is refused with the message
+that Klacks is already installed and should be updated under Software Updates. A setup of the other
+architecture (x64 over ARM64 or the reverse) is refused as well: each installation keeps its
+architecture and receives only the updates of its own package; a release that carries no package for
+it is not offered (`explain_office_pc_installation`). Running the setup of
 the version that is already installed is allowed and repairs the installation. Reason: only this card
 backs up the database, checks the new version and returns to the old one if it fails. New
 installations come from the Klacks Store, where the country (and industry) is chosen before the
