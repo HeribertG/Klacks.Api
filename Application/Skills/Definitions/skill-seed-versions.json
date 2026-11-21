@@ -777,8 +777,8 @@
       "hash": "0FCD4B3BC99BC32C9A16AE449A7E26186F0A95F1C784D66EA7E96F998A30AC22"
     },
     "explain_llm_pseudonymization": {
-      "version": 1,
-      "hash": "638525F933897133353CE580B40CD19DDE73BBF39CEE478D63F044657FBE759A"
+      "version": 2,
+      "hash": "0FDCB4A4C1FA78D0A8CA43B60D5F9035528CCCC456652A869EDEA1D7099ED95C"
     },
     "explain_macro_editor": {
       "version": 6,

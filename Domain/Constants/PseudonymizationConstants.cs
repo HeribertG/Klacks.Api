@@ -16,6 +16,14 @@ public static class PseudonymizationConstants
 
     public const int MaxPhraseWords = 4;
 
+    public const int MaxStreetWords = 5;
+
+    /// <summary>
+    /// Longest house number accepted before its street ("12 rue de Lausanne"). Postcodes have four or five digits, so a
+    /// "9472 Grabs" line never becomes a street key.
+    /// </summary>
+    public const int MaxLeadingHouseNumberDigits = 3;
+
     public const int MinimumUnknownPhoneDigits = 9;
 
     public const int MinimumKnownPhoneDigits = 7;
@@ -46,6 +54,30 @@ public static class PseudonymizationConstants
 
     public const string DoubleNamePartVariantPrefix = "D";
 
+    public const string Street2Variant = "A2";
+
+    public const string Street3Variant = "A3";
+
+    public const string AddressLine1Variant = "A4";
+
+    public const string AddressLine2Variant = "A5";
+
+    public const string StreetSuffixFull = "strasse";
+
+    public const string StreetSuffixShort = "str";
+
+    /// <summary>
+    /// Folded street words and the abbreviation they are compared as, so "Route de Lausanne 4" and "Rte de Lausanne 4"
+    /// meet on the same key. The suffix strasse/str is handled separately because it is glued to the street name.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string> StreetWordAbbreviations = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["avenue"] = "av",
+        ["chemin"] = "ch",
+        ["route"] = "rte",
+        ["boulevard"] = "bd"
+    };
+
     public const string BirthdateAgeFormat = "age {0}";
 
     /// <summary>
@@ -66,12 +98,13 @@ public static class PseudonymizationConstants
         "Pseudonymisation is active but the pseudonym dictionary could not be loaded. The request was not sent.";
 
     public const string LegendHeader =
-        "Privacy: names, phone numbers, e-mail addresses and personnel numbers of " +
+        "Privacy: names, street addresses, phone numbers, e-mail addresses and personnel numbers of " +
         "known people are replaced by pseudonym codes such as MA-0017. Copy these codes exactly as written, in your " +
         "answer and in tool arguments; never translate, inflect, change or invent a code. Prefixes: MA employee, " +
-        "KL customer, BE user, NAME a name several people share, TEL phone, MAIL e-mail. " +
+        "KL customer, BE user, NAME a name several people share, TEL phone, MAIL e-mail, " +
+        "ADR street and house number (postcode and town stay readable). " +
         "A suffix names the part of the same person: -V first name, -N last name, -L maiden name, " +
-        "-P personnel number; no suffix is the full name.";
+        "-P personnel number; no suffix is the full name. On ADR codes, -A2 to -A5 are further lines of the same address.";
 
     public const string LegendPeopleHeader = "People in this request:";
 

@@ -177,7 +177,7 @@ public sealed class PseudonymizingLLMProvider : ILLMProvider
             text => PseudonymTextPseudonymizer.Pseudonymize(text, map, usedBaseTokens, today),
             text => PseudonymTextPseudonymizer.Pseudonymize(text, map, usedBaseTokens, today, requireCapitalSingleWord: true));
 
-        var legend = PseudonymLegend.Build(usedBaseTokens, usedBaseTokens.Count > 0 || patternValues.Count > 0, dictionary);
+        var legend = PseudonymLegend.Build(usedBaseTokens, usedBaseTokens.Count > 0 || patternValues.Count > 0 || map.HasEmitted, dictionary);
         if (legend != null)
         {
             copy.VolatileSystemPrompt = string.IsNullOrEmpty(copy.VolatileSystemPrompt)
