@@ -38,8 +38,8 @@
     "sha256Source": "GitHub release asset digest"
   },
   "msvc": {
-    "vcvarsVer": "14.51",
-    "toolsetObserved": "14.51.36231",
+    "vcvarsVer": "14.52",
+    "toolsetObserved": "14.52.37025 (windows-11-arm runner image 2026-11-21; local proof build used 14.51.36231)",
     "redistObserved": "14.51.36231",
     "windowsSdkObserved": "10.0.26100.0"
   }
