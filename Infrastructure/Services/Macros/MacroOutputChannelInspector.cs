@@ -6,8 +6,7 @@
 /// branches its inputs reach; the token stream covers every statement. An OUTPUT counts as literal when its
 /// channel is a whole number immediately followed by the comma. The tokenizer runs inside a hard wall-clock
 /// budget, and a tokenizer error or exception fails the scan instead of passing it. A tokenizer exception is
-/// reported with a fixed, actionable message, never with the raw .NET text: the only known crash is a comment on
-/// the last line without a line break after it (the tokenizer then reads before the start of the text).
+/// reported with a fixed message, not with the raw .NET text.
 /// </summary>
 /// <param name="content">The macro script (or appended script block) to scan</param>
 
@@ -23,9 +22,6 @@ public class MacroOutputChannelInspector : IMacroOutputChannelInspector
     private const int InspectionTimeoutMs = 5000;
     private const string TimeoutMessage = "the script could not be tokenized within {0} ms.";
     private const string TokenizerErrorMessage = "line {0}: {1}";
-    private const string TrailingCommentMessage =
-        "there is a comment on the last line of the script without a line break after it, which the script parser "
-        + "cannot handle; remove that comment or move it to an earlier line";
     private const string TokenizerCrashMessage =
         "the script tokenizer stopped unexpectedly; check the script for unusual characters and simplify it";
 
@@ -42,10 +38,9 @@ public class MacroOutputChannelInspector : IMacroOutputChannelInspector
 
             return scan.Result;
         }
-        catch (AggregateException ex)
+        catch (AggregateException)
         {
-            return MacroOutputChannelScan.Failure(
-                ex.InnerException is ArgumentOutOfRangeException ? TrailingCommentMessage : TokenizerCrashMessage);
+            return MacroOutputChannelScan.Failure(TokenizerCrashMessage);
         }
     }
 

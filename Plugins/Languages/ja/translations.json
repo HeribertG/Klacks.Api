@@ -2658,7 +2658,7 @@
   "setting.macro.header.level": "レベル",
   "setting.macro.header.name": "名称",
   "setting.macro.headline": "マクロの編集",
-  "setting.macro.headline-modal": "新しいマクロの作成",
+  "setting.macro.headline-modal": "マクロの編集",
   "setting.macro.name-modal": "名称",
   "setting.macro.run-btn": "実行",
   "setting.macro.save-close-btn": "保存して閉じる",

@@ -119,13 +119,11 @@ namespace Klacks.Api.Infrastructure.Scripting
                 return;
             }
 
-            int i = sourcetext.IndexOf("\n", Index);
+            int i = sourcetext.IndexOf('\n', Index);
             if (i == -1)
-                i = sourcetext.IndexOf("\r", Index);
+                i = sourcetext.IndexOf('\r', Index);
             if (i == -1)
-                i = sourcetext.IndexOf("\r\n", Index);
-            if (i == 0)
-                i = sourcetext.Length + 1;
+                i = sourcetext.Length;
 
             Col += i - Index;
             Index = i;

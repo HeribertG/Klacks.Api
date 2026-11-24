@@ -26,11 +26,7 @@ MacroEngine
 ```csharp
 public interface IMacroEngine
 {
-    void PrepareMacro(Guid id, string script);
-    void ResetImports();
-    List<ResultMessage> Run(CancellationToken cancellationToken = default);
-    dynamic? Imports { get; set; }
-    void ImportItem(string key, object value);
+    List<ResultMessage> RunWithScript(CompiledScript script, CancellationToken cancellationToken = default);
     bool IsIde { get; set; }
     string ErrorCode { get; set; }
     int ErrorNumber { get; set; }
@@ -40,24 +36,23 @@ public interface IMacroEngine
 ## Verwendung
 
 ```csharp
-using var engine = new MacroEngine();
-
-dynamic imports = new ExpandoObject();
-imports.kundenName = "Max Mustermann";
-imports.betrag = 100.50;
-engine.Imports = imports;
-
-engine.PrepareMacro(Guid.NewGuid(), @"
-    Import kundenName
-    Import betrag
-    message 1, kundenName & "": "" & betrag & "" EUR""
+var compiled = CompiledScript.Compile(@"
+    Import hour
+    OUTPUT 1, hour * 2
 ");
 
-if (engine.ErrorNumber == 0)
+if (!compiled.HasError)
 {
-    var results = engine.Run();
+    MacroDataImportBinder.Bind(compiled, new MacroData { Hour = 4m });
+
+    using var engine = new MacroEngine();
+    var results = engine.RunWithScript(compiled);
 }
 ```
+
+Der Parser registriert jedes `Import` selbst (`CompiledScript.ExternalSymbols`); Werte setzt
+`CompiledScript.SetExternalValue` bzw. gesammelt `MacroDataImportBinder.Bind`. Produktiv läuft das über
+`MacroCompilationService` (Compile-Cache + Binder + `RunWithScript`).
 
 ## Sprachsyntax
 

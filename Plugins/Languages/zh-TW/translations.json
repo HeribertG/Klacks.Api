@@ -2654,7 +2654,7 @@
   "setting.macro.header.level": "級別",
   "setting.macro.header.name": "名稱",
   "setting.macro.headline": "宏管理",
-  "setting.macro.headline-modal": "錄入新宏",
+  "setting.macro.headline-modal": "編輯宏",
   "setting.macro.name-modal": "名稱",
   "setting.macro.run-btn": "執行",
   "setting.macro.save-close-btn": "儲存並關閉",

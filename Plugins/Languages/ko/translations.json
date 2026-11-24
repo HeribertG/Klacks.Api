@@ -2658,7 +2658,7 @@
   "setting.macro.header.level": "레벨",
   "setting.macro.header.name": "이름",
   "setting.macro.headline": "매크로 수정",
-  "setting.macro.headline-modal": "새 매크로 등록",
+  "setting.macro.headline-modal": "매크로 편집",
   "setting.macro.name-modal": "이름",
   "setting.macro.run-btn": "실행",
   "setting.macro.save-close-btn": "저장 후 닫기",

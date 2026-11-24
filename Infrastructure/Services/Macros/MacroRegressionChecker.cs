@@ -16,8 +16,7 @@
 /// surcharges, the original result plus that sum, or the distance of the copy's result from it), the check aborts
 /// as CopyTotalOutOfRange: the copy is refused, never let through, because the rule cannot be verified. Every abort
 /// carries a <see cref="MacroRegressionFailureKind"/>, so only a runtime failure of the copy gets the guidance for
-/// the appended script. A compiler crash (a comment on the last line without a line break after it) counts as a compile error
-/// of that script and is reported with a fixed message. Scripts are compiled and run through
+/// the appended script. Scripts are compiled and run through
 /// <see cref="MacroScriptRunner"/> (inputs bound through <see cref="MacroDataImportBinder"/>), and execution runs on the calling thread under a cooperative time budget
 /// that the interpreter checks after every instruction, so an exhausted budget leaves no thread running. The
 /// caller's cancellation token is linked with that budget: a cancellation by the caller (the user stops the turn)

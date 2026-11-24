@@ -2658,7 +2658,7 @@
   "setting.macro.header.level": "Nivel",
   "setting.macro.header.name": "Nombre",
   "setting.macro.headline": "Modificar macros",
-  "setting.macro.headline-modal": "Registrar nueva macro",
+  "setting.macro.headline-modal": "Editar macro",
   "setting.macro.name-modal": "Nombre",
   "setting.macro.run-btn": "Ejecutar",
   "setting.macro.save-close-btn": "Guardar y cerrar",

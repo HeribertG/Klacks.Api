@@ -2,9 +2,8 @@
 
 /// <summary>
 /// Compiles and runs a macro script outside the production engine, for the checks that must neither persist anything nor
-/// hold a thread. Compiling turns the compiler crash on a comment in the last line (without a line break after it) into
-/// an ordinary compile error with a fixed message. A run binds its inputs through <see cref="MacroDataImportBinder"/> on a
-/// fresh execution clone and executes on the calling thread under the given token, which the interpreter checks after
+/// hold a thread. Compiling returns the compiled script or the compiler's error description. A run binds its inputs
+/// through <see cref="MacroDataImportBinder"/> on a fresh execution clone and executes on the calling thread under the given token, which the interpreter checks after
 /// every instruction; any exception of a run is reported as its error. Shared by the regression check and the dry-run.
 /// </summary>
 /// <param name="content">The macro script to compile</param>
@@ -19,20 +18,10 @@ namespace Klacks.Api.Infrastructure.Services.Macros;
 
 public static class MacroScriptRunner
 {
-    public const string TrailingCommentCompileError =
-        "it ends with a comment on its last line without a line break after it, which the script parser cannot handle.";
-
     public static (CompiledScript? Script, string? Error) TryCompile(string content)
     {
-        try
-        {
-            var compiled = CompiledScript.Compile(content);
-            return compiled.HasError ? (null, compiled.Error?.Description) : (compiled, null);
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            return (null, TrailingCommentCompileError);
-        }
+        var compiled = CompiledScript.Compile(content);
+        return compiled.HasError ? (null, compiled.Error?.Description) : (compiled, null);
     }
 
     public static MacroScriptRun Run(CompiledScript compiled, MacroData data, CancellationToken cancellationToken)

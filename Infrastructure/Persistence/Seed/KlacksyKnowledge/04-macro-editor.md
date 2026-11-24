@@ -61,6 +61,18 @@ Diese Default-Macros können **schnell angepasst** werden — das Skript wird im
 Editor geöffnet, geändert, gespeichert. Beim nächsten Berechnungslauf nutzt das
 System die neue Logik.
 
+## Kommentare und Speichern
+
+- Ein **Kommentar** beginnt mit einem Hochkomma (`'`) und reicht bis zum Ende der
+  Zeile. Er darf allein in einer Zeile stehen, hinter einer Anweisung oder in
+  der letzten Zeile des Skripts.
+- Beim **Speichern** wird das Skript kompiliert und einmal zur Probe
+  ausgeführt. Lehnt Klacks es ab, erscheint eine Fehlermeldung; der getippte
+  Text bleibt im Editor stehen und kann korrigiert und erneut gespeichert
+  werden. **Abbrechen** verwirft die nicht gespeicherte Änderung.
+- **Prüfen** im Editor zeigt Syntaxfehler schon vor dem Speichern und setzt den
+  Cursor an die gemeldete Stelle.
+
 ## Standard-Macro für neue Dienste und Bestellungen
 
 Jeder **neu angelegte** Dienst bzw. jede neue Bestellung erhält automatisch das
