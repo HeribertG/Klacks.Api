@@ -1,61 +1,97 @@
 # Klacks
 
+[![Release](https://img.shields.io/github/v/release/HeribertG/Klacks.Api?filter=v*&label=release)](https://github.com/HeribertG/Klacks.Api/releases/latest)
+[![Tests](https://github.com/HeribertG/Klacks.Api/actions/workflows/tests.yml/badge.svg)](https://github.com/HeribertG/Klacks.Api/actions/workflows/tests.yml)
+[![CodeQL](https://github.com/HeribertG/Klacks.Api/actions/workflows/codeql.yml/badge.svg)](https://github.com/HeribertG/Klacks.Api/actions/workflows/codeql.yml)
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
-Klacks is open-source workforce scheduling for shift and field operations, for example home care, hospitals, security, cleaning services, logistics and hospitality. You run it on your own infrastructure.
+Klacks is open-source workforce scheduling for shift and field operations, for example home care, hospitals, security, cleaning services, logistics and hospitality. You install it on your own server or office PC. An assistant called Klacksy lets you operate it in plain language, with a language model you choose, including one that runs locally.
 
-This repository contains the backend (`Klacks.Api`, .NET). The web interface lives in a separate repository, [Klacks.Ui](https://github.com/HeribertG/Klacks.Ui).
+![Monthly schedule in Klacks with shifts per employee and the open shifts below](docs/readme/schedule.webp)
+
+**Try it without installing anything:** the Playground at <https://play.klacks-software.ch> is a public instance with sample data. Login `admin@test.com`, password `P@ssw0rt1`. It is an admin account; model and provider settings, voice keys, update settings and some assistant functions are disabled on this instance. The data is reset every night, so do not enter real personal data.
+
+This repository contains the backend (`Klacks.Api`, .NET) and is the entry point of the project: releases, issues and discussions live here. The web client lives in [Klacks.Ui](https://github.com/HeribertG/Klacks.Ui).
 
 - Website: <https://klacks-software.ch>
 - Documentation: <https://klacks-software.ch/docs/>
-- Playground (public instance with sample data, no installation, no registration): <https://play.klacks-software.ch>
-- Download: only from the [Klacks Store](https://klacks-software.ch/store/?culture=en) (country packages for your own server or Docker Compose, and the Windows installer for an office PC)
+- Download: the [Klacks Store](https://klacks-software.ch/store/?culture=en) (see [Install](#install))
 
 ## What Klacks does
 
-- **Automatic scheduling.** Builds a schedule for you using an evolutionary algorithm, taking into account working-time limits, qualifications and availability.
-- **Rule checks.** Flags breaches of rest periods, qualifications, public holidays and surcharges before a schedule goes out. By default Klacks only warns; a blocking mode can be enabled per rule type and applies in automatic planning, while manual planning continues to only warn. Surcharges are handled as time credits in hours, not as money.
-- **Route and tour optimization.** For mobile operations, using an ant colony algorithm (by car, bike, on foot or mixed).
+- **Automatic scheduling.** Builds a schedule for you using an evolutionary algorithm, taking into account working-time limits, qualifications and availability. The result is a proposal that you check and accept.
+- **Rule checks.** Flags breaches of rest periods, qualifications, public holidays and surcharges. By default Klacks only warns. A blocking mode can be enabled per rule type; it then also stops automatic planning, accepting a scenario and replacement suggestions. Manual entries stay advisory, except when a mandatory qualification is missing. Surcharges are handled as time credits in hours, not as money.
+- **Route and tour optimization.** For mobile operations, using an ant colony algorithm (by car, by bike or on foot).
 - **Holidays and rules per country.** Public holidays and rules can be set up per country, region and municipality, and several calendars can be mixed.
 - **AI assistant "Klacksy".** Controls the application in natural language, typed or spoken. You choose the language model yourself, from external providers (OpenAI, Anthropic, DeepSeek, Gemini) to a model you run locally.
 - **MCP endpoint.** Klacks speaks the Model Context Protocol, so external AI agents can work with it using the rights of the connected user.
 - **25 languages.** German, French, Italian and English are built in; 21 more ship as language packs that you install in the settings.
-- **Playground.** A public instance with sample data to try it without installing anything.
+
+![The assistant Klacksy answering a question about free capacity](docs/readme/klacksy.webp)
 
 ### What Klacks does not do
 
 Klacks is a planning tool. According to the project's own comparison page it has no biometric or fingerprint recognition, no live GPS tracking, no time clock or kiosk terminal, and no payroll accounting (it exports formatted data, for example for DATEV, but does not process payroll).
 
-### Data and AI
+## Your data and the AI assistant
 
-Klacks runs on your own servers, and staff and scheduling data are stored in your own PostgreSQL database. If you choose an external (cloud) AI provider for Klacksy, requests, and with them planning data, are sent to that provider. With a locally run model, everything stays in-house.
+Klacks runs on your own machine, and staff and scheduling data are stored in your own PostgreSQL database. The assistant is optional: as long as you have not entered an API key or the address of a local model, Klacksy sends no request to a language model.
 
-## Quick start (on-premise, Docker)
+- **Your choice of model.** A cloud provider, or an OpenAI-compatible server on your own machine or private network, for example Ollama or LM Studio (an address such as `localhost`, `192.168.x.x`, a `.local` name or a single-word host name). Requests to such a server stay in your network and are not pseudonymised.
+- **Pseudonymisation before a cloud model, on by default.** Before a request goes to a cloud provider, Klacks replaces the names of known employees, customers and users, their street addresses, phone numbers, e-mail addresses, personnel numbers and birthdates with placeholders such as `MA-0017`. The mapping stays in your installation, and Klacks puts the real values back into the answer.
+- **What this does not cover.** The data are pseudonymised, not anonymous. Postcode and town stay readable. Names Klacks does not know (relatives, doctors, people mentioned in a mail) and other free text go along as written. Speech output through a cloud speech service receives the answer with the real names; a local voice is available instead. MCP clients receive results without pseudonyms. Only an administrator can turn pseudonymisation off, through a server setting; there is no switch in the user interface yet.
+- **Other external services.** For addresses and routes Klacks calls public OpenStreetMap-based services with addresses, place names or coordinates, without names of persons. You can switch this off with `GEO_NO_OUTBOUND_TRAFFIC=true` or point Klacks to your own instances; see [`deploy/onprem/README.md`](deploy/onprem/README.md). Further optional services (weather, public holidays, translation, web search, speech) are described in the [documentation](https://klacks-software.ch/docs/).
 
-Requirements, as stated in the bundled installation guide:
+## Install
 
-- A host with at least 8 GB RAM and 4 vCPU. The API runs its retrieval models locally.
-- Docker Desktop (Windows/Mac) or Docker Engine with the Compose plugin (Linux).
-- Outbound access to `ghcr.io` and `github.com` (images and updates).
-- Ports 80 and 443 free (configurable).
+The supported way to install Klacks is the [Klacks Store](https://klacks-software.ch/store/?culture=en). The package for your country brings its public holidays, working-time limits, surcharges and industry presets.
 
-Download the installation package for your country from the [Klacks Store](https://klacks-software.ch/store/?culture=en), extract it into a folder that stays where it is (the automatic updates work with this folder), and run the installer from that folder. The package already contains its country's profile and the wrappers `install-<country>.ps1` / `install-<country>.sh`, which preset `-Region` / `REGION`.
+### Server with Docker (Linux)
 
-Windows (PowerShell):
+You need a host with at least 8 GB RAM and 4 vCPU (the API runs its retrieval models locally), ports 80 and 443 free, and outbound access to `ghcr.io` and `github.com` for images and updates.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -ServerName klacks.example.com -Region de
-```
-
-Linux:
+Download the ZIP for your country from the Klacks Store, then:
 
 ```bash
-SERVER_NAME=klacks.example.com REGION=de ./install.sh
+unzip 'klacks-onprem-*.zip' -d ~/klacks
+cd ~/klacks
+sudo bash ./install-*.sh
 ```
 
-The installer generates secrets and a self-signed certificate, pins the latest released version, starts the stack and waits until it is healthy. `-Region` / `REGION` is optional and pre-configures a country's locale, holidays, working-time limits, surcharges and industry presets on first boot; the available country codes are the files in [`deploy/onprem/regions`](deploy/onprem/regions). On Windows, install into a folder on a local drive (for example `C:\klacks`).
+Extract into a folder that stays where it is: the automatic updates work with this folder. If Docker is missing, the installer offers to install Docker Engine (Ubuntu, Debian, Fedora, CentOS, RHEL) and asks before it does. It then generates secrets and a self-signed certificate, pins the latest released version, starts the stack and waits until it is healthy. At the end it prints a setup code. Open `https://localhost` and use that code to create your own admin account.
 
-After the first start, log in from your browser and change the initial password immediately. It is listed in the bundled [`README.md`](deploy/onprem/README.md). Updates, rollback, backup and your own certificate are covered in the [documentation](https://klacks-software.ch/docs/).
+To set the server name: `sudo SERVER_NAME=klacks.example.com bash ./install-*.sh`. Updates are installed by the bundled update service. Rollback, backup and your own certificate are covered in the [documentation](https://klacks-software.ch/docs/).
+
+### Server with Docker Desktop (Windows)
+
+Extract the ZIP into a folder on a local drive (for example `C:\klacks`) and run the bundled script in PowerShell, here for the German package:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install-de.ps1 -ServerName klacks.example.com
+```
+
+Docker Desktop gives its virtual machine half of the PC's memory, so a PC with 16 GB is recommended. macOS is not supported as a host.
+
+### Single office PC with Windows (no Docker)
+
+For one PC there is a setup that runs without Docker. You get it in the Klacks Store on your country's page and in the [Microsoft Store](https://apps.microsoft.com/store/detail/XPFFW8HDX0KX26). This installation serves the PC it is installed on; if several people plan from different machines, use the server installation.
+
+### What the installer does
+
+The compose file, the installer scripts and the country profiles are in [`deploy/onprem`](deploy/onprem), so you can read what runs on your machine before you start it.
+
+## Project status
+
+Klacks is developed by Heribert Gasparoli in Liebefeld (Switzerland). It is young and looking for its first users outside the author's own environment; the community that is meant to carry the further development is still at the beginning. See [About](https://klacks-software.ch/en/land-gb/ueber-uns).
+
+What you should know before you rely on it:
+
+- Releases are frequent. Tests and CodeQL run on every push to `main` and on every pull request; the badges above show their state.
+- The country rule values (working-time limits, holidays, surcharges) are researched, not legally reviewed. Check them against your own contracts and law.
+- The 21 language packs are machine-translated and have not been reviewed by native speakers.
+- Automatic scheduling is a heuristic: it produces a workable proposal, not a proven optimum.
+
+Bug reports and questions are welcome as [issues](https://github.com/HeribertG/Klacks.Api/issues) and [discussions](https://github.com/HeribertG/Klacks.Api/discussions). Please report security problems as described in [SECURITY.md](SECURITY.md), not in a public issue.
 
 ## License
 
@@ -65,170 +101,14 @@ There are no license fees. Hosting and operation (servers, maintenance, and an e
 
 If you want to build Klacks into a closed product or keep your changes private, a commercial license is available; see the [license page](https://klacks-software.ch/en/land-gb/lizenz).
 
-## About the project
-
-Klacks is developed by Heribert Gasparoli in Liebefeld (Switzerland). The community that is meant to carry the further development is, according to the project's about page, still at the beginning. See [About](https://klacks-software.ch/en/land-gb/ueber-uns).
-
 ## For developers
 
-### Architecture
+The API is a .NET 10 application with PostgreSQL, structured along Clean Architecture with CQRS and its own lightweight mediator. Layers, patterns, project structure, build and tests are described in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md); how to contribute in [CONTRIBUTING.md](https://github.com/HeribertG/.github/blob/main/CONTRIBUTING.md).
 
-The API is a .NET 10 application structured along Clean Architecture and Domain-Driven Design principles, using CQRS with a custom lightweight mediator.
-
-#### CQRS with a custom Mediator
-
-**Important:** MediatR is not used. The project has its own implementation:
-
-| Component | Location |
-|-----------|----------|
-| `IMediator` | `Infrastructure/Mediator/IMediator.cs` |
-| `Mediator` | `Infrastructure/Mediator/Mediator.cs` |
-| `IRequest<T>` | `Infrastructure/Mediator/IRequest.cs` |
-| `IRequestHandler<TRequest, TResponse>` | `Infrastructure/Mediator/IRequestHandler.cs` |
-| `Unit` | `Infrastructure/Mediator/Unit.cs` |
-
-Usage example:
-
-```csharp
-using Klacks.Api.Infrastructure.Mediator;
-
-public class MyQuery : IRequest<MyResponse> { }
-
-public class MyQueryHandler : IRequestHandler<MyQuery, MyResponse>
-{
-    public Task<MyResponse> Handle(MyQuery request, CancellationToken cancellationToken)
-    {
-        // Implementation
-    }
-}
-```
-
-#### Handler, Repository, DataBaseContext
-
-Handlers must never access `DataBaseContext` directly. They use repositories, which access the database context internally.
-
-```
-Handler  -->  Repository  -->  DataBaseContext
-```
-
-Correct:
-
-```csharp
-public class GetDataQueryHandler : IRequestHandler<GetDataQuery, DataResource>
-{
-    private readonly IDataRepository _repository;
-    private readonly DataMapper _mapper;
-
-    public async Task<DataResource> Handle(GetDataQuery request, CancellationToken ct)
-    {
-        var data = await _repository.GetAsync(request.Id, ct);
-        return _mapper.ToResource(data);
-    }
-}
-```
-
-Incorrect:
-
-```csharp
-public class GetDataQueryHandler : IRequestHandler<GetDataQuery, DataResource>
-{
-    private readonly DataBaseContext _context; // direct DB access
-
-    public async Task<DataResource> Handle(GetDataQuery request, CancellationToken ct)
-    {
-        var data = await _context.Data.FindAsync(request.Id); // wrong
-        return new DataResource { ... }; // manual mapping, wrong
-    }
-}
-```
-
-Rules:
-
-1. Handlers inject `IRepository` interfaces, not `DataBaseContext`.
-2. Complex operations use facades (for example `IShiftCutFacade`).
-3. Mapping is done via Mapperly mappers, not manually in handlers.
-4. Domain services are coordinated by repositories or facades, not by handlers.
-
-#### Object mapping with Mapperly
-
-The API uses [Riok.Mapperly](https://github.com/riok/mapperly) for compile-time, source-generated object mapping. AutoMapper is not used.
-
-Examples of mappers in `Application/Mappers/`: `ClientMapper`, `FilterMapper`, `GroupMapper`, `ScheduleMapper`, `SettingsMapper`.
-
-```csharp
-using Riok.Mapperly.Abstractions;
-
-[Mapper]
-public partial class MyMapper
-{
-    // Auto-generated mapping
-    public partial TargetDto ToDto(SourceEntity entity);
-
-    // Custom mapping with ignored properties
-    [MapperIgnoreTarget(nameof(TargetEntity.NavigationProperty))]
-    public partial TargetEntity ToEntity(SourceDto dto);
-}
-```
-
-Key Mapperly attributes:
-
-- `[Mapper]` marks a class as a mapper
-- `[MapperIgnoreTarget]` ignores a property on the target
-- `[MapperIgnoreSource]` ignores a property on the source
-- `[MapProperty]` maps properties with different names
-
-### Project structure
-
-```
-Klacks.Api/
-├── Application/
-│   ├── Commands/          # CQRS commands
-│   ├── Queries/           # CQRS queries
-│   ├── Handlers/          # Command and query handlers
-│   ├── Mappers/           # Mapperly mappers
-│   └── Validation/        # FluentValidation validators
-├── Domain/
-│   ├── Models/            # Domain entities
-│   ├── Enums/             # Enumerations
-│   └── Services/          # Domain services
-├── Infrastructure/
-│   ├── Mediator/          # Custom mediator implementation
-│   ├── Repositories/      # Data access
-│   └── Services/          # Infrastructure services
-└── Presentation/
-    ├── Controllers/       # API controllers
-    └── DTOs/              # Data transfer objects
-```
-
-The folders listed above are the core of each layer; the repository contains further folders (for example `Presentation/Mcp`, `Plugins`, `deploy`).
-
-### Tech stack
-
-| Technology | Purpose |
-|------------|---------|
-| .NET 10 | Runtime |
-| Entity Framework Core | ORM |
-| PostgreSQL | Database |
-| Riok.Mapperly | Object mapping (compile-time) |
-| FluentValidation | Input validation |
-| NUnit, Shouldly, NSubstitute | Unit testing and mocking |
-
-### Build
-
-The API needs a PostgreSQL database to run. To build:
+The project references sibling repositories. Clone [Klacks.Docs](https://github.com/HeribertG/Klacks.Docs), [Klacks.ScheduleOptimizer](https://github.com/HeribertG/Klacks.ScheduleOptimizer), [Klacks.ScheduleRecovery](https://github.com/HeribertG/Klacks.ScheduleRecovery), [Klacks.Api.SourceGenerators](https://github.com/HeribertG/Klacks.Api.SourceGenerators), [Klacks.Plugin.Contracts](https://github.com/HeribertG/Klacks.Plugin.Contracts) and [Klacks.Plugin.Messaging](https://github.com/HeribertG/Klacks.Plugin.Messaging) next to this one, then build:
 
 ```bash
 dotnet build Klacks.Api.csproj
 ```
 
-### Tests
-
-The unit tests live in the separate repository [Klacks.UnitTest](https://github.com/HeribertG/Klacks.UnitTest):
-
-```bash
-# Run all tests
-dotnet test Klacks.UnitTest.csproj
-
-# Run a specific test category
-dotnet test --filter "FullyQualifiedName~Controllers"
-```
+The unit tests live in the separate repository [Klacks.UnitTest](https://github.com/HeribertG/Klacks.UnitTest).

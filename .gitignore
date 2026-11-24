@@ -375,6 +375,8 @@ appsettings.*.json
 !Infrastructure/Persistence/Seed/KlacksyKnowledge/*.md
 !.github/workflows/README.md
 !docs/RELEASE-CHECKLIST.md
+!docs/ARCHITECTURE.md
+!/SECURITY.md
 
 # Claude Code agent memory (auto-generated)
 .claude/
