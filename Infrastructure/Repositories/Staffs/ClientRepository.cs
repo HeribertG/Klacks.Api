@@ -7,7 +7,6 @@ using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Clients;
 using Klacks.Api.Domain.Services.Groups;
-using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +35,6 @@ public class ClientRepository : IClientRepository
     ];
 
     private readonly DataBaseContext context;
-    private readonly IMacroEngine macroEngine;
     private readonly IClientChangeTrackingService _changeTrackingService;
     private readonly IClientEntityManagementService _entityManagementService;
     private readonly EntityCollectionUpdateService _collectionUpdateService;
@@ -45,7 +43,6 @@ public class ClientRepository : IClientRepository
 
     public ClientRepository(
         DataBaseContext context,
-        IMacroEngine macroEngine,
         IClientChangeTrackingService changeTrackingService,
         IClientEntityManagementService entityManagementService,
         EntityCollectionUpdateService collectionUpdateService,
@@ -53,7 +50,6 @@ public class ClientRepository : IClientRepository
         ILogger<ClientRepository> logger)
     {
         this.context = context;
-        this.macroEngine = macroEngine;
         _logger = logger;
         _changeTrackingService = changeTrackingService;
         _entityManagementService = entityManagementService;
