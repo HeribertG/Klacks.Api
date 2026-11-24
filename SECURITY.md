@@ -20,11 +20,9 @@ Instead, please use the **GitHub Security Advisory** feature of this repository:
 2. Click on "Advisories".
 3. Click "Report a vulnerability".
 
-Alternatively, you can contact the maintainers directly if a security contact is provided in the repository's metadata.
-
 ### Our Response Process
 
-1. **Acknowledgment:** We will acknowledge receipt of your report within 48 hours.
+1. **Acknowledgment:** We will acknowledge receipt of your report within five working days.
 2. **Investigation:** We will investigate the issue and determine its impact.
 3. **Resolution:** If a vulnerability is confirmed, we will work on a fix.
 4. **Disclosure:** We will coordinate the release of a fix and, if necessary, a public advisory.
