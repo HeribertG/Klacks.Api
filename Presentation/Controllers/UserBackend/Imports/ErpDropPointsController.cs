@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Admin endpoints for the ERP drop point: its settings, the delivered order files (list, upload, retry, delete) and
+/// the manual import run. The two file uploads are blocked on the public Playground: every visitor is the shared demo
+/// admin and the drop folder is not part of the nightly reset, so a visitor's file would stay for everybody after them.
+/// </summary>
+
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.ErpDropPoints;
 using Klacks.Api.Application.Commands.Imports;
@@ -10,6 +16,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -55,6 +62,7 @@ public class ErpDropPointsController : BaseController
         return await _mediator.Send(new GetDefaultFilesQuery(), cancellationToken);
     }
 
+    [BlockedOnPlayground]
     [HttpPost("files")]
     [RequestSizeLimit(ErpOrderUploadConstants.MaxFileSizeBytes)]
     public async Task<IActionResult> UploadErpOrderFileToDefault(IFormFile? file, CancellationToken cancellationToken)
@@ -125,6 +133,7 @@ public class ErpDropPointsController : BaseController
         return result;
     }
 
+    [BlockedOnPlayground]
     [HttpPost("{id}/files")]
     [RequestSizeLimit(ErpOrderUploadConstants.MaxFileSizeBytes)]
     public async Task<IActionResult> UploadErpOrderFile(Guid id, IFormFile? file, CancellationToken cancellationToken)

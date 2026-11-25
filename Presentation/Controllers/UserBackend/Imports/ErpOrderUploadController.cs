@@ -4,13 +4,14 @@
 /// Upload endpoint for ERP order files. Deliberately does NOT inherit BaseController (which
 /// pins JWT-bearer auth) -- this endpoint is scheme-pinned to KlacksErpImport only, since the
 /// caller is an external ERP integration holding a drop-point-scoped import token, never a
-/// logged-in Klacks user.
+/// logged-in Klacks user. Blocked on the public Playground, because the drop folder is not part of the nightly reset.
 /// </summary>
 using Klacks.Api.Application.Commands.Imports;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,6 +31,7 @@ public class ErpOrderUploadController : ControllerBase
         _logger = logger;
     }
 
+    [BlockedOnPlayground]
     [HttpPost("upload")]
     [RequestSizeLimit(ErpOrderUploadConstants.MaxFileSizeBytes)]
     public async Task<IActionResult> Upload(IFormFile file, CancellationToken cancellationToken)

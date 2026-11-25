@@ -2,13 +2,15 @@
 
 /// <summary>
 /// Manages ERP import tokens (upload credentials for a single drop point). Admin-only: minting
-/// or revoking one of these tokens is a security-sensitive action, same as personal access tokens.
+/// or revoking one of these tokens is a security-sensitive action, same as personal access tokens. Minting is blocked
+/// on the public Playground, where the upload such a token would authorise is blocked as well.
 /// </summary>
 using Klacks.Api.Application.Commands.ErpImportTokens;
 using Klacks.Api.Application.DTOs.Imports;
 using Klacks.Api.Application.Queries.ErpImportTokens;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,6 +37,7 @@ public class ErpImportTokensController : BaseController
         return Ok(tokens);
     }
 
+    [BlockedOnPlayground]
     [HttpPost]
     public async Task<ActionResult<ErpImportTokenCreatedDto>> Create([FromBody] CreateErpImportTokenRequest request)
     {

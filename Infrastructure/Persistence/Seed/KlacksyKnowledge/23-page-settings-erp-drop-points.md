@@ -220,6 +220,11 @@ Ziel `erp-drop-points`; die Navigation schaltet den Expertenmodus selbst ein).
 - **Berechtigung**: wie die gesamte Einstellungen-Seite Admin-only; die
   Zugriffstoken-Sektion ist zusätzlich sicherheitssensibel (Klartext-Token nur bei
   Erzeugung sichtbar).
+- **Auf der öffentlichen Demo (Playground) lassen sich keine Dateien anliefern**: der manuelle
+  Upload, der Push per HTTPS und das Ausstellen eines Zugriffstokens sind dort gesperrt, weil
+  der Ablage-Ordner beim nächtlichen Zurücksetzen nicht geleert wird. Ansehen (Zeitplan,
+  Dateiliste, Handbuch) funktioniert weiter. Auf einer eigenen Installation gibt es diese
+  Grenze nicht.
 
 ### Typische Aufgaben
 

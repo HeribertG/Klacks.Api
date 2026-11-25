@@ -4,7 +4,9 @@
 /// Upload, download and delete of the company logo/icon, report designer images and the caller's own profile
 /// picture. File names are resolved against a server-side whitelist (ImageFileNamePolicy); logo, icon and
 /// report images require CanEditSettings, a profile picture may only be changed by its owner. Uploads are
-/// checked by content type, size and magic bytes before they are stored under the validated name.
+/// checked by content type, size and magic bytes before they are stored under the validated name. Upload and delete
+/// are blocked on the public Playground: every visitor is the shared demo admin and the images directory is not part
+/// of the nightly reset, so a visitor's image would stay for everybody after them. Download stays open there.
 /// </summary>
 /// <param name="fileUploadService">Stores, reads and deletes the images on disk</param>
 /// <param name="logger">Logs download failures without returning their details to the client</param>
@@ -18,6 +20,7 @@ using Klacks.Api.Application.Services.FileHandling;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Presentation.Extensions;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -35,6 +38,7 @@ public class LoadFileController : BaseController
         _logger = logger;
     }
 
+    [BlockedOnPlayground]
     [HttpDelete("{type}")]
     public ActionResult DeleteFile(string type)
     {
@@ -53,6 +57,7 @@ public class LoadFileController : BaseController
         return Ok();
     }
 
+    [BlockedOnPlayground]
     [ApiExplorerSettings(IgnoreApi = true)]
     [HttpPost("Upload")]
     [Consumes(MediaTypeNames.Multipart.FormData)]
