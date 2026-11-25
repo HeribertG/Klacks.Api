@@ -117,11 +117,13 @@ services:
       - LanguagePlugins__MarketplaceUrl=http://klacks-marketplace
       - RegionSetup__File=${REGION_SETUP_FILE:-}
       - Assistant__AnswerGroundingMode=${ANSWER_GROUNDING_MODE:-Off}
-      # This compose file runs the public demo/Playground instance, the only Klacks instance
-      # currently deployed - the seeded admin@test.com account staying active there is intentional.
-      # Never set this on a customer's on-prem stack (deploy/onprem/docker-compose.yml has no such
-      # variable, so it defaults to false there).
-      - Deployment__IsPlayground=${DEPLOYMENT_IS_PLAYGROUND:-true}
+      # This compose file runs the public demo/Playground instance. The Playground mode keeps the seeded
+      # admin@test.com account active and shows its login on the sign-in page, so it is off unless
+      # DEPLOYMENT_IS_PLAYGROUND=true is set in .env: a copy of this file used for another installation
+      # must not become a Playground by accident. The deploy workflows write the variable on the
+      # Playground host. Never set it on a customer's on-prem stack (deploy/onprem/docker-compose.yml
+      # has no such variable).
+      - Deployment__IsPlayground=${DEPLOYMENT_IS_PLAYGROUND:-false}
       # Daily LLM token budgets of the Playground (only effective while Deployment__IsPlayground is true;
       # the day rolls at 02:00 UTC). Numeric defaults on purpose: an empty value would fall back to the same defaults.
       - Playground__TokenLimit__GlobalDailyTokens=${PLAYGROUND_TOKEN_LIMIT_GLOBAL:-1500000}

@@ -496,6 +496,11 @@ jobs:
           # Sync docker-compose from repo to server root
           cp Klacks.Api/deploy/docker-compose-server.yml docker-compose.yml
 
+          # This host is the public Playground. The compose file defaults the Playground mode to off, so the
+          # switch lives in .env; a value already set there (true or false) is kept. A last line without a
+          # newline is closed first, so the new entry cannot merge into it.
+          grep -q '^DEPLOYMENT_IS_PLAYGROUND=' .env 2>/dev/null || { [ -s .env ] && [ -n "$(tail -c1 .env)" ] && echo >> .env; echo "DEPLOYMENT_IS_PLAYGROUND=true" >> .env; }
+
           # Check Docker Compose version
           if command -v docker-compose &> /dev/null; then
             COMPOSE_CMD="docker-compose"
