@@ -96,6 +96,14 @@ http {
         ~^/oauth/authorize                              "";
     }
 
+    # The playground is a demo installation and must stay out of search indexes. Set at http level
+    # through this map (an empty value sends no header) because a server-level add_header would
+    # drop every inherited security header of that block.
+    map $host $robots_tag {
+        default                                         "";
+        play.klacks-software.ch                         "noindex, nofollow";
+    }
+
     # Same for X-Frame-Options: the consent page answers DENY itself, and two conflicting values
     # would leave it to the browser which one counts.
     map $uri $frame_options {
@@ -210,6 +218,7 @@ http {
     add_header X-Frame-Options $frame_options always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     add_header Referrer-Policy $referrer_policy always;
+    add_header X-Robots-Tag $robots_tag always;
     add_header Permissions-Policy "camera=(), display-capture=(), geolocation=(self), microphone=(self), payment=(), usb=()" always;
     add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: ${MAP_TILE_CSP_SOURCES}; media-src 'self' blob: data:; connect-src 'self' wss: https: blob:; worker-src 'self' blob:; frame-ancestors 'self';" always;
 
@@ -415,6 +424,14 @@ http {
 
         ssl_certificate /etc/letsencrypt/live/klacks-software.ch/fullchain.pem;
         ssl_certificate_key /etc/letsencrypt/live/klacks-software.ch/privkey.pem;
+
+        # Without its own robots.txt the SPA fallback would answer /robots.txt with index.html.
+        # Allow-all on purpose: the noindex comes as X-Robots-Tag (see $robots_tag), and crawlers
+        # must be able to fetch the pages to see it.
+        location = /robots.txt {
+            default_type text/plain;
+            return 200 "User-agent: *\nDisallow:\n";
+        }
 
         location /api/backend/assistant/chat/stream {
             proxy_pass http://klacks-api/api/backend/assistant/chat/stream;
